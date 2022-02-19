@@ -6,8 +6,7 @@
   "repository": "git@github.com:onPoster/tabula.git",
   "author": "Auryn Macmillan <hi@auryn.xyz>",
   "license": "LGPL2.1",
-  "private": true,
-  "workspaces": [
+  "packages": [
     "subgraph"
   ]
 }
