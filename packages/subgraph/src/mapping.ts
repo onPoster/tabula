@@ -2,28 +2,36 @@ import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { Poster, NewPost } from "../generated/Poster/Poster";
 import { Post } from "../generated/schema";
 import { json, JSONValueKind } from "@graphprotocol/graph-ts";
-import { Content } from "../content";
+import { jsonToString, jsonToArrayString } from "./utils";
 
 export function handleNewPost(event: NewPost): void {
+  // decode json content
+  // TODO fail gracefully
+  let content = json.fromString(event.params.content).toObject();
+  // let content: Content = JSON.parse(event.params.content)
+
   // Load post entity
   let post = Post.load(event.transaction.from.toHex());
-
   // create new entity if it doesn't already exist
   if (!post) {
     post = new Post(event.transaction.from.toHex());
   }
-
-  // decode json content
-  let content = new Content(json.fromString(event.params.content));
-
   // Set user
   post.publisher = event.params.user;
 
-  // Set content
-  post.article = content.article;
+  // Fetch article article from IPFS, fail gracefully.
+  // let article = ipfs .cat(jsonToString(content.get("article")));
+  // if (!article) {
+  //   return;
+  // } else {
+  //   post.article = article.toString();
+  // }
+
+  // Set article
+  post.article = jsonToString(content.get("article"));
 
   // Set authors
-  post.authors = content.authors;
+  post.authors = jsonToArrayString(content.get("authors"));
 
   // Set postedOn timestamp
   post.postedOn = event.block.timestamp;
@@ -32,16 +40,16 @@ export function handleNewPost(event: NewPost): void {
   post.lastUpdated = event.block.timestamp;
 
   // Set tags
-  post.tags = content.tags;
+  post.tags = jsonToArrayString(content.get("tags"));
 
   // Set title
-  post.title = content.title;
+  post.title = jsonToString(content.get("title"));
 
   // Set description
-  post.description = content.description;
+  post.description = jsonToString(content.get("description"));
 
   // Set image
-  post.image = content.image;
+  post.image = jsonToString(content.get("image"));
 
   // Safe updates to store
   post.save();
