@@ -1,0 +1,23 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Poster
+    network: rinkeby
+    source:
+      address: "0x000000000000cd17345801aa8147b8D3950260FF"
+      abi: Poster
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - NewPost
+      abis:
+        - name: Poster
+          file: Poster/abis/Poster.json
+      eventHandlers:
+        - event: NewPost(indexed address,string,indexed string)
+          handler: handleNewPost
+      file: Poster/Poster.wasm
