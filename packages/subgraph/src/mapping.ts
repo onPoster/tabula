@@ -5,10 +5,12 @@ import { json, JSONValueKind } from "@graphprotocol/graph-ts";
 import { jsonToString, jsonToArrayString } from "./utils";
 
 export function handleNewPost(event: NewPost): void {
-  // decode json content
-  // TODO fail gracefully
-  let content = json.fromString(event.params.content).toObject();
-  // let content: Content = JSON.parse(event.params.content)
+  // decode json content, fail gracefully.
+  let contentData = json.try_fromString(event.params.content);
+  if (contentData.isError) {
+    return;
+  }
+  let content = contentData.value.toObject();
 
   // Load post entity
   let post = Post.load(event.transaction.from.toHex());
