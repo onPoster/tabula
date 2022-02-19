@@ -1,0 +1,13 @@
+{
+  "name": "Tabula",
+  "version": "0.0.0",
+  "description": "A blogging app built on Poster (EIP-3722)",
+  "main": "index.js",
+  "repository": "git@github.com:onPoster/tabula.git",
+  "author": "Auryn Macmillan <hi@auryn.xyz>",
+  "license": "LGPL2.1",
+  "private": true,
+  "workspaces": [
+    "subgraph"
+  ]
+}
