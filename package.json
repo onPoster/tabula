@@ -1,5 +1,5 @@
 {
-  "name": "Tabula",
+  "name": "tabula",
   "version": "0.0.0",
   "description": "A blogging app built on Poster (EIP-3722)",
   "main": "index.js",
