@@ -8,5 +8,9 @@
   "license": "LGPL2.1",
   "packages": [
     "subgraph"
-  ]
+  ],
+  "dependencies": {
+    "react-markdown": "^8.0.0",
+    "react-router-dom": "6"
+  }
 }
