@@ -19,7 +19,7 @@ export function jsonToString(val: JSONValue | null): string {
 export function jsonToArrayString(val: JSONValue | null): Array<string> {
   if (val != null && val.kind === JSONValueKind.ARRAY) {
     let valArray = val.toArray();
-    let result: Array<string>;
+    let result: Array<string> = new Array();
     for (let i = 0; i < valArray.length; i++) {
       if (valArray[i].kind === JSONValueKind.STRING)
         result.push(valArray[i].toString());

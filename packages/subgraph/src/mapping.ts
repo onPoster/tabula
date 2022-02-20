@@ -1,4 +1,4 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, crypto, ipfs } from "@graphprotocol/graph-ts";
 import { Poster, NewPost } from "../generated/Poster/Poster";
 import { Post } from "../generated/schema";
 import { json, JSONValueKind } from "@graphprotocol/graph-ts";
@@ -13,24 +13,28 @@ export function handleNewPost(event: NewPost): void {
   let content = contentData.value.toObject();
 
   // Load post entity
-  let post = Post.load(event.transaction.from.toHex());
+  let post = Post.load(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  );
   // create new entity if it doesn't already exist
   if (!post) {
-    post = new Post(event.transaction.from.toHex());
+    post = new Post(
+      event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+    );
   }
   // Set user
   post.publisher = event.params.user;
 
   // Fetch article article from IPFS, fail gracefully.
-  // let article = ipfs .cat(jsonToString(content.get("article")));
-  // if (!article) {
-  //   return;
-  // } else {
-  //   post.article = article.toString();
-  // }
+  let article = ipfs.cat(jsonToString(content.get("article")));
+  if (!article) {
+    return;
+  } else {
+    post.article = article.toString();
+  }
 
   // Set article
-  post.article = jsonToString(content.get("article"));
+  // post.article = jsonToString(content.get("article"));
 
   // Set authors
   post.authors = jsonToArrayString(content.get("authors"));
