@@ -10,6 +10,7 @@
     "subgraph"
   ],
   "dependencies": {
+    "gh-pages": "^3.2.3",
     "react-markdown": "^8.0.0",
     "react-router-dom": "6"
   },
