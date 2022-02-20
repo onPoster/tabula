@@ -66,15 +66,20 @@ function App() {
   }
 
   return (
-    <ul>
-      {publishers.map((publisher: Publisher) => (
-        <li key={publisher.address}>
-          <Link to={`/${publisher.address}`}>
-            <h2>{publisher.address}</h2>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <div className="index">
+      <div className="intro">
+        <h2>Publishers:</h2>
+      </div>
+      <ul>
+        {publishers.map((publisher: Publisher) => (
+          <li key={publisher.address}>
+            <Link to={`/${publisher.address}`}>
+              <h3>{publisher.address}</h3>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

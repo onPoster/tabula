@@ -5,29 +5,29 @@
   letter-spacing: -0.008em;
 }
 
-h1 {
+.post h1 {
   font-size: calc(14px + 3vmin);
   margin: 1em 0;
 }
 
-h2 {
+.post h2 {
   font-size: calc(14px + 2vmin);
   margin: 1em 0;
 }
 
-h3 {
+.post h3 {
   font-size: calc(14px + 1vmin);
   margin: 1em 0;
 }
 
-p {
+.post p {
   font-size: calc(14px + 0.5vmin);
   line-height: calc(1.1em + 0.8vmax);
   margin: 4vmin 0;
   max-width: 70vmax;
 }
 
-pre {
+.post pre {
   font-family: monospace;
   font-size: 0.75em;
   background: antiquewhite;
@@ -42,8 +42,8 @@ pre {
   overflow-x: scroll;
 }
 
-ol,
-ul {
+.post ol,
+.post ul {
   padding-left: 2em;
   list-style: auto;
 }

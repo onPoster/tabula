@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import "./publishers.css";
 
 interface Content {
   article: string;
@@ -51,17 +52,15 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Posts by</h1>
-        <h1 className="publisher">{address}</h1>
-      </header>
+    <div className="publishers">
+      <div className="intro">
+        <h2>Posts:</h2>
+      </div>
       <ul>
         {posts.map((post: Content) => (
           <li key={post.id}>
             <Link to={`/${address}/${post.id}`}>
-              <h2>{post.title}</h2>
-              <p>{post.description}</p>
+              <h3>{post.title}</h3>
             </Link>
           </li>
         ))}
