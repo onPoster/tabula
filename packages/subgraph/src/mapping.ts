@@ -28,7 +28,7 @@ export function handleNewPost(event: NewPost): void {
   // Fetch article article from IPFS, fail gracefully.
   let article = ipfs.cat(jsonToString(content.get("article")));
   if (!article) {
-    return;
+    post.article = jsonToString(content.get("article"));
   } else {
     post.article = article.toString();
   }
