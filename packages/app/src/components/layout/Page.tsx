@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { shortAddress } from "../../utils/string";
-import icon from "./tabula-icon-small.png";
+import icon from "./tabula-tablet-small.png";
 import "./Page.css";
 
 type Props = {

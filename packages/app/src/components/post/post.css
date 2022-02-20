@@ -8,16 +8,19 @@
 
 .post h1 {
   font-size: calc(14px + 3vmin);
+  line-height: calc(1.1em + 0.8vmax);
   margin: 1em 0;
 }
 
 .post h2 {
   font-size: calc(14px + 2vmin);
+  line-height: calc(1.1em + 0.8vmax);
   margin: 1em 0;
 }
 
 .post h3 {
   font-size: calc(14px + 1vmin);
+  line-height: calc(1.1em + 0.8vmax);
   margin: 1em 0;
 }
 
@@ -54,4 +57,12 @@
 .post ul {
   padding-left: 2em;
   list-style: auto;
+}
+
+.post ol {
+  list-style: decimal;
+}
+
+.post ul {
+  list-style: disc;
 }
