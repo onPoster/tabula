@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import Page from "../layout/Page";
 import "./publishers.css";
 
 interface Content {
@@ -52,23 +53,25 @@ function App() {
   }
 
   return (
-    <div className="publishers">
-      <div className="intro">
-        <h2>Posts:</h2>
+    <Page address={address}>
+      <div className="publishers">
+        <div className="intro">
+          <h2>Posts:</h2>
+        </div>
+        <ul>
+          {posts.map((post: Content) => (
+            <li key={post.id}>
+              <Link to={`/${address}/${post.id}`}>
+                <div className="publisher-box">
+                  <h3>{post.title}</h3>
+                  <p>{post.tags[0]}</p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul>
-        {posts.map((post: Content) => (
-          <li key={post.id}>
-            <Link to={`/${address}/${post.id}`}>
-              <div className="publisher-box">
-                <h3>{post.title}</h3>
-                <p>{post.tags[0]}</p>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    </Page>
   );
 }
 

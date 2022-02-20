@@ -5,13 +5,14 @@ import "./Page.css";
 
 type Props = {
   title?: string;
+  address?: string;
 };
 
-const Page: React.FC<Props> = ({ children }) => {
-  const { address: publisherAddress } = useParams();
+function shortAddress(address: string) {
+  return address.substr(0, 6) + "..." + address.substr(-4);
+}
 
-  console.log(publisherAddress);
-
+const Page: React.FC<Props> = ({ children, address }) => {
   return (
     <div>
       <header>
@@ -22,9 +23,11 @@ const Page: React.FC<Props> = ({ children }) => {
           </div>
         </Link>
 
-        {publisherAddress && (
+        {address && (
           <div className="publisher-link">
-            <Link to={`/${publisherAddress}`} />
+            <Link to={`/${address}`}>
+              <p>{shortAddress(address)}</p>
+            </Link>
           </div>
         )}
       </header>

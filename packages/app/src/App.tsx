@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Page from "./components/layout/Page";
 import "./App.css";
 import { Link } from "react-router-dom";
 
@@ -66,24 +67,26 @@ function App() {
   }
 
   return (
-    <div className="index">
-      <div className="intro">
-        <h2>Publishers:</h2>
-      </div>
-      <ul>
-        {publishers.map((publisher: Publisher) => (
-          <li key={publisher.address}>
-            <Link to={`/${publisher.address}`}>
-              <div className="publisher-box">
-                <h3>{publisher.address}</h3>
+    <Page>
+      <div className="index">
+        <div className="intro">
+          <h2>Publishers:</h2>
+        </div>
+        <ul>
+          {publishers.map((publisher: Publisher) => (
+            <li key={publisher.address}>
+              <Link to={`/${publisher.address}`}>
+                <div className="publisher-box">
+                  <h3>{publisher.address}</h3>
 
-                <p>{publisher.posts.length} posts</p>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+                  <p>{publisher.posts.length} posts</p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Page>
   );
 }
 

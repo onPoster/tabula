@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import Page from "../layout/Page";
 import { Routes, Route, useParams, Link } from "react-router-dom";
 import "./post.css";
 
@@ -54,14 +55,15 @@ function Post() {
   }
 
   return (
-    <div className="post">
-      <Link to={`/${address}`}>Back to posts by {address}</Link>
-      {post && (
-        <div>
-          <ReactMarkdown>{post.article}</ReactMarkdown>
-        </div>
-      )}
-    </div>
+    <Page address={address}>
+      <div className="post">
+        {post && (
+          <div>
+            <ReactMarkdown>{post.article}</ReactMarkdown>
+          </div>
+        )}
+      </div>
+    </Page>
   );
 }
 

@@ -10,7 +10,7 @@ header {
     0px 46px 80px rgba(210, 105, 30, 0.09) inset;
 
   margin: 1em;
-  padding: 0.25em;
+  padding: 0.25em 0.5em 0.25em 0.25em;
   border-radius: 50px;
   color: chocolate;
 }
@@ -20,7 +20,7 @@ header a {
   text-decoration: none;
 }
 
-a:hover {
+header a:hover {
   color: coral;
 }
 
@@ -37,4 +37,21 @@ a:visited {
   display: block;
   width: 8vw;
   max-width: 80px;
+}
+
+.publisher-link {
+  display: flex;
+  align-items: center;
+}
+.publisher-link p {
+  font-size: 0.75em;
+  margin: 0;
+  padding: 0.5em;
+  border-radius: 2.5em;
+  background: bisque;
+  border: 2px solid chocolate;
+}
+
+.publisher-link a:hover p {
+  border-color: coral;
 }
