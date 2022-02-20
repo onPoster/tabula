@@ -21,6 +21,11 @@
   color: coral;
 }
 
+.publisher-box:hover h3,
+.publisher-box:hover p {
+  border-color: coral;
+}
+
 .publisher-box {
   display: flex;
   justify-content: space-between;
@@ -29,10 +34,12 @@
   font-size: 0.75em;
   border-radius: 0.8em;
   padding: 0.5em;
-  box-shadow: 0px 1.3px 2.2px rgba(0, 0, 0, 0.025),
-    0px 3.1px 5.3px rgba(0, 0, 0, 0.036), 0px 5.8px 10px rgba(0, 0, 0, 0.045),
-    0px 10.3px 17.9px rgba(0, 0, 0, 0.054),
-    0px 19.2px 33.4px rgba(0, 0, 0, 0.065), 0px 46px 80px rgba(0, 0, 0, 0.09);
+  box-shadow: 0px 1.3px 2.2px rgba(210, 105, 30, 0.025),
+    0px 3.1px 5.3px rgba(210, 105, 30, 0.036),
+    0px 5.8px 10px rgba(210, 105, 30, 0.045),
+    0px 10.3px 17.9px rgba(210, 105, 30, 0.054),
+    0px 19.2px 33.4px rgba(210, 105, 30, 0.065),
+    0px 46px 80px rgba(210, 105, 30, 0.09);
   background: antiquewhite;
 }
 

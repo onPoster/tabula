@@ -60,7 +60,10 @@ function App() {
         {posts.map((post: Content) => (
           <li key={post.id}>
             <Link to={`/${address}/${post.id}`}>
-              <h3>{post.title}</h3>
+              <div className="publisher-box">
+                <h3>{post.title}</h3>
+                <p>{post.tags[0]}</p>
+              </div>
             </Link>
           </li>
         ))}
