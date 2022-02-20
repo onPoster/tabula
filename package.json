@@ -12,5 +12,9 @@
   "dependencies": {
     "react-markdown": "^8.0.0",
     "react-router-dom": "6"
+  },
+  "scripts": {
+    "predeploy": "cd packages/app && npm run build",
+    "deploy": "cd packages/app && gh-pages -d build"
   }
 }
