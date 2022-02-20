@@ -1,25 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import Post from './Post';
-import reportWebVitals from './reportWebVitals';
-import {
-  HashRouter,
-  Routes,
-  Route
-} from "react-router-dom";
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import Publishers from "./Publishers";
+import Post from "./Post";
+import reportWebVitals from "./reportWebVitals";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 ReactDOM.render(
   <React.StrictMode>
-<HashRouter>
-    <Routes>
-        <Route path=":address" element={<App />}/ >
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path=":address" element={<Publishers />} />
         <Route path=":address/:postId" element={<Post />} />
-    </Routes>
-  </HashRouter>
+      </Routes>
+    </HashRouter>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
