@@ -133,6 +133,17 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   -webkit-font-smoothing: antialiased;
+  background: rgb(255, 246, 222);
+  background: rgb(255, 246, 222);
+  background: radial-gradient(
+    circle,
+    rgba(255, 246, 222, 1) 0%,
+    rgba(255, 233, 206, 1) 46%,
+    rgba(255, 239, 207, 1) 100%
+  );
+  min-height: 100vh;
+  height: 100%;
+  color: chocolate;
 }
 
 main {

@@ -74,7 +74,11 @@ function App() {
         {publishers.map((publisher: Publisher) => (
           <li key={publisher.address}>
             <Link to={`/${publisher.address}`}>
-              <h3>{publisher.address}</h3>
+              <div className="publisher-box">
+                <h3>{publisher.address}</h3>
+
+                <p>{publisher.posts.length} posts</p>
+              </div>
             </Link>
           </li>
         ))}

@@ -1,8 +1,41 @@
 .index {
   margin: 0 auto;
   width: 80%;
+  color: chocolate;
 }
-.index h3 {
+
+.index h2 {
+  margin-bottom: 1em;
+}
+.index h3,
+.index p {
   font-size: 0.75em;
-  margin: 0.75em 0;
+  margin: 0;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  background: bisque;
+  border: 2px solid chocolate;
+}
+
+.publisher-box:hover {
+  color: coral;
+}
+
+.publisher-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 0.75em;
+  border-radius: 0.8em;
+  padding: 0.5em;
+  box-shadow: 0px 1.3px 2.2px rgba(0, 0, 0, 0.025),
+    0px 3.1px 5.3px rgba(0, 0, 0, 0.036), 0px 5.8px 10px rgba(0, 0, 0, 0.045),
+    0px 10.3px 17.9px rgba(0, 0, 0, 0.054),
+    0px 19.2px 33.4px rgba(0, 0, 0, 0.065), 0px 46px 80px rgba(0, 0, 0, 0.09);
+  background: antiquewhite;
+}
+
+.index a {
+  text-decoration: none;
 }
