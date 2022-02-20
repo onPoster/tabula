@@ -1,7 +1,15 @@
 .index {
-  margin: 0 auto;
-  width: 80%;
+  margin: 1em;
+
   color: chocolate;
+  border-radius: 1em;
+  padding: 1em;
+  box-shadow: 0px 1.3px 2.2px rgba(210, 105, 30, 0.025) inset,
+    0px 3.1px 5.3px rgba(210, 105, 30, 0.036) inset,
+    0px 5.8px 10px rgba(210, 105, 30, 0.045) inset,
+    0px 10.3px 17.9px rgba(210, 105, 30, 0.054) inset,
+    0px 19.2px 33.4px rgba(210, 105, 30, 0.065) inset,
+    0px 46px 80px rgba(210, 105, 30, 0.09) inset;
 }
 
 .index h2 {
@@ -14,7 +22,12 @@
   padding: 0.5em;
   border-radius: 0.5em;
   background: bisque;
+  line-height: calc(1.1em + 0.8vmax);
   border: 2px solid chocolate;
+}
+
+.index p {
+  border: none;
 }
 
 .publisher-box:hover {
@@ -30,7 +43,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
+  column-gap: 1em;
   font-size: 0.75em;
   border-radius: 0.8em;
   padding: 0.5em;
