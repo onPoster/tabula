@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Routes, Route, useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface Content {
   article: string;
@@ -66,21 +66,15 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Tabula</h1>
-        <h1 className="publisher">Publisher List</h1>
-      </header>
-      <ul>
-        {publishers.map((publisher: Publisher) => (
-          <li key={publisher.address}>
-            <Link to={`/${publisher.address}`}>
-              <h2>{publisher.address}</h2>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul>
+      {publishers.map((publisher: Publisher) => (
+        <li key={publisher.address}>
+          <Link to={`/${publisher.address}`}>
+            <h2>{publisher.address}</h2>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 

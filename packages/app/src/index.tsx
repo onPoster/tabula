@@ -2,19 +2,22 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import Publishers from "./Publishers";
-import Post from "./Post";
+import Publishers from "./components/publishers/Publishers";
+import Page from "./components/layout/Page";
+import Post from "./components/post/Post";
 import reportWebVitals from "./reportWebVitals";
 import { HashRouter, Routes, Route } from "react-router-dom";
 
 ReactDOM.render(
   <React.StrictMode>
     <HashRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path=":address" element={<Publishers />} />
-        <Route path=":address/:postId" element={<Post />} />
-      </Routes>
+      <Page>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path=":address" element={<Publishers />} />
+          <Route path=":address/:postId" element={<Post />} />
+        </Routes>
+      </Page>
     </HashRouter>
   </React.StrictMode>,
   document.getElementById("root")

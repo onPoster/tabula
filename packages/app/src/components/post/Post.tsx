@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import './App.css';
-import ReactMarkdown from 'react-markdown'
+import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { Routes, Route, useParams, Link } from "react-router-dom";
+import "./post.css";
 
 interface Content {
   article: string;
@@ -19,17 +19,18 @@ function Post() {
   const [address, setAddress] = useState(useParams().address);
 
   useEffect(() => {
-      console.log('POST PAGE')
+    console.log("POST PAGE");
     if (postId) {
       getPost(postId);
     }
-    
-  },[])
+  }, []);
 
-  async function getPost (postId: String) {
-    const result = await fetch(`https://api.thegraph.com/subgraphs/name/onposter/tabula`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+  async function getPost(postId: String) {
+    const result = await fetch(
+      `https://api.thegraph.com/subgraphs/name/onposter/tabula`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: `
         query {
@@ -43,25 +44,23 @@ function Post() {
             postedOn
             lastUpdated
           }
-        }`
+        }`,
         }),
-      })
-  
-      
-      const res = await result.json();
-      setPost(res.data.posts[0]);
-  }
+      }
+    );
 
+    const res = await result.json();
+    setPost(res.data.posts[0]);
+  }
 
   return (
     <div className="post">
-        <Link to={`/${address}`}>Back to posts by {address}</Link>
-      {post &&
-      <div>
+      <Link to={`/${address}`}>Back to posts by {address}</Link>
+      {post && (
+        <div>
           <ReactMarkdown>{post.article}</ReactMarkdown>
         </div>
-      }
-      
+      )}
     </div>
   );
 }

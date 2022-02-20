@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
 import { Routes, Route, useParams, Link } from "react-router-dom";
 
 interface Content {
