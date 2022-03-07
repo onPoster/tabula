@@ -14,14 +14,15 @@ Any properties can be added to publications, this is just a representation of th
 
 #### Create Publication
 
-| Property    |     Type     | Value                                       |
-| ----------- | :----------: | ------------------------------------------- |
-| action      |    String    | "create"                                    |
-| article     |    String    | IPFS hash (pointing to a Markdown document) |
-| title       |    String    | Content title                               |
-| authors     | String Array | Author names                                |
-| tags        | String Array | Relevant content tags                       |
-| description |    String    | Content description                         |
+| Property     |     Type     | Value                                       |
+| ------------ | :----------: | ------------------------------------------- |
+| action       |    String    | "create"                                    |
+| article      |    String    | IPFS hash (pointing to a Markdown document) |
+| title        |    String    | Content title                               |
+| authors      | String Array | Author addresses or names                   |
+| tags         | String Array | Relevant content tags                       |
+| description  |    String    | Content description                         |
+| previewImage |    String    | IPFS hash (pointing to a image)             |
 
 #### Update Publication
 
@@ -32,7 +33,7 @@ When updating, both `action` (with "update" value) and `id` are required. The ot
 | id | String | ID of publication to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
 | article | String | IPFS hash (pointing to a Markdown document) |
 | title | String | Content title |
-| authors | String Array | Author names |
+| authors | String Array | Author addresses or names |
 | tags | String Array | Relevant content tags |
 | description | String | Content description |
 
