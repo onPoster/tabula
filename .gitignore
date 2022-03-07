@@ -1,1 +1,3 @@
 node_modules
+packages/subgraph/build
+packages/subgraph/generated
