@@ -10,27 +10,28 @@ A blogging app built on Poster (EIP-3722)
 
 ### Content
 
-Any properties can be added to publications, this is just a representation of the properties that are utilized in the current version of the Tablua user interface.
+Any properties can be added to articles, this is just a representation of the properties that are utilized in the current version of the Tablua user interface.
 
-#### Create Publication
+#### Create Article
 
-| Property    |     Type     | Value                                                                      |
-| ----------- | :----------: | -------------------------------------------------------------------------- |
-| action      |    String    | "create"                                                                   |
-| article     |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
-| title       |    String    | Content title                                                              |
-| authors     | String Array | Author addresses or names                                                  |
-| tags        | String Array | Relevant content tags                                                      |
-| description |    String    | Content description                                                        |
-| image       |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string           |
+| Property      |     Type     | Value                                                                                                                                                                                                                                                      |
+| ------------- | :----------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| action        |    String    | "article/create"                                                                                                                                                                                                                                           |
+| publicationId |    String    | the ID of the publication this article should be created in (the message sender needs publication permissions to the publication ). If omitted the article is not part of a publication and the message sender has `update` and `delete` permissions to it |
+| article       |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string                                                                                                                                                                                 |
+| title         |    String    | Content title                                                                                                                                                                                                                                              |
+| authors       | String Array | Author addresses or names                                                                                                                                                                                                                                  |
+| tags          | String Array | Relevant content tags                                                                                                                                                                                                                                      |
+| description   |    String    | Content description                                                                                                                                                                                                                                        |
+| image         |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string                                                                                                                                                                                           |
 
-#### Update Publication
+#### Update Article
 
-When updating, both `action` (with "update" value) and `id` are required. The other properties are optional. The present properties will overwrite old properties (if a property does not exist, it will be created). The message sender must be the same as the message sender used for creating the referenced publication.
+When updating, both `action` (with "update" value) and `id` are required. The other properties are optional. The present properties will overwrite old properties (if a property does not exist, it will be created). The message sender must be the same as the message sender used for creating the referenced article.
 | Property | Type | Value |
 | ------------------ |:------:| -------- |
-| action | String | "update" |
-| id | String | ID of publication to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
+| action | String | "article/update" |
+| id | String | ID of article to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
 | article | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
 | title | String | Content title |
 | authors | String Array | Author addresses or names |
@@ -38,10 +39,63 @@ When updating, both `action` (with "update" value) and `id` are required. The ot
 | description | String | Content description |
 | image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
 
-#### Delete Publication
+#### Delete Article
 
-When deleting, both `action` (with "delete" value) and `id` are required. The message sender must be the same as the message sender used for creating the referenced publication.
+When deleting, both `action` (with "delete" value) and `id` are required. The message sender must be the same as the message sender used for creating the referenced article.
 | Property | Type | Value |
 | ------------------ |:------:| -------- |
-| action | String | "delete" |
+| action | String | "article/delete" |
+| id | String | ID of article to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
+
+#### Create Publication
+
+On creation, the message sender gets all permissions. This can be edited via setting permissions.
+
+| Property    |     Type     | Value                                                            |
+| ----------- | :----------: | ---------------------------------------------------------------- |
+| action      |    String    | "publication/create"                                             |
+| title       |    String    | Publication title                                                |
+| tags        | String Array | Relevant publication tags                                        |
+| description |    String    | Publication description                                          |
+| image       |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+
+#### Update Publication
+
+When updating, both `action` (with "update" value) and `id` are required. The other properties are optional. The present properties will overwrite old properties (if a property does not exist, it will be created). The message sender must be have `update` permissions to the referenced publication.
+| Property | Type | Value |
+| ------------------ |:------:| -------- |
+| action | String | "publication/update" |
 | id | String | ID of publication to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
+| title | String | Content title |
+| tags | String Array | Relevant content tags |
+| description | String | Content description |
+| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+
+#### Delete Publication
+
+When deleting, both `action` (with "delete" value) and `id` are required. The message sender must have `delete` permissions to the referenced publication.
+| Property | Type | Value |
+| ------------------ |:------:| -------- |
+| action | String | "publication/delete" |
+| id | String | ID of publication to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
+
+#### Set Publication Permissions
+
+When setting permissions `action` (with "permissions" value), `id`, `account` and the `permissions` object are required. The message sender must have `permissions` permissions to the referenced publication.
+| Property | Type | Value |
+| ------------------ |:------:| -------- |
+| action | String | "publication/permissions" |
+| id | String | ID of publication to set permissions on. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
+| account | String | The address to set permissions for |
+| permissions | String (JSON object) | A JSON object with permissions to set (details below) |
+
+```json
+{
+  "article/create": true,
+  "article/update": true,
+  "article/delete": true,
+  "publication/delete": true,
+  "publication/update": true,
+  "publication/permissions": true
+}
+```
