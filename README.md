@@ -14,15 +14,15 @@ Any properties can be added to publications, this is just a representation of th
 
 #### Create Publication
 
-| Property     |     Type     | Value                                       |
-| ------------ | :----------: | ------------------------------------------- |
-| action       |    String    | "create"                                    |
-| article      |    String    | IPFS hash (pointing to a Markdown document) |
-| title        |    String    | Content title                               |
-| authors      | String Array | Author addresses or names                   |
-| tags         | String Array | Relevant content tags                       |
-| description  |    String    | Content description                         |
-| previewImage |    String    | IPFS hash (pointing to a image)             |
+| Property    |     Type     | Value                                                                      |
+| ----------- | :----------: | -------------------------------------------------------------------------- |
+| action      |    String    | "create"                                                                   |
+| article     |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
+| title       |    String    | Content title                                                              |
+| authors     | String Array | Author addresses or names                                                  |
+| tags        | String Array | Relevant content tags                                                      |
+| description |    String    | Content description                                                        |
+| image       |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string           |
 
 #### Update Publication
 
@@ -31,11 +31,12 @@ When updating, both `action` (with "update" value) and `id` are required. The ot
 | ------------------ |:------:| -------- |
 | action | String | "update" |
 | id | String | ID of publication to delete. (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
-| article | String | IPFS hash (pointing to a Markdown document) |
+| article | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
 | title | String | Content title |
 | authors | String Array | Author addresses or names |
 | tags | String Array | Relevant content tags |
 | description | String | Content description |
+| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
 
 #### Delete Publication
 
