@@ -2,10 +2,9 @@
   "name": "tabula",
   "version": "0.0.0",
   "description": "A blogging app built on Poster (EIP-3722)",
-  "main": "index.js",
-  "repository": "git@github.com:onPoster/tabula.git",
+  "repository": "git@github.com:gnosis/tabula.git",
   "author": "Auryn Macmillan <hi@auryn.xyz>",
-  "license": "LGPL2.1",
+  "license": "LGPL-2.1",
   "packages": [
     "subgraph"
   ],
@@ -20,6 +19,7 @@
   "scripts": {
     "predeploy": "yarn --cwd packages/app yarn run build",
     "deploy": "yarn --cwd packages/app yarn deploy",
+    "postinstall": "yarn --cwd packages/app install && yarn --cwd packages/subgraph install",
     "prepare": "husky install",
     "pre-commit": "yarn --cwd packages/app pre-commit && yarn --cwd packages/subgraph pre-commit"
   }

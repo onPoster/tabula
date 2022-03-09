@@ -1,6 +1,6 @@
 {
   "name": "tabula",
-  "license": "UNLICENSED",
+  "license": "LGPL-2.1",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
