@@ -7,10 +7,16 @@
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ tabula",
     "create-local": "graph create --node http://localhost:8020/ tabula",
     "remove-local": "graph remove --node http://localhost:8020/ tabula",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 tabula"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 tabula",
+    "fmt": "prettier '(test|src)/**/*.ts' -w",
+    "pre-commit": "yarn fmt"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.27.0",
     "@graphprotocol/graph-ts": "0.25.0"
+  },
+  "devDependencies": {
+    "matchstick-as": "^0.4.0",
+    "prettier": "^2.5.1"
   }
 }

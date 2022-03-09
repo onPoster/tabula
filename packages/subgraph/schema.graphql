@@ -8,5 +8,5 @@ type Post @entity {
   tags: [String!]! # array of tags
   title: String! # title of the post
   description: String! # description of the post
-  previewImage: String # IPFS hash of the preview image for the post
+  image: String # IPFS hash of the preview image for the post
 }

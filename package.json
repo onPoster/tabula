@@ -14,8 +14,13 @@
     "react-markdown": "^8.0.0",
     "react-router-dom": "6"
   },
+  "devDependencies": {
+    "husky": "5.1.3"
+  },
   "scripts": {
-    "predeploy": "cd packages/app && npm run build",
-    "deploy": "cd packages/app && gh-pages -d build"
+    "predeploy": "yarn --cwd packages/app yarn run build",
+    "deploy": "yarn --cwd packages/app yarn deploy",
+    "prepare": "husky install",
+    "pre-commit": "yarn --cwd packages/app pre-commit && yarn --cwd packages/subgraph pre-commit"
   }
 }

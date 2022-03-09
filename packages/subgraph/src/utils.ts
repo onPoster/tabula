@@ -1,4 +1,4 @@
-import { JSONValue, JSONValueKind } from "@graphprotocol/graph-ts";
+import { JSONValue, JSONValueKind } from "@graphprotocol/graph-ts"
 
 /**
  * Make sure the given JSONValue is a string and returns string it contains.
@@ -6,9 +6,9 @@ import { JSONValue, JSONValueKind } from "@graphprotocol/graph-ts";
  */
 export function jsonToString(val: JSONValue | null): string {
   if (val != null && val.kind === JSONValueKind.STRING) {
-    return val.toString();
+    return val.toString()
   }
-  return "";
+  return ""
 }
 
 /**
@@ -18,13 +18,12 @@ export function jsonToString(val: JSONValue | null): string {
  */
 export function jsonToArrayString(val: JSONValue | null): Array<string> {
   if (val != null && val.kind === JSONValueKind.ARRAY) {
-    let valArray = val.toArray();
-    let result: Array<string> = new Array();
+    let valArray = val.toArray()
+    let result: Array<string> = new Array()
     for (let i = 0; i < valArray.length; i++) {
-      if (valArray[i].kind === JSONValueKind.STRING)
-        result.push(valArray[i].toString());
+      if (valArray[i].kind === JSONValueKind.STRING) result.push(valArray[i].toString())
     }
-    return result;
+    return result
   }
-  return [];
+  return []
 }
