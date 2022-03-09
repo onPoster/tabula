@@ -1,6 +1,6 @@
 import { BigInt, Bytes, crypto, ipfs } from "@graphprotocol/graph-ts"
 import { Poster, NewPost } from "../generated/Poster/Poster"
-import { Post } from "../generated/schema"
+import { Article } from "../generated/schema"
 import { json, JSONValueKind } from "@graphprotocol/graph-ts"
 import { jsonToString, jsonToArrayString } from "./utils"
 
@@ -13,13 +13,13 @@ export function handleNewPost(event: NewPost): void {
   let content = contentData.value.toObject()
 
   // Load post entity
-  let post = Post.load(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
+  let post = Article.load(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
   // create new entity if it doesn't already exist
   if (!post) {
-    post = new Post(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
+    post = new Article(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
   }
   // Set user
-  post.publisher = event.params.user
+  post.poster = event.params.user
 
   // Fetch article article from IPFS, fail gracefully.
   let article = ipfs.cat(jsonToString(content.get("article")))

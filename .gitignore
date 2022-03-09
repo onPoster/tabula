@@ -1,3 +1,4 @@
 node_modules
 packages/subgraph/build
 packages/subgraph/generated
+packages/subgraph/tests/.bin

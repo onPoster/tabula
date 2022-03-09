@@ -1,12 +1,18 @@
-type Post @entity {
+type Article @entity {
   id: ID!
-  publisher: Bytes! # address
-  article: String! # markdown formatted string
+  publication: Publication
+  poster: Bytes! # message sender for article creation event
+  article: String! # markdown formatted string or IPFS hash
   authors: [String!]! # array of authors (address or string name)
   postedOn: BigInt! # unix timestamp of original post
   lastUpdated: BigInt! # unix timestamp of last update
   tags: [String!]! # array of tags
   title: String! # title of the post
-  description: String! # description of the post
-  image: String # IPFS hash of the preview image for the post
+  description: String # description of the post
+  image: String # IPFS hash (pointing to a image) or a BASE64 encoded image string
+}
+
+type Publication @entity {
+  id: ID!
+  articles: [Article!] @derivedFrom(field: "publication")
 }

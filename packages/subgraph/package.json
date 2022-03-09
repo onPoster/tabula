@@ -4,6 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
+    "test": "graph test",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ tabula",
     "create-local": "graph create --node http://localhost:8020/ tabula",
     "remove-local": "graph remove --node http://localhost:8020/ tabula",
@@ -12,8 +13,8 @@
     "pre-commit": "yarn fmt"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.27.0",
-    "@graphprotocol/graph-ts": "0.25.0"
+    "@graphprotocol/graph-cli": "0.28.0",
+    "@graphprotocol/graph-ts": "0.26.0"
   },
   "devDependencies": {
     "matchstick-as": "^0.4.0",
