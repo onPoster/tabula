@@ -1,5 +1,5 @@
-import { JSONValue, JSONValueKind } from "@graphprotocol/graph-ts"
-import { Action } from "../typings/Action"
+import { JSONValue, JSONValueKind, TypedMap } from "@graphprotocol/graph-ts"
+import * as ArticleAction from "../typings/ArticleAction"
 
 /**
  * Make sure the given JSONValue is a string and returns string it contains.
@@ -33,3 +33,32 @@ export const getActionType = (content: JSONValue): String[] => {
   const actionString = jsonToString(content.toObject().get("action"))
   return actionString.split("/")
 }
+
+// export const jsonToArticleAction = (content: JSONValue): ArticleAction.Base => {
+//   const object = content.toObject()
+//   const stringObject = stringFromObject(object)
+//   const stringArrayObject = stringArrayFromObject(object)
+//   const action = {
+//     action: jsonToString(object.get("action")),
+//     id: stringObject("id"),
+//     article: stringObject("article"),
+//     title: stringObject("title"),
+//     publicationId: stringObject("publicationId"),
+//     authors: stringArrayObject("authors"),
+//     tags: stringArrayObject("tags"),
+//     description: stringObject("description"),
+//     image: stringObject("image"),
+//   }
+
+//   return action
+// }
+
+// const stringFromObject = (object: TypedMap<string, JSONValue>) => (key: string) => {
+//   const str = jsonToString(object.get(key))
+//   return str === "" ? undefined : str
+// }
+
+// const stringArrayFromObject = (object: TypedMap<string, JSONValue>) => (key: string) => {
+//   const strArray = jsonToArrayString(object.get(key))
+//   return strArray.length === 0 ? undefined : strArray
+// }

@@ -2,10 +2,10 @@ import { Action } from "./Action"
 
 interface Base extends Action {
   action: string
-  title?: string
-  tags?: [string]
-  description?: string
-  image?: string
+  title: string
+  tags: string[]
+  description: string
+  image: string
 }
 
 export interface Create extends Base {
@@ -28,11 +28,11 @@ export interface Permissions {
   id: string
   account: string
   permissions: {
-    "article/create"?: boolean
-    "article/update"?: boolean
-    "article/delete"?: boolean
-    "publication/delete"?: boolean
-    "publication/update"?: boolean
-    "publication/permissions"?: boolean
+    "article/create": boolean
+    "article/update": boolean
+    "article/delete": boolean
+    "publication/delete": boolean
+    "publication/update": boolean
+    "publication/permissions": boolean
   }
 }

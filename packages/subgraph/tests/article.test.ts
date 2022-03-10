@@ -25,7 +25,7 @@ test("Can create a new article without a publication", () => {
 
   const newPostEvent = createNewPostEvent(user, content, tag)
   const articleId = newPostEvent.transaction.hash.toHex() + "-" + newPostEvent.logIndex.toString()
-
+  assert.assertTrue(true)
   handleNewPost(newPostEvent)
 
   assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", title)

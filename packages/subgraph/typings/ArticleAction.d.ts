@@ -1,14 +1,14 @@
 import { Action } from "./Action"
 
-interface Base extends Action {
+export interface Base extends Action {
   action: string
-  article?: string
-  title?: string
-  publicationId?: string
-  authors?: [string]
-  tags?: [string]
-  description?: string
-  image?: string
+  article: string
+  title: string
+  publicationId: string
+  authors: string[]
+  tags: string[]
+  description: string
+  image: string
 }
 
 export interface Create extends Base {
