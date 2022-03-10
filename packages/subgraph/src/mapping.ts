@@ -1,17 +1,37 @@
-import { BigInt, Bytes, crypto, ipfs } from "@graphprotocol/graph-ts"
+import { BigInt, Bytes, crypto, ipfs, JSONValue } from "@graphprotocol/graph-ts"
 import { Poster, NewPost } from "../generated/Poster/Poster"
 import { Article } from "../generated/schema"
 import { json, JSONValueKind } from "@graphprotocol/graph-ts"
-import { jsonToString, jsonToArrayString } from "./utils"
+import { jsonToString, jsonToArrayString, getActionType } from "./utils"
+
+const PUBLICATION_TAG = "PUBLICATION"
+
+const getArticleId = (event: NewPost): string => event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export function handleNewPost(event: NewPost): void {
-  // decode json content, fail gracefully.
-  let contentData = json.try_fromString(event.params.content)
-  if (contentData.isError) {
+  if (event.params.tag.toString() !== PUBLICATION_TAG) {
+    // event is not related to publications
     return
   }
-  let content = contentData.value.toObject()
+  const contentData = json.try_fromString(event.params.content)
+  if (contentData.isError) {
+    // decode json content, fail gracefully.
+    return
+  }
+  const actionType = getActionType(contentData.value)
 
+  switch (actionType[0]) {
+    case "article":
+      break
+    case "publication":
+      break
+    default: {
+      // unknown action
+      return
+    }
+  }
+
+  const articleId = getArticleId(event)
   // Load post entity
   let post = Article.load(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
   // create new entity if it doesn't already exist

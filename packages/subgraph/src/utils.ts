@@ -1,4 +1,5 @@
 import { JSONValue, JSONValueKind } from "@graphprotocol/graph-ts"
+import { Action } from "../typings/Action"
 
 /**
  * Make sure the given JSONValue is a string and returns string it contains.
@@ -26,4 +27,9 @@ export function jsonToArrayString(val: JSONValue | null): Array<string> {
     return result
   }
   return []
+}
+
+export const getActionType = (content: JSONValue): String[] => {
+  const actionString = jsonToString(content.toObject().get("action"))
+  return actionString.split("/")
 }
