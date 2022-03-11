@@ -1,37 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import Page from "../layout/Page";
-import "./publishers.css";
+import React, { useEffect, useState } from "react"
+import { useParams, Link } from "react-router-dom"
+import Page from "../layout/Page"
+import "./publishers.css"
 
 interface Content {
-  article: string;
-  authors: [string];
-  tags: [string];
-  title: string;
-  description: string;
-  image: string;
-  id: string;
+  article: string
+  authors: [string]
+  tags: [string]
+  title: string
+  description: string
+  image: string
+  id: string
 }
 
 function App() {
-  const [posts, setPosts] = useState([]);
-  const [address, setAddress] = useState(useParams().address);
-  const [publishers, setPublishers] = useState([]);
+  const [posts, setPosts] = useState([])
+  const [address, setAddress] = useState(useParams().address)
+  const [publishers, setPublishers] = useState([])
 
   useEffect(() => {
     if (address) {
-      getPostsForAddress(address);
+      getPostsForAddress(address)
     }
-  }, []);
+  }, [])
 
   async function getPostsForAddress(address: String) {
-    const result = await fetch(
-      `https://api.thegraph.com/subgraphs/name/onposter/tabula`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
+    const result = await fetch(`https://api.thegraph.com/subgraphs/name/onposter/tabula`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
         query {
           posts(where:{publisher: "${address}"}) {
             id
@@ -44,12 +42,11 @@ function App() {
             lastUpdated
           }
         }`,
-        }),
-      }
-    );
+      }),
+    })
 
-    const res = await result.json();
-    setPosts(res.data.posts);
+    const res = await result.json()
+    setPosts(res.data.posts)
   }
 
   return (
@@ -72,7 +69,7 @@ function App() {
         </ul>
       </div>
     </Page>
-  );
+  )
 }
 
-export default App;
+export default App
