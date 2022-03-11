@@ -29,6 +29,7 @@ const useStyles = makeStyles(() => ({
 interface Content {
   article: string;
   authors: [string];
+  postedOn: number;
   tags: [string];
   title: string;
   description: string;
@@ -48,6 +49,7 @@ function App() {
   const classes = useStyles();
 
   const [publishers, setPublishers] = useState<Array<Publisher>>([]);
+  const [posts, setPosts] = useState<Array<Content>>([]);
 
   useEffect(() => {
     getPublishers();
@@ -77,6 +79,7 @@ function App() {
     );
 
     const res = await result.json();
+    const posts: Array<Content> = [];
     const publishers: Array<Publisher> = [];
 
     res.data.posts.forEach((post: Content) => {
@@ -90,6 +93,7 @@ function App() {
       }
     });
 
+    setPosts(res.data.posts);
     setPublishers(publishers);
   }
 
@@ -168,7 +172,7 @@ function App() {
             width: '60vw',
           },
         }}>
-          <img src={tabletHero} alt="Tablet graphic" width="100%"/>
+          <img src={tabletHero} alt="Tablet graphic"/>
         </Box>
       </Box>
       <Box component="section" sx={{
@@ -199,9 +203,9 @@ function App() {
                   width: 192,
                 }}>
                   <Box className={classes.benefitImage}>
-                    <img src={benefit.image} alt="" height="100%" width="100%" />
+                    <img src={benefit.image} alt="" height="100%" />
                   </Box>
-                  <img src={benefitBg} alt="" width="100%" />
+                  <img src={benefitBg} alt="" />
                 </Box>
                 <Typography
                   component="h3"
@@ -301,16 +305,92 @@ function App() {
               >
                 Showcase
               </Typography>
-              {publishers.map((publisher: Publisher) => (
-                <li key={publisher.address}>
-                  <Link to={`/${publisher.address}`}>
-                    <div className="publisher-box">
-                      <h3>{shortAddress(publisher.address)}</h3>
-
-                      <p>{publisher.posts.length} posts</p>
-                    </div>
+              {posts.map((post: Content, index) => (
+                <Box key={post.id} sx={{
+                  mt: index > 0 ? 5 : 3,
+                }}>
+                  <Link to={`/${post.publisher}`}>
+                    <Box sx={{
+                      alignItems: 'stretch',
+                      borderRadius: 1,
+                      color: 'initial',
+                      display: 'flex',
+                      transition: 'background 0.25s ease-in-out',
+                      '&:hover': {
+                        bgcolor: palette.whites[600],
+                        cursor: 'pointer',
+                      }
+                    }}>
+                      <Box sx={{
+                        backgroundColor: palette.grays[100],
+                        borderRadius: 1, 
+                        display: 'flex',
+                        overflow: 'hidden', 
+                        width: 256,
+                        '& img': {
+                          height: '100%',
+                          objectFit: 'cover',
+                        }
+                      }}>
+                        {post.image && (
+                          <img src={post.image} alt={post.title}/>
+                        )}
+                      </Box>
+                      <Box sx={{ml: 3, py: 2, pr: 2,}}>
+                        <Box sx={{ alignItems: 'content', display: 'flex', mb: 2}}>
+                          <Box sx={{borderRadius: 999, bgcolor: palette.grays[200], border: `1px solid ${palette.grays[200]}`, height: 32, mr: 1, width: 32,}}>
+                            {post.image && (
+                              <img src={post.image} alt={post.title && post.title} />
+                            )}
+                          </Box>
+                          <Typography fontFamily={typography.fontFamilies.sans} color={palette.grays[800]} fontWeight={700}>
+                            {post.authors ? post.authors : 'Gnosis Guild'}
+                          </Typography>
+                          <Box sx={{
+                            bgcolor: palette.secondary[200],
+                            borderRadius: 1,
+                            color: theme.palette.secondary.main,
+                            display: 'inline-flex',
+                            ml: 1,
+                            px: 1,
+                          }}>
+                            {shortAddress(post.publisher)}
+                          </Box>
+                        </Box>
+                        <Typography variant="h6" component="h3" fontWeight={700} lineHeight="1">
+                          {post.title ? post.title : 'Gossip of the Old World'}
+                        </Typography>
+                        <Typography color={palette.grays[800]} lineHeight="125%">
+                          {post.description ? post.description : 'Cooperatives, gaming guilds, and the networks to come'}
+                        </Typography>
+                        {post.description}
+                        <Box sx={{
+                          alignItems: 'center',
+                          display: 'flex',
+                          mt: 2,
+                        }}>
+                          {post.postedOn}
+                          {post.tags && (
+                            <Box component="ul" sx={{ml: 2}}>
+                              {post.tags.map((tag, index) => (
+                                <Box key={tag} component="li" sx={{
+                                  bgcolor: palette.secondary[200],
+                                  borderRadius: 1,
+                                  color: theme.palette.secondary.main,
+                                  display: 'inline-flex',
+                                  ml: index > 0 ? 1 : 0,
+                                  px: 1,
+                                }}>
+                                  {tag}
+                                </Box>
+                              ))}
+                            </Box>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
                   </Link>
-                </li>
+                </Box>
               ))}
             </Grid>
           </Grid>
