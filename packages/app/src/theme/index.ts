@@ -128,6 +128,9 @@ let theme = createTheme({
           background-image: url(${paperTextureDay});
           background-size: 800px;
         }
+        a {
+          text-decoration: none;
+        }
       `,
     },
   }
@@ -157,10 +160,14 @@ theme = createTheme(theme, {
           backgroundColor: theme.palette.primary.main,
           borderRadius: 4,
           boxShadow: '0 4px rgba(0,0,0,0.2), inset 0 -4px 4px #97220166',
+          color: palette.whites[1000],
           fontSize: '1rem',
           fontWeight: 700,
           position: 'relative',
           textTransform: 'none',
+        },
+        sizeSmall: {
+          fontSize: '0.75rem',
         },
       },
     }

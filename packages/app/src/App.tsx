@@ -39,7 +39,9 @@ interface Content {
 
 interface Publisher {
   address: string;
+  image?: string;
   posts: Array<Content>;
+  title?: string;
 }
 
 function App() {
@@ -190,7 +192,7 @@ function App() {
         <Container maxWidth="lg">
           <Grid container spacing={8}>
             {benefits.map((benefit) => (
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={4} key={benefit.title}>
                 <Box sx={{
                   mb: 2,
                   position: 'relative',
@@ -243,17 +245,51 @@ function App() {
                 >
                   Follow
                 </Typography>
-                {publishers.map((publisher: Publisher) => (
-                  <li key={publisher.address}>
-                    <Link to={`/${publisher.address}`}>
-                      <div className="publisher-box">
-                        <h3>{shortAddress(publisher.address)}</h3>
-
-                        <p>{publisher.posts.length} posts</p>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
+                <Box component="ul">
+                  {publishers.map((publisher: Publisher, index) => (
+                    <Box component="li" key={publisher.address} sx={{
+                      alignItems: 'flex-start',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      mt: 3,
+                    }}>
+                      <Box>
+                        <Link to={`/${publisher.address}`}>
+                          <Box sx={{ alignItems: 'content', display: 'flex',}}>
+                            <Box sx={{borderRadius: 999, bgcolor: palette.grays[200], height: 24, mr: 1, width: 24,}}>
+                              {publisher.image && (
+                                <img src={publisher.image} alt={publisher.title && publisher.title} />
+                              )}
+                            </Box>
+                            <Typography fontFamily={typography.fontFamilies.sans} color="textPrimary">
+                              {/* {publisher.title ? publisher.title : shortAddress(publisher.address)} */}
+                              Gnosis Guild
+                            </Typography>
+                            <Typography
+                              color="primary"
+                              fontFamily={typography.fontFamilies.sans}
+                              fontWeight={600}
+                              lineHeight="2"
+                              variant="body2"
+                              sx={{ml: 1, '&:hover': {textDecoration: 'underline'}}}
+                            >
+                              {publisher.posts.length} posts
+                            </Typography>
+                          </Box>
+                        </Link>
+                        <Typography
+                          color={palette.grays[800]}
+                          variant="body2"
+                        >
+                          a keeper of the zodiac open standard for DAOs
+                        </Typography>
+                      </Box>
+                      <Button size="small" variant="contained" sx={{display: 'inline-flex'}}>
+                        Follow
+                      </Button>
+                    </Box>
+                  ))}
+                </Box>
               </Box>
             </Grid>
             <Grid item xs={12} sm={7}>
