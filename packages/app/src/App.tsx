@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Page from "./components/layout/Page";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { palette, typography } from "./theme";
+import theme, { palette, typography } from "./theme";
 import paperTextureNight from "./assets/images/paper-texture-800-night.jpg";
 import benefitBg from "./assets/images/benefit-bg.png";
 import benefit1 from "./assets/images/benefit1.png";
@@ -111,13 +111,14 @@ function App() {
 
   return (
     <Page>
-      <Box sx={{
+      <Box component="section" sx={{
         alignItems: 'center',
         backgroundImage: `url(${paperTextureNight})`,
         backgroundSize: 800,
         display: 'flex',
         justifyContent: 'center',
         height: "100vh",
+        overflowX: 'clip',
         position: 'absolute',
         top: 0,
         width: '100%',
@@ -145,11 +146,25 @@ function App() {
           </Box>
         </Container>
         <Box sx={{
-          width: '60vw',
-          right: '-8vw',
+          width: '140vw',
+          right: '-20vw',
           bottom: 0,
           transform: 'translateY(50%)',
           position: 'absolute',
+          [`${theme.breakpoints.up('sm')}`]: {
+            right: '-15vw',
+            transform: 'translateY(40%)',
+            width: '70vw',
+          },
+          [`${theme.breakpoints.up('sm')} and (orientation:portrait)`]: {
+            right: '-15vw',
+            transform: 'translateY(30%)',
+            width: '90vw',
+          },
+          [`${theme.breakpoints.up('lg')}`]: {
+            right: '-8vw',
+            width: '60vw',
+          },
         }}>
           <img src={tabletHero} alt="Tablet graphic" width="100%"/>
         </Box>

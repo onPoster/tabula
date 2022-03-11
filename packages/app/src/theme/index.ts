@@ -48,6 +48,7 @@ let theme = createTheme({
     },
   },
   typography: {
+    // Base Typography
     fontFamily: typography.fontFamilies.sans,
     h1: {
       fontFamily: typography.fontFamilies.displaySerif,
@@ -133,6 +134,22 @@ let theme = createTheme({
 })
 
 theme = createTheme(theme, {
+  // Responsive Typography
+  typography: {
+    h1: {
+      [`${theme.breakpoints.down('lg')}`]: {
+        fontSize: '5rem',
+      },
+      [`${theme.breakpoints.down('sm')}`]: {
+        fontSize: '4rem',
+      },
+    },
+    subtitle1: {
+      [`${theme.breakpoints.down('lg')}`]: {
+        fontSize: '1.25rem',
+      },
+    }
+  },
   components: {
     MuiButton: {
       styleOverrides: {
