@@ -4,6 +4,7 @@ import { Article } from "../generated/schema"
 import { getActionType } from "./utils"
 import { handleArticleAction } from "./article.mapping"
 import { log } from "matchstick-as/assembly/log"
+import { handlePublicationAction } from "./publication.mapping"
 
 // keccak256 hash of "PUBLICATION"
 const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc39cc1e2bb62"
@@ -21,6 +22,7 @@ export function handleNewPost(event: NewPost): void {
   const actionType = getActionType(contentData.value)
   if (actionType[0] == "article") {
     handleArticleAction(actionType[1], contentData.value.toObject(), event)
-  } else if (actionType[0] == "publication ") {
+  } else if (actionType[0] == "publication") {
+    handlePublicationAction(actionType[1], contentData.value.toObject(), event)
   }
 }

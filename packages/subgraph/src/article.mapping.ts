@@ -4,7 +4,8 @@ import { Article } from "../generated/schema"
 import { jsonToString } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
 
-export const getArticleId = (event: NewPost): string => event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+export const getArticleId = (event: NewPost): string =>
+  "A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 const ARTICLE_ENTITY_TYPE = "Article"
 
 export function handleArticleAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {

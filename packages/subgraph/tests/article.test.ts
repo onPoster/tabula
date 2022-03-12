@@ -14,7 +14,7 @@ import { createNewPostEvent } from "./util"
 const ARTICLE_ENTITY_TYPE = "Article"
 const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc39cc1e2bb62" // keccak-256 of PUBLICATION
 
-test("Can create a new article without a publication", () => {
+test("An account can an create a standalone article", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const action = "article/create"
   const title = "My First Blog Post"
@@ -35,7 +35,7 @@ test("Can create a new article without a publication", () => {
   clearStore()
 })
 
-test("Can delete a new article", () => {
+test("An account can delete a standalone article that it has created", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const title = "My First Blog Post"
   const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"

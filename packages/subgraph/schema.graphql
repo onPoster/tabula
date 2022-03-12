@@ -14,5 +14,6 @@ type Article @entity {
 
 type Publication @entity {
   id: ID!
+  title: String! # title of the publication
   articles: [Article!] @derivedFrom(field: "publication")
 }
