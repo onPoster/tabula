@@ -12,9 +12,9 @@ import { getArticleId } from "../src/article.mapping"
 import { handleNewPost } from "../src/mapping"
 import { createNewPostEvent } from "./util"
 const ARTICLE_ENTITY_TYPE = "Article"
+const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc39cc1e2bb62" // keccak-256 of PUBLICATION
 
 test("Can create a new article without a publication", () => {
-  const tag = "PUBLICATION"
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const action = "article/create"
   const title = "My First Blog Post"
@@ -25,7 +25,7 @@ test("Can create a new article without a publication", () => {
     "title": "${title}"
   }`
 
-  const newPostEvent = createNewPostEvent(user, content, tag)
+  const newPostEvent = createNewPostEvent(user, content, PUBLICATION_TAG)
   const articleId = getArticleId(newPostEvent)
   handleNewPost(newPostEvent)
 
@@ -36,7 +36,6 @@ test("Can create a new article without a publication", () => {
 })
 
 test("Can delete a new article", () => {
-  const tag = "PUBLICATION"
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const title = "My First Blog Post"
   const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
@@ -46,7 +45,7 @@ test("Can delete a new article", () => {
     "title": "${title}"
   }`
 
-  const createArticlePostEvent = createNewPostEvent(user, createArticleContent, tag)
+  const createArticlePostEvent = createNewPostEvent(user, createArticleContent, PUBLICATION_TAG)
   const articleId = getArticleId(createArticlePostEvent)
   handleNewPost(createArticlePostEvent)
 
@@ -59,7 +58,7 @@ test("Can delete a new article", () => {
     "id": "${articleId}"
   }`
 
-  const newPostEvent = createNewPostEvent(user, deleteArticleContent, tag)
+  const newPostEvent = createNewPostEvent(user, deleteArticleContent, PUBLICATION_TAG)
   handleNewPost(newPostEvent)
 
   // check the article is deleted from the store

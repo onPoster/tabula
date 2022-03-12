@@ -3,16 +3,16 @@ import { Poster, NewPost } from "../generated/Poster/Poster"
 import { Article } from "../generated/schema"
 import { getActionType } from "./utils"
 import { handleArticleAction } from "./article.mapping"
+import { log } from "matchstick-as/assembly/log"
 
 // keccak256 hash of "PUBLICATION"
-const PUBLICATION_TAG = "PUBLICATION"
+const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc39cc1e2bb62"
 
 export function handleNewPost(event: NewPost): void {
-  // TODO:
-  // if (event.params.tag.toString() != PUBLICATION_TAG) {
-  // // event is not related to publications
-  // return
-  // }
+  if (event.params.tag.toHex() != PUBLICATION_TAG) {
+    // event is not related to publications
+    return
+  }
   const contentData = json.try_fromString(event.params.content)
   if (contentData.isError) {
     // decode json content, fail gracefully.
