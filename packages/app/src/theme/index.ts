@@ -150,6 +150,7 @@ let theme = createTheme({
         }
         a {
           text-decoration: none;
+          color: inherit;
         }
         img {
           width: 100%;
