@@ -13,6 +13,8 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     const publicationId = getPublicationId(event)
     const publication = new Publication(publicationId)
     publication.title = jsonToString(content.get("title"))
+    publication.description = jsonToString(content.get("description"))
+    publication.image = jsonToString(content.get("image"))
     publication.save()
   }
   if (subAction == "delete") {

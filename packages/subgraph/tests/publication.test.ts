@@ -19,9 +19,15 @@ test("An account can can create a publication", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const action = "publication/create"
   const title = "My First Publication"
+  const tags = ["test", "cool", "fun"]
+  const description = "This is a description"
+  const image = "QmaeaxgajiKcT9kiLKrxT6ss6uNg7fg4NkxVvX19utb9Gj"
   const content = `{
     "action": "${action}",
-    "title": "${title}"
+    "title": "${title}",
+    "tags": "${tags}",
+    "description": "${description}",
+    "image": "${image}"
   }`
 
   const newPostEvent = createNewPostEvent(user, content, PUBLICATION_TAG)
@@ -29,6 +35,8 @@ test("An account can can create a publication", () => {
   handleNewPost(newPostEvent)
 
   assert.fieldEquals(PUBLICATION_ENTITY_TYPE, articleId, "title", title)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, articleId, "description", description)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, articleId, "image", image)
   assert.notInStore(PUBLICATION_ENTITY_TYPE, articleId + "_fake")
   clearStore()
 })
