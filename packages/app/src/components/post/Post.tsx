@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react"
-import ReactMarkdown from "react-markdown"
+import { useEffect, useState } from "react"
 import Page from "../layout/Page"
-import { Routes, Route, useParams, Link } from "react-router-dom"
-import "./post.css"
+import Markdown from '../Markdown';
+import { Container } from "@mui/material"
+import { useParams } from "react-router-dom"
 
 interface Content {
   article: string
@@ -53,13 +53,13 @@ function Post() {
 
   return (
     <Page address={address}>
-      <div className="post">
+      <Container maxWidth="sm">
         {post && (
-          <div>
-            <ReactMarkdown>{post.article}</ReactMarkdown>
-          </div>
+          <Markdown>
+            {post.article}
+          </Markdown>
         )}
-      </div>
+      </Container>
     </Page>
   )
 }

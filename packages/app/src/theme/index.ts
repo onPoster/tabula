@@ -54,6 +54,7 @@ export const typography = {
   fontFamilies: {
     sans: `'Averta', 'Avenir', sans-serif`,
     displaySerif: `'Appareo', 'Garamond', serif`,
+    monospace: `'Roboto Mono', monospace`,
     textSerif: `'Averia Serif Libre', 'Garamond', cursive;`,
   },
 }
@@ -69,28 +70,40 @@ let theme = createTheme({
   },
   typography: {
     // Base Typography
-    fontFamily: typography.fontFamilies.sans,
+    fontFamily: typography.fontFamilies.textSerif,
     h1: {
       fontFamily: typography.fontFamilies.displaySerif,
+      fontSize: '4rem',
       fontWeight: 400,
+      marginBlockStart: '2.5rem',
       lineHeight: 1,
     },
     h2: {
       fontFamily: typography.fontFamilies.displaySerif,
+      fontSize: '2.5rem',
       fontWeight: 600,
+      marginBlockStart: '2.5rem',
       lineHeight: 1,
     },
     h3: {
-      fontFamily: typography.fontFamilies.sans,
+      fontSize: '2.25rem',
+      marginBlockStart: '2rem',
+      fontFamily: typography.fontFamilies.textSerif,
     },
     h4: {
-      fontFamily: typography.fontFamilies.sans,
+      fontSize: '2rem',
+      marginBlockStart: '2rem',
+      fontFamily: typography.fontFamilies.textSerif,
     },
     h5: {
-      fontFamily: typography.fontFamilies.sans,
+      fontSize: '1.75rem',
+      marginBlockStart: '2rem',
+      fontFamily: typography.fontFamilies.textSerif,
     },
     h6: {
-      fontFamily: typography.fontFamilies.sans,
+      fontSize: '1.5rem',
+      marginBlockStart: '2rem',
+      fontFamily: typography.fontFamilies.textSerif,
     },
     subtitle1: {
       fontFamily: typography.fontFamilies.textSerif,
@@ -146,7 +159,7 @@ let theme = createTheme({
         }
         body {
           background-image: url(${paperTextureDay});
-          background-size: 800px;
+          background-size: 400px;
         }
         a {
           text-decoration: none;
@@ -185,6 +198,7 @@ theme = createTheme(theme, {
           borderRadius: 2,
           boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220166",
           color: palette.whites[1000],
+          fontFamily: typography.fontFamilies.sans,
           fontSize: "1rem",
           fontWeight: 700,
           position: "relative",

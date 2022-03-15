@@ -1,8 +1,8 @@
 import { useLocation } from "react-router-dom"
-import { CssBaseline, ThemeProvider } from "@mui/material"
+import { Box, CssBaseline, ThemeProvider } from "@mui/material"
 import { day } from "../../theme/day"
 import Header from "./Header"
-import { palette } from "../../theme"
+import theme, { palette } from "../../theme"
 
 type Props = {
   title?: string
@@ -15,8 +15,10 @@ const Page: React.FC<Props> = ({ children }) => {
   return (
     <ThemeProvider theme={day}>
       <CssBaseline />
-      <Header logoColor={location.pathname == "/" ? palette.whites[1000] : 'text.primary'}/>
-      <main>{children}</main>
+      <Header logoColor={location.pathname == "/" ? palette.whites[1000] : theme.palette.text.primary}/>
+      <Box component="main" sx={{pb: 12}}>
+        {children}
+      </Box>
     </ThemeProvider>
   )
 }

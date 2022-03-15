@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import Page from "../layout/Page"
-import "./publishers.css"
 
 interface Content {
   article: string

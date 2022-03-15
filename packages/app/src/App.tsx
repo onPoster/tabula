@@ -11,7 +11,6 @@ import benefit3 from "./assets/images/benefit3.png"
 import tabletHero from "./assets/images/tablet-hero-graphic.png"
 import { Link } from "react-router-dom"
 import { shortAddress } from "./utils/string"
-import "./App.css"
 
 const useStyles = makeStyles(() => ({
   benefitImage: {
