@@ -18,4 +18,17 @@ type Publication @entity {
   description: String
   image: String # IPFS hash (pointing to a image) or a BASE64 encoded image string
   articles: [Article!] @derivedFrom(field: "publication")
+  permissions: [Permission!] @derivedFrom(field: "publication")
+}
+
+type Permission @entity {
+  id: ID!
+  publication: Publication!
+  address: Bytes!
+  articleCreate: Boolean
+  articleUpdate: Boolean
+  articleDelete: Boolean
+  publicationCreate: Boolean
+  publicationUpdate: Boolean
+  publicationDelete: Boolean
 }

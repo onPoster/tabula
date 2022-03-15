@@ -1,9 +1,8 @@
-import { BigInt, Bytes, crypto, ipfs, json, JSONValue } from "@graphprotocol/graph-ts"
+import { BigInt, Bytes, crypto, ipfs, json, JSONValue, log } from "@graphprotocol/graph-ts"
 import { Poster, NewPost } from "../generated/Poster/Poster"
 import { Article } from "../generated/schema"
 import { getActionType } from "./utils"
 import { handleArticleAction } from "./article.mapping"
-import { log } from "matchstick-as/assembly/log"
 import { handlePublicationAction } from "./publication.mapping"
 
 // keccak256 hash of "PUBLICATION"
@@ -12,11 +11,16 @@ const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc
 export function handleNewPost(event: NewPost): void {
   if (event.params.tag.toHex() != PUBLICATION_TAG) {
     // event is not related to publications
+    log.info("This event is not related to publications (the tag does not match).", [
+      event.params.tag.toHex(),
+      PUBLICATION_TAG,
+    ])
     return
   }
   const contentData = json.try_fromString(event.params.content)
   if (contentData.isError) {
     // decode json content, fail gracefully.
+    log.warning("Failed to decode the JSON content", [contentData.value.toString()])
     return
   }
   const actionType = getActionType(contentData.value)

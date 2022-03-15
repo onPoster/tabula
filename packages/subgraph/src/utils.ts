@@ -1,5 +1,9 @@
-import { JSONValue, JSONValueKind, TypedMap } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, TypedMap } from "@graphprotocol/graph-ts"
+import { Publication } from "../generated/schema"
 import * as ArticleAction from "../typings/ArticleAction"
+
+export const getPermissionId = (publicationId: string, user: Address): string =>
+  "X-" + publicationId + "-" + user.toHex()
 
 /**
  * Make sure the given JSONValue is a string and returns string it contains.

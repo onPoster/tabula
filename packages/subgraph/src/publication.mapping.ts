@@ -1,7 +1,7 @@
 import { JSONValue, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
-import { Publication } from "../generated/schema"
-import { jsonToString } from "./utils"
+import { Permission, Publication } from "../generated/schema"
+import { getPermissionId, jsonToString } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
 
 export const getPublicationId = (event: NewPost): string =>
@@ -11,6 +11,19 @@ const PUBLICATION_ENTITY_TYPE = "Publication"
 export function handlePublicationAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {
   if (subAction == "create") {
     const publicationId = getPublicationId(event)
+
+    const permissionId = getPermissionId(publicationId, event.params.user)
+    const permission = new Permission(permissionId)
+    permission.address = event.params.user
+    permission.publication = publicationId
+    permission.articleCreate = true
+    permission.articleUpdate = true
+    permission.articleDelete = true
+    permission.publicationCreate = true
+    permission.publicationUpdate = true
+    permission.publicationDelete = true
+    permission.save()
+
     const publication = new Publication(publicationId)
     publication.title = jsonToString(content.get("title"))
     publication.description = jsonToString(content.get("description"))
