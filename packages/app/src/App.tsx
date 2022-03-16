@@ -11,6 +11,7 @@ import benefit3 from "./assets/images/benefit3.png"
 import tabletHero from "./assets/images/tablet-hero-graphic.png"
 import { Link } from "react-router-dom"
 import { shortAddress } from "./utils/string"
+import PostPreview from "./components/PostPreview"
 
 const useStyles = makeStyles(() => ({
   benefitImage: {
@@ -133,7 +134,7 @@ function App() {
           <Typography color="primary" component="div" letterSpacing={4} textTransform="uppercase" variant="h5">
             Introducing
           </Typography>
-          <Typography variant="h1" textTransform="uppercase" color={palette.whites[1000]}>
+          <Typography variant="h1" textTransform="uppercase" fontSize="6rem" color={palette.whites[1000]}>
             Tabula
           </Typography>
           <Typography variant="subtitle1" color={palette.whites[1000]}>
@@ -172,12 +173,18 @@ function App() {
       <Box
         component="section"
         sx={{
-          mt: "100vh",
-          pt: 12,
+          mt: "calc(100vh - 120px)",
+          pt: 8,
+          [theme.breakpoints.down('md')]: {
+            mt: "100vh",
+          },
+          [theme.breakpoints.down('sm')]: {
+            mt: "calc(100vh + 120px)",
+          }
         }}
       >
         <Container maxWidth="lg">
-          <Typography variant="h2" color="secondary" textTransform="uppercase">
+          <Typography variant="h2" color="secondary" fontSize={{xs: "3rem", lg: "4rem"}} textTransform="uppercase">
             Features &amp;
             <br />
             Benefits
@@ -290,117 +297,13 @@ function App() {
                 Showcase
               </Typography>
               {posts.map((post: Content, index) => (
-                <Box
-                  key={post.id}
-                  sx={{
-                    mt: index > 0 ? 5 : 3,
-                  }}
-                >
-                  <Link to={`/${post.publisher}`}>
-                    <Box
-                      sx={{
-                        alignItems: "stretch",
-                        borderRadius: 1,
-                        color: "initial",
-                        display: "flex",
-                        transition: "background 0.25s ease-in-out",
-                        "&:hover": {
-                          bgcolor: palette.whites[600],
-                          cursor: "pointer",
-                        },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          backgroundColor: palette.grays[100],
-                          borderRadius: 1,
-                          display: "flex",
-                          overflow: "hidden",
-                          width: 256,
-                          "& img": {
-                            height: "100%",
-                            objectFit: "cover",
-                          },
-                        }}
-                      >
-                        {post.image && <img src={post.image} alt={post.title} />}
-                      </Box>
-                      <Box sx={{ ml: 3, py: 2, pr: 2 }}>
-                        <Box sx={{ alignItems: "content", display: "flex", mb: 2 }}>
-                          <Box
-                            sx={{
-                              borderRadius: 999,
-                              bgcolor: palette.grays[200],
-                              border: `1px solid ${palette.grays[200]}`,
-                              height: 32,
-                              mr: 1,
-                              width: 32,
-                            }}
-                          >
-                            {post.image && <img src={post.image} alt={post.title && post.title} />}
-                          </Box>
-                          <Typography
-                            fontFamily={typography.fontFamilies.sans}
-                            color={palette.grays[800]}
-                            fontWeight={700}
-                          >
-                            {post.authors ? post.authors : "Gnosis Guild"}
-                          </Typography>
-                          <Box
-                            sx={{
-                              bgcolor: palette.secondary[200],
-                              borderRadius: 1,
-                              color: theme.palette.secondary.main,
-                              display: "inline-flex",
-                              ml: 1,
-                              px: 1,
-                            }}
-                          >
-                            {shortAddress(post.publisher)}
-                          </Box>
-                        </Box>
-                        <Typography variant="h6" component="h3" fontWeight={700} lineHeight="1">
-                          {post.title ? post.title : "Gossip of the Old World"}
-                        </Typography>
-                        <Typography color={palette.grays[800]} lineHeight="125%">
-                          {post.description
-                            ? post.description
-                            : "Cooperatives, gaming guilds, and the networks to come"}
-                        </Typography>
-                        {post.description}
-                        <Box
-                          sx={{
-                            alignItems: "center",
-                            display: "flex",
-                            mt: 2,
-                          }}
-                        >
-                          {post.postedOn}
-                          {post.tags && (
-                            <Box component="ul" sx={{ ml: 2 }}>
-                              {post.tags.map((tag, index) => (
-                                <Box
-                                  key={tag}
-                                  component="li"
-                                  sx={{
-                                    bgcolor: palette.secondary[200],
-                                    borderRadius: 1,
-                                    color: theme.palette.secondary.main,
-                                    display: "inline-flex",
-                                    ml: index > 0 ? 1 : 0,
-                                    px: 1,
-                                  }}
-                                >
-                                  {tag}
-                                </Box>
-                              ))}
-                            </Box>
-                          )}
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Link>
-                </Box>
+                <PostPreview
+                  key={post.id} 
+                  post={post}
+                  address={post.publisher}
+                  link={`/${post.publisher}`}
+                  sx={{mt: index > 0 ? 5 : 3}}
+                />
               ))}
             </Grid>
           </Grid>

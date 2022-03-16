@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
+import { Box, Container, Typography } from "@mui/material"
+import theme, { palette, typography } from "../../theme"
 import Page from "../layout/Page"
-
-interface Content {
-  article: string
-  authors: [string]
-  tags: [string]
-  title: string
-  description: string
-  image: string
-  id: string
-}
+import PostPreview from "../PostPreview"
+import { shortAddress } from "../../utils/string"
+import { Content } from "../../models/Content"
 
 function App() {
   const [posts, setPosts] = useState([])
@@ -50,23 +45,17 @@ function App() {
 
   return (
     <Page address={address}>
-      <div className="publishers">
-        <div className="intro">
-          <h2>Posts:</h2>
-        </div>
-        <ul>
-          {posts.map((post: Content) => (
-            <li key={post.id}>
-              <Link to={`/${address}/${post.id}`}>
-                <div className="publisher-box">
-                  <h3>{post.title}</h3>
-                  <p>{post.tags[0]}</p>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Container maxWidth="md">
+        {posts.map((post: Content, index) => (
+          <PostPreview
+            key={post.id} 
+            post={post}
+            address={address}
+            link={`/${address}/${post.id}`}
+            sx={{mt: 5}}
+          />
+        ))}
+      </Container>
     </Page>
   )
 }
