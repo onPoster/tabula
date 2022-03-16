@@ -1,7 +1,7 @@
 import { JSONValue, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Permission, Publication } from "../generated/schema"
-import { getPermissionId, jsonToString } from "./utils"
+import { getPermissionId, jsonToString, SUB_ACTION__CREATE, SUB_ACTION__DELETE } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
 
 export const getPublicationId = (event: NewPost): string =>
@@ -9,7 +9,7 @@ export const getPublicationId = (event: NewPost): string =>
 const PUBLICATION_ENTITY_TYPE = "Publication"
 
 export function handlePublicationAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {
-  if (subAction == "create") {
+  if (subAction == SUB_ACTION__CREATE) {
     const publicationId = getPublicationId(event)
 
     const permissionId = getPermissionId(publicationId, event.params.user)
@@ -19,9 +19,9 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     permission.articleCreate = true
     permission.articleUpdate = true
     permission.articleDelete = true
-    permission.publicationCreate = true
     permission.publicationUpdate = true
     permission.publicationDelete = true
+    permission.publicationPermissions = true
     permission.save()
 
     const publication = new Publication(publicationId)
@@ -30,7 +30,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     publication.image = jsonToString(content.get("image"))
     publication.save()
   }
-  if (subAction == "delete") {
+  if (subAction == SUB_ACTION__DELETE) {
     const publicationId = jsonToString(content.get("id"))
     store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
   }

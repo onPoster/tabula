@@ -39,7 +39,7 @@ test("An account can can create a publication", () => {
   clearStore()
 })
 
-test("An account can an create a article in a publication (where the account has `article/create` permissions)", () => {
+test("An account can create a article in a publication (where the account has `article/create` permissions)", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const publicationTitle = "My First Publication"
   const publicationContent = `{
@@ -72,6 +72,92 @@ test("An account can an create a article in a publication (where the account has
   assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "publication", publicationId)
 
   assert.notInStore(ARTICLE_ENTITY_TYPE, articleId + "_fake")
+
+  clearStore()
+})
+
+test("An account can delete an article in a publication (where the account has `article/delete` permissions)", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  const articleTitle = "My First Blog Post"
+  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+  const articleContent = `{
+    "action": "article/create",
+    "publicationId": "${publicationId}",
+    "article": "${article}",
+    "title": "${articleTitle}"
+  }`
+
+  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(newArticlePostEvent)
+  handleNewPost(newArticlePostEvent)
+
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
+
+  const articleDeleteContent = `{
+    "action": "article/delete",
+    "id": "${articleId}"
+  }`
+
+  const newArticleDeletePostEvent = createNewPostEvent(user, articleDeleteContent, PUBLICATION_TAG)
+  handleNewPost(newArticleDeletePostEvent)
+
+  assert.notInStore(ARTICLE_ENTITY_TYPE, articleId)
+
+  clearStore()
+})
+
+test("An account can NOT an delete an article in a publication (where the account do NOT have `article/delete` permissions)", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  const articleTitle = "My First Blog Post"
+  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+  const articleContent = `{
+    "action": "article/create",
+    "publicationId": "${publicationId}",
+    "article": "${article}",
+    "title": "${articleTitle}"
+  }`
+
+  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(newArticlePostEvent)
+  handleNewPost(newArticlePostEvent)
+
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
+
+  const otherUser = Address.fromString("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4")
+  const articleDeleteContent = `{
+    "action": "article/delete",
+    "id": "${articleId}"
+  }`
+
+  const newArticleDeletePostEvent = createNewPostEvent(otherUser, articleDeleteContent, PUBLICATION_TAG)
+  handleNewPost(newArticleDeletePostEvent)
+
+  // check that the article is not deleted
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
 
   clearStore()
 })

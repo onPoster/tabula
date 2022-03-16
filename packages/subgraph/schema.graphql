@@ -28,7 +28,7 @@ type Permission @entity {
   articleCreate: Boolean
   articleUpdate: Boolean
   articleDelete: Boolean
-  publicationCreate: Boolean
   publicationUpdate: Boolean
   publicationDelete: Boolean
+  publicationPermissions: Boolean
 }

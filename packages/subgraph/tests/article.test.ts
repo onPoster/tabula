@@ -12,7 +12,7 @@ import { getArticleId } from "../src/article.mapping"
 import { handleNewPost } from "../src/mapping"
 import { ARTICLE_ENTITY_TYPE, createNewPostEvent, PUBLICATION_TAG } from "./util"
 
-test("An account can an create a standalone article", () => {
+test("An account can create a standalone article", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const action = "article/create"
   const title = "My First Blog Post"

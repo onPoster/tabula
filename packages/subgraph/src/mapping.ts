@@ -1,7 +1,7 @@
 import { BigInt, Bytes, crypto, ipfs, json, JSONValue, log } from "@graphprotocol/graph-ts"
 import { Poster, NewPost } from "../generated/Poster/Poster"
 import { Article } from "../generated/schema"
-import { getActionType } from "./utils"
+import { ACTION__ARTICLE, ACTION__PUBLICATION, getActionType, hasPermission } from "./utils"
 import { handleArticleAction } from "./article.mapping"
 import { handlePublicationAction } from "./publication.mapping"
 
@@ -24,9 +24,21 @@ export function handleNewPost(event: NewPost): void {
     return
   }
   const actionType = getActionType(contentData.value)
-  if (actionType[0] == "article") {
-    handleArticleAction(actionType[1], contentData.value.toObject(), event)
-  } else if (actionType[0] == "publication") {
-    handlePublicationAction(actionType[1], contentData.value.toObject(), event)
+  const contentDataObject = contentData.value.toObject()
+
+  // authentication
+  if (!hasPermission(actionType, contentDataObject, event)) {
+    // return if the action is not allowed
+    log.warning("The user does not have permission for this action.", [
+      actionType[0].toString(),
+      actionType[1].toString(),
+    ])
+    return
+  }
+
+  if (actionType[0] == ACTION__ARTICLE) {
+    handleArticleAction(actionType[1], contentDataObject, event)
+  } else if (actionType[0] == ACTION__PUBLICATION) {
+    handlePublicationAction(actionType[1], contentDataObject, event)
   }
 }
