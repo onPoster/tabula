@@ -15,19 +15,35 @@ const options = {
   overrides: {
     h1: {
       component: Typography,
-      props: { gutterBottom: true, variant: 'h1' },
+      props: { 
+        gutterBottom: true,
+        variant: 'h1',
+        fontFamily: typography.fontFamilies.sans,
+      },
     },
     h2: {
       component: Typography,
-      props: { gutterBottom: true, variant: 'h2'  },
+      props: {
+        gutterBottom: true,
+        variant: 'h3',
+        component: 'h2',
+      },
     },
     h3: {
       component: Typography,
-      props: { gutterBottom: true, variant: 'h3'  },
+      props: {
+        gutterBottom: true,
+        variant: 'h4',
+        component: 'h3',
+      },
     },
     h4: {
       component: Typography,
-      props: { gutterBottom: true, variant: 'h4'  },
+      props: {
+        gutterBottom: true,
+        variant: 'h5',
+        component: 'h4',
+      },
     },
     h5: {
       component: Typography,

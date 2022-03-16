@@ -6,6 +6,7 @@ export const night = createTheme(theme, {
     mode: 'dark',
     text: {
       primary: palette.whites[1000],
+      secondary: palette.whites[900],
     },
   },
 })

@@ -12,6 +12,7 @@ declare module "*.woff2"
 export const palette = {
   grays: {
     1000: "#242424",
+    900: "#4B4A46E6", // 90%
     800: "#4B4A46CC", // 80%
     600: "#4B4A4699", // 60%
     400: "#4B4A4666", // 40%
@@ -21,6 +22,7 @@ export const palette = {
   },
   whites: {
     1000: "#ffffff",
+    900: "#ffffffE6", // 90%
     800: "#ffffffCC", // 80%
     600: "#ffffff99", // 60%
     400: "#ffffff66", // 40%
@@ -73,8 +75,8 @@ let theme = createTheme({
     fontFamily: typography.fontFamilies.textSerif,
     h1: {
       fontFamily: typography.fontFamilies.displaySerif,
-      fontSize: '4rem',
-      fontWeight: 400,
+      fontSize: '3rem',
+      fontWeight: 600,
       marginBlockStart: '2.5rem',
       lineHeight: 1,
     },
@@ -86,24 +88,28 @@ let theme = createTheme({
       lineHeight: 1,
     },
     h3: {
-      fontSize: '2.25rem',
-      marginBlockStart: '2rem',
-      fontFamily: typography.fontFamilies.textSerif,
-    },
-    h4: {
       fontSize: '2rem',
       marginBlockStart: '2rem',
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.displaySerif,
+      fontWeight: 600,
     },
-    h5: {
+    h4: {
       fontSize: '1.75rem',
       marginBlockStart: '2rem',
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.displaySerif,
+      fontWeight: 600,
     },
-    h6: {
+    h5: {
       fontSize: '1.5rem',
       marginBlockStart: '2rem',
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.displaySerif,
+      fontWeight: 600,
+    },
+    h6: {
+      fontSize: '1.25rem',
+      marginBlockStart: '2rem',
+      fontFamily: typography.fontFamilies.displaySerif,
+      fontWeight: 600,
     },
     subtitle1: {
       fontFamily: typography.fontFamilies.textSerif,
