@@ -131,10 +131,10 @@ function App() {
         }}
       >
         <Container maxWidth="lg" sx={{ zIndex: 2 }}>
-          <Typography color="primary" component="div" letterSpacing={4} textTransform="uppercase" variant="h5">
+          <Typography color="primary" component="div" fontFamily={typography.fontFamilies.sans} letterSpacing={4} textTransform="uppercase" variant="h5">
             Introducing
           </Typography>
-          <Typography variant="h1" textTransform="uppercase" fontSize="6rem" color={palette.whites[1000]}>
+          <Typography variant="h1" textTransform="uppercase" fontSize="6rem" color={palette.whites[1000]} sx={{marginBlockStart: 0, mt: 1}}>
             Tabula
           </Typography>
           <Typography variant="subtitle1" color={palette.whites[1000]}>
