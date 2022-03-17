@@ -1,39 +1,37 @@
-import React, { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import Page from "../layout/Page";
-import { Routes, Route, useParams, Link } from "react-router-dom";
-import "./post.css";
+import { useEffect, useState } from "react"
+import Page from "../layout/Page"
+import Markdown from '../Markdown';
+import { Container } from "@mui/material"
+import { useParams } from "react-router-dom"
 
 interface Content {
-  article: string;
-  authors: [string];
-  tags: [string];
-  title: string;
-  description: string;
-  image: string;
-  id: string;
+  article: string
+  authors: [string]
+  tags: [string]
+  title: string
+  description: string
+  image: string
+  id: string
 }
 
 function Post() {
-  const [postId, setPostId] = useState(useParams().postId);
-  const [post, setPost] = useState<Content>();
-  const [address, setAddress] = useState(useParams().address);
+  const [postId, setPostId] = useState(useParams().postId)
+  const [post, setPost] = useState<Content>()
+  const [address, setAddress] = useState(useParams().address)
 
   useEffect(() => {
-    console.log("POST PAGE");
+    console.log("POST PAGE")
     if (postId) {
-      getPost(postId);
+      getPost(postId)
     }
-  }, []);
+  }, [])
 
   async function getPost(postId: String) {
-    const result = await fetch(
-      `https://api.thegraph.com/subgraphs/name/onposter/tabula`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
+    const result = await fetch(`https://api.thegraph.com/subgraphs/name/onposter/tabula`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
         query {
           posts(where:{id: "${postId}"}) {
             id
@@ -46,25 +44,24 @@ function Post() {
             lastUpdated
           }
         }`,
-        }),
-      }
-    );
+      }),
+    })
 
-    const res = await result.json();
-    setPost(res.data.posts[0]);
+    const res = await result.json()
+    setPost(res.data.posts[0])
   }
 
   return (
     <Page address={address}>
-      <div className="post">
+      <Container maxWidth="sm">
         {post && (
-          <div>
-            <ReactMarkdown>{post.article}</ReactMarkdown>
-          </div>
+          <Markdown>
+            {post.article}
+          </Markdown>
         )}
-      </div>
+      </Container>
     </Page>
-  );
+  )
 }
 
-export default Post;
+export default Post
