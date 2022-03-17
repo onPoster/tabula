@@ -98,3 +98,80 @@ test("An account can NOT delete a standalone article that is created by another 
 
   clearStore()
 })
+
+test("An account can update a standalone article that it has created", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const title = "My First Blog Post"
+  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+  const createArticleContent = `{
+    "action": "article/create",
+    "article": "${article}",
+    "title": "${title}"
+  }`
+
+  const createArticlePostEvent = createNewPostEvent(user, createArticleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(createArticlePostEvent)
+  handleNewPost(createArticlePostEvent)
+
+  // check that the article is in the store
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", title)
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "article", article)
+
+  const updatedTitle = "My First Edited Blog Post"
+  const updatedArticle = "fake_BCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+
+  const updateArticleContent = `{
+    "action": "article/update",
+    "id": "${articleId}",
+    "article": "${updatedArticle}",
+    "title": "${updatedTitle}"
+  }`
+
+  const newUpdatePostEvent = createNewPostEvent(user, updateArticleContent, PUBLICATION_TAG)
+  handleNewPost(newUpdatePostEvent)
+
+  // check that the article is updated
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", updatedTitle)
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "article", updatedArticle)
+
+  clearStore()
+})
+
+test("An account can NOT update a standalone article that it has NOT created", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const title = "My First Blog Post"
+  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+  const createArticleContent = `{
+    "action": "article/create",
+    "article": "${article}",
+    "title": "${title}"
+  }`
+
+  const createArticlePostEvent = createNewPostEvent(user, createArticleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(createArticlePostEvent)
+  handleNewPost(createArticlePostEvent)
+
+  // check that the article is in the store
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", title)
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "article", article)
+
+  const updatedTitle = "My First Edited Blog Post"
+  const updatedArticle = "fake_BCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+
+  const updateArticleContent = `{
+    "action": "article/update",
+    "id": "${articleId}",
+    "article": "${updatedArticle}",
+    "title": "${updatedTitle}"
+  }`
+
+  const otherUser = Address.fromString("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4")
+  const newUpdatePostEvent = createNewPostEvent(otherUser, updateArticleContent, PUBLICATION_TAG)
+  handleNewPost(newUpdatePostEvent)
+
+  // check that the article is NOT updated
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", title)
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "article", article)
+
+  clearStore()
+})
