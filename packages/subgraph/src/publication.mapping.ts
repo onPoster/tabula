@@ -1,7 +1,14 @@
-import { JSONValue, TypedMap } from "@graphprotocol/graph-ts"
+import { JSONValue, log, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Permission, Publication } from "../generated/schema"
-import { getPermissionId, jsonToString, SUB_ACTION__CREATE, SUB_ACTION__DELETE } from "./utils"
+import {
+  getPermissionId,
+  jsonToArrayString,
+  jsonToString,
+  SUB_ACTION__CREATE,
+  SUB_ACTION__DELETE,
+  SUB_ACTION__UPDATE,
+} from "./utils"
 import { store } from "@graphprotocol/graph-ts"
 
 export const getPublicationId = (event: NewPost): string =>
@@ -28,7 +35,46 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     publication.title = jsonToString(content.get("title"))
     publication.description = jsonToString(content.get("description"))
     publication.image = jsonToString(content.get("image"))
+    publication.tags = jsonToArrayString(content.get("tags"))
+    publication.createdOn = event.block.timestamp
+    publication.lastUpdated = event.block.timestamp
     publication.save()
+  }
+  if (subAction == SUB_ACTION__UPDATE) {
+    const publicationId = jsonToString(content.get("id"))
+    const publication = Publication.load(publicationId)
+
+    if (!publication) {
+      log.info("Trying to update unknown publication", [publicationId])
+      return
+    }
+    let hasChanges = false
+
+    const title = jsonToString(content.get("title"))
+    if (title != "") {
+      publication.title = title
+      hasChanges = true
+    }
+    const description = jsonToString(content.get("description"))
+    if (description != "") {
+      publication.description = description
+      hasChanges = true
+    }
+    const image = jsonToString(content.get("image"))
+    if (image != "") {
+      publication.image = image
+      hasChanges = true
+    }
+    const tags = jsonToArrayString(content.get("tags"))
+    if (tags != []) {
+      publication.tags = tags
+      hasChanges = true
+    }
+
+    if (hasChanges) {
+      publication.lastUpdated = event.block.timestamp
+      publication.save()
+    }
   }
   if (subAction == SUB_ACTION__DELETE) {
     const publicationId = jsonToString(content.get("id"))

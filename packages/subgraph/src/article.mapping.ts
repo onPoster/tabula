@@ -41,7 +41,7 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
     const article = Article.load(articleId)
 
     if (!article) {
-      log.info("Trying to delete unknown article", [articleId])
+      log.info("Trying to update unknown article", [articleId])
       return
     }
     let hasChanges = false

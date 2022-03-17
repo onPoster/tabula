@@ -262,3 +262,70 @@ test("An account can NOT update an article in a publication where the account ha
 
   clearStore()
 })
+
+test("An account can update a publication where the account has `publication/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  const newPublicationTitle = "My First Edited Publication"
+  const newPublicationDescription = "This is actually the first description for this publication."
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "${newPublicationTitle}",
+    "description": "${newPublicationDescription}"
+  }`
+
+  const newPublicationUpdatePostEvent = createNewPostEvent(user, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", newPublicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "description", newPublicationDescription)
+
+  clearStore()
+})
+
+test("An account can NOT update a publication where the account does not have `publication/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  const newPublicationTitle = "My First Edited Publication"
+  const newPublicationDescription = "This is actually the first description for this publication."
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "${newPublicationTitle}",
+    "description": "${newPublicationDescription}"
+  }`
+
+  const otherUser = Address.fromString("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4")
+  const newPublicationUpdatePostEvent = createNewPostEvent(otherUser, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  clearStore()
+})
