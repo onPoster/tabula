@@ -10,7 +10,7 @@ A blogging app built on Poster (EIP-3722)
 
 ### Content
 
-Any properties can be added to articles, this is just a representation of the properties that are utilized in the current version of the Tablua user interface.
+Any properties can be added to articles, this is just a representation of the properties that are utilized in the current version of the Tabula user interface.
 
 #### Create Publication
 
