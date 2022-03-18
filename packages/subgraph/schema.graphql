@@ -17,8 +17,11 @@ type Publication @entity {
   title: String! # title of the publication
   description: String
   image: String # IPFS hash (pointing to a image) or a BASE64 encoded image string
+  tags: [String!] # array of tags
   articles: [Article!] @derivedFrom(field: "publication")
   permissions: [Permission!] @derivedFrom(field: "publication")
+  createdOn: BigInt! # unix timestamp
+  lastUpdated: BigInt! # unix timestamp
 }
 
 type Permission @entity {
