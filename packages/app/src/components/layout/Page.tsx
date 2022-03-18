@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
-import { shortAddress } from "../../utils/string";
-import icon from "./tabula-tablet-small.png";
-import "./Page.css";
+import { Link } from "react-router-dom"
+import { shortAddress } from "../../utils/string"
+import icon from "./tabula-tablet-small.png"
+import "./Page.css"
 
 type Props = {
-  title?: string;
-  address?: string;
-};
+  title?: string
+  address?: string
+}
 
 const Page: React.FC<Props> = ({ children, address }) => {
   return (
@@ -29,7 +29,7 @@ const Page: React.FC<Props> = ({ children, address }) => {
       </header>
       <main>{children}</main>
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page
