@@ -1,19 +1,19 @@
 import { Link } from "react-router-dom"
 import { Box, Typography } from "@mui/material"
-import theme, { palette, typography } from "../theme"
-import { SxProps, Theme } from '@mui/material/styles';
-import { shortAddress } from "../utils/string"
-import { Content } from '../models/Content';
+import { SxProps, Theme } from "@mui/material/styles"
+import { Post } from "../../models/content"
+import theme, { palette, typography } from "../../theme"
+import { shortAddress } from "../../utils/string"
+import React from "react"
 
 interface PostProps {
-  post: Content
+  post: Post
   address?: string
   link: string
   sx?: SxProps<Theme>
 }
 
-const PostPreview = ({ post, address, link, sx = [] }: PostProps) => {
-
+const PostPreview: React.FC<PostProps> = ({ post, address, link, sx = [] }) => {
   return (
     <Box sx={[...(Array.isArray(sx) ? sx : [sx])]}>
       <Link to={link}>
@@ -59,10 +59,7 @@ const PostPreview = ({ post, address, link, sx = [] }: PostProps) => {
               >
                 {post.image && <img src={post.image} alt={post.title && post.title} />}
               </Box>
-              <Typography
-                fontFamily={typography.fontFamilies.sans}
-                fontWeight={700}
-              >
+              <Typography fontFamily={typography.fontFamilies.sans} fontWeight={700}>
                 {post.authors ? post.authors : "Gnosis Guild"}
               </Typography>
               {address && (
@@ -80,13 +77,18 @@ const PostPreview = ({ post, address, link, sx = [] }: PostProps) => {
                 </Box>
               )}
             </Box>
-            <Typography variant="h6" component="h3" color="text.secondary" fontFamily={typography.fontFamilies.sans} fontWeight={700} lineHeight="1">
+            <Typography
+              variant="h6"
+              component="h3"
+              color="text.secondary"
+              fontFamily={typography.fontFamilies.sans}
+              fontWeight={700}
+              lineHeight="1"
+            >
               {post.title ? post.title : "Gossip of the Old World"}
             </Typography>
             <Typography color={palette.grays[800]} lineHeight="125%">
-              {post.description
-                ? post.description
-                : "Cooperatives, gaming guilds, and the networks to come"}
+              {post.description ? post.description : "Cooperatives, gaming guilds, and the networks to come"}
             </Typography>
             {post.description}
             <Box
