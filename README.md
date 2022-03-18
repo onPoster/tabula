@@ -12,41 +12,6 @@ A blogging app built on Poster (EIP-3722)
 
 Any properties can be added to articles, this is just a representation of the properties that are utilized in the current version of the Tablua user interface.
 
-#### Create Article
-
-| Property        |     Type     | Value                                                                                                                                  |
-| --------------- | :----------: | -------------------------------------------------------------------------------------------------------------------------------------- |
-| action\*        |    String    | "article/create"                                                                                                                       |
-| publicationId\* |    String    | The ID of the publication this article should be created in. The message sender needs `article/create` permissions to the publication. |
-| article\*       |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string                                                             |
-| title\*         |    String    | Content title                                                                                                                          |
-| authors         | String Array | Author addresses or names                                                                                                              |
-| tags            | String Array | Relevant content tags                                                                                                                  |
-| description     |    String    | Content description                                                                                                                    |
-| image           |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string                                                                       |
-
-#### Update Article
-
-The present properties will overwrite old properties (if a property does not exist, it will be created). The message sender needs `article/update` permission to the publication. |
-| Property | Type | Value |
-| ------------------ |:------:| -------- |
-| action* | String | "article/update" |
-| id* | String | ID of article to update (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
-| article | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
-| title | String | Content title |
-| authors | String Array | Author addresses or names |
-| tags | String Array | Relevant content tags |
-| description | String | Content description |
-| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
-
-#### Delete Article
-
-The message sender needs `article/delete` permission to the publication.
-| Property | Type | Value |
-| ------------------ |:------:| -------- |
-| action* | String | "article/delete" |
-| id* | String | ID of article to delete (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
-
 #### Create Publication
 
 On creation, the message sender gets all permissions. This can be edited via setting permissions.
@@ -99,5 +64,40 @@ When setting permissions `action` (with "publication/permissions" value), `id`, 
   "publication/permissions": true
 }
 ```
+
+#### Create Article
+
+| Property        |     Type     | Value                                                                                                                                  |
+| --------------- | :----------: | -------------------------------------------------------------------------------------------------------------------------------------- |
+| action\*        |    String    | "article/create"                                                                                                                       |
+| publicationId\* |    String    | The ID of the publication this article should be created in. The message sender needs `article/create` permissions to the publication. |
+| article\*       |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string                                                             |
+| title\*         |    String    | Content title                                                                                                                          |
+| authors         | String Array | Author addresses or names                                                                                                              |
+| tags            | String Array | Relevant content tags                                                                                                                  |
+| description     |    String    | Content description                                                                                                                    |
+| image           |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string                                                                       |
+
+#### Update Article
+
+The present properties will overwrite old properties (if a property does not exist, it will be created). The message sender needs `article/update` permission to the publication. |
+| Property | Type | Value |
+| ------------------ |:------:| -------- |
+| action* | String | "article/update" |
+| id* | String | ID of article to update (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
+| article | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
+| title | String | Content title |
+| authors | String Array | Author addresses or names |
+| tags | String Array | Relevant content tags |
+| description | String | Content description |
+| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+
+#### Delete Article
+
+The message sender needs `article/delete` permission to the publication.
+| Property | Type | Value |
+| ------------------ |:------:| -------- |
+| action* | String | "article/delete" |
+| id* | String | ID of article to delete (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
 
 `*` means requires
