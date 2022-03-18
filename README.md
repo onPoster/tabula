@@ -14,7 +14,7 @@ Any properties can be added to articles, this is just a representation of the pr
 
 #### Create Publication
 
-On creation, the message sender gets all permissions. This can be edited via setting permissions.
+Any account can create a new publication. On creation, the message sender gets all permissions. This can be edited via the `publication/permissions` action.
 
 | Property    |     Type     | Value                                                            |
 | ----------- | :----------: | ---------------------------------------------------------------- |
@@ -67,16 +67,17 @@ When setting permissions `action` (with "publication/permissions" value), `id`, 
 
 #### Create Article
 
-| Property        |     Type     | Value                                                                                                                                  |
+Post a new article to a publication. The message sender needs `article/create` permissions to the publication.
+| Property | Type | Value |
 | --------------- | :----------: | -------------------------------------------------------------------------------------------------------------------------------------- |
-| action\*        |    String    | "article/create"                                                                                                                       |
-| publicationId\* |    String    | The ID of the publication this article should be created in. The message sender needs `article/create` permissions to the publication. |
-| article\*       |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string                                                             |
-| title\*         |    String    | Content title                                                                                                                          |
-| authors         | String Array | Author addresses or names                                                                                                              |
-| tags            | String Array | Relevant content tags                                                                                                                  |
-| description     |    String    | Content description                                                                                                                    |
-| image           |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string                                                                       |
+| action\* | String | "article/create" |
+| publicationId\* | String | The ID of the publication this article should be created in.|
+| article\* | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
+| title\* | String | Content title |
+| authors | String Array | Author addresses or names |
+| tags | String Array | Relevant content tags |
+| description | String | Content description |
+| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
 
 #### Update Article
 
