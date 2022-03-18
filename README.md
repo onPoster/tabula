@@ -14,20 +14,20 @@ Any properties can be added to articles, this is just a representation of the pr
 
 #### Create Article
 
-| Property      |     Type     | Value                                                                                                                                                                                                                                                                        |
-| ------------- | :----------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| action\*      |    String    | "article/create"                                                                                                                                                                                                                                                             |
-| publicationId |    String    | The ID of the publication this article should be created in (the message sender needs publication permissions to the publication ). If omitted, the article is not part of a publication and the message sender has `article/update` and `article/delete` permissions to it. |
-| article\*     |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string                                                                                                                                                                                                   |
-| title\*       |    String    | Content title                                                                                                                                                                                                                                                                |
-| authors       | String Array | Author addresses or names                                                                                                                                                                                                                                                    |
-| tags          | String Array | Relevant content tags                                                                                                                                                                                                                                                        |
-| description   |    String    | Content description                                                                                                                                                                                                                                                          |
-| image         |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string                                                                                                                                                                                                             |
+| Property        |     Type     | Value                                                                                                                                  |
+| --------------- | :----------: | -------------------------------------------------------------------------------------------------------------------------------------- |
+| action\*        |    String    | "article/create"                                                                                                                       |
+| publicationId\* |    String    | The ID of the publication this article should be created in. The message sender needs `article/create` permissions to the publication. |
+| article\*       |    String    | IPFS hash (pointing to a Markdown document) or a markdown formatted string                                                             |
+| title\*         |    String    | Content title                                                                                                                          |
+| authors         | String Array | Author addresses or names                                                                                                              |
+| tags            | String Array | Relevant content tags                                                                                                                  |
+| description     |    String    | Content description                                                                                                                    |
+| image           |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string                                                                       |
 
 #### Update Article
 
-The present properties will overwrite old properties (if a property does not exist, it will be created). If the article is part of a publication, the message sender needs `article/update` permission to the publication. If the article is not part of a publication, the message sender must be the same as the message sender used for creating the referenced article.
+The present properties will overwrite old properties (if a property does not exist, it will be created). The message sender needs `article/update` permission to the publication. |
 | Property | Type | Value |
 | ------------------ |:------:| -------- |
 | action* | String | "article/update" |
@@ -41,7 +41,7 @@ The present properties will overwrite old properties (if a property does not exi
 
 #### Delete Article
 
-If the article is part of a publication, the message sender needs `article/delete` permission to the publication. If the article is not part of a publication, the message sender must be the same as the message sender used for creating the referenced article.
+The message sender needs `article/delete` permission to the publication.
 | Property | Type | Value |
 | ------------------ |:------:| -------- |
 | action* | String | "article/delete" |
