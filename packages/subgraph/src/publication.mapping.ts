@@ -1,12 +1,15 @@
-import { JSONValue, log, TypedMap } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap, ValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Permission, Publication } from "../generated/schema"
 import {
+  ACTION__ARTICLE,
+  ACTION__PUBLICATION,
   getPermissionId,
   jsonToArrayString,
   jsonToString,
   SUB_ACTION__CREATE,
   SUB_ACTION__DELETE,
+  SUB_ACTION__PERMISSIONS,
   SUB_ACTION__UPDATE,
 } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
@@ -79,5 +82,50 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
   if (subAction == SUB_ACTION__DELETE) {
     const publicationId = jsonToString(content.get("id"))
     store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
+  }
+  if (subAction == SUB_ACTION__PERMISSIONS) {
+    const publicationId = jsonToString(content.get("id"))
+    const account = Address.fromString(jsonToString(content.get("account")))
+    const newPermissions = content.get("permissions")
+
+    const permissionId = getPermissionId(publicationId, account)
+    let permission = Permission.load(permissionId)
+    if (!permission) {
+      permission = new Permission(permissionId)
+      permission.address = account
+      permission.publication = publicationId
+    }
+
+    if (newPermissions == null) {
+      log.warning("No new permissions to set.", [publicationId, account.toHex()])
+      return
+    }
+    // update permissions
+    const articleCreate = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__CREATE)
+    if (articleCreate != null && articleCreate.kind == JSONValueKind.BOOL) {
+      permission.articleCreate = articleCreate.toBool()
+    }
+    const articleUpdate = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__UPDATE)
+    if (articleUpdate != null && articleUpdate.kind == JSONValueKind.BOOL) {
+      permission.articleUpdate = articleUpdate.toBool()
+    }
+    const articleDelete = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__DELETE)
+    if (articleDelete != null && articleDelete.kind == JSONValueKind.BOOL) {
+      permission.articleDelete = articleDelete.toBool()
+    }
+    const publicationUpdate = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__UPDATE)
+    if (publicationUpdate != null && publicationUpdate.kind == JSONValueKind.BOOL) {
+      permission.publicationUpdate = publicationUpdate.toBool()
+    }
+    const publicationDelete = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__DELETE)
+    if (publicationDelete != null && publicationDelete.kind == JSONValueKind.BOOL) {
+      permission.publicationDelete = publicationDelete.toBool()
+    }
+    const publicationPermissions = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__PERMISSIONS)
+    if (publicationPermissions != null && publicationPermissions.kind == JSONValueKind.BOOL) {
+      permission.publicationPermissions = publicationPermissions.toBool()
+    }
+
+    permission.save()
   }
 }
