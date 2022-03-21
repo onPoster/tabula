@@ -4,11 +4,13 @@ schema:
 dataSources:
   - kind: ethereum
     name: Poster
-    network: rinkeby
+    # prettier-ignore
+    network: {{network}}
     source:
       address: "0x000000000000cd17345801aa8147b8D3950260FF"
       abi: Poster
-      startBlock: 10200158
+      # prettier-ignore
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
