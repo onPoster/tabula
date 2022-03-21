@@ -21,11 +21,10 @@ export const hasPermission = (actionType: String[], content: TypedMap<string, JS
     // every account is allowed to create publications
     return true
   }
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE && publicationId == "") {
-    // every account is allowed to post standalone articles
-    return true
-  }
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE && publicationId != "") {
+  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE) {
+    if (publicationId == "") {
+      log.error("A publication ID is required.", [])
+    }
     // check that the account has `article/create` permission for the publication
     return hasPublicationPermission(publicationId, event.params.user, actionType)
   }
@@ -42,18 +41,12 @@ export const hasPermission = (actionType: String[], content: TypedMap<string, JS
       return false
     }
 
-    if (article.publication == null && article.poster == event.params.user) {
-      // it is a standalone article posted by the user
-      // happy path
-      return true
+    if (article.publication == null) {
+      log.error("The article does not belong to a publication. This should never happen.", [articleId])
     }
 
-    if (article.publication != null) {
-      // check it is an article in a publication where the user has `article/update` permission
-      return hasPublicationPermission(changetype<string>(article.publication), event.params.user, actionType)
-    }
-
-    return false
+    // check it is an article in a publication where the user has `article/update` permission
+    return hasPublicationPermission(changetype<string>(article.publication), event.params.user, actionType)
   }
 
   if (
