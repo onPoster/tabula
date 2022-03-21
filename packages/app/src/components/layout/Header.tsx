@@ -1,8 +1,11 @@
-import { Link } from "react-router-dom"
-import { Box, Button, Container } from "@mui/material"
+import { Link, useNavigate } from "react-router-dom"
+import { Avatar, Box, Button, Container, Grid, Typography } from "@mui/material"
 import { makeStyles } from "@mui/styles"
 import { shortAddress } from "../../utils/string"
 import { ReactComponent as Logo } from "../../assets/images/tabula-logo-wordmark.svg"
+import { useWeb3React } from "@web3-react/core"
+import { palette, typography } from "../../theme"
+import * as blockies from "blockies-ts"
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -21,12 +24,13 @@ const useStyles = makeStyles(() => ({
 
 type Props = {
   logoColor: string
-  address?: string
 }
 
-const Header: React.FC<Props> = ({ logoColor, address }) => {
+const Header: React.FC<Props> = ({ logoColor }) => {
+  const { account, active } = useWeb3React()
+  const navigate = useNavigate()
   const classes = useStyles()
-
+  const avatarSrc = account && blockies.create({ seed: account }).toDataURL()
   return (
     <Container
       maxWidth="lg"
@@ -46,14 +50,19 @@ const Header: React.FC<Props> = ({ logoColor, address }) => {
         </Box>
       </Link>
 
-      {address ? (
-        <div className="publisher-link">
-          <Link to={`/${address}`}>
-            <p>{shortAddress(address)}</p>
-          </Link>
-        </div>
-      ) : (
-        <Button variant="contained">Connect Wallet</Button>
+      {account && (
+        <Grid display={"flex"} alignItems={"center"}>
+          {avatarSrc && <Avatar alt="avatar" src={avatarSrc} />}
+          <Typography color={palette.whites[1000]} fontFamily={typography.fontFamilies.sans} variant="h6" m={0} ml={2}>
+            {shortAddress(account)}
+          </Typography>
+        </Grid>
+      )}
+
+      {!active && (
+        <Button variant="contained" onClick={() => navigate("/wallet")}>
+          Connect Wallet
+        </Button>
       )}
     </Container>
   )
