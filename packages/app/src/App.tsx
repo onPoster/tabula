@@ -4,6 +4,7 @@ import { LandingView } from "./components/views/home/LandingView"
 import { PostView } from "./components/views/publishers/PostView"
 import { PublishersView } from "./components/views/publishers/PublishersView"
 import { QueryClient, QueryClientProvider } from "react-query"
+import { WalletView } from "./components/views/wallet/WalletView"
 
 const queryClient = new QueryClient()
 
@@ -12,6 +13,7 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <Routes>
         <Route path="/" element={<LandingView />} />
+        <Route path="/wallet" element={<WalletView />} />
         <Route path=":address" element={<PublishersView />} />
         <Route path=":address/:postId" element={<PostView />} />
       </Routes>
