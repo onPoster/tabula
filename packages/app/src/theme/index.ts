@@ -215,6 +215,20 @@ theme = createTheme(theme, {
         },
       },
     },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          background: "#e7e7e6",
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          height: 40,
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {
@@ -236,13 +250,25 @@ theme = createTheme(theme, {
         },
       },
     },
+    MuiCircularProgress: {
+      styleOverrides: {
+        root: {
+          color: palette.whites[1000],
+        },
+      },
+    },
     MuiChip: {
       styleOverrides: {
         root: {
           padding: "4px 8px",
           height: "auto",
-          backgroundColor: "rgba(217, 212, 173, 0.1)",
-          border: "1px solid rgba(217, 212, 173, 0.3)",
+          color: "#CA9103",
+          background: "rgba(202, 145, 3, 0.1)",
+          borderRadius: 4,
+          "& .MuiChip-deleteIcon": {
+            marginLeft: 1,
+            color: palette.secondary[1000],
+          },
         },
         avatar: {
           display: "contents !important",

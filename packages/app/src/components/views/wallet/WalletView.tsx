@@ -8,13 +8,15 @@ import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core"
 import { SUPPORTED_WALLETS } from "../../../constants/wallet"
 import { AbstractConnector } from "@web3-react/abstract-connector"
 
+const AFTER_CONNECT_SCREEN = "/publication/publish"
+
 export const WalletView: React.FC = () => {
   const navigate = useNavigate()
   const { activate, active } = useWeb3React()
 
   useEffect(() => {
     if (active) {
-      navigate(-1)
+      navigate(AFTER_CONNECT_SCREEN)
     }
   }, [active, navigate])
 

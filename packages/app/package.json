@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "tabula",
   "version": "0.1.0",
   "private": true,
   "license": "LGPL-2.1",
@@ -28,7 +28,10 @@
     "gh-pages": "^3.2.3",
     "graphql": "^16.3.0",
     "graphql-request": "^4.1.0",
+    "ipfs-http-client": "54.0.0",
+    "lodash": "^4.17.21",
     "markdown-to-jsx": "^7.1.7",
+    "notistack": "^2.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-query": "^3.34.16",
@@ -70,6 +73,7 @@
     "crypto": false
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.180",
     "prettier": "^2.5.1"
   }
 }
