@@ -21,6 +21,7 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import * as yup from "yup"
+import { usePublications } from "../../../services/publications/hooks/usePublications"
 
 const PublishContainer = styled(Container)(({ theme }) => ({
   [`${theme.breakpoints.down("md")}`]: {
@@ -80,6 +81,7 @@ type Post = {
 
 export const PublishView: React.FC = () => {
   const { createPublication, loading } = usePoster()
+  const { data: publications } = usePublications()
   const [tags, setTags] = useState<string[]>([])
   const [tag, setTag] = useState<string>("")
   const [publicationImg, setPublicationImg] = useState<File>()
@@ -140,22 +142,25 @@ export const PublishView: React.FC = () => {
               Welcome to Tabula!
             </Typography>
           </Grid>
-          <Grid>
-            <Grid container gap={2.5} my={3}>
-              <Typography> You&#39;ve been given permission to the following publication(s):</Typography>
-              <PublicationItem />
-              <PublicationItem />
+          {publications && publications.length > 0 && (
+            <Grid>
+              <Grid container gap={2.5} my={3}>
+                <Typography> You&#39;ve been given permission to the following publication(s):</Typography>
+                {publications.map((publication, index) => (
+                  <PublicationItem publication={publication} key={publication.title} />
+                ))}
+              </Grid>
+              <Grid my={3}>
+                <Divider>
+                  <PublishDividerTextContainer>
+                    <Typography variant="subtitle2" fontFamily={typography.fontFamilies.sans}>
+                      OR
+                    </Typography>
+                  </PublishDividerTextContainer>
+                </Divider>
+              </Grid>
             </Grid>
-            <Grid my={3}>
-              <Divider>
-                <PublishDividerTextContainer>
-                  <Typography variant="subtitle2" fontFamily={typography.fontFamilies.sans}>
-                    OR
-                  </Typography>
-                </PublishDividerTextContainer>
-              </Divider>
-            </Grid>
-          </Grid>
+          )}
           <Grid>
             <Typography color={palette.grays[1000]} variant="h5" fontFamily={typography.fontFamilies.sans}>
               Create a publication

@@ -5,7 +5,7 @@ import { useWallet } from "../../../hooks/useWallet"
 import { getContract } from "../contracts/contract"
 import { Publication } from "../type"
 
-const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc39cc1e2bb62" // keccak-256 of PUBLICATION
+const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
 const usePoster = () => {
   const { enqueueSnackbar } = useSnackbar()
