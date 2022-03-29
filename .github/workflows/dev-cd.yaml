@@ -20,8 +20,10 @@ jobs:
       - run: yarn build
         working-directory: packages/app
       - name: Setup fleek config file
+        working-directory: packages/app
         run: cp ./.fleek.dev.json ./.fleek.json
       - name: Deploy site
+        working-directory: packages/app
         id: deploy
         uses: fleekhq/action-deploy@v1
         with:
