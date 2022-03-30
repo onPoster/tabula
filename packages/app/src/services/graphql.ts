@@ -19,5 +19,7 @@ export const client = new GraphQLClient(BASE_URL, {
 export const subgraphClient = new GraphQLClient(BASE_SUBGRAPH_URL, {
   headers: {
     "content-type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
   },
 })
