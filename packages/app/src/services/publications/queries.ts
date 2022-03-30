@@ -8,6 +8,10 @@ export const GET_PUBLICATION_QUERY = gql`
       image
       tags
       title
+      permissions {
+        id
+        address
+      }
     }
   }
 `

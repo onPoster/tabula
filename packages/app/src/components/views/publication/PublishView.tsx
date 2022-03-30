@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   Button,
   Chip,
@@ -22,6 +22,9 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import * as yup from "yup"
 import { usePublications } from "../../../services/publications/hooks/usePublications"
+import { Publications } from "../../../models/publication"
+import { useWeb3React } from "@web3-react/core"
+import { filter } from "lodash"
 
 const PublishContainer = styled(Container)(({ theme }) => ({
   [`${theme.breakpoints.down("md")}`]: {
@@ -80,9 +83,11 @@ type Post = {
 }
 
 export const PublishView: React.FC = () => {
+  const { account } = useWeb3React()
   const { createPublication, loading } = usePoster()
   const { data: publications } = usePublications()
   const [tags, setTags] = useState<string[]>([])
+  const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
   const [tag, setTag] = useState<string>("")
   const [publicationImg, setPublicationImg] = useState<File>()
   const { uploadFile, ipfs } = useFiles()
@@ -94,8 +99,23 @@ export const PublishView: React.FC = () => {
     resolver: yupResolver(publicationSchema),
   })
 
+  useEffect(() => {
+    if (publications && publications.length && account) {
+      handlePublicationsToShow(publications, account)
+    }
+  }, [publications, account])
+
   const onSubmitHandler = (data: Post) => {
     handlePublication(data)
+  }
+
+  const handlePublicationsToShow = (publications: Publications[], address: string) => {
+    const show = filter(publications, { permissions: [{ address: address.toLowerCase() }] })
+    if (show.length) {
+      setPublicationsToShow(show as Publications[])
+    } else {
+      setPublicationsToShow([])
+    }
   }
 
   const handlePublication = async (data: Post) => {
@@ -142,11 +162,11 @@ export const PublishView: React.FC = () => {
               Welcome to Tabula!
             </Typography>
           </Grid>
-          {publications && publications.length > 0 && (
+          {publicationsToShow.length > 0 && (
             <Grid>
               <Grid container gap={2.5} my={3}>
                 <Typography> You&#39;ve been given permission to the following publication(s):</Typography>
-                {publications.map((publication, index) => (
+                {publicationsToShow.map((publication, index) => (
                   <PublicationItem publication={publication} key={publication.title} />
                 ))}
               </Grid>

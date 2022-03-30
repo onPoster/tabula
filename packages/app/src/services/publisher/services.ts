@@ -13,19 +13,23 @@ interface GetPost {
 }
 
 export const getPublishers = async () => {
-  const response = await client.request<GetPublishers>(GET_PUBLISHERS_QUERY)
-  return response.posts
+  const response = await client.query<GetPublishers>(GET_PUBLISHERS_QUERY).toPromise()
+  return response.data?.posts
 }
 
 export const getPublisherByAddress = async (address: string) => {
-  const response = await client.request<GetPublisherByAddress>(GET_PUBLISHER_QUERY, {
-    address,
-  })
-  return response.posts
+  const response = await client
+    .query<GetPublisherByAddress>(GET_PUBLISHER_QUERY, {
+      address,
+    })
+    .toPromise()
+  return response.data?.posts
 }
 export const getPost = async (postId: string) => {
-  const response = await client.request<GetPost>(GET_POST_QUERY, {
-    postId,
-  })
-  return response.posts
+  const response = await client
+    .query<GetPost>(GET_POST_QUERY, {
+      postId,
+    })
+    .toPromise()
+  return response.data?.posts
 }

@@ -7,6 +7,6 @@ interface GetPublications {
 }
 
 export const getPublications = async () => {
-  const response = await subgraphClient.request<GetPublications>(GET_PUBLICATION_QUERY)
-  return response.publications
+  const response = await subgraphClient.query<GetPublications>(GET_PUBLICATION_QUERY).toPromise()
+  return response.data?.publications
 }
