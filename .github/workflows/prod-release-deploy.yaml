@@ -1,0 +1,32 @@
+name: Prod Release Deployment
+
+on:
+  release:
+    types: created
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Prod
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - run: npm install -g yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile
+        working-directory: packages/app
+      - run: yarn build
+        working-directory: packages/app
+      - name: Setup fleek config file
+        working-directory: packages/app
+        run: cp ./.fleek.prod.json ./.fleek.json
+      - name: Deploy site
+        working-directory: packages/app
+        id: deploy
+        uses: fleekhq/action-deploy@v1
+        with:
+          apiKey: ${{ secrets.FLEEK_API_KEY }}
+      - name: Get the output url
+        run: echo "Deploy url is ${{ steps.deploy.outputs.deployUrl }}"

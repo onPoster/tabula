@@ -1,0 +1,14 @@
+{
+  "site": {
+    "id": "38630961-586a-478e-bc3a-a8b9cbad1277",
+    "team": "ae342e76-2b64-47fd-80f2-cf0274e932f7",
+    "platform": "ipfs",
+    "source": "ipfs",
+    "name": "tabula-dev"
+  },
+  "build": {
+    "baseDir": "",
+    "publicDir": "packages/app/build",
+    "rootDir": ""
+  }
+}
