@@ -1,11 +1,9 @@
 import { Link, useNavigate } from "react-router-dom"
-import { Avatar, Box, Button, Container, Grid, Typography } from "@mui/material"
+import { Box, Button, Container, Grid } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { shortAddress } from "../../utils/string"
 import { ReactComponent as Logo } from "../../assets/images/tabula-logo-wordmark.svg"
 import { useWeb3React } from "@web3-react/core"
-import { palette, typography } from "../../theme"
-import * as blockies from "blockies-ts"
+import { WalletBadge } from "../commons/WalletBadge"
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -24,13 +22,13 @@ const useStyles = makeStyles(() => ({
 
 type Props = {
   logoColor: string
+  showBadge?: boolean
 }
 
-const Header: React.FC<Props> = ({ logoColor }) => {
+const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const classes = useStyles()
-  const avatarSrc = account && blockies.create({ seed: account }).toDataURL()
   return (
     <Container
       maxWidth="lg"
@@ -50,12 +48,9 @@ const Header: React.FC<Props> = ({ logoColor }) => {
         </Box>
       </Link>
 
-      {account && (
+      {account && showBadge && (
         <Grid display={"flex"} alignItems={"center"}>
-          {avatarSrc && <Avatar alt="avatar" src={avatarSrc} />}
-          <Typography color={palette.whites[1000]} fontFamily={typography.fontFamilies.sans} variant="h6" m={0} ml={2}>
-            {shortAddress(account)}
-          </Typography>
+          <WalletBadge address={account} />
         </Grid>
       )}
 

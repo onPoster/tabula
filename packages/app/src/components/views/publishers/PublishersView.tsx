@@ -10,7 +10,7 @@ export const PublishersView: React.FC = () => {
   const { data: posts } = usePublishersByAddress(address || "")
 
   return (
-    <Page address={address}>
+    <Page>
       <Container maxWidth="md">
         {posts &&
           posts.map((post) => (
