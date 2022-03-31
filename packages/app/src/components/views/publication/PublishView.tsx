@@ -195,6 +195,7 @@ export const PublishView: React.FC = () => {
               <Grid container flexDirection="column" gap={2}>
                 <Grid item>
                   <Controller
+                    defaultValue=""
                     control={control}
                     name="title"
                     render={({ field }) => (
@@ -210,6 +211,7 @@ export const PublishView: React.FC = () => {
                 </Grid>
 
                 <Controller
+                  defaultValue=""
                   control={control}
                   name="description"
                   render={({ field }) => <TextField {...field} placeholder="Tagline" />}
