@@ -10,10 +10,7 @@ import benefit3 from "../../../assets/images/benefit3.png"
 import tabletHero from "../../../assets/images/tablet-hero-graphic.png"
 import paperTextureNight from "../../../assets/images/paper-texture-800-night.jpg"
 import { makeStyles } from "@mui/styles"
-import PostPreview from "../../commons/PostPreview"
 import { Publisher } from "../../../models/publisher"
-import { Post } from "../../../models/content"
-import { usePublishers } from "../../../services/publisher/hooks/usePublishers"
 
 const benefits = [
   {
@@ -51,7 +48,6 @@ const useStyles = makeStyles(() => ({
 
 export const LandingView: React.FC = () => {
   const classes = useStyles()
-  const { data: posts } = usePublishers()
   const publishers: Publisher[] = []
 
   return (
@@ -219,7 +215,6 @@ export const LandingView: React.FC = () => {
                               )}
                             </Box>
                             <Typography fontFamily={typography.fontFamilies.sans} color="textPrimary">
-                              {/* {publisher.title ? publisher.title : shortAddress(publisher.address)} */}
                               Gnosis Guild
                             </Typography>
                             <Typography
@@ -250,7 +245,7 @@ export const LandingView: React.FC = () => {
               <Typography variant="h4" component="h3" textTransform="uppercase" color="secondary">
                 Showcase
               </Typography>
-              {posts &&
+              {/* {posts &&
                 posts.map((post: Post, index) => (
                   <PostPreview
                     key={post.id}
@@ -259,7 +254,7 @@ export const LandingView: React.FC = () => {
                     link={`/${post.publisher}`}
                     sx={{ mt: index > 0 ? 5 : 3 }}
                   />
-                ))}
+                ))} */}
             </Grid>
           </Grid>
         </Container>
