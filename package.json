@@ -22,8 +22,9 @@
     "typescript": "^4.6.2"
   },
   "scripts": {
-    "predeploy": "yarn --cwd packages/app yarn run build",
-    "deploy": "yarn --cwd packages/app yarn deploy",
+    "build": "yarn app:build && yarn subgraph:build",
+    "app:build": "yarn --cwd packages/app build",
+    "subgraph:build": "yarn --cwd packages/subgraph build",
     "postinstall": "yarn --cwd packages/app install && yarn --cwd packages/subgraph install",
     "prepare": "husky install",
     "pre-commit": "yarn --cwd packages/app pre-commit && yarn --cwd packages/subgraph pre-commit"
