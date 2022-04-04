@@ -47,7 +47,7 @@ const usePoster = () => {
   const createArticle = async (fields: PosterArticle): Promise<any> => {
     const content: PosterArticle = {
       action: fields.action,
-      title: fields.article,
+      title: fields.title,
       article: fields.article,
       publicationId: fields.publicationId,
     }

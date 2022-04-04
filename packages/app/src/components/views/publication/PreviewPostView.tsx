@@ -145,7 +145,7 @@ export const PreviewPostView: React.FC = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Button variant="outlined" size="large" type="submit">
+              <Button variant="outlined" size="large" type="submit" disabled={loading}>
                 {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                 Publish now
               </Button>

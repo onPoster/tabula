@@ -32,6 +32,7 @@ export const CreatePostView: React.FC = () => {
     saveDraftArticle(data)
     navigate("/publication/preview-post")
   }
+  
 
   return (
     <PublicationPage publication={publication} showCreatePost={false}>
