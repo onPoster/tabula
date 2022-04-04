@@ -1,22 +1,16 @@
-import { Link } from "react-router-dom"
-import { Box, Typography } from "@mui/material"
-import { SxProps, Theme } from "@mui/material/styles"
-import { Post } from "../../models/content"
-import theme, { palette, typography } from "../../theme"
-import { shortAddress } from "../../utils/string"
 import React from "react"
-
+import { Box } from "@mui/material"
+import { SxProps, Theme } from "@mui/material/styles"
 interface PostProps {
-  post: Post
   address?: string
   link: string
   sx?: SxProps<Theme>
 }
 
-const PostPreview: React.FC<PostProps> = ({ post, address, link, sx = [] }) => {
+const PostPreview: React.FC<PostProps> = ({ address, link, sx = [] }) => {
   return (
     <Box sx={[...(Array.isArray(sx) ? sx : [sx])]}>
-      <Link to={link}>
+      {/* <Link to={link}>
         <Box
           sx={{
             alignItems: "stretch",
@@ -122,7 +116,7 @@ const PostPreview: React.FC<PostProps> = ({ post, address, link, sx = [] }) => {
             </Box>
           </Box>
         </Box>
-      </Link>
+      </Link> */}
     </Box>
   )
 }

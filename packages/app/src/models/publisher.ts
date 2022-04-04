@@ -1,8 +1,8 @@
-import { Post } from "./content"
+// import { Post } from "./content"
 
 export interface Publisher {
   address: string
   image?: string
-  posts: Post[]
+  // posts: Post[]
   title?: string
 }

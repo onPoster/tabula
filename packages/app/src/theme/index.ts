@@ -215,6 +215,19 @@ theme = createTheme(theme, {
         },
       },
     },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontFamily: typography.fontFamilies.sans,
+          textTransform: "capitalize",
+          fontWeight: "bold",
+          fontSize: "1.5rem",
+        },
+        sizeSmall: {
+          fontSize: "1rem",
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -225,7 +238,7 @@ theme = createTheme(theme, {
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          height: 40,
+          minHeight: 40,
         },
       },
     },

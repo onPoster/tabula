@@ -21,11 +21,13 @@ const PublicationIconGrid = styled(Grid)({
 
 type PublicationItemProps = {
   publication: Publications
+  onClick: () => void
 }
-const PublicationItem: React.FC<PublicationItemProps> = ({ publication }) => {
+
+const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick }) => {
   const { image, title, tags } = publication
   return (
-    <PublicationItemContainer container alignItems={"center"}>
+    <PublicationItemContainer container alignItems={"center"} onClick={onClick}>
       <Grid item xs={11}>
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
