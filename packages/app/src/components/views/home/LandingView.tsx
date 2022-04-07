@@ -15,21 +15,21 @@ import { Publisher } from "../../../models/publisher"
 const benefits = [
   {
     image: benefit1,
-    title: "Benefit #1",
+    title: "Resilient Content",
     description:
-      "Description for benefit #1. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Posts on Tabula are hosted on the distributed peer-to-peer IPFS network, ensuring censorship-resistance and no single point of failure.",
   },
   {
     image: benefit2,
-    title: "Benefit #2",
+    title: "Decentralized Ecosystem",
     description:
-      "Description for benefit #2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Tabula publications are created in a permissionless and trustless manner, without requiring support from an intermediary or governing body.",
   },
   {
     image: benefit3,
-    title: "Benefit #3",
+    title: "Unopinionated Ownership",
     description:
-      "Description for benefit #3. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Any Ethereum account can own a Tabula publication, making it ideal for single accounts, DAOs, and other multisig-based organizations.",
   },
 ]
 

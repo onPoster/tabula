@@ -1,7 +1,9 @@
-import { Avatar, Grid, styled, Typography } from "@mui/material"
+import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
+// import { usePublicationContext } from "../../../services/publications/contexts"
+import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
@@ -22,17 +24,29 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
 
 export const PublicationPostView: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
-  const { publication, fetchPublication } = usePublicationContext()
+  const { savePublication } = usePublicationContext()
+  const { data: publication, loading, executeQuery } = usePublication(postId || "")
   const [currentTab, setCurrentTab] = useState<string>("posts")
 
   useEffect(() => {
     if (postId) {
-      fetchPublication(postId)
+      executeQuery()
     }
-  }, [postId, fetchPublication])
+  }, [postId, executeQuery])
+
+  useEffect(() => {
+    if (publication) {
+      savePublication(publication)
+    }
+  }, [publication, savePublication])
 
   return (
     <PublicationPage publication={publication} showCreatePost={true}>
+      {loading && (
+        <Grid container justifyContent="center" alignItems="center" my={2}>
+          <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />
+        </Grid>
+      )}
       {publication && (
         <ViewContainer maxWidth="sm">
           <Grid container gap={11} flexDirection={"column"} mt={11}>

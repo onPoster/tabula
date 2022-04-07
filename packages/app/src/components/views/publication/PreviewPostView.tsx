@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button, Chip, CircularProgress, Grid, TextField, Typography } from "@mui/material"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
@@ -8,21 +8,58 @@ import CloseIcon from "@mui/icons-material/Close"
 import { useNavigate } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
-import { remove } from "lodash"
+import { maxBy, remove } from "lodash"
 import { useFiles } from "../../../hooks/useFiles"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { useWeb3React } from "@web3-react/core"
+import useArticles from "../../../services/publications/hooks/useArticles"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
-  const { publication, draftArticle } = usePublicationContext()
+  const { publication, draftArticle, saveArticle } = usePublicationContext()
   const [tag, setTag] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
   const [articleImg, setArticleImg] = useState<File>()
   const { control, handleSubmit } = useForm()
   const { uploadFile, ipfs } = useFiles()
-  const { createArticle, loading } = usePoster()
+  const { createArticle } = usePoster()
+  const { data, executeQuery, refetch } = useArticles()
+  const [loading, setLoading] = useState<boolean>(false)
+
+  //Execute method to bring all articles
+  useEffect(() => {
+    if (!data) {
+      executeQuery()
+    }
+  }, [data, executeQuery])
+
+  //Execute poll interval to know the latest publications indexed
+  useEffect(() => {
+    if (draftArticle && draftArticle.title !== "" && loading) {
+      const interval = setInterval(() => {
+        refetch()
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [refetch, draftArticle, loading])
+
+  //Method to know recent article created
+  useEffect(() => {
+    if (data && data.length && loading && draftArticle && draftArticle.title !== "") {
+      const recentArticle = maxBy(data, (article) => {
+        if (article.lastUpdated) {
+          return parseInt(article.lastUpdated)
+        }
+      })
+
+      if (recentArticle && recentArticle.title === draftArticle.title) {
+        saveArticle(recentArticle)
+        navigate(`/publication/article/${recentArticle.id}`)
+        setLoading(false)
+      }
+    }
+  }, [loading, navigate, data, draftArticle, saveArticle])
 
   const onSubmitHandler = (data: { description: string }) => {
     handleCreateArticle(data)
@@ -38,6 +75,7 @@ export const PreviewPostView: React.FC = () => {
         image = await uploadFile(articleImg)
       }
       if (title) {
+        setLoading(true)
         await createArticle({
           action: "article/create",
           publicationId: id,
@@ -47,6 +85,8 @@ export const PreviewPostView: React.FC = () => {
           tags,
           image: image?.path,
           authors: [account],
+        }).then((res) => {
+          if (res && res.error) setLoading(false)
         })
       }
     }

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { Routes, Route, useNavigate } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
-import { QueryClient, QueryClientProvider } from "react-query"
+import { Provider as UrqlProvider } from "urql"
 import { useWeb3React } from "@web3-react/core"
 /** Views **/
 import { LandingView } from "./components/views/home/LandingView"
@@ -13,10 +13,9 @@ import { PublicationPostView } from "./components/views/publication/PublicationP
 import { PublicationProvider } from "./services/publications/contexts"
 import { CreatePostView } from "./components/views/publication/CreatePostView"
 import { PreviewPostView } from "./components/views/publication/PreviewPostView"
+import { ArticleView } from "./components/views/publication/ArticleView"
 import ScrollToTop from "./components/commons/ScrollToTop"
-
-const queryClient = new QueryClient()
-
+import { subgraphClient } from "./services/graphql"
 const App: React.FC = () => {
   const navigate = useNavigate()
   const { active } = useWeb3React()
@@ -30,7 +29,7 @@ const App: React.FC = () => {
 
   return (
     <SnackbarProvider maxSnack={3}>
-      <QueryClientProvider client={queryClient}>
+      <UrqlProvider value={subgraphClient}>
         <PublicationProvider>
           <ScrollToTop />
           <Routes>
@@ -40,11 +39,12 @@ const App: React.FC = () => {
             <Route path="/publication/create-post" element={<CreatePostView />} />
             <Route path="/publication/preview-post" element={<PreviewPostView />} />
             <Route path="/publication/post/:postId" element={<PublicationPostView />} />
+            <Route path="/publication/article/:articleId" element={<ArticleView />} />
             <Route path=":address" element={<PublishersView />} />
             <Route path=":address/:postId" element={<PostView />} />
           </Routes>
         </PublicationProvider>
-      </QueryClientProvider>
+      </UrqlProvider>
     </SnackbarProvider>
   )
 }

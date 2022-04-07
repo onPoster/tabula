@@ -6,6 +6,7 @@ import { Publications } from "../../models/publication"
 import AddIcon from "@mui/icons-material/Add"
 import theme, { palette, typography } from "../../theme"
 import { useNavigate } from "react-router-dom"
+import usePublication from "../../services/publications/hooks/usePublication"
 
 type Props = {
   publication?: Publications
@@ -23,6 +24,7 @@ const ItemContainer = styled(Grid)({
 const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => {
   const { account } = useWeb3React()
   const navigate = useNavigate()
+  const { refetch } = usePublication(publication?.id || "")
   return (
     <Container
       maxWidth="lg"
@@ -36,22 +38,26 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
         zIndex: 2,
       }}
     >
-      <Grid container mt={1} alignItems={"center"} justifyContent={"space-between"}>
-        <Grid item>
-          <Grid
-            container
-            alignItems={"center"}
-            gap={2}
-            sx={{cursor: 'pointer'}}
-            onClick={() => navigate(`/publication/post/${publication?.id}`)}
-          >
-            <Avatar
-              sx={{ width: 47, height: 47 }}
-              src={publication?.image ? `https://ipfs.infura.io/ipfs/${publication.image}` : ""}
+      <Grid container mt={1} alignItems={"center"} justifyContent={publication ? "space-between" : "flex-end"}>
+        {publication && (
+          <Grid item>
+            <Grid
+              container
+              alignItems={"center"}
+              gap={2}
+              sx={{ cursor: "pointer" }}
+              onClick={() => {
+                refetch()
+                navigate(`/publication/post/${publication?.id}`)
+              }}
             >
-              {" "}
-            </Avatar>
-            {publication && (
+              <Avatar
+                sx={{ width: 47, height: 47 }}
+                src={publication?.image ? `https://ipfs.infura.io/ipfs/${publication.image}` : ""}
+              >
+                {" "}
+              </Avatar>
+
               <Typography
                 color={palette.grays[1000]}
                 variant="h5"
@@ -60,9 +66,10 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               >
                 {publication.title}
               </Typography>
-            )}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
+
         <Grid item>
           <ItemContainer container>
             {account && (

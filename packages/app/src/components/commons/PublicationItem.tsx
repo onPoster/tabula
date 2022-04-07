@@ -40,7 +40,7 @@ const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick 
               </Typography>
             </Grid>
           </Grid>
-          {tags && tags.length && (
+          {tags && tags.length > 0 && (
             <Grid item>
               <Grid container gap={1}>
                 {tags.map((tag, index) => (
