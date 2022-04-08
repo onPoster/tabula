@@ -14,6 +14,9 @@ const PostItemContainer = styled(Grid)({
   borderRadius: 4,
   padding: "10px 20px",
   cursor: "pointer",
+  "&:hover": {
+    background: palette.grays[200],
+  }
 })
 const PostItemIconGrid = styled(Grid)({
   display: "flex",
