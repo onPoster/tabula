@@ -24,8 +24,10 @@ import { Publications } from "../../../models/publication"
 import { useWeb3React } from "@web3-react/core"
 import { useNavigate } from "react-router-dom"
 import { accessPublications } from "../../../utils/permission"
-import { usePublicationContext } from "../../../services/publications/contexts"
 import { ViewContainer } from "../../commons/ViewContainer"
+import usePublications from "../../../services/publications/hooks/usePublications"
+import { maxBy } from "lodash"
+import { usePublicationContext } from "../../../services/publications/contexts"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -76,8 +78,10 @@ type Post = {
 export const PublishView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
-  const { createPublication, loading } = usePoster()
-  const { fetchPublications, publications } = usePublicationContext()
+  const { createPublication } = usePoster()
+  const [loading, setLoading] = useState<boolean>(false)
+  const { data: publications, executeQuery, refetch } = usePublications()
+  const { savePublications } = usePublicationContext()
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
   const [tag, setTag] = useState<string>("")
@@ -86,20 +90,54 @@ export const PublishView: React.FC = () => {
   const {
     control,
     handleSubmit,
+    watch,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(publicationSchema),
   })
 
+  const title = watch("title")
+
   useEffect(() => {
-    fetchPublications()
-  }, [fetchPublications])
+    if (!publications) {
+      executeQuery()
+    }
+  }, [publications, executeQuery])
+
+  //Execute poll interval to know the latest publications indexed
+  useEffect(() => {
+    if (title !== "") {
+      const interval = setInterval(() => {
+        refetch()
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [refetch, watch, title])
 
   useEffect(() => {
     if (publications && publications.length && account) {
       handlePublicationsToShow(publications, account)
     }
   }, [publications, account])
+
+  //Method to know recent publication created
+  useEffect(() => {
+    if (publications && publications.length && loading && title !== "") {
+      const recentPublished = maxBy(publications, (publication) => {
+        if (publication.lastUpdated) {
+          return parseInt(publication.lastUpdated)
+        }
+      })
+
+      if (recentPublished && recentPublished.title === title) {
+        savePublications(publications)
+        navigate(`/publication/post/${recentPublished.id}`)
+        reset()
+        setLoading(false)
+      }
+    }
+  }, [publications, loading, savePublications, navigate, title, reset])
 
   const onSubmitHandler = (data: Post) => {
     handlePublication(data)
@@ -111,6 +149,7 @@ export const PublishView: React.FC = () => {
   }
 
   const handlePublication = async (data: Post) => {
+    setLoading(true)
     const { title, description } = data
     let image
     if (ipfs && publicationImg) {
@@ -123,6 +162,8 @@ export const PublishView: React.FC = () => {
         description,
         tags,
         image: image?.path,
+      }).then((res) => {
+        if (res && res.error) setLoading(false)
       })
     }
   }
@@ -154,6 +195,7 @@ export const PublishView: React.FC = () => {
               Welcome to Tabula!
             </Typography>
           </Grid>
+
           {publicationsToShow.length > 0 && (
             <Grid>
               <Grid container gap={2.5} my={3}>

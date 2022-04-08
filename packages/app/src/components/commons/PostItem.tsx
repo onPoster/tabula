@@ -3,10 +3,13 @@ import { Chip, Grid, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette, typography } from "../../theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
-import { Post } from "../../models/publication"
+import { Article } from "../../models/publication"
 import EditIcon from "@mui/icons-material/Edit"
+import { shortTitle } from "../../utils/string"
+import moment from "moment"
+
 const PostItemContainer = styled(Grid)({
-  minHeight: 105,
+  minHeight: "105px",
   background: palette.grays[100],
   borderRadius: 4,
   padding: "10px 20px",
@@ -32,30 +35,30 @@ const PostItemEditContainer = styled(Grid)({
 })
 
 type PostItemProps = {
-  post: Post
-  onClick: () => void
+  article: Article
+  onClick: (articleId: string) => void
 }
-const PostItem: React.FC<PostItemProps> = ({ post, onClick }) => {
-  const { title, tags } = post
+const PostItem: React.FC<PostItemProps> = ({ article, onClick }) => {
+  const { title, tags, lastUpdated, id } = article
+  const articleTitle = shortTitle(title, 30)
+  const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
+
   return (
-    <PostItemContainer container alignItems={"center"} onClick={onClick}>
+    <PostItemContainer container alignItems={"center"} onClick={() => onClick(id ? id : "")}>
       <Grid item xs={10}>
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
             <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
-              {title}
+              {articleTitle}
             </Typography>
           </Grid>
-          {tags && tags.length && (
-            <Grid item>
-              <Grid container gap={1}>
-                <Typography>July 21, 2021</Typography>
-                {tags.map((tag, index) => (
-                  <Chip label={tag} size="small" key={index} />
-                ))}
-              </Grid>
+
+          <Grid item>
+            <Grid container gap={1}>
+              {date && <Typography>{moment(date).format("MMMM DD, YYYY")}</Typography>}
+              {tags && tags.length > 0 && tags.map((tag, index) => <Chip label={tag} size="small" key={index} />)}
             </Grid>
-          )}
+          </Grid>
         </Grid>
       </Grid>
       <PostItemIconGrid item xs={2}>

@@ -1,14 +1,15 @@
 import { TransactionReceipt } from "@ethersproject/providers"
-import { useSnackbar } from "notistack"
 import { useState } from "react"
+import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
 import { getContract } from "../contracts/contract"
 import { PosterArticle, Publication } from "../type"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
+const URL = "https://rinkeby.etherscan.io/tx/"
 const usePoster = () => {
-  const { enqueueSnackbar } = useSnackbar()
+  const openNotification = useNotification()
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
@@ -34,12 +35,21 @@ const usePoster = () => {
       try {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: URL + receipt.transactionHash,
+        })
         setLoading(false)
-        enqueueSnackbar(`Publication created ${receipt.transactionHash}`, { variant: "success" })
       } catch (error: any) {
         setLoading(false)
-        enqueueSnackbar(error.message, { variant: "error" })
-        console.error("error", error)
+        openNotification({
+          message: "An error has happened with execute transaction!",
+          variant: "error",
+          autoHideDuration: 5000,
+        })
+        return { error: true, message: error.message }
       }
     }
   }
@@ -71,11 +81,20 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
-        enqueueSnackbar(`Article created ${receipt.transactionHash}`, { variant: "success" })
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: URL + receipt.transactionHash,
+        })
       } catch (error: any) {
         setLoading(false)
-        enqueueSnackbar(error.message, { variant: "error" })
-        console.error("error", error)
+        openNotification({
+          message: "An error has happened with execute transaction!",
+          variant: "error",
+          autoHideDuration: 5000,
+        })
+        return { error: true, message: error.message }
       }
     }
   }

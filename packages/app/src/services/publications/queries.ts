@@ -12,6 +12,7 @@ export const GET_PUBLICATIONS_QUERY = gql`
         id
         address
       }
+      lastUpdated
     }
   }
 `
@@ -27,6 +28,64 @@ export const GET_PUBLICATION_QUERY = gql`
       permissions {
         id
         address
+      }
+      articles(orderDirection: asc) {
+        id
+        title
+        tags
+        poster
+        lastUpdated
+        postedOn
+        image
+        authors
+        description
+        article
+        publication {
+          title
+          image
+        }
+      }
+    }
+  }
+`
+
+export const GET_ARTICLE_QUERY = gql`
+  query getArticle($id: String!) {
+    article(id: $id) {
+      id
+      title
+      tags
+      poster
+      lastUpdated
+      postedOn
+      image
+      authors
+      description
+      article
+      publication {
+        title
+        image
+      }
+    }
+  }
+`
+
+export const GET_ARTICLES_QUERY = gql`
+  query getArticle {
+    articles {
+      id
+      title
+      tags
+      poster
+      lastUpdated
+      postedOn
+      image
+      authors
+      description
+      article
+      publication {
+        title
+        image
       }
     }
   }
