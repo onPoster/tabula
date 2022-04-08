@@ -3,7 +3,7 @@ import { useSnackbar } from "notistack"
 import { useState } from "react"
 import { useWallet } from "../../../hooks/useWallet"
 import { getContract } from "../contracts/contract"
-import { Publication } from "../type"
+import { PosterArticle, Publication } from "../type"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
@@ -44,6 +44,42 @@ const usePoster = () => {
     }
   }
 
-  return { createPublication, loading }
+  const createArticle = async (fields: PosterArticle): Promise<any> => {
+    const content: PosterArticle = {
+      action: fields.action,
+      title: fields.title,
+      article: fields.article,
+      publicationId: fields.publicationId,
+    }
+    if (fields.description) {
+      content.description = fields.description
+    }
+    if (fields.tags?.length) {
+      content.tags = fields.tags
+    }
+    if (fields.image) {
+      content.image = fields.image
+    }
+    if (fields.authors) {
+      content.authors = fields.authors
+    }
+
+    if (signer) {
+      setLoading(true)
+      const poster = contract.connect(signer)
+      try {
+        const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
+        const receipt: TransactionReceipt = await tx.wait()
+        setLoading(false)
+        enqueueSnackbar(`Article created ${receipt.transactionHash}`, { variant: "success" })
+      } catch (error: any) {
+        setLoading(false)
+        enqueueSnackbar(error.message, { variant: "error" })
+        console.error("error", error)
+      }
+    }
+  }
+
+  return { createPublication, createArticle, loading }
 }
 export default usePoster

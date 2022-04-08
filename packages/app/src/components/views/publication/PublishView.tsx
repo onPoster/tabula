@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import {
   Button,
   Chip,
-  Container,
   Divider,
   Grid,
   styled,
@@ -21,20 +20,12 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import * as yup from "yup"
-import { usePublications } from "../../../services/publications/hooks/usePublications"
 import { Publications } from "../../../models/publication"
 import { useWeb3React } from "@web3-react/core"
-import { filter } from "lodash"
-
-const PublishContainer = styled(Container)(({ theme }) => ({
-  [`${theme.breakpoints.down("md")}`]: {
-    padding: "0px 24px",
-  },
-
-  [`${theme.breakpoints.up("lg")}`]: {
-    padding: "0",
-  },
-}))
+import { useNavigate } from "react-router-dom"
+import { accessPublications } from "../../../utils/permission"
+import { usePublicationContext } from "../../../services/publications/contexts"
+import { ViewContainer } from "../../commons/ViewContainer"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -83,9 +74,10 @@ type Post = {
 }
 
 export const PublishView: React.FC = () => {
+  const navigate = useNavigate()
   const { account } = useWeb3React()
   const { createPublication, loading } = usePoster()
-  const { data: publications } = usePublications()
+  const { fetchPublications, publications } = usePublicationContext()
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
   const [tag, setTag] = useState<string>("")
@@ -100,6 +92,10 @@ export const PublishView: React.FC = () => {
   })
 
   useEffect(() => {
+    fetchPublications()
+  }, [fetchPublications])
+
+  useEffect(() => {
     if (publications && publications.length && account) {
       handlePublicationsToShow(publications, account)
     }
@@ -110,12 +106,8 @@ export const PublishView: React.FC = () => {
   }
 
   const handlePublicationsToShow = (publications: Publications[], address: string) => {
-    const show = filter(publications, { permissions: [{ address: address.toLowerCase() }] })
-    if (show.length) {
-      setPublicationsToShow(show as Publications[])
-    } else {
-      setPublicationsToShow([])
-    }
+    const show = accessPublications(publications, address)
+    setPublicationsToShow(show)
   }
 
   const handlePublication = async (data: Post) => {
@@ -156,7 +148,7 @@ export const PublishView: React.FC = () => {
   return (
     <Page showBadge>
       <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Post))}>
-        <PublishContainer maxWidth="sm">
+        <ViewContainer maxWidth="sm">
           <Grid mt={10}>
             <Typography color={palette.secondary[1000]} variant="h2" fontFamily={typography.fontFamilies.sans}>
               Welcome to Tabula!
@@ -166,8 +158,12 @@ export const PublishView: React.FC = () => {
             <Grid>
               <Grid container gap={2.5} my={3}>
                 <Typography> You&#39;ve been given permission to the following publication(s):</Typography>
-                {publicationsToShow.map((publication, index) => (
-                  <PublicationItem publication={publication} key={publication.title} />
+                {publicationsToShow.map((publication) => (
+                  <PublicationItem
+                    publication={publication}
+                    key={publication.title}
+                    onClick={() => navigate(`/publication/post/${publication.id}`)}
+                  />
                 ))}
               </Grid>
               <Grid my={3}>
@@ -241,7 +237,7 @@ export const PublishView: React.FC = () => {
               Create Publication
             </PublishButton>
           </Grid>
-        </PublishContainer>
+        </ViewContainer>
       </form>
     </Page>
   )

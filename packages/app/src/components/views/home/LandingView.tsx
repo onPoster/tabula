@@ -225,7 +225,7 @@ export const LandingView: React.FC = () => {
                               variant="body2"
                               sx={{ ml: 1, "&:hover": { textDecoration: "underline" } }}
                             >
-                              {publisher.posts.length} posts
+                              posts
                             </Typography>
                           </Box>
                         </Link>

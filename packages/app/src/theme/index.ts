@@ -202,16 +202,31 @@ theme = createTheme(theme, {
         root: {
           backgroundColor: theme.palette.primary.main,
           borderRadius: 2,
-          boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220166",
           color: palette.whites[1000],
           fontFamily: typography.fontFamilies.sans,
           fontSize: "1rem",
           fontWeight: 700,
           position: "relative",
           textTransform: "none",
+          "&:hover": {
+            backgroundColor: palette.primary[800],
+          },
         },
         sizeSmall: {
           fontSize: "0.75rem",
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontFamily: typography.fontFamilies.sans,
+          textTransform: "capitalize",
+          fontWeight: "bold",
+          fontSize: "1.5rem",
+        },
+        sizeSmall: {
+          fontSize: "1rem",
         },
       },
     },
@@ -225,7 +240,7 @@ theme = createTheme(theme, {
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          height: 40,
+          minHeight: 40,
         },
       },
     },
