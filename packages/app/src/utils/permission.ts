@@ -18,3 +18,21 @@ export const havePermission = (permissions: Permission[], address: string): bool
     return false
   }
 }
+
+export const usersWithPermissions = (permissions: Permission[]): Permission[] => {
+  const withPermissions = permissions.filter((permission) => {
+    let list
+    if (
+      permission.articleCreate ||
+      permission.articleDelete ||
+      permission.articleUpdate ||
+      permission.publicationDelete ||
+      permission.publicationPermissions ||
+      permission.publicationUpdate
+    ) {
+      list = permission
+    }
+    return list
+  })
+  return withPermissions || []
+}

@@ -20,7 +20,7 @@ import { ethers } from "ethers"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
-import { find } from "lodash"
+import { find, isEqual } from "lodash"
 import { WalletBadge } from "../../commons/WalletBadge"
 
 type OptionsType = {
@@ -99,6 +99,7 @@ export const PermissionView: React.FC = () => {
   const { publication, permission, savePublication } = usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
   const [loading, setLoading] = useState<boolean>(false)
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {
     control,
     handleSubmit,
@@ -131,8 +132,6 @@ export const PermissionView: React.FC = () => {
     }
   }, [type, setValue, permission])
 
-  console.log("watch()", watch())
-
   useEffect(() => {
     if (account) {
       const isValid = ethers.utils.isAddress(account)
@@ -149,39 +148,65 @@ export const PermissionView: React.FC = () => {
 
   //Execute poll interval to know the latest permission indexed
   useEffect(() => {
-    if (loading) {
+    if (loading || deleteLoading) {
       const interval = setInterval(() => {
         refetch()
       }, 5000)
       return () => clearInterval(interval)
     }
-  }, [refetch, loading])
+  }, [refetch, loading, deleteLoading])
 
   //Check if the new permission is already indexed
   useEffect(() => {
+    const oldPermissions = publication && publication.permissions
     const permissions = publicationRefetch?.permissions || []
-    if (permissions && permissions.length > 0 && account) {
+    if (type === "new" && permissions && permissions.length > 0 && account && loading) {
+      const oldPermission = find(oldPermissions, { address: account?.toLowerCase() })
       const isIndexed = find(permissions, { address: account.toLowerCase() })
-      if (isIndexed) {
+      if (isIndexed && !isEqual(oldPermission, isIndexed)) {
         setLoading(false)
         savePublication(publicationRefetch)
         navigate(-1)
       }
     }
-  }, [savePublication, account, publicationRefetch, navigate])
+  }, [savePublication, type, account, publicationRefetch, navigate, permission, loading, publication])
+
+  //Check if the update or delete permission is already indexed
+  useEffect(() => {
+    const oldPermissions = publication && publication.permissions
+    const permissions = publicationRefetch && publicationRefetch.permissions
+    if (oldPermissions && permissions && oldPermissions.length <= permissions.length) {
+      if (loading || deleteLoading) {
+        const address = permission?.address
+        const oldPermission = find(oldPermissions, { address: address?.toLowerCase() })
+        const indexedPermission = find(permissions, { address: address?.toLowerCase() })
+        if (oldPermission?.id === indexedPermission?.id) {
+          const isIndexed = isEqual(oldPermission, indexedPermission)
+          if (!isIndexed) {
+            setLoading(false)
+            setDeleteLoading(false)
+            savePublication(publicationRefetch)
+            navigate(-1)
+          }
+          return
+        }
+      }
+      return
+    }
+  }, [deleteLoading, loading, navigate, permission, publication, publicationRefetch, savePublication])
 
   const onSubmitHandler = (data: PermissionFormType) => {
     if (type === "new") {
-      handleNewPermission(data, "new")
+      handlePermission(data, "new")
     }
     if (type === "edit") {
-      handleNewPermission(data, "edit")
+      handlePermission(data, "edit")
     }
   }
 
-  const handleNewPermission = async (data: PermissionFormType, type: "new" | "edit") => {
+  const handlePermission = async (data: PermissionFormType, type: "new" | "edit" | "delete") => {
     if (publication) {
-      setLoading(true)
+      if (type === "new" || type === "edit") setLoading(true)
       await givePermission({
         action: "publication/permissions",
         id: publication.id,
@@ -195,9 +220,28 @@ export const PermissionView: React.FC = () => {
           "publication/permissions": data.publicationPermissions,
         },
       }).then((res) => {
-        if (res && res.error) setLoading(false)
+        if (res && res.error) {
+          setDeleteLoading(false)
+          setLoading(false)
+        }
       })
     }
+  }
+
+  const handleDeletePermission = () => {
+    setDeleteLoading(true)
+    handlePermission(
+      {
+        articleCreate: false,
+        articleDelete: false,
+        articleUpdate: false,
+        publicationDelete: false,
+        publicationPermissions: false,
+        publicationUpdate: false,
+        account: "",
+      },
+      "delete",
+    )
   }
 
   return (
@@ -286,8 +330,9 @@ export const PermissionView: React.FC = () => {
 
               {type === "edit" && (
                 <Grid item display="flex" justifyContent={"space-between"}>
-                  <Button variant="outlined" size="medium" onClick={() => navigate("/publication/permission")}>
-                    Delete
+                  <Button variant="contained" size="medium" onClick={handleDeletePermission} disabled={deleteLoading}>
+                    {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                    Remove User
                   </Button>
                   <Button variant="contained" size="medium" disabled={loading} type="submit">
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
