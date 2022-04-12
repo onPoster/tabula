@@ -213,6 +213,7 @@ theme = createTheme(theme, {
             backgroundColor: palette.primary[800],
             boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
           },
+          
         },
         sizeSmall: {
           fontSize: "0.75rem",

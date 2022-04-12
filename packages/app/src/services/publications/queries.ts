@@ -11,6 +11,12 @@ export const GET_PUBLICATIONS_QUERY = gql`
       permissions {
         id
         address
+        articleCreate
+        articleDelete
+        articleUpdate
+        publicationDelete
+        publicationPermissions
+        publicationUpdate
       }
       lastUpdated
     }
@@ -28,6 +34,12 @@ export const GET_PUBLICATION_QUERY = gql`
       permissions {
         id
         address
+        articleCreate
+        articleDelete
+        articleUpdate
+        publicationDelete
+        publicationPermissions
+        publicationUpdate
       }
       articles(orderDirection: asc) {
         id

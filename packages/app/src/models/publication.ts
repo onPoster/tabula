@@ -1,6 +1,21 @@
 export interface Permission {
   id: string
   address: string
+  articleCreate: boolean
+  articleDelete: boolean
+  articleUpdate: boolean
+  publicationDelete: boolean
+  publicationPermissions: boolean
+  publicationUpdate: boolean
+}
+
+export interface PermissionAction {
+  "article/create": boolean
+  "article/update": boolean
+  "article/delete": boolean
+  "publication/delete": boolean
+  "publication/update": boolean
+  "publication/permissions": boolean
 }
 
 export interface Publications {
@@ -20,7 +35,6 @@ export interface Post {
   tags?: string[] | null
   title: string
 }
-
 export interface Article {
   title: string
   article: string

@@ -16,6 +16,7 @@ import { PreviewPostView } from "./components/views/publication/PreviewPostView"
 import { ArticleView } from "./components/views/publication/ArticleView"
 import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
+import { PermissionView } from "./components/views/publication/PermissionView"
 const App: React.FC = () => {
   const navigate = useNavigate()
   const { active } = useWeb3React()
@@ -40,6 +41,7 @@ const App: React.FC = () => {
             <Route path="/publication/preview-post" element={<PreviewPostView />} />
             <Route path="/publication/post/:postId" element={<PublicationPostView />} />
             <Route path="/publication/article/:articleId" element={<ArticleView />} />
+            <Route path="/publication/permission/:type" element={<PermissionView />} />
             <Route path=":address" element={<PublishersView />} />
             <Route path=":address/:postId" element={<PostView />} />
           </Routes>
