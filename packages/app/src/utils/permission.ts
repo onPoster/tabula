@@ -27,12 +27,25 @@ export const usersWithPermissions = (permissions: Permission[]): Permission[] =>
       permission.articleDelete ||
       permission.articleUpdate ||
       permission.publicationDelete ||
-      permission.publicationPermissions ||
-      permission.publicationUpdate
+      permission.publicationUpdate ||
+      permission.publicationPermissions
     ) {
       list = permission
     }
     return list
   })
   return withPermissions || []
+}
+
+export const havePublicationPermission = (permissions: Permission[], address: string): boolean => {
+  const permission = filter(permissions, { address: address.toLowerCase() })
+  if (permission && permission.length > 0) {
+    if (permission[0].publicationPermissions) {
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
 }

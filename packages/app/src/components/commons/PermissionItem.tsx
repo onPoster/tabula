@@ -37,20 +37,29 @@ const PermissionItemEditContainer = styled(Grid)({
 
 type PermissionItemProps = {
   permission: Permission
+  canEdit: boolean
   onClick: (id: string) => void
 }
-const PermissionItem: React.FC<PermissionItemProps> = ({ permission, onClick }) => {
+const PermissionItem: React.FC<PermissionItemProps> = ({ permission, canEdit, onClick }) => {
   const { address, id } = permission
 
   return (
-    <PermissionItemContainer container alignItems={"center"} onClick={() => onClick(id ? id : "")}>
+    <PermissionItemContainer
+      container
+      alignItems={"center"}
+      onClick={() => {
+        canEdit && onClick(id ? id : "")
+      }}
+    >
       <Grid item xs={10}>
         <WalletBadge address={address} />
       </Grid>
       <PermissionItemIconGrid item xs={2}>
-        <PermissionItemEditContainer>
-          <EditIcon style={{ color: palette.grays[1000] }} />
-        </PermissionItemEditContainer>
+        {canEdit && (
+          <PermissionItemEditContainer>
+            <EditIcon style={{ color: palette.grays[1000] }} />
+          </PermissionItemEditContainer>
+        )}
       </PermissionItemIconGrid>
     </PermissionItemContainer>
   )
