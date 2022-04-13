@@ -27,10 +27,11 @@ const UploadEditButton = styled(Fab)({
 })
 
 type UploadFileProps = {
+  defaultImage?: string | undefined | null
   onFileSelected: (file: File) => void
 }
 
-export const UploadFile: React.FC<UploadFileProps> = ({ onFileSelected }) => {
+export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSelected }) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [file, setFile] = useState<File>()
   const [uri, setUri] = useState<string | null>(null)
@@ -54,7 +55,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ onFileSelected }) => {
 
   return (
     <>
-      {!uri && (
+      {!defaultImage && !uri && (
         <UploadFileContainer container gap={2} onClick={openImagePicker}>
           <Grid item>
             <AddIcon />
@@ -67,7 +68,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ onFileSelected }) => {
           </Grid>
         </UploadFileContainer>
       )}
-      {uri && (
+      {(defaultImage || uri) && (
         <UploadContainer>
           <Box
             component="img"
@@ -77,7 +78,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ onFileSelected }) => {
               objectFit: "cover",
             }}
             alt="Article image"
-            src={uri}
+            src={uri ? uri : `https://ipfs.infura.io/ipfs/${defaultImage}`}
           />
           <UploadEditButton color="primary" aria-label="edit" onClick={openImagePicker}>
             <EditIcon />

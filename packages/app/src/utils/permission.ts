@@ -1,6 +1,14 @@
 import { filter } from "lodash"
 import { Permission, Publications } from "../models/publication"
 
+type Action =
+  | "articleCreate"
+  | "articleDelete"
+  | "articleUpdate"
+  | "publicationDelete"
+  | "publicationPermissions"
+  | "publicationUpdate"
+
 export const accessPublications = (publications: Publications[], address: string): Publications[] => {
   const show = filter(publications, { permissions: [{ address: address.toLowerCase() }] })
   if (show.length) {
@@ -37,10 +45,10 @@ export const usersWithPermissions = (permissions: Permission[]): Permission[] =>
   return withPermissions || []
 }
 
-export const havePublicationPermission = (permissions: Permission[], address: string): boolean => {
+export const haveActionPermission = (permissions: Permission[], action: Action, address: string): boolean => {
   const permission = filter(permissions, { address: address.toLowerCase() })
   if (permission && permission.length > 0) {
-    if (permission[0].publicationPermissions) {
+    if (permission[0][action]) {
       return true
     } else {
       return false

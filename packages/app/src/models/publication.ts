@@ -49,5 +49,6 @@ export interface Article {
   publication?: {
     title: string
     image?: string
+    permissions: Permission[]
   }
 }

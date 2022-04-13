@@ -5,7 +5,7 @@ import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import CloseIcon from "@mui/icons-material/Close"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
 import { maxBy, remove } from "lodash"
@@ -13,19 +13,32 @@ import { useFiles } from "../../../hooks/useFiles"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { useWeb3React } from "@web3-react/core"
 import useArticles from "../../../services/publications/hooks/useArticles"
+import { haveActionPermission } from "../../../utils/permission"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
-  const { publication, draftArticle, saveArticle } = usePublicationContext()
+  const { type } = useParams<{ type: "new" | "edit" }>()
+  const { publication, article, draftArticle, saveArticle } = usePublicationContext()
   const [tag, setTag] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
   const [articleImg, setArticleImg] = useState<File>()
-  const { control, handleSubmit } = useForm()
+  const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
   const { uploadFile, ipfs } = useFiles()
-  const { createArticle } = usePoster()
+  const { createArticle, updateArticle } = usePoster()
   const { data, executeQuery, refetch } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
+  const permissions = article && article.publication && article.publication.permissions
+  const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
+  console.log("type", type)
+  console.log("draftArticle", draftArticle)
+  console.log("article", article)
+  useEffect(() => {
+    if (article && type === "edit") {
+      setTags(article.tags || [])
+      setValue("description", article.description || "")
+    }
+  }, [article, setValue, type])
 
   //Execute method to bring all articles
   useEffect(() => {
@@ -62,32 +75,48 @@ export const PreviewPostView: React.FC = () => {
   }, [loading, navigate, data, draftArticle, saveArticle])
 
   const onSubmitHandler = (data: { description: string }) => {
-    handleCreateArticle(data)
+    handleArticleAction(data)
   }
 
-  const handleCreateArticle = async (data: { description: string }) => {
+  const handleArticleAction = async (data: { description: string }) => {
     if (publication && draftArticle && account) {
       let image
       const { description } = data
       const { id } = publication
-      const { title, article } = draftArticle
+      const { title, article: draftArticleText } = draftArticle
       if (ipfs && articleImg) {
         image = await uploadFile(articleImg)
       }
       if (title) {
         setLoading(true)
-        await createArticle({
-          action: "article/create",
-          publicationId: id,
-          title,
-          article,
-          description,
-          tags,
-          image: image?.path,
-          authors: [account],
-        }).then((res) => {
-          if (res && res.error) setLoading(false)
-        })
+        if (type === "new") {
+          await createArticle({
+            action: "article/create",
+            publicationId: id,
+            title,
+            article: draftArticleText,
+            description,
+            tags,
+            image: image?.path,
+            authors: [account],
+          }).then((res) => {
+            if (res && res.error) setLoading(false)
+          })
+        }
+        if (type === "edit" && havePermissionToUpdate && article && article.id) {
+          await updateArticle({
+            action: "article/update",
+            id: article.id,
+            title,
+            article: draftArticleText,
+            description,
+            tags,
+            image: image ? image?.path : article.image,
+            authors: [account],
+          }).then((res) => {
+            if (res && res.error) setLoading(false)
+          })
+        }
       }
     }
   }
@@ -129,7 +158,7 @@ export const PreviewPostView: React.FC = () => {
               </Grid>
             </Grid>
             <Grid item>
-              <UploadFile onFileSelected={setArticleImg} />
+              <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />
             </Grid>
             <Grid item>
               <Typography
@@ -185,9 +214,9 @@ export const PreviewPostView: React.FC = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Button variant="outlined" size="large" type="submit" disabled={loading}>
+              <Button variant="contained" size="large" type="submit" disabled={loading}>
                 {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                Publish now
+                {type === "new" ? "Publish now" : "Publish update now"}
               </Button>
             </Grid>
           </Grid>

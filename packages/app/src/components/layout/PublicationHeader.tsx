@@ -79,7 +79,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
             )}
             {showCreatePost && (
               <Grid item>
-                <Button variant="contained" size={"large"} onClick={() => navigate("/publication/create-post")}>
+                <Button variant="contained" size={"large"} onClick={() => navigate("/publication/post-action/new")}>
                   <AddIcon style={{ marginRight: 13 }} />
                   New Post
                 </Button>
