@@ -29,12 +29,14 @@ export const PermissionSection: React.FC = () => {
             Permissions
           </Typography>
         </Grid>
-        <Grid item>
-          <Button variant="contained" size="medium" onClick={() => navigate("/publication/permission/new")}>
-            <AddIcon style={{ marginRight: 13 }} />
-            New Permission
-          </Button>
-        </Grid>
+        {havePermissionToEdit && (
+          <Grid item>
+            <Button variant="contained" size="medium" onClick={() => navigate("/publication/permission/new")}>
+              <AddIcon style={{ marginRight: 13 }} />
+              New Permission
+            </Button>
+          </Grid>
+        )}
       </Grid>
       <Grid container flexDirection="column" alignItems="flex-start" justifyContent={"flex-start"} gap={2}>
         {usersPermissions.length > 0 &&
