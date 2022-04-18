@@ -1,4 +1,4 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap, Value, ValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
 import * as ArticleAction from "../typings/ArticleAction"
@@ -21,11 +21,10 @@ export const hasPermission = (actionType: String[], content: TypedMap<string, JS
     // every account is allowed to create publications
     return true
   }
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE && publicationId == "") {
-    // every account is allowed to post standalone articles
-    return true
-  }
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE && publicationId != "") {
+  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE) {
+    if (publicationId == "") {
+      log.error("A publication ID is required.", [])
+    }
     // check that the account has `article/create` permission for the publication
     return hasPublicationPermission(publicationId, event.params.user, actionType)
   }
@@ -42,23 +41,19 @@ export const hasPermission = (actionType: String[], content: TypedMap<string, JS
       return false
     }
 
-    if (article.publication == null && article.poster == event.params.user) {
-      // it is a standalone article posted by the user
-      // happy path
-      return true
+    if (article.publication == null) {
+      log.error("The article does not belong to a publication. This should never happen.", [articleId])
     }
 
-    if (article.publication != null) {
-      // check it is an article in a publication where the user has `article/update` permission
-      return hasPublicationPermission(changetype<string>(article.publication), event.params.user, actionType)
-    }
-
-    return false
+    // check it is an article in a publication where the user has `article/update` permission
+    return hasPublicationPermission(changetype<string>(article.publication), event.params.user, actionType)
   }
 
   if (
     actionType[0] == ACTION__PUBLICATION &&
-    (actionType[1] == SUB_ACTION__UPDATE || actionType[1] == SUB_ACTION__DELETE)
+    (actionType[1] == SUB_ACTION__UPDATE ||
+      actionType[1] == SUB_ACTION__DELETE ||
+      actionType[1] == SUB_ACTION__PERMISSIONS)
   ) {
     const publicationId = jsonToString(content.get("id"))
     return hasPublicationPermission(publicationId, event.params.user, actionType)
@@ -113,22 +108,48 @@ function hasPublicationPermission(publicationId: string, user: Address, actionTy
     return false
   }
 
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__CREATE && permission.articleCreate) {
-    return true
-  }
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__UPDATE && permission.articleUpdate) {
-    return true
-  }
-  if (actionType[0] == ACTION__ARTICLE && actionType[1] == SUB_ACTION__DELETE && permission.articleDelete) {
-    return true
-  }
-  if (actionType[0] == ACTION__PUBLICATION && actionType[1] == SUB_ACTION__UPDATE && permission.publicationUpdate) {
-    return true
-  }
-  if (actionType[0] == ACTION__PUBLICATION && actionType[1] == SUB_ACTION__DELETE && permission.publicationDelete) {
+  if (
+    permission.get("articleCreate") != null &&
+    actionType[0] == ACTION__ARTICLE &&
+    actionType[1] == SUB_ACTION__CREATE &&
+    permission.articleCreate
+  ) {
     return true
   }
   if (
+    permission.get("articleUpdate") != null &&
+    actionType[0] == ACTION__ARTICLE &&
+    actionType[1] == SUB_ACTION__UPDATE &&
+    permission.articleUpdate
+  ) {
+    return true
+  }
+  if (
+    permission.get("articleDelete") != null &&
+    actionType[0] == ACTION__ARTICLE &&
+    actionType[1] == SUB_ACTION__DELETE &&
+    permission.articleDelete
+  ) {
+    return true
+  }
+  if (
+    permission.get("publicationUpdate") != null &&
+    actionType[0] == ACTION__PUBLICATION &&
+    actionType[1] == SUB_ACTION__UPDATE &&
+    permission.publicationUpdate
+  ) {
+    return true
+  }
+  if (
+    permission.get("publicationDelete") != null &&
+    actionType[0] == ACTION__PUBLICATION &&
+    actionType[1] == SUB_ACTION__DELETE &&
+    permission.publicationDelete
+  ) {
+    return true
+  }
+  if (
+    permission.get("publicationPermissions") != null &&
     actionType[0] == ACTION__PUBLICATION &&
     actionType[1] == SUB_ACTION__PERMISSIONS &&
     permission.publicationPermissions
@@ -138,31 +159,3 @@ function hasPublicationPermission(publicationId: string, user: Address, actionTy
 
   return false
 }
-// export const jsonToArticleAction = (content: JSONValue): ArticleAction.Base => {
-//   const object = content.toObject()
-//   const stringObject = stringFromObject(object)
-//   const stringArrayObject = stringArrayFromObject(object)
-//   const action = {
-//     action: jsonToString(object.get("action")),
-//     id: stringObject("id"),
-//     article: stringObject("article"),
-//     title: stringObject("title"),
-//     publicationId: stringObject("publicationId"),
-//     authors: stringArrayObject("authors"),
-//     tags: stringArrayObject("tags"),
-//     description: stringObject("description"),
-//     image: stringObject("image"),
-//   }
-
-//   return action
-// }
-
-// const stringFromObject = (object: TypedMap<string, JSONValue>) => (key: string) => {
-//   const str = jsonToString(object.get(key))
-//   return str === "" ? undefined : str
-// }
-
-// const stringArrayFromObject = (object: TypedMap<string, JSONValue>) => (key: string) => {
-//   const strArray = jsonToArrayString(object.get(key))
-//   return strArray.length === 0 ? undefined : strArray
-// }

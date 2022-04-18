@@ -1,94 +1,54 @@
-import React, { useEffect, useState } from "react";
-import Page from "./components/layout/Page";
-import "./App.css";
-import { Link } from "react-router-dom";
-import { shortAddress } from "./utils/string";
-
-interface Content {
-  article: string;
-  authors: [string];
-  tags: [string];
-  title: string;
-  description: string;
-  publisher: string;
-  image: string;
-  id: string;
-}
-
-interface Publisher {
-  address: string;
-  posts: Array<Content>;
-}
-
-function App() {
-  const [publishers, setPublishers] = useState<Array<Publisher>>([]);
+import React, { useEffect } from "react"
+import { Routes, Route, useNavigate } from "react-router-dom"
+import { SnackbarProvider } from "notistack"
+import { Provider as UrqlProvider } from "urql"
+import { useWeb3React } from "@web3-react/core"
+/** Views **/
+import { LandingView } from "./components/views/home/LandingView"
+import { PostView } from "./components/views/publishers/PostView"
+import { PublishersView } from "./components/views/publishers/PublishersView"
+import { WalletView } from "./components/views/wallet/WalletView"
+import { PublishView } from "./components/views/publication/PublishView"
+import { PublicationPostView } from "./components/views/publication/PublicationPostView"
+import { PublicationProvider } from "./services/publications/contexts"
+import { CreatePostView } from "./components/views/publication/CreatePostView"
+import { PreviewPostView } from "./components/views/publication/PreviewPostView"
+import { ArticleView } from "./components/views/publication/ArticleView"
+import ScrollToTop from "./components/commons/ScrollToTop"
+import { subgraphClient } from "./services/graphql"
+import { PermissionView } from "./components/views/publication/PermissionView"
+const App: React.FC = () => {
+  const navigate = useNavigate()
+  const { active } = useWeb3React()
 
   useEffect(() => {
-    getPublishers();
-  }, []);
-
-  async function getPublishers() {
-    const result = await fetch(
-      `https://api.thegraph.com/subgraphs/name/onposter/tabula`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: `
-        query {
-          posts {
-            id
-            publisher
-            title
-            authors
-            tags
-            postedOn
-            lastUpdated
-          }
-        }`,
-        }),
-      }
-    );
-
-    const res = await result.json();
-    const publishers: Array<Publisher> = [];
-
-    res.data.posts.forEach((post: Content) => {
-      const index = publishers.findIndex(
-        (publisher) => publisher.address === post.publisher
-      );
-      if (index > -1) {
-        publishers[index].posts.push(post);
-      } else {
-        publishers.push({ address: post.publisher, posts: [post] });
-      }
-    });
-
-    setPublishers(publishers);
-  }
+    if (!active) {
+      navigate("/")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active])
 
   return (
-    <Page>
-      <div className="index">
-        <div className="intro">
-          <h2>Publishers:</h2>
-        </div>
-        <ul>
-          {publishers.map((publisher: Publisher) => (
-            <li key={publisher.address}>
-              <Link to={`/${publisher.address}`}>
-                <div className="publisher-box">
-                  <h3>{shortAddress(publisher.address)}</h3>
-
-                  <p>{publisher.posts.length} posts</p>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </Page>
-  );
+    <SnackbarProvider maxSnack={3}>
+      <UrqlProvider value={subgraphClient}>
+        <PublicationProvider>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<LandingView />} />
+            <Route path="/wallet" element={<WalletView />} />
+            <Route path="/publication/publish" element={<PublishView />} />
+            <Route path="/publication/create-post" element={<CreatePostView />} />
+            <Route path="/publication/preview-post" element={<PreviewPostView />} />
+            <Route path="/publication/post/:postId" element={<PublicationPostView />} />
+            <Route path="/publication/article/:articleId" element={<ArticleView />} />
+            <Route path="/publication/permission/:type" element={<PermissionView />} />
+            <Route path=":address" element={<PublishersView />} />
+            <Route path=":address/:postId" element={<PostView />} />
+          </Routes>
+        </PublicationProvider>
+      </UrqlProvider>
+    </SnackbarProvider>
+  )
 }
 
-export default App;
+export default App

@@ -9,17 +9,22 @@
     "subgraph"
   ],
   "dependencies": {
+    "@ethersproject/providers": "^5.6.1",
+    "axios": "^0.26.1",
     "gh-pages": "^3.2.3",
+    "markdown-to-jsx": "^7.1.7",
     "react-markdown": "^8.0.0",
-    "react-router-dom": "6"
+    "react-router-dom": "6",
+    "tiny-invariant": "^1.2.0"
   },
   "devDependencies": {
     "husky": "5.1.3",
     "typescript": "^4.6.2"
   },
   "scripts": {
-    "predeploy": "yarn --cwd packages/app yarn run build",
-    "deploy": "yarn --cwd packages/app yarn deploy",
+    "build": "yarn app:build && yarn subgraph:build",
+    "app:build": "yarn --cwd packages/app build",
+    "subgraph:build": "yarn --cwd packages/subgraph build",
     "postinstall": "yarn --cwd packages/app install && yarn --cwd packages/subgraph install",
     "prepare": "husky install",
     "pre-commit": "yarn --cwd packages/app pre-commit && yarn --cwd packages/subgraph pre-commit"

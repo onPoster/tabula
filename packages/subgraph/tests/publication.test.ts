@@ -39,7 +39,7 @@ test("An account can can create a publication", () => {
   clearStore()
 })
 
-test("An account can create a article in a publication (where the account has `article/create` permissions)", () => {
+test("An account can update a publication where the account has `publication/update` permissions", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const publicationTitle = "My First Publication"
   const publicationContent = `{
@@ -54,29 +54,25 @@ test("An account can create a article in a publication (where the account has `a
   assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
   assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
 
-  const articleTitle = "My First Blog Post"
-  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
-  const articleContent = `{
-    "action": "article/create",
-    "publicationId": "${publicationId}",
-    "article": "${article}",
-    "title": "${articleTitle}"
+  const newPublicationTitle = "My First Edited Publication"
+  const newPublicationDescription = "This is actually the first description for this publication."
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "${newPublicationTitle}",
+    "description": "${newPublicationDescription}"
   }`
 
-  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
-  const articleId = getArticleId(newArticlePostEvent)
-  handleNewPost(newArticlePostEvent)
+  const newPublicationUpdatePostEvent = createNewPostEvent(user, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
 
-  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
-  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "article", article)
-  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "publication", publicationId)
-
-  assert.notInStore(ARTICLE_ENTITY_TYPE, articleId + "_fake")
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", newPublicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "description", newPublicationDescription)
 
   clearStore()
 })
 
-test("An account can delete an article in a publication (where the account has `article/delete` permissions)", () => {
+test("An account can NOT update a publication where the account does not have `publication/update` permissions", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const publicationTitle = "My First Publication"
   const publicationContent = `{
@@ -88,76 +84,73 @@ test("An account can delete an article in a publication (where the account has `
   const publicationId = getPublicationId(newPublicationPostEvent)
   handleNewPost(newPublicationPostEvent)
 
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
   assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
 
-  const articleTitle = "My First Blog Post"
-  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
-  const articleContent = `{
-    "action": "article/create",
-    "publicationId": "${publicationId}",
-    "article": "${article}",
-    "title": "${articleTitle}"
+  const newPublicationTitle = "My First Edited Publication"
+  const newPublicationDescription = "This is actually the first description for this publication."
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "${newPublicationTitle}",
+    "description": "${newPublicationDescription}"
   }`
-
-  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
-  const articleId = getArticleId(newArticlePostEvent)
-  handleNewPost(newArticlePostEvent)
-
-  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
-
-  const articleDeleteContent = `{
-    "action": "article/delete",
-    "id": "${articleId}"
-  }`
-
-  const newArticleDeletePostEvent = createNewPostEvent(user, articleDeleteContent, PUBLICATION_TAG)
-  handleNewPost(newArticleDeletePostEvent)
-
-  assert.notInStore(ARTICLE_ENTITY_TYPE, articleId)
-
-  clearStore()
-})
-
-test("An account can NOT an delete an article in a publication (where the account do NOT have `article/delete` permissions)", () => {
-  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
-  const publicationTitle = "My First Publication"
-  const publicationContent = `{
-    "action": "publication/create",
-    "title": "${publicationTitle}"
-  }`
-
-  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
-  const publicationId = getPublicationId(newPublicationPostEvent)
-  handleNewPost(newPublicationPostEvent)
-
-  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
-
-  const articleTitle = "My First Blog Post"
-  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
-  const articleContent = `{
-    "action": "article/create",
-    "publicationId": "${publicationId}",
-    "article": "${article}",
-    "title": "${articleTitle}"
-  }`
-
-  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
-  const articleId = getArticleId(newArticlePostEvent)
-  handleNewPost(newArticlePostEvent)
-
-  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
 
   const otherUser = Address.fromString("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4")
-  const articleDeleteContent = `{
-    "action": "article/delete",
-    "id": "${articleId}"
+  const newPublicationUpdatePostEvent = createNewPostEvent(otherUser, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  clearStore()
+})
+
+test("An account can update a publication where the account is given `publication/update` permissions", () => {
+  // create a new publication
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
   }`
 
-  const newArticleDeletePostEvent = createNewPostEvent(otherUser, articleDeleteContent, PUBLICATION_TAG)
-  handleNewPost(newArticleDeletePostEvent)
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
 
-  // check that the article is not deleted
-  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "title", articleTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", publicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "id", publicationId)
+
+  // give an account permission to update the publication
+  const otherUser = Address.fromString("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4")
+  const publicationSetPermissions = `{
+    "action": "publication/permissions",
+    "id": "${publicationId}",
+    "account": "${otherUser.toHex()}",
+    "permissions": {
+      "publication/update": true
+    }
+  }`
+
+  const setPermissionsPostEvent = createNewPostEvent(user, publicationSetPermissions, PUBLICATION_TAG)
+  handleNewPost(setPermissionsPostEvent)
+
+  // check that the account can update the publication
+  const newPublicationTitle = "My First Edited Publication"
+  const newPublicationDescription = "This is actually the first description for this publication."
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "${newPublicationTitle}",
+    "description": "${newPublicationDescription}"
+  }`
+
+  const newPublicationUpdatePostEvent = createNewPostEvent(otherUser, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", newPublicationTitle)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "description", newPublicationDescription)
 
   clearStore()
 })

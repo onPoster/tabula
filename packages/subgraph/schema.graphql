@@ -1,6 +1,6 @@
 type Article @entity {
   id: ID!
-  publication: Publication
+  publication: Publication!
   poster: Bytes! # message sender for article creation event
   article: String! # markdown formatted string or IPFS hash
   authors: [String!] # array of authors (address or string name)
@@ -17,8 +17,11 @@ type Publication @entity {
   title: String! # title of the publication
   description: String
   image: String # IPFS hash (pointing to a image) or a BASE64 encoded image string
+  tags: [String!] # array of tags
   articles: [Article!] @derivedFrom(field: "publication")
   permissions: [Permission!] @derivedFrom(field: "publication")
+  createdOn: BigInt! # unix timestamp
+  lastUpdated: BigInt! # unix timestamp
 }
 
 type Permission @entity {

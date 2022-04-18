@@ -4,11 +4,12 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
+    "prebuild": "yarn prepare:rinkeby && yarn codegen",
     "test": "graph test",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ tabula",
-    "create-local": "graph create --node http://localhost:8020/ tabula",
-    "remove-local": "graph remove --node http://localhost:8020/ tabula",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 tabula",
+    "deploy:gnosis-chain": "yarn prepare:gnosis-chain && bash -c 'source .env && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN'",
+    "prepare:gnosis-chain": "mustache network_configs/gnosis-chain.json subgraph.template.yaml > subgraph.yaml",
+    "deploy:rinkeby": "yarn prepare:rinkeby && bash -c 'source .env && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__RINKEBY'",
+    "prepare:rinkeby": "mustache network_configs/rinkeby.json subgraph.template.yaml > subgraph.yaml",
     "fmt": "prettier '(test|src)/**/*.ts' -w",
     "pre-commit": "yarn fmt"
   },
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "matchstick-as": "^0.4.0",
+    "mustache": "^4.2.0",
     "prettier": "^2.5.1"
   }
 }
