@@ -11,7 +11,7 @@ import { getLibrary } from "./config"
 ReactDOM.render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
-      <HashRouter basename="/">
+      <HashRouter >
         <ThemeProvider theme={day}>
           <CssBaseline />
           <App />

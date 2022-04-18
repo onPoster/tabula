@@ -13,13 +13,15 @@ export const PUBLICATIONS_TABS_OPTIONS = [
 ]
 
 type PublicationTabsProps = {
-  onChange: (tab: string) => void
+  onChange: (tab: "posts" | "permissions" | "settings") => void
 }
 
 const PublicationTabs: React.FC<PublicationTabsProps> = ({ onChange }) => {
-  const [currentTab, setCurrentTab] = useState<string>(PUBLICATIONS_TABS_OPTIONS[0].value)
+  const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">(
+    PUBLICATIONS_TABS_OPTIONS[0].value as "posts" | "permissions" | "settings",
+  )
 
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleChange = (event: React.SyntheticEvent, newValue: "posts" | "permissions" | "settings") => {
     setCurrentTab(newValue)
   }
 
@@ -28,7 +30,7 @@ const PublicationTabs: React.FC<PublicationTabsProps> = ({ onChange }) => {
       onChange(currentTab)
     }
   }, [onChange, currentTab])
-  
+
   return (
     <PublicationStyledTabs
       value={currentTab}

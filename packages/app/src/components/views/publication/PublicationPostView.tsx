@@ -2,11 +2,11 @@ import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/materia
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
-// import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
+import { PermissionSection } from "./components/PermissionSection"
 import PostSection from "./components/PostSection"
 import PublicationTabs from "./components/PublicationTabs"
 
@@ -26,8 +26,8 @@ export const PublicationPostView: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
   const { savePublication } = usePublicationContext()
   const { data: publication, loading, executeQuery } = usePublication(postId || "")
-  const [currentTab, setCurrentTab] = useState<string>("posts")
-
+  const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">("posts")
+  
   useEffect(() => {
     if (postId) {
       executeQuery()
@@ -82,6 +82,7 @@ export const PublicationPostView: React.FC = () => {
             <Grid item>
               <PublicationTabs onChange={setCurrentTab} />
               {currentTab === "posts" && <PostSection />}
+              {currentTab === "permissions" && <PermissionSection />}
             </Grid>
           </Grid>
         </ViewContainer>

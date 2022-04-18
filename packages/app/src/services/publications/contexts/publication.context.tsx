@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Article, Publications } from "../../../models/publication"
+import { Article, Permission, Publications } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
 
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
@@ -11,11 +11,13 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [publication, setPublication] = useState<Publications | undefined>(undefined)
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(undefined)
   const [article, setArticle] = useState<Article | undefined>(undefined)
+  const [permission, setPermission] = useState<Permission | undefined>(undefined)
 
   const savePublication = (publication: Publications | undefined) => setPublication(publication)
   const savePublications = (publications: Publications[] | undefined) => setPublications(publications)
   const saveDraftArticle = (article: Article) => setDraftArticle(article)
   const saveArticle = (article: Article) => setArticle(article)
+  const savePermission = (permission: Permission) => setPermission(permission)
 
   return (
     <PublicationContextProvider
@@ -24,6 +26,8 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         publications,
         draftArticle,
         article,
+        permission,
+        savePermission,
         savePublication,
         savePublications,
         saveArticle,

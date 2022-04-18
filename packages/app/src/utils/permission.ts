@@ -18,3 +18,34 @@ export const havePermission = (permissions: Permission[], address: string): bool
     return false
   }
 }
+
+export const usersWithPermissions = (permissions: Permission[]): Permission[] => {
+  const withPermissions = permissions.filter((permission) => {
+    let list
+    if (
+      permission.articleCreate ||
+      permission.articleDelete ||
+      permission.articleUpdate ||
+      permission.publicationDelete ||
+      permission.publicationUpdate ||
+      permission.publicationPermissions
+    ) {
+      list = permission
+    }
+    return list
+  })
+  return withPermissions || []
+}
+
+export const havePublicationPermission = (permissions: Permission[], address: string): boolean => {
+  const permission = filter(permissions, { address: address.toLowerCase() })
+  if (permission && permission.length > 0) {
+    if (permission[0].publicationPermissions) {
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
