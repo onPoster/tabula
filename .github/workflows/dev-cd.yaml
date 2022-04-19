@@ -57,4 +57,4 @@ jobs:
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__RINKEBY: samepant/tabula-dev
-        run: yarn ci:deploy:rinkeby
+        run: yarn deploy:rinkeby
