@@ -1,0 +1,26 @@
+name: PR Continuous Integration
+
+on:
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - run: npm install -g yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+
+      - name: Generate subgraph.yaml for Rinkeby
+        working-directory: packages/subgraph
+        run: yarn prepare:rinkeby
+
+      - name: Run subgraph tests
+        working-directory: packages/subgraph
+        run: yarn test
