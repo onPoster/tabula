@@ -33,8 +33,8 @@ export const PreviewPostView: React.FC = () => {
 
   useEffect(() => {
     if (article && type === "edit") {
-      setTags(article.tags || [])
-      setValue("description", article.description || "")
+      setTags(article.tags ?? [])
+      setValue("description", article.description ?? "")
     }
   }, [article, setValue, type])
 
@@ -101,7 +101,7 @@ export const PreviewPostView: React.FC = () => {
             if (res && res.error) setLoading(false)
           })
         }
-        if (type === "edit" && havePermissionToUpdate && article && article.id) {
+        if (type === "edit" && havePermissionToUpdate && article?.id) {
           await updateArticle({
             action: "article/update",
             id: article.id,
