@@ -7,7 +7,7 @@ on:
 env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
-  REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS }}
+  REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS_DEV }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
