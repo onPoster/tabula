@@ -20,6 +20,9 @@ const usePoster = () => {
       action: fields.action,
       title: fields.title,
     }
+    if (fields.id) {
+      content.id = fields.id
+    }
     if (fields.description) {
       content.description = fields.description
     }
@@ -41,6 +44,11 @@ const usePoster = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
+        })
+        openNotification({
+          message: "Your transaction is indexing",
+          autoHideDuration: 5000,
+          variant: "info",
         })
         setLoading(false)
       } catch (error: any) {
@@ -88,6 +96,11 @@ const usePoster = () => {
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
         })
+        openNotification({
+          message: "Your transaction is indexing",
+          autoHideDuration: 5000,
+          variant: "info",
+        })
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -133,6 +146,11 @@ const usePoster = () => {
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
         })
+        openNotification({
+          message: "Your transaction is indexing",
+          autoHideDuration: 5000,
+          variant: "info",
+        })
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -158,6 +176,11 @@ const usePoster = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
+        })
+        openNotification({
+          message: "Your transaction is indexing",
+          autoHideDuration: 5000,
+          variant: "info",
         })
       } catch (error: any) {
         setLoading(false)
@@ -185,6 +208,11 @@ const usePoster = () => {
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
         })
+        openNotification({
+          message: "Your transaction is indexing",
+          autoHideDuration: 5000,
+          variant: "info",
+        })
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -196,6 +224,7 @@ const usePoster = () => {
       }
     }
   }
+  
   return { executePublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
 }
 export default usePoster

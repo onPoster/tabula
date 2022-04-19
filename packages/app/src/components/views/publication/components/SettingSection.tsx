@@ -26,6 +26,7 @@ export const SettingSection: React.FC = () => {
   const [tags, setTags] = useState<string[]>([])
   const [tag, setTag] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
+  const [lastUpdate, setLastUpdate] = useState<number | undefined>(undefined)
   const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage, savePublication } =
     usePublicationContext()
   const { executePublication } = usePoster()
@@ -35,30 +36,29 @@ export const SettingSection: React.FC = () => {
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(publicationSchema),
   })
-  const title = watch("title")
+
   useEffect(() => {
-    if (!loading) {
-      saveIsEditing(true)
-    }
+    saveIsEditing(true)
+
     // returned function will be called on component unmount
     return () => {
       saveIsEditing(false)
       saveDraftPublicationImage(undefined)
     }
-  }, [loading, saveDraftPublicationImage, saveIsEditing])
+  }, [saveDraftPublicationImage, saveIsEditing])
 
   useEffect(() => {
-    if (publication) {
+    if (publication && !loading && publication.lastUpdated) {
       setValue("title", publication.title)
-      setValue("description", publication.description)
+      setValue("description", publication.description || "")
       setTags(publication.tags || [])
+      setLastUpdate(parseInt(publication.lastUpdated))
     }
-  }, [publication, setValue])
+  }, [loading, publication, setValue])
 
   //Execute poll interval to know the latest publications indexed
   useEffect(() => {
@@ -72,13 +72,13 @@ export const SettingSection: React.FC = () => {
 
   //Method to know recent publication
   useEffect(() => {
-    if (publicationRefetch && loading && title !== "") {
-      if (publicationRefetch.title === title) {
+    if (publicationRefetch && loading && lastUpdate) {
+      if (publicationRefetch.lastUpdated && parseInt(publicationRefetch.lastUpdated) > lastUpdate) {
         savePublication(publicationRefetch)
         setLoading(false)
       }
     }
-  }, [loading, publicationRefetch, savePublication, title])
+  }, [lastUpdate, loading, publicationRefetch, savePublication])
 
   const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
     if (ev.key === "Enter") {
@@ -99,7 +99,6 @@ export const SettingSection: React.FC = () => {
   }
 
   const onSubmitHandler = (data: Post) => {
-    console.log("data", data)
     handlePublication(data)
   }
 
@@ -113,7 +112,7 @@ export const SettingSection: React.FC = () => {
     if (!draftPublicationImage && publication?.image) {
       image = { path: publication.image }
     }
-    if (title && publication) {
+    if (title && publication && publication.id) {
       await executePublication({
         id: publication.id,
         action: "publication/update",
@@ -124,6 +123,8 @@ export const SettingSection: React.FC = () => {
       }).then((res) => {
         if (res && res.error) setLoading(false)
       })
+    } else {
+      setLoading(false)
     }
   }
 
@@ -156,6 +157,7 @@ export const SettingSection: React.FC = () => {
               render={({ field }) => (
                 <TextField {...field} value={field.value} placeholder="Tagline" sx={{ width: "100%" }} />
               )}
+              rules={{ required: true }}
             />
           </Grid>
           <Grid item>
