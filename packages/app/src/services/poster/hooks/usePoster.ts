@@ -15,7 +15,7 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const createPublication = async (fields: Publication): Promise<any> => {
+  const executePublication = async (fields: Publication): Promise<any> => {
     const content: Publication = {
       action: fields.action,
       title: fields.title,
@@ -99,6 +99,7 @@ const usePoster = () => {
       }
     }
   }
+
   const updateArticle = async (fields: PosterUpdateArticle): Promise<any> => {
     const content: PosterUpdateArticle = {
       action: fields.action,
@@ -195,6 +196,6 @@ const usePoster = () => {
       }
     }
   }
-  return { createPublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
+  return { executePublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
 }
 export default usePoster
