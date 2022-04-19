@@ -6,9 +6,9 @@
     "build": "graph build",
     "prebuild": "yarn prepare:rinkeby && yarn codegen",
     "test": "graph test",
-    "deploy:gnosis-chain": "yarn prepare:gnosis-chain && bash -c 'source .env && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN'",
+    "deploy:gnosis-chain": "yarn prepare:gnosis-chain && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN'",
     "prepare:gnosis-chain": "mustache network_configs/gnosis-chain.json subgraph.template.yaml > subgraph.yaml",
-    "deploy:rinkeby": "yarn prepare:rinkeby && bash -c 'source .env && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__RINKEBY'",
+    "deploy:rinkeby": "yarn prepare:rinkeby && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__RINKEBY'",
     "prepare:rinkeby": "mustache network_configs/rinkeby.json subgraph.template.yaml > subgraph.yaml",
     "fmt": "prettier '(test|src)/**/*.ts' -w",
     "pre-commit": "yarn fmt"
