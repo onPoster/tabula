@@ -28,15 +28,15 @@ export const PreviewPostView: React.FC = () => {
   const { createArticle, updateArticle } = usePoster()
   const { data, executeQuery, refetch } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
-  const permissions = article && article.publication && article.publication.permissions
-  const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
+  const permissions = article?.publication?.permissions
+  const havePermissionToUpdate = haveActionPermission(permissions ?? [], "articleUpdate", account || "")
   console.log("type", type)
   console.log("draftArticle", draftArticle)
   console.log("article", article)
   useEffect(() => {
     if (article && type === "edit") {
-      setTags(article.tags || [])
-      setValue("description", article.description || "")
+      setTags(article.tags ?? [])
+      setValue("description", article.description ?? "")
     }
   }, [article, setValue, type])
 
@@ -103,7 +103,7 @@ export const PreviewPostView: React.FC = () => {
             if (res && res.error) setLoading(false)
           })
         }
-        if (type === "edit" && havePermissionToUpdate && article && article.id) {
+        if (type === "edit" && havePermissionToUpdate && article?.id) {
           await updateArticle({
             action: "article/update",
             id: article.id,

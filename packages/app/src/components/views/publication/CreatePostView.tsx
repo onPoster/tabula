@@ -61,7 +61,7 @@ export const CreatePostView: React.FC = () => {
 
   //Check is the transaction is already indexed
   useEffect(() => {
-    if (loading && publicationRefetch && publicationRefetch.articles && article) {
+    if (loading && publicationRefetch?.articles && article) {
       const articleDeleted = find(publicationRefetch.articles, { id: article.id })
       if (!articleDeleted) {
         setLoading(false)
