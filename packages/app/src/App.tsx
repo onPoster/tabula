@@ -37,8 +37,8 @@ const App: React.FC = () => {
             <Route path="/" element={<LandingView />} />
             <Route path="/wallet" element={<WalletView />} />
             <Route path="/publication/publish" element={<PublishView />} />
-            <Route path="/publication/create-post" element={<CreatePostView />} />
-            <Route path="/publication/preview-post" element={<PreviewPostView />} />
+            <Route path="/publication/post-action/:type" element={<CreatePostView />} />
+            <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
             <Route path="/publication/post/:postId" element={<PublicationPostView />} />
             <Route path="/publication/article/:articleId" element={<ArticleView />} />
             <Route path="/publication/permission/:type" element={<PermissionView />} />

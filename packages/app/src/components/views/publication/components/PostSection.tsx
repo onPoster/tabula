@@ -8,7 +8,7 @@ import { usePublicationContext } from "../../../../services/publications/context
 
 const PostSection: React.FC = () => {
   const navigate = useNavigate()
-  const { publication, saveArticle } = usePublicationContext()
+  const { publication } = usePublicationContext()
   const articles = publication && publication.articles
   return (
     <>
@@ -24,7 +24,7 @@ const PostSection: React.FC = () => {
           </Typography>
         </Grid>
         <Grid item>
-          <Button variant="contained" size="medium" onClick={() => navigate("/publication/create-post")}>
+          <Button variant="contained" size="medium" onClick={() => navigate("/publication/post-action/new")}>
             <AddIcon style={{ marginRight: 13 }} />
             New Post
           </Button>
@@ -35,13 +35,7 @@ const PostSection: React.FC = () => {
           articles.length > 0 &&
           articles.map((article) => (
             <Grid item sx={{ width: "100%" }} key={article.id || ""}>
-              <PostItem
-                article={article}
-                onClick={(id) => {
-                  navigate(`/publication/article/${id}`)
-                  saveArticle(article)
-                }}
-              />
+              <PostItem article={article} />
             </Grid>
           ))}
       </Grid>

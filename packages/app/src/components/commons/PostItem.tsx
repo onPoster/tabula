@@ -7,16 +7,17 @@ import { Article } from "../../models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 import { shortTitle } from "../../utils/string"
 import moment from "moment"
+import { usePublicationContext } from "../../services/publications/contexts"
+import { useNavigate } from "react-router-dom"
 
 const PostItemContainer = styled(Grid)({
   minHeight: "105px",
   background: palette.grays[100],
   borderRadius: 4,
   padding: "10px 20px",
-  cursor: "pointer",
   "&:hover": {
     background: palette.grays[200],
-  }
+  },
 })
 const PostItemIconGrid = styled(Grid)({
   display: "flex",
@@ -39,15 +40,16 @@ const PostItemEditContainer = styled(Grid)({
 
 type PostItemProps = {
   article: Article
-  onClick: (articleId: string) => void
 }
-const PostItem: React.FC<PostItemProps> = ({ article, onClick }) => {
+const PostItem: React.FC<PostItemProps> = ({ article }) => {
+  const navigate = useNavigate()
+  const { saveArticle } = usePublicationContext()
   const { title, tags, lastUpdated, id } = article
   const articleTitle = shortTitle(title, 30)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
 
   return (
-    <PostItemContainer container alignItems={"center"} onClick={() => onClick(id ? id : "")}>
+    <PostItemContainer container alignItems={"center"}>
       <Grid item xs={10}>
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
@@ -66,10 +68,25 @@ const PostItem: React.FC<PostItemProps> = ({ article, onClick }) => {
       </Grid>
       <PostItemIconGrid item xs={2}>
         <Grid container alignItems={"center"} justifyContent={"space-between"}>
-          <PostItemEditContainer>
+          <PostItemEditContainer
+            item
+            onClick={() => {
+              navigate(`/publication/post-action/edit`)
+              saveArticle(article)
+            }}
+          >
             <EditIcon style={{ color: palette.grays[1000] }} />
           </PostItemEditContainer>
-          <ArrowForwardIosIcon />
+          <Grid
+            item
+            sx={{ cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center" }}
+            onClick={() => {
+              navigate(`/publication/article/${id}`)
+              saveArticle(article)
+            }}
+          >
+            <ArrowForwardIosIcon />
+          </Grid>
         </Grid>
       </PostItemIconGrid>
     </PostItemContainer>

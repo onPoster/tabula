@@ -5,7 +5,7 @@ import AddIcon from "@mui/icons-material/Add"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import PermissionItem from "../../../commons/PermissionItem"
 import { useNavigate } from "react-router-dom"
-import { havePublicationPermission, usersWithPermissions } from "../../../../utils/permission"
+import { haveActionPermission, usersWithPermissions } from "../../../../utils/permission"
 
 import { useWeb3React } from "@web3-react/core"
 
@@ -15,7 +15,7 @@ export const PermissionSection: React.FC = () => {
   const { publication, savePermission } = usePublicationContext()
   const permissions = publication?.permissions || []
   const usersPermissions = usersWithPermissions(permissions)
-  const havePermissionToEdit = havePublicationPermission(permissions, account || "")
+  const havePermissionToEdit = haveActionPermission(permissions, "publicationPermissions", account || "")
   return (
     <>
       <Grid container justifyContent="space-between" alignItems={"center"} my={4}>
