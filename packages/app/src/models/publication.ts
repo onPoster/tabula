@@ -47,6 +47,7 @@ export interface Article {
   postedOn?: string
   poster?: string
   publication?: {
+    id: string
     title: string
     image?: string
     permissions: Permission[]
