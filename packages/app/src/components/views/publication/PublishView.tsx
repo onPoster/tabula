@@ -78,7 +78,7 @@ type Post = {
 export const PublishView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
-  const { createPublication } = usePoster()
+  const { executePublication } = usePoster()
   const [loading, setLoading] = useState<boolean>(false)
   const { data: publications, executeQuery, refetch } = usePublications()
   const { savePublications } = usePublicationContext()
@@ -156,7 +156,7 @@ export const PublishView: React.FC = () => {
       image = await uploadFile(publicationImg)
     }
     if (title) {
-      await createPublication({
+      await executePublication({
         action: "publication/create",
         title,
         description,
