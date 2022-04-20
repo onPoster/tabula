@@ -44,8 +44,8 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
             <Grid
               container
               alignItems={"center"}
-              gap={2}
-              sx={{ cursor: "pointer" }}
+              gap={1}
+              sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": {opacity: 0.6} }}
               onClick={() => {
                 refetch()
                 navigate(`/publication/post/${publication?.id}`)

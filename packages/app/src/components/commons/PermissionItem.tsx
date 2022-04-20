@@ -1,38 +1,37 @@
 import React from "react"
-import { Grid } from "@mui/material"
+import { Box, Grid, Stack } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette } from "../../theme"
 import { Permission } from "../../models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 import { WalletBadge } from "./WalletBadge"
 
-const PermissionItemContainer = styled(Grid)({
+const PermissionItemContainer = styled(Box)({
+  alignItems: "center",
   minHeight: "48px",
   background: palette.grays[100],
   borderRadius: 4,
-  padding: "10px 20px",
   cursor: "pointer",
+  display: "flex",
+  padding: "10px 20px",
   "&:hover": {
     background: palette.grays[200],
   },
 })
-const PermissionItemIconGrid = styled(Grid)({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "#91908e",
-})
 
 const PermissionItemEditContainer = styled(Grid)({
-  border: `2px solid ${palette.grays[600]}`,
-  background: palette.whites[600],
+  alignItems: "center",
+  border: `2px solid ${palette.primary[400]}`,
+  background: palette.whites[400],
   borderRadius: 4,
+  color: palette.primary[800],
+  cursor: "pointer",
   display: "flex",
   justifyContent: "center",
-  alignItems: "center",
-  width: 32,
-  height: 32,
-  cursor: "pointer",
+  padding: 4,
+  "&:hover": {
+    background: palette.whites[1000],
+  }
 })
 
 type PermissionItemProps = {
@@ -45,22 +44,16 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ permission, canEdit, on
 
   return (
     <PermissionItemContainer
-      container
-      alignItems={"center"}
       onClick={() => {
         canEdit && onClick(id ? id : "")
       }}
     >
-      <Grid item xs={10}>
-        <WalletBadge address={address} />
-      </Grid>
-      <PermissionItemIconGrid item xs={2}>
-        {canEdit && (
-          <PermissionItemEditContainer>
-            <EditIcon style={{ color: palette.grays[1000] }} />
-          </PermissionItemEditContainer>
-        )}
-      </PermissionItemIconGrid>
+      <WalletBadge address={address} />
+      {canEdit && (
+        <PermissionItemEditContainer>
+          <EditIcon sx={{width: 20, height: 20}} />
+        </PermissionItemEditContainer>
+      )}
     </PermissionItemContainer>
   )
 }

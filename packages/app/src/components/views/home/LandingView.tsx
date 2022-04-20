@@ -68,31 +68,35 @@ export const LandingView: React.FC = () => {
         }}
       >
         <Container maxWidth="lg" sx={{ zIndex: 2 }}>
-          <Typography
-            color="primary"
-            component="div"
-            fontFamily={typography.fontFamilies.sans}
-            letterSpacing={4}
-            textTransform="uppercase"
-            variant="h5"
-          >
-            Introducing
-          </Typography>
-          <Typography
-            variant="h1"
-            textTransform="uppercase"
-            fontSize="6rem"
-            color={palette.whites[1000]}
-            sx={{ marginBlockStart: 0, mt: 1 }}
-          >
-            Tabula
-          </Typography>
-          <Typography variant="subtitle1" color={palette.whites[1000]}>
-            Create and share together on web3.
-          </Typography>
-          <Box sx={{ mt: 4 }}>
-            <Button variant="contained">Get Started</Button>
-          </Box>
+          <Grid container>
+            <Grid item xs={12} sm={6}>
+              <Typography
+                color="primary"
+                component="div"
+                fontFamily={typography.fontFamilies.sans}
+                letterSpacing={4}
+                textTransform="uppercase"
+                variant="h5"
+              >
+                Create your
+              </Typography>
+              <Typography
+                variant="h1"
+                textTransform="uppercase"
+                fontSize="6rem"
+                color={palette.whites[1000]}
+                sx={{ marginBlockStart: 0, mt: 1 }}
+              >
+                Tabula
+              </Typography>
+              <Typography variant="subtitle1" color={palette.whites[1000]}>
+                Instant web3 publications for writers, DAOs, and any Ethereum-based account.
+              </Typography>
+              <Box sx={{ mt: 4 }}>
+                <Button variant="contained">Get Started</Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Container>
         <Box
           sx={{
@@ -113,7 +117,7 @@ export const LandingView: React.FC = () => {
             },
             [`${theme.breakpoints.up("lg")}`]: {
               right: "-8vw",
-              width: "60vw",
+              width: "50vw",
             },
           }}
         >
@@ -123,24 +127,19 @@ export const LandingView: React.FC = () => {
       <Box
         component="section"
         sx={{
-          mt: "calc(100vh - 120px)",
+          mt: "calc(100vh - 80px)",
           pt: 8,
           [theme.breakpoints.down("md")]: {
             mt: "100vh",
           },
           [theme.breakpoints.down("sm")]: {
-            mt: "calc(100vh + 120px)",
+            mt: "calc(100vh + 160px)",
           },
         }}
       >
         <Container maxWidth="lg">
           <Typography variant="h2" color="secondary" fontSize={{ xs: "3rem", lg: "4rem" }} textTransform="uppercase">
-            Features &amp;
-            <br />
-            Benefits
-          </Typography>
-          <Typography color="secondary" variant="subtitle2">
-            Features &amp; Benefits description goes here.
+            Why Tabula?
           </Typography>
         </Container>
       </Box>
@@ -184,7 +183,7 @@ export const LandingView: React.FC = () => {
         <Container maxWidth="lg">
           <Grid container spacing={8} flexDirection="row-reverse">
             <Grid item xs={12} sm={5}>
-              <Box>
+              {/* <Box>
                 <Typography variant="h4" component="h3" textTransform="uppercase" color="secondary">
                   Discover
                 </Typography>
@@ -239,7 +238,7 @@ export const LandingView: React.FC = () => {
                     </Box>
                   ))}
                 </Box>
-              </Box>
+              </Box> */}
             </Grid>
             <Grid item xs={12} sm={7}>
               <Typography variant="h4" component="h3" textTransform="uppercase" color="secondary">
