@@ -10,6 +10,7 @@ import tabletHero from "../../../assets/images/tablet-hero-graphic.png"
 import paperTextureNight from "../../../assets/images/paper-texture-800-night.jpg"
 import { makeStyles } from "@mui/styles"
 
+
 const benefits = [
   {
     image: benefit1,

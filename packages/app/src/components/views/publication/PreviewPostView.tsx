@@ -28,11 +28,9 @@ export const PreviewPostView: React.FC = () => {
   const { createArticle, updateArticle } = usePoster()
   const { data, executeQuery, refetch } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
-  const permissions = article?.publication?.permissions
-  const havePermissionToUpdate = haveActionPermission(permissions ?? [], "articleUpdate", account || "")
-  console.log("type", type)
-  console.log("draftArticle", draftArticle)
-  console.log("article", article)
+  const permissions = article && article.publication && article.publication.permissions
+  const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
+
   useEffect(() => {
     if (article && type === "edit") {
       setTags(article.tags ?? [])
