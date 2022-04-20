@@ -10,14 +10,15 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 16
-      - run: npm install -g yarn
-      - run: yarn install --frozen-lockfile
+      - uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn install
       - run: yarn build
-
       - name: Generate subgraph.yaml for Rinkeby
         working-directory: packages/subgraph
         run: yarn prepare:rinkeby
-
       - name: Run subgraph tests
         working-directory: packages/subgraph
         run: yarn test
