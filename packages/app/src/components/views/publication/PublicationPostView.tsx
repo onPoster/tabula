@@ -4,13 +4,11 @@ import { useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
-import PublicationAvatar from "../../commons/PublicationAvatar"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import { PermissionSection } from "./components/PermissionSection"
 import PostSection from "./components/PostSection"
 import PublicationTabs from "./components/PublicationTabs"
-import { SettingSection } from "./components/SettingSection"
 
 const PublicationPostContainer = styled(Grid)(({ theme }) => ({
   [`${theme.breakpoints.down("md")}`]: {
@@ -26,10 +24,10 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
 
 export const PublicationPostView: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
-  const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
+  const { savePublication } = usePublicationContext()
   const { data: publication, loading, executeQuery } = usePublication(postId || "")
   const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">("posts")
-
+  
   useEffect(() => {
     if (postId) {
       executeQuery()
@@ -55,17 +53,12 @@ export const PublicationPostView: React.FC = () => {
             <Grid item>
               <PublicationPostContainer container gap={3} alignItems={"center"}>
                 <Grid item>
-                  {!editingPublication && (
-                    <Avatar
-                      sx={{ width: 160, height: 160 }}
-                      src={publication.image ? `https://ipfs.infura.io/ipfs/${publication.image}` : ""}
-                    >
-                      {" "}
-                    </Avatar>
-                  )}
-                  {editingPublication && (
-                    <PublicationAvatar defaultImage={publication.image} onFileSelected={saveDraftPublicationImage} />
-                  )}
+                  <Avatar
+                    sx={{ width: 160, height: 160 }}
+                    src={publication.image ? `https://ipfs.infura.io/ipfs/${publication.image}` : ""}
+                  >
+                    {" "}
+                  </Avatar>
                 </Grid>
                 <Grid item>
                   <Grid container gap={2} flexDirection={"column"}>
@@ -90,7 +83,6 @@ export const PublicationPostView: React.FC = () => {
               <PublicationTabs onChange={setCurrentTab} />
               {currentTab === "posts" && <PostSection />}
               {currentTab === "permissions" && <PermissionSection />}
-              {currentTab === "settings" && <SettingSection />}
             </Grid>
           </Grid>
         </ViewContainer>

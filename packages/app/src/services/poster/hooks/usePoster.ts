@@ -15,13 +15,10 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const executePublication = async (fields: Publication): Promise<any> => {
+  const createPublication = async (fields: Publication): Promise<any> => {
     const content: Publication = {
       action: fields.action,
       title: fields.title,
-    }
-    if (fields.id) {
-      content.id = fields.id
     }
     if (fields.description) {
       content.description = fields.description
@@ -44,11 +41,6 @@ const usePoster = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
         })
         setLoading(false)
       } catch (error: any) {
@@ -96,11 +88,6 @@ const usePoster = () => {
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
         })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -112,7 +99,6 @@ const usePoster = () => {
       }
     }
   }
-
   const updateArticle = async (fields: PosterUpdateArticle): Promise<any> => {
     const content: PosterUpdateArticle = {
       action: fields.action,
@@ -146,11 +132,6 @@ const usePoster = () => {
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
         })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -176,11 +157,6 @@ const usePoster = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
         })
       } catch (error: any) {
         setLoading(false)
@@ -208,11 +184,6 @@ const usePoster = () => {
           variant: "success",
           detailsLink: URL + receipt.transactionHash,
         })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -224,7 +195,6 @@ const usePoster = () => {
       }
     }
   }
-  
-  return { executePublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
+  return { createPublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
 }
 export default usePoster

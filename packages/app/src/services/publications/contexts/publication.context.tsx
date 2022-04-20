@@ -12,16 +12,12 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(undefined)
   const [article, setArticle] = useState<Article | undefined>(undefined)
   const [permission, setPermission] = useState<Permission | undefined>(undefined)
-  const [editingPublication, setEditingPublication] = useState<boolean>(false)
-  const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
 
   const savePublication = (publication: Publications | undefined) => setPublication(publication)
   const savePublications = (publications: Publications[] | undefined) => setPublications(publications)
   const saveDraftArticle = (article: Article) => setDraftArticle(article)
   const saveArticle = (article: Article) => setArticle(article)
   const savePermission = (permission: Permission) => setPermission(permission)
-  const saveIsEditing = (isEditing: boolean) => setEditingPublication(isEditing)
-  const saveDraftPublicationImage = (file: File | undefined) => setDraftPublicationImage(file)
 
   return (
     <PublicationContextProvider
@@ -31,10 +27,6 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         draftArticle,
         article,
         permission,
-        editingPublication,
-        draftPublicationImage,
-        saveIsEditing,
-        saveDraftPublicationImage,
         savePermission,
         savePublication,
         savePublications,
