@@ -13,11 +13,10 @@ const SmallAvatar = styled(Avatar)({
 })
 
 type PublicationAvatarProps = {
-  defaultImage?: string | null | undefined
   onFileSelected: (file: File) => void
 }
 
-const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onFileSelected }) => {
+const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ onFileSelected }) => {
   const [file, setFile] = useState<File>()
   const inputFile = useRef<HTMLInputElement | null>(null)
   const openImagePicker = () => inputFile && inputFile.current?.click()
@@ -50,18 +49,18 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
               cursor: "pointer",
               "&:hover": {
                 bgcolor: "#B34A03",
-              },
+              }
             }}
             onClick={openImagePicker}
           >
-            {!uri && !defaultImage && <AddIcon />}
-            {(uri || defaultImage) && <EditIcon />}
+            {!uri && <AddIcon />}
+            {uri && <EditIcon />}
             <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
           </SmallAvatar>
         }
       >
         <Avatar
-          src={uri ? uri : `https://ipfs.infura.io/ipfs/${defaultImage}`}
+          src={uri}
           onClick={openImagePicker}
           sx={{
             width: 160,
@@ -70,17 +69,16 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
             border: 4,
             borderColor: palette.grays[200],
             color: palette.grays[400],
-            textAlign: "center",
+            textAlign: 'center',
             fontSize: 14,
             fontFamily: typography.fontFamilies.sans,
             cursor: "pointer",
             "&:hover": {
               bgcolor: palette.grays[100],
-            },
+            }
           }}
         >
-          Add a <br />
-          publication image.
+            Add a <br/>publication image.
         </Avatar>
       </Badge>
     </Stack>

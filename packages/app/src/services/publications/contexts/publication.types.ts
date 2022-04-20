@@ -7,10 +7,6 @@ export type PublicationContextType = {
   draftArticle: Article | undefined
   article: Article | undefined
   permission: Permission | undefined
-  editingPublication: boolean
-  draftPublicationImage: File | undefined
-  saveIsEditing: (isEditing: boolean) => void
-  saveDraftPublicationImage: (file: File | undefined) => void
   savePermission: (permission: Permission) => void
   saveDraftArticle: (article: Article) => void
   savePublication: (publication: Publications | undefined) => void
