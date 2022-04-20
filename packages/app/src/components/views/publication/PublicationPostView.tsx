@@ -1,9 +1,11 @@
 import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/material"
+import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
+import { haveActionPermission, isOwner } from "../../../utils/permission"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import { PermissionSection } from "./components/PermissionSection"
@@ -24,10 +26,16 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
 
 export const PublicationPostView: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
+  const { account } = useWeb3React()
   const { savePublication } = usePublicationContext()
   const { data: publication, loading, executeQuery } = usePublication(postId || "")
   const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">("posts")
-  
+  const permissions = publication && publication.permissions
+  const havePermission = permissions ? isOwner(permissions, account || "") : false
+  const havePermissionToUpdate = permissions
+    ? haveActionPermission(permissions, "publicationUpdate", account || "")
+    : false
+
   useEffect(() => {
     if (postId) {
       executeQuery()
@@ -79,11 +87,18 @@ export const PublicationPostView: React.FC = () => {
                 </Grid>
               </PublicationPostContainer>
             </Grid>
-            <Grid item>
-              <PublicationTabs onChange={setCurrentTab} />
-              {currentTab === "posts" && <PostSection />}
-              {currentTab === "permissions" && <PermissionSection />}
-            </Grid>
+            {havePermission && (
+              <Grid item>
+                <PublicationTabs onChange={setCurrentTab} couldEdit={havePermissionToUpdate} />
+                {currentTab === "posts" && <PostSection />}
+                {currentTab === "permissions" && <PermissionSection />}
+              </Grid>
+            )}
+            {!havePermission && (
+              <Grid item>
+                <PostSection />
+              </Grid>
+            )}
           </Grid>
         </ViewContainer>
       )}

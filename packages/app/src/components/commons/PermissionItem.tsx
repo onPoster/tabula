@@ -1,5 +1,5 @@
 import React from "react"
-import { Box, Grid, Stack } from "@mui/material"
+import { Box, Grid } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette } from "../../theme"
 import { Permission } from "../../models/publication"
@@ -31,7 +31,7 @@ const PermissionItemEditContainer = styled(Grid)({
   padding: 4,
   "&:hover": {
     background: palette.whites[1000],
-  }
+  },
 })
 
 type PermissionItemProps = {
@@ -51,7 +51,7 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ permission, canEdit, on
       <WalletBadge address={address} />
       {canEdit && (
         <PermissionItemEditContainer>
-          <EditIcon sx={{width: 20, height: 20}} />
+          <EditIcon sx={{ width: 20, height: 20 }} />
         </PermissionItemEditContainer>
       )}
     </PermissionItemContainer>

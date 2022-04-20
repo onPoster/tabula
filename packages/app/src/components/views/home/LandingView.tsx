@@ -1,6 +1,5 @@
 import React from "react"
 import { Box, Container, Typography, Button, Grid } from "@mui/material"
-import { Link } from "react-router-dom"
 import theme, { typography, palette } from "../../../theme"
 import Page from "../../layout/Page"
 import benefitBg from "../../../assets/images/benefit-bg.png"
@@ -10,7 +9,6 @@ import benefit3 from "../../../assets/images/benefit3.png"
 import tabletHero from "../../../assets/images/tablet-hero-graphic.png"
 import paperTextureNight from "../../../assets/images/paper-texture-800-night.jpg"
 import { makeStyles } from "@mui/styles"
-import { Publisher } from "../../../models/publisher"
 
 const benefits = [
   {
@@ -48,8 +46,6 @@ const useStyles = makeStyles(() => ({
 
 export const LandingView: React.FC = () => {
   const classes = useStyles()
-  const publishers: Publisher[] = []
-
   return (
     <Page>
       <Box
