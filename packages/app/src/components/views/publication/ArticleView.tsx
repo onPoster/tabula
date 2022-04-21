@@ -12,7 +12,7 @@ import PublicationPage from "../../layout/PublicationPage"
 export const ArticleView: React.FC = () => {
   const navigate = useNavigate()
   const { articleId } = useParams<{ articleId: string }>()
-  const { publication, article, saveArticle } = usePublicationContext()
+  const { article, saveArticle } = usePublicationContext()
   const { data, executeQuery } = useArticle(articleId || "")
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
 
@@ -30,7 +30,7 @@ export const ArticleView: React.FC = () => {
   }, [data, article, saveArticle])
 
   return (
-    <PublicationPage showCreatePost={false} publication={publication}>
+    <PublicationPage showCreatePost={false} publication={article?.publication}>
       <ViewContainer maxWidth="sm">
         {article && (
           <Grid container mt={10} flexDirection="column">

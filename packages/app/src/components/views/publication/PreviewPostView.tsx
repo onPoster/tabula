@@ -66,7 +66,7 @@ export const PreviewPostView: React.FC = () => {
 
       if (recentArticle && recentArticle.title === draftArticle.title) {
         saveArticle(recentArticle)
-        navigate(`/publication/article/${recentArticle.id}`)
+        navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
         setLoading(false)
       }
     }
