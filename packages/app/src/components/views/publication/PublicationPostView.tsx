@@ -27,10 +27,10 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
 }))
 
 export const PublicationPostView: React.FC = () => {
-  const { postId } = useParams<{ postId: string }>()
+  const { publicationId } = useParams<{ publicationId: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
-  const { data: publication, loading, executeQuery } = usePublication(postId || "")
+  const { data: publication, loading, executeQuery } = usePublication(publicationId || "")
   const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">("posts")
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
@@ -39,10 +39,10 @@ export const PublicationPostView: React.FC = () => {
     : false
 
   useEffect(() => {
-    if (postId) {
+    if (publicationId) {
       executeQuery()
     }
-  }, [postId, executeQuery])
+  }, [publicationId, executeQuery])
 
   useEffect(() => {
     if (publication) {

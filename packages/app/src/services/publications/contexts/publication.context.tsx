@@ -7,6 +7,7 @@ import { PublicationContextType, PublicationProviderProps } from "./publication.
 const [usePublicationContext, PublicationContextProvider] = createGenericContext<PublicationContextType>()
 
 const PublicationProvider = ({ children }: PublicationProviderProps) => {
+  const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
   const [publications, setPublications] = useState<Publications[] | undefined>(undefined)
   const [publication, setPublication] = useState<Publications | undefined>(undefined)
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(undefined)
@@ -33,6 +34,8 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         permission,
         editingPublication,
         draftPublicationImage,
+        currentPath,
+        setCurrentPath,
         saveIsEditing,
         saveDraftPublicationImage,
         savePermission,
