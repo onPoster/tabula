@@ -16,7 +16,6 @@ export const ArticleView: React.FC = () => {
   const { data, executeQuery } = useArticle(articleId || "")
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
 
-  console.log("article", article)
   useEffect(() => {
     if (!article && articleId) {
       executeQuery()
