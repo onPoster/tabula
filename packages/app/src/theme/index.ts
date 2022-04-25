@@ -199,22 +199,34 @@ theme = createTheme(theme, {
   components: {
     MuiButton: {
       styleOverrides: {
+        // ".MuiButton-contained": {
+        //   backgroundColor: theme.palette.secondary.main,
+        //   borderRadius: 4,
+        //   boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220166",
+        //   color: palette.whites[1000],
+        //   "&:hover": {
+        //     backgroundColor: palette.primary[800],
+        //     boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
+        //   },
+        // },
+        // "& .MuiButton-outlined": {
+        //   borderRadius: 4,
+        //   // boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220166",
+        //   color: "#000000",
+        //   border: ` 2px solid ${palette.grays[400]}`,
+        //   // "&:hover": {
+        //   //   backgroundColor: palette.primary[800],
+        //   //   boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
+        //   // },
+        // },
         root: {
-          backgroundColor: theme.palette.primary.main,
-          borderRadius: 4,
-          boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220166",
-          color: palette.whites[1000],
           fontFamily: typography.fontFamilies.sans,
           fontSize: "1rem",
           fontWeight: 700,
           position: "relative",
           textTransform: "none",
-          "&:hover": {
-            backgroundColor: palette.primary[800],
-            boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
-          },
-          
         },
+
         sizeSmall: {
           fontSize: "0.75rem",
         },
@@ -230,7 +242,7 @@ theme = createTheme(theme, {
           fontSize: "1.5rem",
           "&:hover": {
             opacity: 0.8,
-          }
+          },
         },
         sizeSmall: {
           fontSize: "1rem",
