@@ -51,11 +51,11 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
   const { title, tags, lastUpdated, id } = article
   const articleTitle = shortTitle(title, 30)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
-
+  const publicationId = article.publication?.id
   return (
     <PostItemContainer
       onClick={() => {
-        navigate(`/publication/article/${id}`)
+        navigate(`/publication/${publicationId}/article/${id}`)
         saveArticle(article)
       }}
     >
