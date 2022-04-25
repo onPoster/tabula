@@ -21,9 +21,9 @@ const PostItemContainer = styled(Box)({
   "&:hover": {
     background: palette.grays[200],
     "& .arrow-forward": {
-      color: palette.grays[600]
-    }
-  }
+      color: palette.grays[600],
+    },
+  },
 })
 
 const PostItemEditContainer = styled(Grid)({
@@ -38,23 +38,24 @@ const PostItemEditContainer = styled(Grid)({
   padding: 4,
   "&:hover": {
     background: palette.whites[1000],
-  }
+  },
 })
 
 type PostItemProps = {
   article: Article
+  couldUpdate: boolean
 }
-const PostItem: React.FC<PostItemProps> = ({ article }) => {
+const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
   const navigate = useNavigate()
   const { saveArticle } = usePublicationContext()
   const { title, tags, lastUpdated, id } = article
   const articleTitle = shortTitle(title, 30)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
-
+  const publicationId = article.publication?.id
   return (
     <PostItemContainer
       onClick={() => {
-        navigate(`/publication/article/${id}`)
+        navigate(`/publication/${publicationId}/article/${id}`)
         saveArticle(article)
       }}
     >
@@ -73,15 +74,17 @@ const PostItem: React.FC<PostItemProps> = ({ article }) => {
         </Grid>
       </Grid>
       <Stack alignItems="center" direction="row" spacing={2}>
-        <PostItemEditContainer
+        {couldUpdate && (
+          <PostItemEditContainer
             onClick={(e) => {
               e.stopPropagation()
               navigate(`/publication/post-action/edit`)
               saveArticle(article)
             }}
-        >
-          <EditIcon sx={{width: 20, height: 20}} />
-        </PostItemEditContainer>
+          >
+            <EditIcon sx={{ width: 20, height: 20 }} />
+          </PostItemEditContainer>
+        )}
         <ArrowForwardIosIcon className="arrow-forward" />
       </Stack>
     </PostItemContainer>

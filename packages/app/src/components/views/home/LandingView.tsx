@@ -47,7 +47,6 @@ const useStyles = makeStyles(() => ({
 
 export const LandingView: React.FC = () => {
   const classes = useStyles()
-
   return (
     <Page>
       <Box

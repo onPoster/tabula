@@ -7,6 +7,7 @@ import AddIcon from "@mui/icons-material/Add"
 import theme, { palette, typography } from "../../theme"
 import { useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
+import { haveActionPermission } from "../../utils/permission"
 
 type Props = {
   publication?: Publications
@@ -25,6 +26,8 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const { account } = useWeb3React()
   const navigate = useNavigate()
   const { refetch } = usePublication(publication?.id || "")
+  const permissions = publication && publication.permissions
+  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
   return (
     <Container
       maxWidth="lg"
@@ -45,7 +48,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               container
               alignItems={"center"}
               gap={1}
-              sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": {opacity: 0.6} }}
+              sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
               onClick={() => {
                 refetch()
                 navigate(`/publication/post/${publication?.id}`)
@@ -77,7 +80,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                 <WalletBadge address={account} />
               </Grid>
             )}
-            {showCreatePost && (
+            {showCreatePost && havePermissionToCreate && (
               <Grid item>
                 <Button variant="contained" size={"large"} onClick={() => navigate("/publication/post-action/new")}>
                   <AddIcon style={{ marginRight: 13 }} />

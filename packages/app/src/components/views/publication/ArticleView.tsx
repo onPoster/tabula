@@ -1,7 +1,7 @@
 import { Avatar, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
 import React, { useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import useArticle from "../../../services/publications/hooks/useArticle"
 import { typography } from "../../../theme"
@@ -10,8 +10,9 @@ import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 
 export const ArticleView: React.FC = () => {
+  const navigate = useNavigate()
   const { articleId } = useParams<{ articleId: string }>()
-  const { publication, article, saveArticle } = usePublicationContext()
+  const { article, saveArticle } = usePublicationContext()
   const { data, executeQuery } = useArticle(articleId || "")
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
 
@@ -28,7 +29,7 @@ export const ArticleView: React.FC = () => {
   }, [data, article, saveArticle])
 
   return (
-    <PublicationPage showCreatePost={false} publication={publication}>
+    <PublicationPage showCreatePost={false} publication={article?.publication}>
       <ViewContainer maxWidth="sm">
         {article && (
           <Grid container mt={10} flexDirection="column">
@@ -38,24 +39,28 @@ export const ArticleView: React.FC = () => {
               </Typography>
             </Grid>
 
-            <Grid item>
-              <Grid container alignItems="center" gap={2} mt={3}>
-                <Grid item>
-                  <Avatar
-                    sx={{ width: 31, height: 31 }}
-                    src={article.publication?.image ? `https://ipfs.infura.io/ipfs/${article?.publication.image}` : ""}
-                  >
-                    {" "}
-                  </Avatar>
+            {article.publication && (
+              <Grid item onClick={() => navigate(`/publication/post/${article.publication?.id}`)}>
+                <Grid container alignItems="center" gap={2} mt={3} sx={{ cursor: "pointer" }}>
+                  <Grid item>
+                    <Avatar
+                      sx={{ width: 31, height: 31 }}
+                      src={
+                        article.publication?.image ? `https://ipfs.infura.io/ipfs/${article?.publication.image}` : ""
+                      }
+                    >
+                      {" "}
+                    </Avatar>
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="subtitle2" fontWeight={600} fontFamily={typography.fontFamilies.sans}>
+                      {article.publication?.title}
+                    </Typography>
+                  </Grid>
+                  <Grid item>{date && <Typography>{moment(date).format("MMMM DD, YYYY")}</Typography>}</Grid>
                 </Grid>
-                <Grid item>
-                  <Typography variant="subtitle2" fontWeight={600} fontFamily={typography.fontFamilies.sans}>
-                    {article.publication?.title}
-                  </Typography>
-                </Grid>
-                <Grid item>{date && <Typography>{moment(date).format("MMMM DD, YYYY")}</Typography>}</Grid>
               </Grid>
-            </Grid>
+            )}
 
             <Grid item my={10}>
               <Markdown>{article.article}</Markdown>

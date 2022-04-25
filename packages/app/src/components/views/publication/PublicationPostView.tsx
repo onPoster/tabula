@@ -1,9 +1,11 @@
 import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/material"
+import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
+import { haveActionPermission, isOwner } from "../../../utils/permission"
 import PublicationAvatar from "../../commons/PublicationAvatar"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
@@ -26,9 +28,15 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
 
 export const PublicationPostView: React.FC = () => {
   const { postId } = useParams<{ postId: string }>()
+  const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
   const { data: publication, loading, executeQuery } = usePublication(postId || "")
   const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">("posts")
+  const permissions = publication && publication.permissions
+  const havePermission = permissions ? isOwner(permissions, account || "") : false
+  const havePermissionToUpdate = permissions
+    ? haveActionPermission(permissions, "publicationUpdate", account || "")
+    : false
 
   useEffect(() => {
     if (postId) {
@@ -86,12 +94,19 @@ export const PublicationPostView: React.FC = () => {
                 </Grid>
               </PublicationPostContainer>
             </Grid>
-            <Grid item>
-              <PublicationTabs onChange={setCurrentTab} />
-              {currentTab === "posts" && <PostSection />}
-              {currentTab === "permissions" && <PermissionSection />}
-              {currentTab === "settings" && <SettingSection />}
-            </Grid>
+            {havePermission && (
+              <Grid item>
+                <PublicationTabs onChange={setCurrentTab} couldEdit={havePermissionToUpdate} />
+                {currentTab === "posts" && <PostSection />}
+                {currentTab === "permissions" && <PermissionSection />}
+                {currentTab === "settings" && <SettingSection />}
+              </Grid>
+            )}
+            {!havePermission && (
+              <Grid item>
+                <PostSection />
+              </Grid>
+            )}
           </Grid>
         </ViewContainer>
       )}

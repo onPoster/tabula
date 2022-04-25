@@ -57,3 +57,30 @@ export const haveActionPermission = (permissions: Permission[], action: Action, 
     return false
   }
 }
+export const isOwner = (permissions: Permission[], address: string): boolean => {
+  const permission = filter(permissions, { address: address.toLowerCase() })
+  if (permission && permission.length > 0) {
+    if (permission[0].articleCreate) {
+      return true
+    }
+    if (permission[0].articleDelete) {
+      return true
+    }
+    if (permission[0].articleUpdate) {
+      return true
+    }
+    if (permission[0].publicationDelete) {
+      return true
+    }
+    if (permission[0].publicationPermissions) {
+      return true
+    }
+    if (permission[0].publicationUpdate) {
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
