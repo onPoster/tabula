@@ -16,6 +16,8 @@ import { ArticleView } from "./components/views/publication/ArticleView"
 import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
 import { PermissionView } from "./components/views/publication/PermissionView"
+import { SetupIpfsView } from "./components/views/pinning/SetupIpfsView"
+
 const App: React.FC = () => {
   return (
     <SnackbarProvider maxSnack={3}>
@@ -25,12 +27,16 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<LandingView />} />
             <Route path="/wallet" element={<WalletView />} />
+            <Route path="/pinning" element={<SetupIpfsView />} />
             <Route path="/publication/publish" element={<PublishView />} />
             <Route path="/publication/post-action/:type" element={<CreatePostView />} />
             <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
             <Route path="/publication/:publicationId" element={<PublicationPostView />} />
             <Route path="/publication/:publicationId/article/:articleId" element={<ArticleView />} />
             <Route path="/publication/permission/:type" element={<PermissionView />} />
+
+            
+             {/** TO  REMOVE **/}
             <Route path=":address" element={<PublishersView />} />
             <Route path=":address/:postId" element={<PostView />} />
           </Routes>
