@@ -17,16 +17,6 @@ import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
 import { PermissionView } from "./components/views/publication/PermissionView"
 const App: React.FC = () => {
-  // const navigate = useNavigate()
-  // const { active } = useWeb3React()
-
-  // useEffect(() => {
-  //   if (!active) {
-  //     navigate("/")
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [active])
-
   return (
     <SnackbarProvider maxSnack={3}>
       <UrqlProvider value={subgraphClient}>
@@ -38,7 +28,7 @@ const App: React.FC = () => {
             <Route path="/publication/publish" element={<PublishView />} />
             <Route path="/publication/post-action/:type" element={<CreatePostView />} />
             <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
-            <Route path="/publication/post/:postId" element={<PublicationPostView />} />
+            <Route path="/publication/:publicationId" element={<PublicationPostView />} />
             <Route path="/publication/:publicationId/article/:articleId" element={<ArticleView />} />
             <Route path="/publication/permission/:type" element={<PermissionView />} />
             <Route path=":address" element={<PublishersView />} />

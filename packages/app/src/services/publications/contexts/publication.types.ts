@@ -9,8 +9,10 @@ export type PublicationContextType = {
   permission: Permission | undefined
   editingPublication: boolean
   draftPublicationImage: File | undefined
+  currentPath: string | undefined
   saveIsEditing: (isEditing: boolean) => void
   saveDraftPublicationImage: (file: File | undefined) => void
+  setCurrentPath: (path: string | undefined) => void
   savePermission: (permission: Permission) => void
   saveDraftArticle: (article: Article) => void
   savePublication: (publication: Publications | undefined) => void

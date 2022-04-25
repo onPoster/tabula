@@ -1,13 +1,14 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Avatar, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Publications } from "../../models/publication"
 import AddIcon from "@mui/icons-material/Add"
 import theme, { palette, typography } from "../../theme"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
+import { usePublicationContext } from "../../services/publications/contexts"
 
 type Props = {
   publication?: Publications
@@ -23,10 +24,19 @@ const ItemContainer = styled(Grid)({
   },
 })
 const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => {
-  const { account } = useWeb3React()
+  const { account, active } = useWeb3React()
   const navigate = useNavigate()
+  const location = useLocation()
+  const { setCurrentPath } = usePublicationContext()
   const { refetch } = usePublication(publication?.id || "")
   const permissions = publication && publication.permissions
+
+  useEffect(() => {
+    if (location.pathname) {
+      setCurrentPath(location.pathname)
+    }
+  }, [location, setCurrentPath])
+
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
   return (
     <Container
@@ -51,7 +61,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
               onClick={() => {
                 refetch()
-                navigate(`/publication/post/${publication?.id}`)
+                navigate(`/publication/${publication?.id}`)
               }}
             >
               <Avatar
@@ -90,6 +100,24 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
             )}
           </ItemContainer>
         </Grid>
+
+        {!active && (
+          <Button
+            variant="outlined"
+            sx={{
+              color: "#000000",
+              border: `2px solid ${palette.grays[400]}`,
+              "&:hover": {
+                backgroundColor: palette.grays[200],
+                border: `2px solid ${palette.grays[400]}`,
+                boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
+              },
+            }}
+            onClick={() => navigate("/wallet")}
+          >
+            Connect Wallet
+          </Button>
+        )}
       </Grid>
     </Container>
   )

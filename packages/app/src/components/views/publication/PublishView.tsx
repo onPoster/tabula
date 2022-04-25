@@ -132,7 +132,7 @@ export const PublishView: React.FC = () => {
 
       if (recentPublished && recentPublished.title === title) {
         savePublications(publications)
-        navigate(`/publication/post/${recentPublished.id}`)
+        navigate(`/publication/${recentPublished.id}`)
         reset()
         setLoading(false)
       }
@@ -204,7 +204,7 @@ export const PublishView: React.FC = () => {
                   <PublicationItem
                     publication={publication}
                     key={publication.title}
-                    onClick={() => navigate(`/publication/post/${publication.id}`)}
+                    onClick={() => navigate(`/publication/${publication.id}`)}
                   />
                 ))}
               </Grid>
