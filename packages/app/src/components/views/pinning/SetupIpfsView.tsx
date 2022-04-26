@@ -11,6 +11,8 @@ import { Controller, useForm } from "react-hook-form"
 import WarningAmberIcon from "@mui/icons-material/WarningAmber"
 import { Pinning } from "../../../models/pinning"
 import useLocalStorage from "../../../hooks/useLocalStorage"
+import { usePublicationContext } from "../../../services/publications/contexts"
+import { useNotification } from "../../../hooks/useNotification"
 
 const IpfsSpan = styled(Box)({
   color: palette.primary[1000],
@@ -24,17 +26,18 @@ const ModalContainer = styled(ViewContainer)({
   borderRadius: 8,
   width: 550,
   background: palette.whites[1000],
+  padding: 24,
 })
 
 const ModalContentContainer = styled(Box)({
-  background: palette.primary[200],
+  background: palette.secondary[200],
   borderRadius: 4,
   cursor: "pointer",
   padding: 24,
 })
 
 const StyledLinkButton = styled(Box)({
-  color: palette.primary[500],
+  color: palette.secondary[1000],
   textDecoration: "underline",
   cursor: "pointer",
 })
@@ -47,6 +50,8 @@ const setupIpfsSchema = yup.object().shape({
 
 export const SetupIpfsView: React.FC = () => {
   const navigate = useNavigate()
+  const openNotification = useNotification()
+  const { currentPath, setCurrentPath } = usePublicationContext()
   const [pinning, setPinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const {
     control,
@@ -60,6 +65,21 @@ export const SetupIpfsView: React.FC = () => {
 
   const onSubmitHandler = (data: Pinning) => {
     setPinning(data)
+    handleClose()
+    openNotification({
+      message: "Successfully set up the pinning service!",
+      variant: "success",
+      autoHideDuration: 5000,
+    })
+  }
+
+  const handleClose = () => {
+    if (currentPath) {
+      navigate(currentPath)
+      setCurrentPath(undefined)
+      return
+    }
+    navigate(-1)
   }
 
   return (
@@ -72,7 +92,7 @@ export const SetupIpfsView: React.FC = () => {
                 <Typography fontFamily={typography.fontFamilies.sans} variant="h5" m={0}>
                   Setup Pinning Service
                 </Typography>
-                <CloseIcon style={{ cursor: "pointer" }} onClick={() => navigate(-1)} />
+                <CloseIcon style={{ cursor: "pointer" }} onClick={handleClose} />
               </Grid>
             </Grid>
             <Grid item width={"100%"}>
@@ -170,7 +190,7 @@ export const SetupIpfsView: React.FC = () => {
       </ViewContainer>
       <Modal open={showModal} onClose={() => setShowModal(false)}>
         <ModalContainer maxWidth="sm">
-          <Grid container gap={2} py={3} px={2} flexDirection="column">
+          <Grid container gap={3} py={3} px={4} flexDirection="column">
             <Grid item>
               <Grid container justifyContent="space-between" alignItems="center">
                 <Grid item sx={{ display: "flex", alignItems: "center" }}>
@@ -205,6 +225,7 @@ export const SetupIpfsView: React.FC = () => {
                 style={{ color: palette.secondary[1000] }}
                 onClick={() => {
                   setPinning(undefined)
+                  handleClose()
                 }}
               >
                 I understand, and I&#39;d like to continue without setting up IPFS.

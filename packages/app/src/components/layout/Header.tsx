@@ -5,6 +5,9 @@ import { ReactComponent as Logo } from "../../assets/images/tabula-logo-wordmark
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 
+import { useState } from "react"
+import { UserOptions } from "../commons/UserOptions"
+
 const useStyles = makeStyles(() => ({
   logo: {
     display: "flex",
@@ -29,6 +32,8 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const classes = useStyles()
+  const [show, setShow] = useState<boolean>(false)
+
   return (
     <Container
       maxWidth="lg"
@@ -49,8 +54,21 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
       </Link>
 
       {account && showBadge && (
-        <Grid display={"flex"} alignItems={"center"}>
-          <WalletBadge address={account} />
+        <Grid
+          container
+          flexDirection="column"
+          alignItems={"end"}
+          justifyContent={"flex-end"}
+          sx={{ position: "relative" }}
+        >
+          <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
+            <WalletBadge address={account} />
+          </Grid>
+          {show && (
+            <Grid item sx={{ position: "absolute", top: 45 }}>
+              <UserOptions />
+            </Grid>
+          )}
         </Grid>
       )}
 

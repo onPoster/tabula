@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { Avatar, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
 import { usePublicationContext } from "../../services/publications/contexts"
+import { UserOptions } from "../commons/UserOptions"
 
 type Props = {
   publication?: Publications
@@ -29,6 +30,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const location = useLocation()
   const { setCurrentPath } = usePublicationContext()
   const { refetch } = usePublication(publication?.id || "")
+  const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
 
   useEffect(() => {
@@ -85,11 +87,27 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
 
         <Grid item>
           <ItemContainer container>
-            {account && (
-              <Grid item>
-                <WalletBadge address={account} />
-              </Grid>
-            )}
+            <Grid item>
+              {account && (
+                <Grid
+                  container
+                  flexDirection="column"
+                  alignItems={"end"}
+                  justifyContent={"flex-end"}
+                  sx={{ position: "relative" }}
+                >
+                  <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
+                    <WalletBadge address={account} />
+                  </Grid>
+                  {show && (
+                    <Grid item sx={{ position: "absolute", top: 45 }}>
+                      <UserOptions />
+                    </Grid>
+                  )}
+                </Grid>
+              )}
+            </Grid>
+
             {showCreatePost && havePermissionToCreate && (
               <Grid item>
                 <Button variant="contained" size={"large"} onClick={() => navigate("/publication/post-action/new")}>
