@@ -1,7 +1,9 @@
 import React from "react"
 import { Box, Container, Typography, Button, Grid } from "@mui/material"
+import { ExternalLink } from "../../commons/ExternalLink"
 import theme, { typography, palette } from "../../../theme"
 import Page from "../../layout/Page"
+import gnosisLogo from "../../../assets/images/gnosis-logo.png"
 import benefitBg from "../../../assets/images/benefit-bg.png"
 import benefit1 from "../../../assets/images/benefit1.png"
 import benefit2 from "../../../assets/images/benefit2.png"
@@ -32,6 +34,8 @@ const benefits = [
   },
 ]
 
+const gnosisLink = "https://gnosisguild.org"
+
 const useStyles = makeStyles(() => ({
   benefitImage: {
     aspectRatio: "1/1",
@@ -42,6 +46,20 @@ const useStyles = makeStyles(() => ({
       objectPosition: "center",
       transform: "translateY(-10%)",
     },
+  },
+  footerLink: {
+    transition: "opacity 0.25s ease-in-out",
+    "&:hover": {
+      opacity: 0.6,
+    }
+  },
+  gnosisLogo: {
+    width: 24,
+  },
+  gnosisLink: {
+    color: palette.primary[1000],
+    display: "inline !important",
+    textDecoration: "underline !important",
   },
 }))
 
@@ -56,9 +74,9 @@ export const LandingView: React.FC = () => {
           backgroundImage: `url(${paperTextureNight})`,
           backgroundSize: 800,
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           height: "100vh",
-          overflowX: "clip",
           position: "absolute",
           top: 0,
           width: "100%",
@@ -95,30 +113,48 @@ export const LandingView: React.FC = () => {
             </Grid>
           </Grid>
         </Container>
-        <Box
-          sx={{
-            width: "140vw",
-            right: "-20vw",
-            bottom: 0,
-            transform: "translateY(50%)",
-            position: "absolute",
-            [`${theme.breakpoints.up("sm")}`]: {
-              right: "-15vw",
-              transform: "translateY(40%)",
-              width: "70vw",
-            },
-            [`${theme.breakpoints.up("sm")} and (orientation:portrait)`]: {
-              right: "-15vw",
-              transform: "translateY(30%)",
-              width: "90vw",
-            },
-            [`${theme.breakpoints.up("lg")}`]: {
-              right: "-8vw",
-              width: "50vw",
-            },
-          }}
-        >
-          <img src={tabletHero} alt="Tablet graphic" />
+        <Box sx={{
+          overflowX: "hidden",
+          height: "140vw",
+          position: "absolute",
+          transform: "translateY(80%)",
+          width: "100vw",
+          [`${theme.breakpoints.up("sm")}`]: {
+            transform: "translateY(40%)",
+            height: "70vw",
+          },
+          [`${theme.breakpoints.up("sm")} and (orientation:portrait)`]: {
+            transform: "translateY(60%)",
+            height: "90vw",
+          },
+          [`${theme.breakpoints.up("lg")}`]: {
+            height: "50vw",
+          },
+        }}>
+          <Box
+            sx={{
+              width: "140vw",
+              right: "-20vw",
+              position: "absolute",
+              [`${theme.breakpoints.down("sm")}`]: {
+                maxWidth: 600,
+              },
+              [`${theme.breakpoints.up("sm")}`]: {
+                right: "-15vw",
+                width: "70vw",
+              },
+              [`${theme.breakpoints.up("sm")} and (orientation:portrait)`]: {
+                right: "-15vw",
+                width: "90vw",
+              },
+              [`${theme.breakpoints.up("lg")}`]: {
+                right: "-8vw",
+                width: "50vw",
+              },
+            }}
+          >
+            <img src={tabletHero} alt="Tablet graphic" />
+          </Box>
         </Box>
       </Box>
       <Box
@@ -178,81 +214,25 @@ export const LandingView: React.FC = () => {
         }}
       >
         <Container maxWidth="lg">
-          <Grid container spacing={8} flexDirection="row-reverse">
-            <Grid item xs={12} sm={5}>
-              {/* <Box>
-                <Typography variant="h4" component="h3" textTransform="uppercase" color="secondary">
-                  Discover
-                </Typography>
-                Tags go here
-              </Box>
-              <Box sx={{ mt: 8 }}>
-                <Typography variant="h4" component="h3" textTransform="uppercase" color="secondary">
-                  Follow
-                </Typography>
-                <Box component="ul">
-                  {publishers.map((publisher: Publisher, index) => (
-                    <Box
-                      component="li"
-                      key={publisher.address}
-                      sx={{
-                        alignItems: "flex-start",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        mt: 3,
-                      }}
-                    >
-                      <Box>
-                        <Link to={`/${publisher.address}`}>
-                          <Box sx={{ alignItems: "content", display: "flex" }}>
-                            <Box sx={{ borderRadius: 999, bgcolor: palette.grays[200], height: 24, mr: 1, width: 24 }}>
-                              {publisher.image && (
-                                <img src={publisher.image} alt={publisher.title && publisher.title} />
-                              )}
-                            </Box>
-                            <Typography fontFamily={typography.fontFamilies.sans} color="textPrimary">
-                              Gnosis Guild
-                            </Typography>
-                            <Typography
-                              color="primary"
-                              fontFamily={typography.fontFamilies.sans}
-                              fontWeight={600}
-                              lineHeight="2"
-                              variant="body2"
-                              sx={{ ml: 1, "&:hover": { textDecoration: "underline" } }}
-                            >
-                              posts
-                            </Typography>
-                          </Box>
-                        </Link>
-                        <Typography color={palette.grays[800]} variant="body2">
-                          a keeper of the zodiac open standard for DAOs
-                        </Typography>
-                      </Box>
-                      <Button size="small" variant="contained" sx={{ display: "inline-flex" }}>
-                        Follow
-                      </Button>
-                    </Box>
-                  ))}
-                </Box>
-              </Box> */}
-            </Grid>
-            <Grid item xs={12} sm={7}>
-              <Typography variant="h4" component="h3" textTransform="uppercase" color="secondary">
-                Showcase
-              </Typography>
-              {/* {posts &&
-                posts.map((post: Post, index) => (
-                  <PostPreview
-                    key={post.id}
-                    post={post}
-                    address={post.publisher}
-                    link={`/${post.publisher}`}
-                    sx={{ mt: index > 0 ? 5 : 3 }}
-                  />
-                ))} */}
-            </Grid>
-          </Grid>
+          <Box
+            sx={{
+              alignItems: "center",
+              display: "inline-flex",
+              justifyContent: "flex-end",
+              width: "100%"
+            }}
+          >
+            <ExternalLink className={classes.footerLink} link={gnosisLink}>
+              <img src={gnosisLogo} alt="Gnosis Guild" className={classes.gnosisLogo} />
+            </ExternalLink>
+            <Typography fontSize={14} sx={{ml: 1}}>
+              A product by
+              {` `}
+              <ExternalLink className={`${classes.gnosisLink} ${classes.footerLink}`} link={gnosisLink}>
+                Gnosis Guild
+              </ExternalLink>
+            </Typography>
+          </Box>
         </Container>
       </Box>
     </Page>
