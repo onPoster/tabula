@@ -1,6 +1,7 @@
 import { Avatar, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
 import React, { useEffect } from "react"
+import { Helmet } from "react-helmet"
 import { useNavigate, useParams } from "react-router-dom"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import useArticle from "../../../services/publications/hooks/useArticle"
@@ -33,6 +34,21 @@ export const ArticleView: React.FC = () => {
       <ViewContainer maxWidth="sm">
         {article && (
           <Grid container mt={10} flexDirection="column">
+            <Helmet>
+              <title>
+                {article.title} | {article.publication?.title}
+              </title>
+              <meta property="og:title" content={article.title} />
+              <meta property="og:site_name" content={article.publication?.title} />
+              {article?.description != null && [
+                <meta property="og:description" content={article?.description} key="1" />,
+                <meta name="description" content={article?.description} key="2" />,
+              ]}
+              <meta
+                property="og:url"
+                content={`https://tabula.gg/#/publication/${article.publication?.id}/article/${article.id}`}
+              />
+            </Helmet>
             <Grid item>
               <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
                 {article.title}

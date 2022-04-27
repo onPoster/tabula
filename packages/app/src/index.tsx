@@ -7,11 +7,22 @@ import { CssBaseline, ThemeProvider } from "@mui/material"
 import { day } from "./theme/day"
 import { Web3ReactProvider } from "@web3-react/core"
 import { getLibrary } from "./config"
+import { Helmet } from "react-helmet"
 
 ReactDOM.render(
   <React.StrictMode>
+    <Helmet>
+      <meta property="og:title" content="Tabula" />
+      <meta property="og:site_name" content="Tabula" />
+      <meta
+        property="og:description"
+        content="Instant web3 publications for writers, DAOs, and any Ethereum-based account."
+      />
+      <meta name="description" content="Instant web3 publications for writers, DAOs, and any Ethereum-based account." />
+      <meta property="og:url" content="https://tabula.gg" />
+    </Helmet>
     <Web3ReactProvider getLibrary={getLibrary}>
-      <HashRouter >
+      <HashRouter>
         <ThemeProvider theme={day}>
           <CssBaseline />
           <App />
