@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { Box, Grid, Typography, styled, TextField, FormHelperText, Divider, Button, Modal } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 import { palette, typography } from "../../../theme"
@@ -48,8 +48,9 @@ const setupIpfsSchema = yup.object().shape({
   accessToken: yup.string().required(),
 })
 
-export const SetupIpfsView: React.FC = () => {
+const SetupIpfsView: React.FC = () => {
   const navigate = useNavigate()
+  const ref = useRef(null)
   const openNotification = useNotification()
   const { currentPath, setCurrentPath } = usePublicationContext()
   const [pinning, setPinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
@@ -79,7 +80,14 @@ export const SetupIpfsView: React.FC = () => {
       setCurrentPath(undefined)
       return
     }
-    navigate(-1)
+    if (!currentPath && showModal) {
+      navigate("/publication/publish")
+      return
+    }
+    if (!currentPath && !showModal) {
+      setShowModal(true)
+      return
+    }
   }
 
   return (
@@ -108,7 +116,10 @@ export const SetupIpfsView: React.FC = () => {
                   <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
                     <Grid item xs={12} md={6}>
                       <Typography variant="body1" fontWeight="bold" fontFamily={typography.fontFamilies.sans}>
-                        Nickname <span style={{ color: palette.primary[1000] }}>*</span>
+                        Nickname{" "}
+                        <Typography component="span" sx={{ color: palette.primary[1000] }}>
+                          *
+                        </Typography>
                       </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -130,7 +141,10 @@ export const SetupIpfsView: React.FC = () => {
                   <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
                     <Grid item xs={12} md={6}>
                       <Typography variant="body1" fontWeight="bold" fontFamily={typography.fontFamilies.sans}>
-                        API endpoint <span style={{ color: palette.primary[1000] }}>*</span>
+                        API endpoint{" "}
+                        <Typography component="span" sx={{ color: palette.primary[1000] }}>
+                          *
+                        </Typography>
                       </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -154,7 +168,10 @@ export const SetupIpfsView: React.FC = () => {
                   <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
                     <Grid item xs={12} md={6}>
                       <Typography variant="body1" fontWeight="bold" fontFamily={typography.fontFamilies.sans}>
-                        Secret Access Token <span style={{ color: palette.primary[1000] }}>*</span>
+                        Secret Access Token{" "}
+                        <Typography component="span" sx={{ color: palette.primary[1000] }}>
+                          *
+                        </Typography>
                       </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -189,7 +206,7 @@ export const SetupIpfsView: React.FC = () => {
         </form>
       </ViewContainer>
       <Modal open={showModal} onClose={() => setShowModal(false)}>
-        <ModalContainer maxWidth="sm">
+        <ModalContainer maxWidth="sm" ref={ref}>
           <Grid container gap={3} py={3} px={4} flexDirection="column">
             <Grid item>
               <Grid container justifyContent="space-between" alignItems="center">
@@ -237,3 +254,5 @@ export const SetupIpfsView: React.FC = () => {
     </Page>
   )
 }
+
+export default SetupIpfsView
