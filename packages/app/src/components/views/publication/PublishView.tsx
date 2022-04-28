@@ -274,7 +274,7 @@ export const PublishView: React.FC = () => {
             </Grid>
           </Grid>
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublishButton type="submit" disabled={loading}>
+            <PublishButton variant="contained" type="submit" disabled={loading}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               Create Publication
             </PublishButton>

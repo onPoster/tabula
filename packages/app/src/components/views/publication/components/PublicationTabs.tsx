@@ -22,7 +22,6 @@ type PublicationTabsProps = {
 }
 
 const PublicationTabs: React.FC<PublicationTabsProps> = ({ couldEdit, onChange }) => {
-  console.log("couldEdit", couldEdit)
   const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">(
     PUBLICATIONS_TABS_OPTIONS[0].value as "posts" | "permissions" | "settings",
   )

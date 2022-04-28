@@ -14,12 +14,16 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import { useWeb3React } from "@web3-react/core"
 import useArticles from "../../../services/publications/hooks/useArticles"
 import { haveActionPermission } from "../../../utils/permission"
+import useLocalStorage from "../../../hooks/useLocalStorage"
+import { Pinning } from "../../../models/pinning"
+import { PinningAlert } from "../../commons/PinningAlert"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { type } = useParams<{ type: "new" | "edit" }>()
   const { publication, article, draftArticle, saveArticle } = usePublicationContext()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tag, setTag] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
   const [articleImg, setArticleImg] = useState<File>()
@@ -211,6 +215,11 @@ export const PreviewPostView: React.FC = () => {
               </Grid>
             </Grid>
 
+            {!pinning && (
+              <Grid item>
+                <PinningAlert />
+              </Grid>
+            )}
             <Grid item xs={12}>
               <Button variant="contained" size="large" type="submit" disabled={loading}>
                 {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}

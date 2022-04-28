@@ -8,19 +8,30 @@ import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core"
 import { SUPPORTED_WALLETS } from "../../../constants/wallet"
 import { AbstractConnector } from "@web3-react/abstract-connector"
 import { usePublicationContext } from "../../../services/publications/contexts"
+import useLocalStorage from "../../../hooks/useLocalStorage"
+import { Pinning } from "../../../models/pinning"
 
 const AFTER_CONNECT_SCREEN = "/publication/publish"
 
 export const WalletView: React.FC = () => {
   const navigate = useNavigate()
   const { currentPath } = usePublicationContext()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { activate, active } = useWeb3React()
 
   useEffect(() => {
     if (active) {
-      navigate(currentPath ? currentPath : AFTER_CONNECT_SCREEN)
+      if (currentPath) {
+        navigate(currentPath)
+      }
+      if (!currentPath && !pinning) {
+        navigate("/pinning")
+      }
+      if (!currentPath && pinning) {
+        navigate(AFTER_CONNECT_SCREEN)
+      }
     }
-  }, [active, currentPath, navigate])
+  }, [active, currentPath, navigate, pinning])
 
   const handleConnector = async (connector: AbstractConnector) => {
     await activate(connector, undefined, true).catch((error) => {
