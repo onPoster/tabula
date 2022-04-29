@@ -20,6 +20,7 @@ ReactDOM.render(
       />
       <meta name="description" content="Instant web3 publications for writers, DAOs, and any Ethereum-based account." />
       <meta property="og:url" content="https://tabula.gg" />
+      <meta property="og:image" content="https://tabula.gg/image.jpg" />
     </Helmet>
     <Web3ReactProvider getLibrary={getLibrary}>
       <HashRouter>

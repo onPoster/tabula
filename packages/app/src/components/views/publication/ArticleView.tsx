@@ -48,6 +48,9 @@ export const ArticleView: React.FC = () => {
                 property="og:url"
                 content={`https://tabula.gg/#/publication/${article.publication?.id}/article/${article.id}`}
               />
+              {article.image != null && (
+                <meta property="og:image" content={`https://ipfs.infura.io/ipfs/${article?.image}`} />
+              )}
             </Helmet>
             <Grid item>
               <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
