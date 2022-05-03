@@ -100,7 +100,6 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
                 saveArticle(article)
               }}
               variant="contained"
-              color="secondary"
               size="small"
               startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
             >
