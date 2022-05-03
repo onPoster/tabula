@@ -12,6 +12,7 @@ const UserOptionsContainer = styled(Paper)({
   border: "none",
   borderRadius: "4px !important",
   minWidth: 250,
+  zIndex: 2,
 })
 
 export const UserOptions: React.FC = () => {
