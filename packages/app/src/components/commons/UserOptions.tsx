@@ -8,10 +8,18 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { usePublicationContext } from "../../services/publications/contexts"
 
 const UserOptionsContainer = styled(Paper)({
-  padding: 12,
+  padding: 8,
   border: "none",
   borderRadius: "4px !important",
   minWidth: 250,
+})
+
+const MenuItem = styled(Grid)({
+  borderRadius: 4,
+  padding: 8,
+  "&:hover": {
+    backgroundColor: palette.grays[50],
+  }
 })
 
 export const UserOptions: React.FC = () => {
@@ -21,33 +29,31 @@ export const UserOptions: React.FC = () => {
   const navigate = useNavigate()
   return (
     <UserOptionsContainer>
-      <Grid container flexDirection="column" gap={2}>
-        <Grid
-          item
-          sx={{ cursor: "pointer" }}
-          onClick={() => {
-            setCurrentPath(location.pathname)
-            navigate("/pinning")
-          }}
-        >
-          <Grid container gap={1} alignItems="center">
-            <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
-              <PushPinIcon sx={{ color: palette.grays[800], width: 18 }} />
-            </Avatar>
-            <Typography variant="body1">Update Pinning Service</Typography>
-          </Grid>
+      <MenuItem
+        item
+        sx={{ cursor: "pointer" }}
+        onClick={() => {
+          setCurrentPath(location.pathname)
+          navigate("/pinning")
+        }}
+      >
+        <Grid container gap={1} alignItems="center">
+          <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
+            <PushPinIcon sx={{ color: palette.grays[800], width: 18 }} />
+          </Avatar>
+          <Typography variant="body1">Update Pinning Service</Typography>
         </Grid>
-        <Grid item sx={{ cursor: "pointer" }} onClick={() => deactivate()}>
-          <Grid container gap={1} alignItems="center">
-            <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
-              <LinkOffIcon sx={{ color: palette.primary[800], width: 18 }} />
-            </Avatar>
-            <Typography variant="body1" color={palette.primary[1000]}>
-              Disconnect Wallet
-            </Typography>
-          </Grid>
+      </MenuItem>
+      <MenuItem item sx={{ cursor: "pointer" }} onClick={() => deactivate()}>
+        <Grid container gap={1} alignItems="center">
+          <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
+            <LinkOffIcon sx={{ color: palette.primary[800], width: 18 }} />
+          </Avatar>
+          <Typography variant="body1" color={palette.primary[1000]}>
+            Disconnect Wallet
+          </Typography>
         </Grid>
-      </Grid>
+      </MenuItem>
     </UserOptionsContainer>
   )
 }

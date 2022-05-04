@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react"
 import { Box, Grid, Typography, styled, TextField, FormHelperText, Divider, Button, Modal } from "@mui/material"
+import { ExternalLink } from "../../commons/ExternalLink"
 import { useNavigate } from "react-router-dom"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
@@ -14,9 +15,13 @@ import useLocalStorage from "../../../hooks/useLocalStorage"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { useNotification } from "../../../hooks/useNotification"
 
-const IpfsSpan = styled(Box)({
+const IpfsSpan = styled("span")({
   color: palette.primary[1000],
+  cursor: "pointer",
   textDecoration: "underline",
+  "&:hover": {
+    color: palette.primary[800],
+  }
 })
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
@@ -40,6 +45,9 @@ const StyledLinkButton = styled(Box)({
   color: palette.secondary[1000],
   textDecoration: "underline",
   cursor: "pointer",
+  "&:hover": {
+    color: palette.secondary[800],
+  }
 })
 
 const setupIpfsSchema = yup.object().shape({
@@ -106,7 +114,7 @@ const SetupIpfsView: React.FC = () => {
             <Grid item width={"100%"}>
               <Typography variant="body1">
                 You can provide an endpoint to a pinning service in adherence with IPFS&#39;s{" "}
-                <IpfsSpan>pinning services API spec.</IpfsSpan>
+                <ExternalLink link="https://ipfs.github.io/pinning-services-api-spec/">pinning services API spec.</ExternalLink>
               </Typography>
             </Grid>
 
@@ -130,7 +138,7 @@ const SetupIpfsView: React.FC = () => {
                         rules={{ required: true }}
                       />
                       {errors && errors.name && (
-                        <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                        <FormHelperText sx={{ textTransform: "capitalize" }}>
                           Nickname Is A Required Field
                         </FormHelperText>
                       )}
@@ -157,7 +165,7 @@ const SetupIpfsView: React.FC = () => {
                         rules={{ required: true }}
                       />
                       {errors && errors.endpoint && (
-                        <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                        <FormHelperText sx={{ textTransform: "capitalize" }}>
                           API Endpoint Is A Required Field
                         </FormHelperText>
                       )}
@@ -182,7 +190,7 @@ const SetupIpfsView: React.FC = () => {
                         rules={{ required: true }}
                       />
                       {errors && errors.accessToken && (
-                        <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                        <FormHelperText sx={{ textTransform: "capitalize" }}>
                           Secret Access Token Is A Required Field
                         </FormHelperText>
                       )}
@@ -239,7 +247,6 @@ const SetupIpfsView: React.FC = () => {
             </Grid>
             <Grid item>
               <StyledLinkButton
-                style={{ color: palette.secondary[1000] }}
                 onClick={() => {
                   setPinning(undefined)
                   handleClose()

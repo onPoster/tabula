@@ -232,6 +232,13 @@ theme = createTheme(theme, {
         },
       },
     },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: palette.primary[1000],
+        }
+      }
+    },
     MuiTab: {
       styleOverrides: {
         root: {
