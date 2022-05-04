@@ -4,8 +4,6 @@ import { SnackbarProvider } from "notistack"
 import { Provider as UrqlProvider } from "urql"
 /** Views **/
 import { LandingView } from "./components/views/home/LandingView"
-import { PostView } from "./components/views/publishers/PostView"
-import { PublishersView } from "./components/views/publishers/PublishersView"
 import { WalletView } from "./components/views/wallet/WalletView"
 import { PublishView } from "./components/views/publication/PublishView"
 import { PublicationPostView } from "./components/views/publication/PublicationPostView"
@@ -34,10 +32,6 @@ const App: React.FC = () => {
             <Route path="/publication/:publicationId" element={<PublicationPostView />} />
             <Route path="/publication/:publicationId/article/:articleId" element={<ArticleView />} />
             <Route path="/publication/permission/:type" element={<PermissionView />} />
-
-            {/** TO  REMOVE **/}
-            <Route path=":address" element={<PublishersView />} />
-            <Route path=":address/:postId" element={<PostView />} />
           </Routes>
         </PublicationProvider>
       </UrqlProvider>
