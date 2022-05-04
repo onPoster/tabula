@@ -36,7 +36,7 @@ export const WalletView: React.FC = () => {
   const navigate = useNavigate()
   const { currentPath } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const { activate, active, chainId: currentChainId } = useWeb3React()
+  const { activate, active } = useWeb3React()
   const search = useLocation().search
   const publicationChainId = new URLSearchParams(search).get("publicationChainId")
   const [showModal, setShowModal] = useState<boolean>(false)
