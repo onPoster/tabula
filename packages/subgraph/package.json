@@ -6,6 +6,8 @@
     "build": "graph build",
     "prebuild": "yarn prepare:rinkeby && yarn codegen",
     "test": "graph test",
+    "deploy:mainnet": "yarn prepare:mainnet && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__MAINNET'",
+    "prepare:mainnet": "mustache network_configs/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "deploy:gnosis-chain": "yarn prepare:gnosis-chain && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN'",
     "prepare:gnosis-chain": "mustache network_configs/gnosis-chain.json subgraph.template.yaml > subgraph.yaml",
     "deploy:rinkeby": "yarn prepare:rinkeby && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__RINKEBY'",
