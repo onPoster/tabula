@@ -33,13 +33,14 @@ export const WalletView: React.FC = () => {
     }
   }, [active, currentPath, navigate, pinning])
 
-  const handleConnector = async (connector: AbstractConnector) => {
+  const handleConnector = async (connector: AbstractConnector) =>
     await activate(connector, undefined, true).catch((error) => {
       if (error instanceof UnsupportedChainIdError && connector) {
-        activate(connector)
+        navigate("/select-network")
+      } else {
+        console.error(error)
       }
     })
-  }
 
   return (
     <Grid container justifyContent={"center"} alignItems={"center"} height={"100vh"} gap={24} flexDirection={"column"}>
