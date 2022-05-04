@@ -22,10 +22,11 @@ export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { type } = useParams<{ type: "new" | "edit" }>()
-  const { publication, article, draftArticle, saveArticle } = usePublicationContext()
+  const { publication, article, draftArticle, saveArticle, setMarkdownArticle } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tag, setTag] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
+
   const [articleImg, setArticleImg] = useState<File>()
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
   const { uploadFile, ipfs } = useFiles()
@@ -34,6 +35,82 @@ export const PreviewPostView: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
+
+  const onSubmitHandler = (data: { description: string }) => {
+    handleArticleAction(data)
+  }
+
+  const handleArticleAction = async (data: { description: string }) => {
+    if (publication && draftArticle && account) {
+      const { description } = data
+      const { id } = publication
+      const { title, article: draftArticleText } = draftArticle
+      let image
+      let hashArticle
+      if (ipfs && articleImg) {
+        image = await uploadFile(articleImg)
+      }
+      if (pinning && draftArticleText) {
+        hashArticle = await uploadFile(draftArticleText)
+      }
+
+      if (title) {
+        setLoading(true)
+        if (type === "new") {
+          await createArticle(
+            {
+              action: "article/create",
+              publicationId: id,
+              title,
+              article: hashArticle ? hashArticle.path : draftArticleText,
+              description,
+              tags,
+              image: image?.path,
+              authors: [account],
+            },
+            hashArticle ? true : false,
+          ).then((res) => {
+            if (res && res.error) setLoading(false)
+          })
+        }
+        if (type === "edit" && havePermissionToUpdate && article?.id) {
+          await updateArticle(
+            {
+              action: "article/update",
+              id: article.id,
+              title,
+              article: hashArticle ? hashArticle.path : draftArticleText,
+              description,
+              tags,
+              image: image ? image?.path : article.image,
+              authors: [account],
+            },
+            hashArticle ? true : false,
+          ).then((res) => {
+            if (res && res.error) setLoading(false)
+          })
+        }
+      }
+    }
+  }
+
+  const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
+    if (ev.key === "Enter") {
+      const currentTags = [...tags]
+      currentTags.push(tag)
+      setTags(currentTags)
+      setTag("")
+      ev.preventDefault()
+    }
+  }
+
+  const handleDeleteTag = (index: number) => {
+    const currentTags = [...tags]
+    remove(currentTags, (tag: string) => {
+      return tag === currentTags[index]
+    })
+    setTags(currentTags)
+  }
 
   useEffect(() => {
     if (article && type === "edit") {
@@ -62,84 +139,33 @@ export const PreviewPostView: React.FC = () => {
   //Method to know recent article created
   useEffect(() => {
     if (data && data.length && loading && draftArticle && draftArticle.title !== "") {
-      const recentArticle = maxBy(data, (article) => {
-        if (article.lastUpdated) {
-          return parseInt(article.lastUpdated)
+      const recentArticle = maxBy(data, (fetchedArticle) => {
+        if (fetchedArticle.lastUpdated) {
+          return parseInt(fetchedArticle.lastUpdated)
         }
       })
-
-      if (recentArticle && recentArticle.title === draftArticle.title) {
+      if (type === "new" && recentArticle && recentArticle.title === draftArticle.title) {
         saveArticle(recentArticle)
         navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
         setLoading(false)
+        return
+      }
+      if (
+        type === "edit" &&
+        recentArticle &&
+        recentArticle.lastUpdated &&
+        article &&
+        article.lastUpdated &&
+        parseInt(recentArticle.lastUpdated) > parseInt(article.lastUpdated)
+      ) {
+        setMarkdownArticle(draftArticle.article)
+        saveArticle(recentArticle)
+        navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
+        setLoading(false)
+        return
       }
     }
-  }, [loading, navigate, data, draftArticle, saveArticle])
-
-  const onSubmitHandler = (data: { description: string }) => {
-    handleArticleAction(data)
-  }
-
-  const handleArticleAction = async (data: { description: string }) => {
-    if (publication && draftArticle && account) {
-      let image
-      const { description } = data
-      const { id } = publication
-      const { title, article: draftArticleText } = draftArticle
-      if (ipfs && articleImg) {
-        image = await uploadFile(articleImg)
-      }
-      if (title) {
-        setLoading(true)
-        if (type === "new") {
-          await createArticle({
-            action: "article/create",
-            publicationId: id,
-            title,
-            article: draftArticleText,
-            description,
-            tags,
-            image: image?.path,
-            authors: [account],
-          }).then((res) => {
-            if (res && res.error) setLoading(false)
-          })
-        }
-        if (type === "edit" && havePermissionToUpdate && article?.id) {
-          await updateArticle({
-            action: "article/update",
-            id: article.id,
-            title,
-            article: draftArticleText,
-            description,
-            tags,
-            image: image ? image?.path : article.image,
-            authors: [account],
-          }).then((res) => {
-            if (res && res.error) setLoading(false)
-          })
-        }
-      }
-    }
-  }
-
-  const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
-    if (ev.key === "Enter") {
-      const currentTags = [...tags]
-      currentTags.push(tag)
-      setTags(currentTags)
-      setTag("")
-      ev.preventDefault()
-    }
-  }
-
-  const handleDeleteTag = (index: number) => {
-    const currentTags = [...tags]
-    remove(currentTags, (tag: string) => {
-      return tag === currentTags[index]
-    })
-    setTags(currentTags)
-  }
+  }, [loading, navigate, data, draftArticle, saveArticle, type, article, setMarkdownArticle])
 
   return (
     <PublicationPage publication={publication} showCreatePost={false}>

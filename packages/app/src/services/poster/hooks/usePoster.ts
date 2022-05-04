@@ -1,5 +1,6 @@
 import { TransactionReceipt } from "@ethersproject/providers"
 import { useState } from "react"
+import { useFiles } from "../../../hooks/useFiles"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
 import { getContract } from "../contracts/contract"
@@ -14,7 +15,7 @@ const usePoster = () => {
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
-
+  const { pinAction } = useFiles()
   const executePublication = async (fields: Publication): Promise<any> => {
     const content: Publication = {
       action: fields.action,
@@ -39,6 +40,7 @@ const usePoster = () => {
       try {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
+        content.image && (await pinAction(content.image, `${content.title}-image`))
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -63,7 +65,7 @@ const usePoster = () => {
     }
   }
 
-  const createArticle = async (fields: PosterArticle): Promise<any> => {
+  const createArticle = async (fields: PosterArticle, pin: boolean): Promise<any> => {
     const content: PosterArticle = {
       action: fields.action,
       title: fields.title,
@@ -90,6 +92,8 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
+        content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
+        pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -113,7 +117,7 @@ const usePoster = () => {
     }
   }
 
-  const updateArticle = async (fields: PosterUpdateArticle): Promise<any> => {
+  const updateArticle = async (fields: PosterUpdateArticle, pin: boolean): Promise<any> => {
     const content: PosterUpdateArticle = {
       action: fields.action,
       title: fields.title,
@@ -140,6 +144,14 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
+        content.image &&
+          (await pinAction(content.image, `Image-${content.title}-${content.lastUpdated}`, "Successfully image pinned"))
+        pin &&
+          (await pinAction(
+            content.article,
+            `Article-${content.title}-${content.lastUpdated}`,
+            "Successfully article pinned",
+          ))
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -224,7 +236,7 @@ const usePoster = () => {
       }
     }
   }
-  
+
   return { executePublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
 }
 export default usePoster

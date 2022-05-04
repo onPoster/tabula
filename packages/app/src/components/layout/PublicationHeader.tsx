@@ -28,7 +28,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath } = usePublicationContext()
+  const { setCurrentPath, saveDraftArticle } = usePublicationContext()
   const { refetch } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -64,6 +64,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               onClick={() => {
                 refetch()
                 navigate(`/publication/${publication?.id}`)
+                saveDraftArticle(undefined)
               }}
             >
               <Avatar
@@ -110,7 +111,13 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
 
             {showCreatePost && havePermissionToCreate && (
               <Grid item>
-                <Button variant="contained" size={"large"} onClick={() => navigate("/publication/post-action/new")}>
+                <Button
+                  variant="contained"
+                  size={"large"}
+                  onClick={() => {
+                    navigate("/publication/post-action/new")
+                  }}
+                >
                   <AddIcon style={{ marginRight: 13 }} />
                   New Post
                 </Button>

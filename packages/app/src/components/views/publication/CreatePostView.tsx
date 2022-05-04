@@ -14,6 +14,7 @@ import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { find } from "lodash"
+import isIPFS from "is-ipfs"
 
 const articleSchema = yup.object().shape({
   title: yup.string().required(),
@@ -24,13 +25,16 @@ export const CreatePostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
-  const { publication, article, draftArticle, saveDraftArticle, savePublication } = usePublicationContext()
+  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, savePublication } =
+    usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
   const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToDelete = haveActionPermission(permissions || [], "articleDelete", account || "")
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
+  const isValidHash = article && isIPFS.multihash(article.article)
+
   const {
     control,
     handleSubmit,
@@ -42,12 +46,22 @@ export const CreatePostView: React.FC = () => {
   })
 
   useEffect(() => {
-    if (type === "edit" && article) {
+    if (type === "edit" && isValidHash && article && !draftArticle) {
+      const { title } = article
+      setValue("title", title)
+      if (!markdownArticle) {
+        getPinnedData(article.article)
+      }
+      if (markdownArticle) {
+        setValue("article", markdownArticle)
+      }
+    }
+    if (type === "edit" && !isValidHash && article && !draftArticle) {
       const { title, article: articleDescription } = article
       setValue("title", title)
       setValue("article", articleDescription)
     }
-  }, [type, article, setValue])
+  }, [type, article, setValue, isValidHash, markdownArticle, getPinnedData, draftArticle])
 
   //Execute poll interval to know the latest permission indexed
   useEffect(() => {

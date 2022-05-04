@@ -10,14 +10,18 @@ export type PublicationContextType = {
   editingPublication: boolean
   draftPublicationImage: File | undefined
   currentPath: string | undefined
+  markdownArticle: string | undefined
+  loading: boolean
+  getPinnedData: (hash: string) => void
+  setMarkdownArticle: (markdown: string | undefined) => void
   saveIsEditing: (isEditing: boolean) => void
   saveDraftPublicationImage: (file: File | undefined) => void
   setCurrentPath: (path: string | undefined) => void
   savePermission: (permission: Permission) => void
-  saveDraftArticle: (article: Article) => void
+  saveDraftArticle: (article: Article | undefined) => void
   savePublication: (publication: Publications | undefined) => void
   savePublications: (publications: Publications[] | undefined) => void
-  saveArticle: (article: Article) => void
+  saveArticle: (article: Article | undefined) => void
 }
 
 export type PublicationProviderProps = {
