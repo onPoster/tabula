@@ -9,3 +9,18 @@ export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.RINKEBY,
   SupportedChainId.GNOSIS_CHAIN,
 ]
+
+export const chainToString = (chainId: number) => {
+  switch (chainId) {
+    case SupportedChainId.MAINNET:
+      return `Mainnet (ChainID: ${chainId})`
+    case SupportedChainId.RINKEBY:
+      return `Rinkeby (ChainID: ${chainId})`
+    case SupportedChainId.GNOSIS_CHAIN:
+      return `Gnosis Chain (ChainID: ${chainId})`
+    default: {
+      console.warn(`Missing "chainToString" implementation for ChainID: ${chainId}`)
+      return "Unknown chain"
+    }
+  }
+}

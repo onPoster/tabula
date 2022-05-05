@@ -11,7 +11,7 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { ViewContainer } from "../../commons/ViewContainer"
-import { ALL_SUPPORTED_CHAIN_IDS } from "../../../constants/chain"
+import { ALL_SUPPORTED_CHAIN_IDS, chainToString } from "../../../constants/chain"
 import WarningAmberIcon from "@mui/icons-material/WarningAmber"
 
 const AFTER_CONNECT_SCREEN = "/publication/publish"
@@ -113,7 +113,8 @@ export const WalletView: React.FC = () => {
                 <Typography variant="body1" fontWeight={700} color={palette.secondary[1000]}>
                   {publicationChainId != null ? (
                     <Typography>
-                      This publication is on {publicationChainId}. Please change your wallet to that network.
+                      This publication is on {chainToString(Number(publicationChainId))}. Please change your wallet to
+                      that network.
                     </Typography>
                   ) : (
                     <Grid item>
@@ -121,9 +122,7 @@ export const WalletView: React.FC = () => {
                       <Grid container flexDirection="column" gap={1}>
                         {ALL_SUPPORTED_CHAIN_IDS.map((chainId) => (
                           <Grid item key={chainId}>
-                            {chainId === 1 && <Typography>Mainnet - {chainId}</Typography>}
-                            {chainId === 4 && <Typography>Rinkeby - {chainId}</Typography>}
-                            {chainId === 100 && <Typography>Gnosis Chain - {chainId}</Typography>}
+                            <Typography>{chainToString(Number(chainId))}</Typography>
                           </Grid>
                         ))}
                       </Grid>
