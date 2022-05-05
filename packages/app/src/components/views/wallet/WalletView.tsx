@@ -59,13 +59,18 @@ export const WalletView: React.FC = () => {
 
   const handleConnector = async (connector: AbstractConnector) => {
     if (publicationChainId != null) {
-      const rawChainIdString = (await connector.getChainId()).toString()
-      const currentChainId = rawChainIdString.startsWith("0x")
-        ? parseInt(rawChainIdString, 16)
-        : parseInt(rawChainIdString)
-      if (parseInt(publicationChainId) !== currentChainId) {
-        setShowModal(true)
-        return
+      try {
+        const rawChainIdString = (await connector.getChainId()).toString()
+        const currentChainId = rawChainIdString.startsWith("0x")
+          ? parseInt(rawChainIdString, 16)
+          : parseInt(rawChainIdString)
+        if (parseInt(publicationChainId) !== currentChainId) {
+          setShowModal(true)
+          return
+        }
+      } catch (error) {
+        console.warn("Probably no browser wallet:")
+        console.warn(error)
       }
     }
     await activate(connector, undefined, true).catch((error) => {
