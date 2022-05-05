@@ -2,7 +2,7 @@ import { useState } from "react"
 import useHttp from "../../../hooks/useHttp"
 import { Article, Permission, Publications } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
-import pinningService from "../../pinnnig/pinningService"
+import ipfsService from "../../ipfs/ipfsService"
 
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
 
@@ -19,7 +19,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
   const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
 
-  const [getPinnedRequest, { loading }] = useHttp(pinningService.getPinnedData)
+  const [getPinnedRequest, { loading }] = useHttp(ipfsService.getData)
 
   const getPinnedData = async (hash: string) => {
     const data = await getPinnedRequest(hash)
