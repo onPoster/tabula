@@ -11,7 +11,7 @@ import benefit3 from "../../../assets/images/benefit3.png"
 import tabletHero from "../../../assets/images/tablet-hero-graphic.png"
 import paperTextureNight from "../../../assets/images/paper-texture-800-night.jpg"
 import { makeStyles } from "@mui/styles"
-
+import { useNavigate } from "react-router-dom"
 
 const benefits = [
   {
@@ -51,7 +51,7 @@ const useStyles = makeStyles(() => ({
     transition: "opacity 0.25s ease-in-out",
     "&:hover": {
       opacity: 0.6,
-    }
+    },
   },
   gnosisLogo: {
     width: 24,
@@ -65,6 +65,7 @@ const useStyles = makeStyles(() => ({
 
 export const LandingView: React.FC = () => {
   const classes = useStyles()
+  const navigate = useNavigate()
   return (
     <Page>
       <Box
@@ -108,29 +109,33 @@ export const LandingView: React.FC = () => {
                 Instant web3 publications for writers, DAOs, and any Ethereum-based account.
               </Typography>
               <Box sx={{ mt: 4 }}>
-                <Button variant="contained">Get Started</Button>
+                <Button variant="contained" onClick={() => navigate("/wallet")}>
+                  Get Started
+                </Button>
               </Box>
             </Grid>
           </Grid>
         </Container>
-        <Box sx={{
-          overflowX: "hidden",
-          height: "140vw",
-          position: "absolute",
-          transform: "translateY(80%)",
-          width: "100vw",
-          [`${theme.breakpoints.up("sm")}`]: {
-            transform: "translateY(40%)",
-            height: "70vw",
-          },
-          [`${theme.breakpoints.up("sm")} and (orientation:portrait)`]: {
-            transform: "translateY(60%)",
-            height: "90vw",
-          },
-          [`${theme.breakpoints.up("lg")}`]: {
-            height: "50vw",
-          },
-        }}>
+        <Box
+          sx={{
+            overflowX: "hidden",
+            height: "140vw",
+            position: "absolute",
+            transform: "translateY(80%)",
+            width: "100vw",
+            [`${theme.breakpoints.up("sm")}`]: {
+              transform: "translateY(40%)",
+              height: "70vw",
+            },
+            [`${theme.breakpoints.up("sm")} and (orientation:portrait)`]: {
+              transform: "translateY(60%)",
+              height: "90vw",
+            },
+            [`${theme.breakpoints.up("lg")}`]: {
+              height: "50vw",
+            },
+          }}
+        >
           <Box
             sx={{
               width: "140vw",
@@ -219,13 +224,13 @@ export const LandingView: React.FC = () => {
               alignItems: "center",
               display: "inline-flex",
               justifyContent: "flex-end",
-              width: "100%"
+              width: "100%",
             }}
           >
             <ExternalLink className={classes.footerLink} link={gnosisLink}>
               <img src={gnosisLogo} alt="Gnosis Guild" className={classes.gnosisLogo} />
             </ExternalLink>
-            <Typography fontSize={14} sx={{ml: 1}}>
+            <Typography fontSize={14} sx={{ ml: 1 }}>
               A product by
               {` `}
               <ExternalLink className={`${classes.gnosisLink} ${classes.footerLink}`} link={gnosisLink}>
