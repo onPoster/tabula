@@ -58,6 +58,16 @@ export const WalletView: React.FC = () => {
   }, [active, currentPath, navigate, pinning])
 
   const handleConnector = async (connector: AbstractConnector) => {
+    if (publicationChainId != null) {
+      const rawChainIdString = (await connector.getChainId()).toString()
+      const currentChainId = rawChainIdString.startsWith("0x")
+        ? parseInt(rawChainIdString, 16)
+        : parseInt(rawChainIdString)
+      if (parseInt(publicationChainId) !== currentChainId) {
+        setShowModal(true)
+        return
+      }
+    }
     await activate(connector, undefined, true).catch((error) => {
       if (error instanceof UnsupportedChainIdError && connector) {
         console.error(error)
