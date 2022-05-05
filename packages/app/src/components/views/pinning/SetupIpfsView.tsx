@@ -15,14 +15,14 @@ import useLocalStorage from "../../../hooks/useLocalStorage"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { useNotification } from "../../../hooks/useNotification"
 
-const IpfsSpan = styled("span")({
-  color: palette.primary[1000],
-  cursor: "pointer",
-  textDecoration: "underline",
-  "&:hover": {
-    color: palette.primary[800],
-  }
-})
+// const IpfsSpan = styled("span")({
+//   color: palette.primary[1000],
+//   cursor: "pointer",
+//   textDecoration: "underline",
+//   "&:hover": {
+//     color: palette.primary[800],
+//   }
+// })
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
   top: "50%",
@@ -47,7 +47,7 @@ const StyledLinkButton = styled(Box)({
   cursor: "pointer",
   "&:hover": {
     color: palette.secondary[800],
-  }
+  },
 })
 
 const setupIpfsSchema = yup.object().shape({
@@ -114,7 +114,9 @@ const SetupIpfsView: React.FC = () => {
             <Grid item width={"100%"}>
               <Typography variant="body1">
                 You can provide an endpoint to a pinning service in adherence with IPFS&#39;s{" "}
-                <ExternalLink link="https://ipfs.github.io/pinning-services-api-spec/">pinning services API spec.</ExternalLink>
+                <ExternalLink link="https://ipfs.github.io/pinning-services-api-spec/">
+                  pinning services API spec.
+                </ExternalLink>
               </Typography>
             </Grid>
 
