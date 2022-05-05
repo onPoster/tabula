@@ -2,7 +2,7 @@ import { useState } from "react"
 import useHttp from "../../../hooks/useHttp"
 import { Article, Permission, Publications } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
-import ipfsService from "../../ipfs/ipfsService"
+import ipfsService from "../../ipfs/ipfs"
 
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
 
