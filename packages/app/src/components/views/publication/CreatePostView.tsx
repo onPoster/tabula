@@ -1,4 +1,5 @@
-import { Button, CircularProgress, FormHelperText, Grid, TextField } from "@mui/material"
+import { Button, CircularProgress, FormHelperText, Grid, styled, TextField } from "@mui/material"
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import React, { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { usePublicationContext } from "../../../services/publications/contexts"
@@ -19,6 +20,15 @@ import isIPFS from "is-ipfs"
 const articleSchema = yup.object().shape({
   title: yup.string().required(),
   article: yup.string().required(),
+})
+
+const DeletePostButton = styled(Button)({
+  border: `2px solid ${palette.grays[400]}`,
+  background: palette.whites[400],
+  color: palette.grays[800],
+  "&:hover": {
+    background: palette.whites[1000],
+  },
 })
 
 export const CreatePostView: React.FC = () => {
@@ -147,10 +157,17 @@ export const CreatePostView: React.FC = () => {
               <Grid item xs={12} mt={1}>
                 <Grid container justifyContent={"space-between"}>
                   {havePermissionToDelete && (
-                    <Button variant="contained" size="large" onClick={handleDeleteArticle} disabled={loading}>
+                    <DeletePostButton
+                      variant="contained"
+                      size="large"
+                      onClick={handleDeleteArticle}
+                      disabled={loading}
+                      startIcon={<DeleteOutlineIcon/>}
+                      sx={{whiteSpace: "nowrap"}}
+                    >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                       Delete Post
-                    </Button>
+                    </DeletePostButton>
                   )}
                   {havePermissionToUpdate && (
                     <Button variant="contained" size="large" type="submit">
