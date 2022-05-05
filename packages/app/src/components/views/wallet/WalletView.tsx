@@ -12,6 +12,7 @@ import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { ViewContainer } from "../../commons/ViewContainer"
 import { ALL_SUPPORTED_CHAIN_IDS } from "../../../constants/chain"
+import WarningAmberIcon from "@mui/icons-material/WarningAmber"
 
 const AFTER_CONNECT_SCREEN = "/publication/publish"
 
@@ -74,30 +75,59 @@ export const WalletView: React.FC = () => {
           <CloseIcon style={{ cursor: "pointer" }} onClick={() => navigate(-1)} />
         </Box>
         <Grid container style={{ gap: 16 }}>
-          {SUPPORTED_WALLETS.map(({ name, iconURL, connector }, index) => (
-            <Grid item key={index} width={"100%"}>
-              <WalletButton walletName={name} icon={iconURL} onClick={() => handleConnector(connector)} />
-            </Grid>
-          ))}
+          {SUPPORTED_WALLETS.map(({ name, iconURL, connector }, index) => {
+            if (name === "Metamask" && !window.ethereum) {
+              return null
+            }
+            return (
+              <Grid item key={index} width={"100%"}>
+                <WalletButton walletName={name} icon={iconURL} onClick={() => handleConnector(connector)} />
+              </Grid>
+            )
+          })}
         </Grid>
       </Grid>
       <Modal open={showModal} onClose={() => setShowModal(false)}>
         <ModalContainer maxWidth="sm" ref={ref}>
           <Grid container gap={3} py={3} px={4} flexDirection="column">
             <Grid item>
+              <Grid container justifyContent="space-between" alignItems="center">
+                <Grid item sx={{ display: "flex", alignItems: "center" }}>
+                  <WarningAmberIcon color="secondary" sx={{ marginRight: 1 }} />
+                  <Typography
+                    fontFamily={typography.fontFamilies.sans}
+                    variant="h6"
+                    sx={{ margin: 0 }}
+                    color={palette.secondary[1000]}
+                  >
+                    Warning
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <CloseIcon style={{ cursor: "pointer" }} onClick={() => setShowModal(false)} />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
               <ModalContentContainer>
                 <Typography variant="body1" fontWeight={700} color={palette.secondary[1000]}>
                   {publicationChainId != null ? (
-                    <p>This publication is on {publicationChainId}. Please change your wallet to that network.</p>
+                    <Typography>
+                      This publication is on {publicationChainId}. Please change your wallet to that network.
+                    </Typography>
                   ) : (
-                    <>
-                      <p>Please, change to one of the supported networks:</p>
-                      <ul>
+                    <Grid item>
+                      <Typography>Please, change to one of the supported networks:</Typography>
+                      <Grid container flexDirection="column" gap={1}>
                         {ALL_SUPPORTED_CHAIN_IDS.map((chainId) => (
-                          <li key={chainId}>{chainId}</li>
+                          <Grid item key={chainId}>
+                            {chainId === 1 && <Typography>Mainnet - {chainId}</Typography>}
+                            {chainId === 4 && <Typography>Rinkeby - {chainId}</Typography>}
+                            {chainId === 100 && <Typography>Gnosis Chain - {chainId}</Typography>}
+                          </Grid>
                         ))}
-                      </ul>
-                    </>
+                      </Grid>
+                    </Grid>
                   )}
                 </Typography>
               </ModalContentContainer>
