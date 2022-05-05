@@ -7,7 +7,7 @@ on:
 env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
-  REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/
+  REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
   REACT_APP_SUBGRAPH_RINKEBY: samepant/tabula-dev
   REACT_APP_SUBGRAPH_GNOSIS_CHAIN: samepant/tabula-gnosis-chain
   REACT_APP_SUBGRAPH_MAINNET: samepant/tabula
