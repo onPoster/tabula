@@ -80,7 +80,7 @@ export const ArticleView: React.FC = () => {
                       opacity: 0.6,
                     }
                   }}
-                  onClick={() => navigate(`/publication/post/${article.publication?.id}`)}
+                  onClick={() => navigate(`/publication/${article.publication?.id}`)}
                 >
                   <Avatar
                     sx={{ width: 31, height: 31 }}

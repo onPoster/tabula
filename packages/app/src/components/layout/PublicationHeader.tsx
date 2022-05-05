@@ -97,7 +97,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   sx={{ position: "relative" }}
                 >
                   <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-                    <WalletBadge address={account} />
+                    <WalletBadge hover address={account} />
                   </Grid>
                   {show && (
                     <Grid item sx={{ position: "absolute", top: 45 }}>

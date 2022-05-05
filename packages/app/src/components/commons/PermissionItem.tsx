@@ -12,6 +12,7 @@ const PermissionItemContainer = styled(Box)({
   background: palette.grays[100],
   borderRadius: 4,
   cursor: "pointer",
+  justifyContent: "space-between",
   display: "flex",
   padding: "10px 20px",
   "&:hover": {

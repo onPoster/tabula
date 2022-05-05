@@ -211,7 +211,7 @@ export const PublishView: React.FC = () => {
               <Grid my={3}>
                 <Divider>
                   <PublishDividerTextContainer>
-                    <Typography variant="subtitle2" fontFamily={typography.fontFamilies.sans}>
+                    <Typography variant="body1" fontFamily={typography.fontFamilies.sans}>
                       OR
                     </Typography>
                   </PublishDividerTextContainer>

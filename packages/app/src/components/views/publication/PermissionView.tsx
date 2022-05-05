@@ -10,6 +10,7 @@ import {
   FormHelperText,
   CircularProgress,
 } from "@mui/material"
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { palette, typography } from "../../../theme"
 import CloseIcon from "@mui/icons-material/Close"
 import { useNavigate, useParams } from "react-router-dom"
@@ -50,6 +51,15 @@ const PermissionContainer = styled(Grid)({
   height: "100vh",
   gap: 24,
   flexDirection: "column",
+})
+
+const RemoveUserButton = styled(Button)({
+  border: `2px solid ${palette.grays[400]}`,
+  background: palette.whites[400],
+  color: palette.grays[800],
+  "&:hover": {
+    background: palette.whites[1000],
+  },
 })
 
 const ARTICLES_OPTIONS: OptionsType[] = [
@@ -275,52 +285,59 @@ export const PermissionView: React.FC = () => {
                 </Grid>
               )}
               {type === "edit" && permission && (
-                <Grid item>
+                <Box sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  spacing: 1,
+                }}>
                   <WalletBadge address={permission.address} />
-                </Grid>
+                  <RemoveUserButton
+                    variant="contained"
+                    size="small"
+                    onClick={handleDeletePermission}
+                    disabled={deleteLoading}
+                    startIcon={<RemoveCircleOutlineIcon/>}
+                    sx={{whiteSpace: "nowrap"}}
+                  >
+                    {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                    Remove User
+                  </RemoveUserButton>
+                </Box>
               )}
-              <Grid item>
-                <Grid container flexDirection="column" gap={1}>
-                  <Grid item>
-                    <Typography fontFamily={typography.fontFamilies.sans} variant="body1" fontWeight={"bold"}>
-                      Post Permissions
-                    </Typography>
-                  </Grid>
-                  {ARTICLES_OPTIONS.map(({ key, label }) => (
-                    <Grid item key={key}>
-                      <Controller
-                        control={control}
-                        name={key}
-                        render={({ field }) => <CustomCheckbox {...field} checked={field.value} label={label} />}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
+              <Grid item flexDirection="column">
+                <Typography fontFamily={typography.fontFamilies.sans} variant="body1" fontWeight={"bold"}>
+                  Post Permissions
+                </Typography>
+                {ARTICLES_OPTIONS.map(({ key, label }) => (
+                  <Box>
+                    <Controller
+                      control={control}
+                      name={key}
+                      render={({ field }) => <CustomCheckbox {...field} checked={field.value} label={label} />}
+                    />
+                  </Box>
+                ))}
               </Grid>
 
-              <Grid item>
-                <Grid container flexDirection="column" gap={1}>
-                  <Grid item>
-                    <Typography fontFamily={typography.fontFamilies.sans} variant="body1" fontWeight={"bold"}>
-                      Publication Permissions
-                    </Typography>
-                  </Grid>
-                  {PUBLICATIONS_OPTIONS.map(({ key, label }) => (
-                    <Grid item key={key}>
-                      <Controller
-                        control={control}
-                        name={key}
-                        render={({ field }) => <CustomCheckbox {...field} checked={field.value} label={label} />}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
+              <Grid item flexDirection="column">
+                <Typography fontFamily={typography.fontFamilies.sans} variant="body1" fontWeight={"bold"}>
+                  Publication Permissions
+                </Typography>
+                {PUBLICATIONS_OPTIONS.map(({ key, label }) => (
+                  <Controller
+                    control={control}
+                    name={key}
+                    key={key}
+                    render={({ field }) => <CustomCheckbox {...field} checked={field.value} label={label} />}
+                  />
+                ))}
               </Grid>
 
               <Divider />
 
               {type === "new" && (
-                <Grid item display="flex" justifyContent={"flex-end"}>
+                <Grid item display="flex" justifyContent="flex-end">
                   <Button variant="contained" size="medium" disabled={loading} type="submit">
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                     Add Permission
@@ -329,11 +346,7 @@ export const PermissionView: React.FC = () => {
               )}
 
               {type === "edit" && (
-                <Grid item display="flex" justifyContent={"space-between"}>
-                  <Button variant="contained" size="medium" onClick={handleDeletePermission} disabled={deleteLoading}>
-                    {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Remove User
-                  </Button>
+                <Grid item display="flex" justifyContent="flex-end">
                   <Button variant="contained" size="medium" disabled={loading} type="submit">
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                     Update

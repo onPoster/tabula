@@ -232,6 +232,13 @@ theme = createTheme(theme, {
         },
       },
     },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: palette.primary[1000],
+        }
+      }
+    },
     MuiTab: {
       styleOverrides: {
         root: {
@@ -301,7 +308,8 @@ theme = createTheme(theme, {
           borderRadius: 4,
           lineHeight: 1,
           "& .MuiChip-deleteIcon": {
-            marginLeft: 1,
+            marginLeft: 4,
+            marginRight: 0,
             color: palette.whites[1000],
           },
         },
