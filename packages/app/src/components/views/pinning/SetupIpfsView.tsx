@@ -66,12 +66,17 @@ const SetupIpfsView: React.FC = () => {
 
   const onSubmitHandler = (data: Pinning) => {
     setPinning(data)
-    handleClose()
     openNotification({
       message: "Successfully set up the pinning service!",
       variant: "success",
       autoHideDuration: 5000,
     })
+    if (currentPath) {
+      navigate(currentPath)
+      setCurrentPath(undefined)
+      return
+    }
+    navigate("/publication/publish")
   }
 
   const handleClose = () => {
@@ -80,7 +85,8 @@ const SetupIpfsView: React.FC = () => {
       setCurrentPath(undefined)
       return
     }
-    if (!currentPath && showModal) {
+
+    if (!currentPath) {
       navigate("/publication/publish")
       return
     }

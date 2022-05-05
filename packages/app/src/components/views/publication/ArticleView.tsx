@@ -1,4 +1,4 @@
-import { Avatar, CircularProgress, Divider, Grid, Typography } from "@mui/material"
+import { Avatar, CircularProgress, Divider, Grid, Chip, Stack, Typography } from "@mui/material"
 import moment from "moment"
 import React, { useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
@@ -91,28 +91,40 @@ export const ArticleView: React.FC = () => {
               </Grid>
 
               {article.publication && (
-                <Grid item onClick={() => navigate(`/publication/post/${article.publication?.id}`)}>
-                  <Grid container alignItems="center" gap={2} mt={3} sx={{ cursor: "pointer" }}>
-                    <Grid item>
-                      <Avatar
-                        sx={{ width: 31, height: 31 }}
-                        src={
-                          article.publication?.image ? `https://ipfs.infura.io/ipfs/${article?.publication.image}` : ""
-                        }
-                      >
-                        {" "}
-                      </Avatar>
-                    </Grid>
-                    <Grid item>
-                      <Typography variant="subtitle2" fontWeight={600} fontFamily={typography.fontFamilies.sans}>
-                        {article.publication?.title}
-                      </Typography>
-                    </Grid>
-                    <Grid item>{date && <Typography>{moment(date).format("MMMM DD, YYYY")}</Typography>}</Grid>
-                  </Grid>
-                </Grid>
+                <Stack alignItems="center" direction="row" spacing={2} sx={{ mt: 3 }}>
+                  <Stack
+                    alignItems="center"
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      cursor: "pointer",
+                      transition: "opacity 0.25s ease-in-out",
+                      "&:hover": {
+                        opacity: 0.6,
+                      },
+                    }}
+                    onClick={() => navigate(`/publication/post/${article.publication?.id}`)}
+                  >
+                    <Avatar
+                      sx={{ width: 31, height: 31 }}
+                      src={
+                        article.publication?.image ? `https://ipfs.infura.io/ipfs/${article?.publication.image}` : ""
+                      }
+                    >
+                      {" "}
+                    </Avatar>
+                    <Typography variant="subtitle2" fontWeight={600} fontFamily={typography.fontFamilies.sans}>
+                      {article.publication?.title}
+                    </Typography>
+                  </Stack>
+                  {date && <Typography>{moment(date).format("MMMM DD, YYYY")}</Typography>}
+                  <Stack alignItems="center" direction="row" spacing={1}>
+                    {article.tags &&
+                      article.tags.length > 0 &&
+                      article.tags.map((tag, index) => <Chip label={tag} size="small" key={index} />)}
+                  </Stack>
+                </Stack>
               )}
-
               <Grid item my={10}>
                 <Markdown>{articleToShow}</Markdown>
               </Grid>

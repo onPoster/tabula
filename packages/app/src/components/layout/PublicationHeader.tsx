@@ -29,7 +29,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const navigate = useNavigate()
   const location = useLocation()
   const { setCurrentPath, saveDraftArticle } = usePublicationContext()
-  const { refetch } = usePublication(publication?.id || "")
+  const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
 
@@ -138,7 +138,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                 boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
               },
             }}
-            onClick={() => navigate("/wallet")}
+            onClick={() => navigate(`/wallet?publicationChainId=${publicationChainId}`)}
           >
             Connect Wallet
           </Button>

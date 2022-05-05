@@ -1,4 +1,4 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap, ValueKind } from "@graphprotocol/graph-ts"
+import { Address, dataSource, JSONValue, JSONValueKind, log, TypedMap, ValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Permission, Publication } from "../generated/schema"
 import {
@@ -15,7 +15,7 @@ import {
 import { store } from "@graphprotocol/graph-ts"
 
 export const getPublicationId = (event: NewPost): string =>
-  "P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  dataSource.network() + ":P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 const PUBLICATION_ENTITY_TYPE = "Publication"
 
 export function handlePublicationAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {

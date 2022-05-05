@@ -53,3 +53,18 @@ export interface Article {
     permissions: Permission[]
   }
 }
+
+const THE_GRAPH_NAME_TO_CHAINID: { [name: string]: number } = {
+  xdai: 100,
+  mainnet: 1,
+  rinkeby: 4,
+}
+
+export const publicationIdToChainId = (id: string | undefined): number | undefined => {
+  // The Graph network names (see: `packages/subgraph/network_configs/`)
+  if (id == null) {
+    return undefined
+  }
+  const chainName = id.split(":")[0]
+  return THE_GRAPH_NAME_TO_CHAINID[chainName]
+}

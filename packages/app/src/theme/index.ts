@@ -295,10 +295,11 @@ theme = createTheme(theme, {
       styleOverrides: {
         root: {
           padding: "4px 8px",
-          height: "auto",
           color: palette.whites[1000],
           background: palette.secondary[800],
+          height: "auto",
           borderRadius: 4,
+          lineHeight: 1,
           "& .MuiChip-deleteIcon": {
             marginLeft: 1,
             color: palette.whites[1000],

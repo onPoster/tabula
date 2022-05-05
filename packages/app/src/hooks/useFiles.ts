@@ -51,7 +51,7 @@ export const useFiles = () => {
         .catch((error) => {
           console.error(error)
           openNotification({
-            message: "Something happened to pin your file",
+            message: `Pinning of ${name} failed. [Hash: ${path}]`,
             variant: "error",
             autoHideDuration: 5000,
           })
