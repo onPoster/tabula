@@ -28,7 +28,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath, saveDraftArticle } = usePublicationContext()
+  const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
   const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -40,6 +40,14 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   }, [location, setCurrentPath])
 
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
+
+  const handleNavigation = async () => {
+    await refetch()
+    navigate(`/publication/${publication?.id}`)
+    saveDraftArticle(undefined)
+    saveArticle(undefined)
+  }
+
   return (
     <Container
       maxWidth="lg"
@@ -61,11 +69,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               alignItems={"center"}
               gap={1}
               sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
-              onClick={() => {
-                refetch()
-                navigate(`/publication/${publication?.id}`)
-                saveDraftArticle(undefined)
-              }}
+              onClick={handleNavigation}
             >
               <Avatar
                 sx={{ width: 47, height: 47 }}

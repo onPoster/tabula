@@ -84,6 +84,7 @@ export const ArticleView: React.FC = () => {
                   <meta property="og:image" content={`https://ipfs.infura.io/ipfs/${article?.image}`} />
                 )}
               </Helmet>
+              {article.image && <img src={`https://ipfs.infura.io/ipfs/${article?.image}`} alt={article.title} />}
               <Grid item>
                 <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
                   {article.title}

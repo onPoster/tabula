@@ -144,25 +144,26 @@ export const PreviewPostView: React.FC = () => {
           return parseInt(fetchedArticle.lastUpdated)
         }
       })
-      if (type === "new" && recentArticle && recentArticle.title === draftArticle.title) {
-        saveArticle(recentArticle)
-        navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
-        setLoading(false)
-        return
-      }
-      if (
-        type === "edit" &&
-        recentArticle &&
-        recentArticle.lastUpdated &&
-        article &&
-        article.lastUpdated &&
-        parseInt(recentArticle.lastUpdated) > parseInt(article.lastUpdated)
-      ) {
-        setMarkdownArticle(draftArticle.article)
-        saveArticle(recentArticle)
-        navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
-        setLoading(false)
-        return
+      if (recentArticle && recentArticle.title === draftArticle.title) {
+        if (type === "new") {
+          saveArticle(recentArticle)
+          navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
+          setLoading(false)
+          return
+        }
+        if (
+          type === "edit" &&
+          recentArticle.lastUpdated &&
+          article &&
+          article.lastUpdated &&
+          parseInt(recentArticle.lastUpdated) > parseInt(article.lastUpdated)
+        ) {
+          setMarkdownArticle(draftArticle.article)
+          saveArticle(recentArticle)
+          navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
+          setLoading(false)
+          return
+        }
       }
     }
   }, [loading, navigate, data, draftArticle, saveArticle, type, article, setMarkdownArticle])
