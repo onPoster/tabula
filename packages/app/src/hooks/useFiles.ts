@@ -24,20 +24,26 @@ export const useFiles = () => {
 
   const uploadFile = async (file: File | string): Promise<{ cid?: any; path: string }> => {
     const result = await (ipfs as IPFSHTTPClient).add(file)
-    if (pinning && result) {
+    return {
+      cid: result.cid,
+      path: result.path,
+    }
+  }
+
+  const pinAction = async (path: string, name: string, msg?: string) => {
+    if (pinning) {
       const pinningService: Pinning = pinning as Pinning
       await axios
         .post(
           `${pinningService.endpoint}/pins`,
-          { cid: result.path, name: file instanceof File ? file.name : "Article" },
+          { cid: path, name },
           {
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${pinningService.accessToken}` },
           },
         )
-        .then((e) => {
-          console.log("e", e)
+        .then(() => {
           openNotification({
-            message: "Successfully file pinned!",
+            message: msg ? msg : "Successfully file pinned!",
             variant: "success",
             autoHideDuration: 5000,
           })
@@ -45,17 +51,13 @@ export const useFiles = () => {
         .catch((error) => {
           console.error(error)
           openNotification({
-            message: "Something happened to pin your file",
+            message: `Pinning of ${name} failed. [Hash: ${path}]`,
             variant: "error",
             autoHideDuration: 5000,
           })
         })
     }
-    return {
-      cid: result.cid,
-      path: result.path,
-    }
   }
 
-  return { ipfs, uploadFile }
+  return { ipfs, uploadFile, pinAction }
 }

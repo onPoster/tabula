@@ -7,7 +7,10 @@ on:
 env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
-  REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS_PROD }}
+  REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
+  REACT_APP_SUBGRAPH_RINKEBY: samepant/tabula-dev
+  REACT_APP_SUBGRAPH_GNOSIS_CHAIN: samepant/tabula-gnosis-chain
+  REACT_APP_SUBGRAPH_MAINNET: samepant/tabula
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -74,8 +77,15 @@ jobs:
       - name: Prep graph cli for deployment
         working-directory: packages/subgraph
         run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
-      - name: Deploy subgraphs
+
+      - name: Deploy subgraph to Gnosis Chain
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: samepant/tabula
+          HOSTED_SERVICE_SUBGRAPH__MAINNET: samepant/tabula
         run: yarn deploy:gnosis-chain
+
+      - name: Deploy subgraph to Mainnet
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__MAINNET: samepant/tabula
+        run: yarn deploy:mainnet

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Routes, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
 import { Provider as UrqlProvider } from "urql"
@@ -15,16 +15,26 @@ import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
 import { PermissionView } from "./components/views/publication/PermissionView"
 import SetupIpfsView from "./components/views/pinning/SetupIpfsView"
+import { useWeb3React } from "@web3-react/core"
+import { SelectNetwork } from "./components/views/wallet/SelectNetwork"
 
 const App: React.FC = () => {
+  const { chainId } = useWeb3React()
+  const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
+
+  useEffect(() => {
+    setCurrentSubgraphClient(subgraphClient(chainId))
+  }, [chainId])
+
   return (
     <SnackbarProvider maxSnack={3}>
-      <UrqlProvider value={subgraphClient}>
+      <UrqlProvider value={currentSubgraphClient}>
         <PublicationProvider>
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<LandingView />} />
             <Route path="/wallet" element={<WalletView />} />
+            <Route path="/select-network" element={<SelectNetwork />} />
             <Route path="/pinning" element={<SetupIpfsView />} />
             <Route path="/publication/publish" element={<PublishView />} />
             <Route path="/publication/post-action/:type" element={<CreatePostView />} />

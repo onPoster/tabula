@@ -6,9 +6,14 @@ import { palette, typography } from "../../theme"
 const WalletContainer = styled(Grid)({
   boxSizing: "border-box",
   borderRadius: 4,
+  cursor: "pointer",
   minHeight: 52,
   padding: "8px 16px",
-  background: "#4F4D4A1A",
+  background: palette.grays[100],
+  transition: "background 0.25s ease-in-out",
+  "&:hover": {
+    background: palette.grays[200],
+  }
 })
 
 const WalletIconContainer = styled(Grid)({

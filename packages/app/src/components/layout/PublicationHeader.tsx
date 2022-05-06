@@ -28,8 +28,8 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath } = usePublicationContext()
-  const { refetch } = usePublication(publication?.id || "")
+  const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
+  const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
 
@@ -40,6 +40,14 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   }, [location, setCurrentPath])
 
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
+
+  const handleNavigation = async () => {
+    await refetch()
+    navigate(`/publication/${publication?.id}`)
+    saveDraftArticle(undefined)
+    saveArticle(undefined)
+  }
+
   return (
     <Container
       maxWidth="lg"
@@ -61,10 +69,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               alignItems={"center"}
               gap={1}
               sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
-              onClick={() => {
-                refetch()
-                navigate(`/publication/${publication?.id}`)
-              }}
+              onClick={handleNavigation}
             >
               <Avatar
                 sx={{ width: 47, height: 47 }}
@@ -97,7 +102,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   sx={{ position: "relative" }}
                 >
                   <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-                    <WalletBadge address={account} />
+                    <WalletBadge hover address={account} />
                   </Grid>
                   {show && (
                     <Grid item sx={{ position: "absolute", top: 45 }}>
@@ -110,7 +115,13 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
 
             {showCreatePost && havePermissionToCreate && (
               <Grid item>
-                <Button variant="contained" size={"large"} onClick={() => navigate("/publication/post-action/new")}>
+                <Button
+                  variant="contained"
+                  size={"large"}
+                  onClick={() => {
+                    navigate("/publication/post-action/new")
+                  }}
+                >
                   <AddIcon style={{ marginRight: 13 }} />
                   New Post
                 </Button>
@@ -131,7 +142,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                 boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
               },
             }}
-            onClick={() => navigate("/wallet")}
+            onClick={() => navigate(`/wallet?publicationChainId=${publicationChainId}`)}
           >
             Connect Wallet
           </Button>

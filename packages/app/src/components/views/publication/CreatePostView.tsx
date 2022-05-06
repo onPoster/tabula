@@ -1,4 +1,5 @@
-import { Button, CircularProgress, FormHelperText, Grid, TextField } from "@mui/material"
+import { Button, CircularProgress, FormHelperText, Grid, styled, TextField } from "@mui/material"
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import React, { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { usePublicationContext } from "../../../services/publications/contexts"
@@ -14,23 +15,36 @@ import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { find } from "lodash"
+import isIPFS from "is-ipfs"
 
 const articleSchema = yup.object().shape({
   title: yup.string().required(),
   article: yup.string().required(),
 })
 
+const DeletePostButton = styled(Button)({
+  border: `2px solid ${palette.grays[400]}`,
+  background: palette.whites[400],
+  color: palette.grays[800],
+  "&:hover": {
+    background: palette.whites[1000],
+  },
+})
+
 export const CreatePostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
-  const { publication, article, draftArticle, saveDraftArticle, savePublication } = usePublicationContext()
+  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, savePublication } =
+    usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
   const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToDelete = haveActionPermission(permissions || [], "articleDelete", account || "")
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
+  const isValidHash = article && isIPFS.multihash(article.article)
+
   const {
     control,
     handleSubmit,
@@ -42,12 +56,22 @@ export const CreatePostView: React.FC = () => {
   })
 
   useEffect(() => {
-    if (type === "edit" && article) {
+    if (type === "edit" && isValidHash && article && !draftArticle) {
+      const { title } = article
+      setValue("title", title)
+      if (!markdownArticle) {
+        getPinnedData(article.article)
+      }
+      if (markdownArticle) {
+        setValue("article", markdownArticle)
+      }
+    }
+    if (type === "edit" && !isValidHash && article && !draftArticle) {
       const { title, article: articleDescription } = article
       setValue("title", title)
       setValue("article", articleDescription)
     }
-  }, [type, article, setValue])
+  }, [type, article, setValue, isValidHash, markdownArticle, getPinnedData, draftArticle])
 
   //Execute poll interval to know the latest permission indexed
   useEffect(() => {
@@ -133,10 +157,17 @@ export const CreatePostView: React.FC = () => {
               <Grid item xs={12} mt={1}>
                 <Grid container justifyContent={"space-between"}>
                   {havePermissionToDelete && (
-                    <Button variant="contained" size="large" onClick={handleDeleteArticle} disabled={loading}>
+                    <DeletePostButton
+                      variant="contained"
+                      size="large"
+                      onClick={handleDeleteArticle}
+                      disabled={loading}
+                      startIcon={<DeleteOutlineIcon/>}
+                      sx={{whiteSpace: "nowrap"}}
+                    >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                       Delete Post
-                    </Button>
+                    </DeletePostButton>
                   )}
                   {havePermissionToUpdate && (
                     <Button variant="contained" size="large" type="submit">

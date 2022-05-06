@@ -14,6 +14,9 @@ const UploadFileContainer = styled(Grid)({
   cursor: "pointer",
   borderRadius: 4,
   flexDirection: "column",
+  "&:hover": {
+    background: palette.grays[200],
+  }
 })
 
 const UploadContainer = styled(Grid)({
@@ -56,16 +59,11 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
   return (
     <>
       {!defaultImage && !uri && (
-        <UploadFileContainer container gap={2} onClick={openImagePicker}>
-          <Grid item>
-            <AddIcon />
-          </Grid>
-          <Grid item>
-            <Grid container gap={1} flexDirection="column" justifyContent="center" alignItems="center">
-              <Typography color={palette.grays[600]}>Include a high-quality image in your</Typography>
-              <Typography color={palette.grays[600]}>post to make it more inviting.</Typography>
-            </Grid>
-          </Grid>
+        <UploadFileContainer container gap={1} onClick={openImagePicker}>
+          <AddIcon />
+          <Typography textAlign="center" color={palette.grays[600]} lineHeight={1.25} maxWidth="50%">
+            Include a high-quality image in your post to make it more inviting.
+          </Typography>
         </UploadFileContainer>
       )}
       {(defaultImage || uri) && (

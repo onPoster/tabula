@@ -11,6 +11,10 @@ const PublicationItemContainer = styled(Grid)({
   borderRadius: 4,
   padding: "10px 20px",
   cursor: "pointer",
+  transition: "background 0.25s ease-in-out",
+  "&:hover": {
+    background: palette.grays[200],
+  }
 })
 const PublicationIconGrid = styled(Grid)({
   display: "flex",
@@ -31,7 +35,7 @@ const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick 
       <Grid item xs={11}>
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
-            <Grid container gap={2} alignItems="center">
+            <Grid container gap={1} alignItems="center">
               <Avatar sx={{ width: 30, height: 30 }} src={image ? `https://ipfs.infura.io/ipfs/${image}` : ""}>
                 {" "}
               </Avatar>
