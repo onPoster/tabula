@@ -19,8 +19,14 @@ import { useWeb3React } from "@web3-react/core"
 import { SelectNetwork } from "./components/views/wallet/SelectNetwork"
 
 const App: React.FC = () => {
-  const { chainId } = useWeb3React()
+  // the chainId should be from the publication if its present
+  const { chainId: initialChainIdFromProvider } = useWeb3React() // chain id from connected wallet
+  const [chainId, setChainId] = useState(initialChainIdFromProvider)
   const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
+
+  const updateChainId = (newChainId: number | undefined) => {
+    setChainId(newChainId)
+  }
 
   useEffect(() => {
     setCurrentSubgraphClient(subgraphClient(chainId))
@@ -39,8 +45,11 @@ const App: React.FC = () => {
             <Route path="/publication/publish" element={<PublishView />} />
             <Route path="/publication/post-action/:type" element={<CreatePostView />} />
             <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
-            <Route path="/publication/:publicationId" element={<PublicationPostView />} />
-            <Route path="/publication/:publicationId/article/:articleId" element={<ArticleView />} />
+            <Route path="/publication/:publicationId" element={<PublicationPostView updateChainId={updateChainId} />} />
+            <Route
+              path="/publication/:publicationId/article/:articleId"
+              element={<ArticleView updateChainId={updateChainId} />}
+            />
             <Route path="/publication/permission/:type" element={<PermissionView />} />
           </Routes>
         </PublicationProvider>
