@@ -10,16 +10,25 @@ import { Markdown } from "../../commons/Markdown"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
+import { publicationIdToChainId } from "../../../models/publication"
 
-export const ArticleView: React.FC = () => {
+interface ArticleViewProps {
+  updateChainId: (chainId: number) => void
+}
+
+export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
   const { articleId } = useParams<{ articleId: string }>()
+  const { publicationId } = useParams<{ publicationId: string }>()
   const { article, saveArticle, getPinnedData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery } = useArticle(articleId || "")
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
 
+  if (publicationId != null) {
+    updateChainId(publicationIdToChainId(publicationId))
+  }
   useEffect(() => {
     if (!article && articleId) {
       executeQuery()

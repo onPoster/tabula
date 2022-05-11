@@ -2,6 +2,7 @@ import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/materia
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import { publicationIdToChainId } from "../../../models/publication"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
@@ -26,7 +27,11 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
   },
 }))
 
-export const PublicationPostView: React.FC = () => {
+interface PublicationPostViewProps {
+  updateChainId: (chainId: number) => void
+}
+
+export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ updateChainId }) => {
   const { publicationId } = useParams<{ publicationId: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
@@ -37,6 +42,10 @@ export const PublicationPostView: React.FC = () => {
   const havePermissionToUpdate = permissions
     ? haveActionPermission(permissions, "publicationUpdate", account || "")
     : false
+
+  if (publicationId != null) {
+    updateChainId(publicationIdToChainId(publicationId))
+  }
 
   useEffect(() => {
     if (publicationId) {
