@@ -81,7 +81,7 @@ jobs:
       - name: Deploy subgraph to Gnosis Chain
         working-directory: packages/subgraph
         env:
-          REACT_APP_SUBGRAPH_GNOSIS_CHAIN: samepant/tabula-gnosis-chain
+          HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: samepant/tabula-gnosis-chain
         run: yarn deploy:gnosis-chain
 
       - name: Deploy subgraph to Mainnet
