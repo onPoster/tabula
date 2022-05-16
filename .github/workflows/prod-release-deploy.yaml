@@ -14,7 +14,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy to Dev
+    name: Deploy to Prod
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -81,7 +81,7 @@ jobs:
       - name: Deploy subgraph to Gnosis Chain
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__MAINNET: samepant/tabula
+          REACT_APP_SUBGRAPH_GNOSIS_CHAIN: samepant/tabula-gnosis-chain
         run: yarn deploy:gnosis-chain
 
       - name: Deploy subgraph to Mainnet
