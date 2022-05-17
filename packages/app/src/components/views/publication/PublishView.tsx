@@ -75,9 +75,13 @@ type Post = {
   description?: string
 }
 
-export const PublishView: React.FC = () => {
+interface PublishViewProps {
+  updateChainId: (chainId: number) => void
+}
+
+export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
-  const { account } = useWeb3React()
+  const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
   const [loading, setLoading] = useState<boolean>(false)
   const { data: publications, executeQuery, refetch } = usePublications()
@@ -98,6 +102,12 @@ export const PublishView: React.FC = () => {
   })
 
   const title = watch("title")
+
+  useEffect(() => {
+    if (chainId != null) {
+      updateChainId(chainId)
+    }
+  }, [chainId, updateChainId])
 
   useEffect(() => {
     if (!publications) {

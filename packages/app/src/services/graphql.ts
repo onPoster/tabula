@@ -20,7 +20,7 @@ const SUBGRAPH_RINKEBY = process.env.REACT_APP_SUBGRAPH_RINKEBY
 const SUBGRAPH_MAINNET = process.env.REACT_APP_SUBGRAPH_MAINNET
 
 const getUrl = (chainId?: number) => {
-  console.log(chainId)
+  console.log(`Chain Id is: ${chainId}`)
   if (chainId === SupportedChainId.MAINNET) {
     return BASE_SUBGRAPH_URL + SUBGRAPH_MAINNET
   }

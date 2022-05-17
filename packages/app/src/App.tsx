@@ -42,7 +42,7 @@ const App: React.FC = () => {
             <Route path="/wallet" element={<WalletView />} />
             <Route path="/select-network" element={<SelectNetwork />} />
             <Route path="/pinning" element={<SetupIpfsView />} />
-            <Route path="/publication/publish" element={<PublishView />} />
+            <Route path="/publication/publish" element={<PublishView updateChainId={updateChainId} />} />
             <Route path="/publication/post-action/:type" element={<CreatePostView />} />
             <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
             <Route path="/publication/:publicationId" element={<PublicationPostView updateChainId={updateChainId} />} />
