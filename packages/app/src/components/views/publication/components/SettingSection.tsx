@@ -177,7 +177,11 @@ export const SettingSection: React.FC = () => {
             </Grid>
           </Grid>
           <Grid item>
-            <Grid container justifyContent="flex-end">
+            <Grid container justifyContent="space-between" sx={{mt: 2}}>
+              <Button variant="outlined" size="large" type="submit" disabled={loading}>
+                {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                Delete Publication
+              </Button>
               <Button variant="contained" size="large" type="submit" disabled={loading}>
                 {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                 Update Publication
