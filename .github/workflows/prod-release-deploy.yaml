@@ -89,3 +89,9 @@ jobs:
         env:
           HOSTED_SERVICE_SUBGRAPH__MAINNET: samepant/tabula
         run: yarn deploy:mainnet
+
+      - name: Deploy to Github Pages
+        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        with:
+          branch: gh-pages
+          folder: ./packages/app/build
