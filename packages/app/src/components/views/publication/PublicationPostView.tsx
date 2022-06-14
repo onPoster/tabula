@@ -42,6 +42,9 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
   const havePermissionToUpdate = permissions
     ? haveActionPermission(permissions, "publicationUpdate", account || "")
     : false
+  const havePermissionToDelete = permissions
+    ? haveActionPermission(permissions, "publicationDelete", account || "")
+    : false
 
   if (publicationId != null) {
     updateChainId(publicationIdToChainId(publicationId))
@@ -105,10 +108,16 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
             </Grid>
             {havePermission && (
               <Grid item>
-                <PublicationTabs onChange={setCurrentTab} couldEdit={havePermissionToUpdate} />
+                <PublicationTabs
+                  onChange={setCurrentTab}
+                  couldEdit={havePermissionToUpdate}
+                  couldDelete={havePermissionToDelete}
+                />
                 {currentTab === "posts" && <PostSection />}
                 {currentTab === "permissions" && <PermissionSection />}
-                {currentTab === "settings" && <SettingSection />}
+                {currentTab === "settings" && (
+                  <SettingSection couldEdit={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
+                )}
               </Grid>
             )}
             {!havePermission && (

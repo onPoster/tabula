@@ -16,12 +16,19 @@ export const PUBLICATIONS_TABS_WITHOUT_EDIT_OPTIONS = [
   { label: "Permissions", value: "permissions" },
 ]
 
+export const PUBLICATIONS_TABS_WITH_DELETE_OPTIONS = [
+  { label: "Posts", value: "posts" },
+  { label: "Permissions", value: "permissions" },
+  { label: "Settings", value: "settings" },
+]
+
 type PublicationTabsProps = {
   couldEdit?: boolean
+  couldDelete?: boolean
   onChange: (tab: "posts" | "permissions" | "settings") => void
 }
 
-const PublicationTabs: React.FC<PublicationTabsProps> = ({ couldEdit, onChange }) => {
+const PublicationTabs: React.FC<PublicationTabsProps> = ({ couldEdit, couldDelete, onChange }) => {
   const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">(
     PUBLICATIONS_TABS_OPTIONS[0].value as "posts" | "permissions" | "settings",
   )
@@ -48,10 +55,11 @@ const PublicationTabs: React.FC<PublicationTabsProps> = ({ couldEdit, onChange }
         },
       }}
     >
-      {couldEdit &&
+      {(couldEdit || couldDelete) &&
         PUBLICATIONS_TABS_OPTIONS.map(({ label, value }, index) => <Tab label={label} value={value} key={index} />)}
 
       {!couldEdit &&
+        !couldDelete &&
         PUBLICATIONS_TABS_WITHOUT_EDIT_OPTIONS.map(({ label, value }, index) => (
           <Tab label={label} value={value} key={index} />
         ))}
