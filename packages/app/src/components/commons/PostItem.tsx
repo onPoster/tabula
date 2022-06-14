@@ -60,9 +60,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
     >
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          {image && (
-            <ThumbnailImage src={`https://ipfs.infura.io/ipfs/${image}`}/>
-          )}
+          {image && <ThumbnailImage src={`https://ipfs.infura.io/ipfs/${image}`} />}
         </Grid>
         <Grid item xs={8}>
           <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
@@ -88,7 +86,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
         </Grid>
       </Grid>
 
-      <Box sx={{height: 2, width: "100%", my: 1, bgcolor: palette.grays[200]}}/>
+      <Box sx={{ height: 2, width: "100%", my: 1, bgcolor: palette.grays[200] }} />
 
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Box>
@@ -103,7 +101,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
               size="small"
               startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
             >
-                Edit Post
+              Edit Post
             </PostItemEditButton>
           )}
         </Box>
@@ -111,9 +109,9 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
           variant="contained"
           color="primary"
           size="small"
-          endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }}/>}
+          endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
         >
-          Continue Reading
+          Read Post
         </Button>
       </Box>
     </PostItemContainer>
