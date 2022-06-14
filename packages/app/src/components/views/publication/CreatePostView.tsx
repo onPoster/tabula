@@ -1,5 +1,5 @@
-import { Button, CircularProgress, FormHelperText, Grid, styled, TextField } from "@mui/material"
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { Button, CircularProgress, FormHelperText, Grid, styled, TextField, Typography } from "@mui/material"
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import React, { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { usePublicationContext } from "../../../services/publications/contexts"
@@ -14,6 +14,7 @@ import { useWeb3React } from "@web3-react/core"
 import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { find } from "lodash"
 import isIPFS from "is-ipfs"
 
@@ -117,6 +118,14 @@ export const CreatePostView: React.FC = () => {
       <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}>
         <ViewContainer maxWidth="sm">
           <Grid container gap={4} flexDirection="column" mt={12.5}>
+            <Grid item>
+              <Grid container alignItems="center" gap={2} sx={{ cursor: "pointer" }} onClick={() => navigate(-1)}>
+                <ArrowBackIcon color="secondary" />
+                <Typography color="secondary" variant="subtitle2">
+                  Back to Publication
+                </Typography>
+              </Grid>
+            </Grid>
             <Grid item xs={12}>
               <Controller
                 control={control}
@@ -148,9 +157,14 @@ export const CreatePostView: React.FC = () => {
             </Grid>
             {type === "new" && (
               <Grid item xs={12} mt={1}>
-                <Button variant="contained" size="large" type="submit">
-                  Publish
-                </Button>
+                <Grid container justifyContent={"space-between"}>
+                  <Button variant="outlined" size="large" onClick={() => navigate(-1)}>
+                    Cancel
+                  </Button>
+                  <Button variant="contained" size="large" type="submit">
+                    Publish
+                  </Button>
+                </Grid>
               </Grid>
             )}
             {type === "edit" && (
@@ -162,8 +176,8 @@ export const CreatePostView: React.FC = () => {
                       size="large"
                       onClick={handleDeleteArticle}
                       disabled={loading}
-                      startIcon={<DeleteOutlineIcon/>}
-                      sx={{whiteSpace: "nowrap"}}
+                      startIcon={<DeleteOutlineIcon />}
+                      sx={{ whiteSpace: "nowrap" }}
                     >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                       Delete Post

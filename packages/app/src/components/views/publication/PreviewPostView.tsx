@@ -4,7 +4,7 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
-import CloseIcon from "@mui/icons-material/Close"
+
 import { useNavigate, useParams } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
@@ -17,6 +17,7 @@ import { haveActionPermission } from "../../../utils/permission"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { PinningAlert } from "../../commons/PinningAlert"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
@@ -174,16 +175,11 @@ export const PreviewPostView: React.FC = () => {
         <form onSubmit={handleSubmit((data) => onSubmitHandler(data as { description: string }))}>
           <Grid container gap={4} flexDirection="column" mt={12.5}>
             <Grid item>
-              <Grid container justifyContent={"space-between"} alignItems="center">
-                <Typography
-                  color={palette.grays[1000]}
-                  variant="h5"
-                  fontFamily={typography.fontFamilies.sans}
-                  sx={{ margin: 0 }}
-                >
-                  Post Preview
+              <Grid container alignItems="center" gap={2} sx={{ cursor: "pointer" }} onClick={() => navigate(-2)}>
+                <ArrowBackIcon color="secondary" />
+                <Typography color="secondary" variant="subtitle2">
+                  Back to Publication
                 </Typography>
-                <CloseIcon style={{ cursor: "pointer" }} onClick={() => navigate(-1)} />
               </Grid>
             </Grid>
             <Grid item>
@@ -241,10 +237,15 @@ export const PreviewPostView: React.FC = () => {
               </Grid>
             )}
             <Grid item xs={12}>
-              <Button variant="contained" size="large" type="submit" disabled={loading}>
-                {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                {type === "new" ? "Publish now" : "Publish update now"}
-              </Button>
+              <Grid container justifyContent={"space-between"}>
+                <Button variant="outlined" size="large" onClick={() => navigate(-2)}>
+                  Cancel
+                </Button>
+                <Button variant="contained" size="large" type="submit" disabled={loading}>
+                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                  {type === "new" ? "Publish now" : "Publish update now"}
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </form>
