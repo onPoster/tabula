@@ -3,6 +3,7 @@ import React from "react"
 import { palette } from "../../theme"
 import PushPinIcon from "@mui/icons-material/PushPin"
 import LinkOffIcon from "@mui/icons-material/LinkOff"
+import ExitToAppIcon from "@mui/icons-material/ExitToApp"
 import { useWeb3React } from "@web3-react/core"
 import { useLocation, useNavigate } from "react-router-dom"
 import { usePublicationContext } from "../../services/publications/contexts"
@@ -20,7 +21,7 @@ const MenuItem = styled(Grid)({
   padding: 8,
   "&:hover": {
     backgroundColor: palette.grays[50],
-  }
+  },
 })
 
 export const UserOptions: React.FC = () => {
@@ -45,6 +46,22 @@ export const UserOptions: React.FC = () => {
           <Typography variant="body1">Update Pinning Service</Typography>
         </Grid>
       </MenuItem>
+
+      <MenuItem
+        item
+        sx={{ cursor: "pointer" }}
+        onClick={() => {
+          navigate("/publication/publish")
+        }}
+      >
+        <Grid container gap={1} alignItems="center">
+          <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
+            <ExitToAppIcon sx={{ color: palette.grays[800], width: 18 }} />
+          </Avatar>
+          <Typography variant="body1">Switch Publication</Typography>
+        </Grid>
+      </MenuItem>
+
       <MenuItem item sx={{ cursor: "pointer" }} onClick={() => deactivate()}>
         <Grid container gap={1} alignItems="center">
           <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
