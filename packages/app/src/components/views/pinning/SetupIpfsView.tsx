@@ -10,19 +10,14 @@ import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Controller, useForm } from "react-hook-form"
 import WarningAmberIcon from "@mui/icons-material/WarningAmber"
-import { Pinning } from "../../../models/pinning"
+import { Pinning, PinningService, PinningServiceEndpoint } from "../../../models/pinning"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { useNotification } from "../../../hooks/useNotification"
+import { useFiles } from "../../../hooks/useFiles"
+import { Dropdown } from "../../commons/Dropdown"
+import { PINNING_OPTIONS } from "../../../constants/pinning"
 
-// const IpfsSpan = styled("span")({
-//   color: palette.primary[1000],
-//   cursor: "pointer",
-//   textDecoration: "underline",
-//   "&:hover": {
-//     color: palette.primary[800],
-//   }
-// })
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
   top: "50%",
@@ -51,33 +46,57 @@ const StyledLinkButton = styled(Box)({
 })
 
 const setupIpfsSchema = yup.object().shape({
-  name: yup.string().required(),
+  service: yup.string().required(),
   endpoint: yup.string().required(),
   accessToken: yup.string().required(),
+})
+
+const AlertContainer = styled(Box)({
+  background: palette.secondary[200],
+  borderRadius: 4,
+  padding: 24,
 })
 
 const SetupIpfsView: React.FC = () => {
   const navigate = useNavigate()
   const ref = useRef(null)
   const openNotification = useNotification()
+  const { isValidIpfsService } = useFiles()
   const { currentPath, setCurrentPath } = usePublicationContext()
   const [pinning, setPinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm({
     defaultValues: pinning,
     resolver: yupResolver(setupIpfsSchema),
   })
   const [showModal, setShowModal] = useState<boolean>(false)
+  const [currentSelection, setCurrentSelection] = useState<PinningService | undefined>(undefined)
 
-  const onSubmitHandler = (data: Pinning) => {
+  const handleSelected = (selected: PinningService) => {
+    setCurrentSelection(selected)
+    setValue("service", selected)
+    setValue("endpoint", PinningServiceEndpoint[selected])
+  }
+
+  const onSubmitHandler = async (data: Pinning) => {
+    const isValid = await isValidIpfsService(data)
+    if (!isValid) {
+      openNotification({
+        message: "We couldn't connect to the pinning service that you provided us.",
+        variant: "error",
+        autoHideDuration: 2000,
+      })
+      return
+    }
     setPinning(data)
     openNotification({
       message: "Successfully set up the pinning service!",
       variant: "success",
-      autoHideDuration: 5000,
+      autoHideDuration: 2000,
     })
     if (currentPath) {
       navigate(currentPath)
@@ -108,7 +127,7 @@ const SetupIpfsView: React.FC = () => {
     <Page>
       <ViewContainer maxWidth="sm">
         <form style={{ width: "100%" }} onSubmit={handleSubmit((data) => onSubmitHandler(data as Pinning))}>
-          <Grid container gap={3} mt={19}>
+          <Grid container gap={3} mt={currentSelection === PinningService.PINATA ? 8 : 19}>
             <Grid item width={"100%"}>
               <Grid container justifyContent="space-between" alignItems={"center"}>
                 <Typography fontFamily={typography.fontFamilies.sans} variant="h5" m={0}>
@@ -126,13 +145,24 @@ const SetupIpfsView: React.FC = () => {
               </Typography>
             </Grid>
 
+            {currentSelection === PinningService.PINATA && (
+              <Grid item width={"100%"}>
+                <AlertContainer>
+                  <Typography variant="body1" fontWeight={500} color={palette.secondary[1000]}>
+                    Tabula requires the following Pinata permissions:{<br />} - pinFileToIPFS{<br />} - pinJSONToIPFS
+                    {<br />} - addPinObject{<br />} - getPinObject {<br />} - listPinObjects
+                  </Typography>
+                </AlertContainer>
+              </Grid>
+            )}
+
             <Grid item width={"100%"}>
               <Grid container flexDirection="column" justifyContent="center" gap={2}>
                 <Grid item>
                   <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
                     <Grid item xs={12} md={6}>
                       <Typography variant="body1" fontWeight="bold" fontFamily={typography.fontFamilies.sans}>
-                        Nickname{" "}
+                        Pinning Service
                         <Typography component="span" sx={{ color: palette.primary[1000] }}>
                           *
                         </Typography>
@@ -141,13 +171,22 @@ const SetupIpfsView: React.FC = () => {
                     <Grid item xs={12} md={6}>
                       <Controller
                         control={control}
-                        name="name"
-                        render={({ field }) => <TextField {...field} placeholder="Pinata" sx={{ width: "100%" }} />}
+                        name="service"
+                        render={({ field }) => (
+                          <Dropdown
+                            title="Select A Pinning Service"
+                            options={PINNING_OPTIONS}
+                            onSelected={(e) => {
+                              handleSelected(e.value as PinningService)
+                            }}
+                            {...field}
+                          />
+                        )}
                         rules={{ required: true }}
                       />
-                      {errors && errors.name && (
+                      {errors && errors.service && (
                         <FormHelperText sx={{ textTransform: "capitalize" }}>
-                          Nickname Is A Required Field
+                          Pinning Service Is A Required Field
                         </FormHelperText>
                       )}
                     </Grid>
@@ -168,7 +207,7 @@ const SetupIpfsView: React.FC = () => {
                         control={control}
                         name="endpoint"
                         render={({ field }) => (
-                          <TextField {...field} sx={{ width: "100%" }} placeholder="https://api.pinata.cloud/1234" />
+                          <TextField {...field} sx={{ width: "100%" }} placeholder="https://api.pinata.cloud/psa" />
                         )}
                         rules={{ required: true }}
                       />
@@ -194,7 +233,7 @@ const SetupIpfsView: React.FC = () => {
                       <Controller
                         control={control}
                         name="accessToken"
-                        render={({ field }) => <TextField {...field} sx={{ width: "100%" }} />}
+                        render={({ field }) => <TextField {...field} sx={{ width: "100%" }} type="password" />}
                         rules={{ required: true }}
                       />
                       {errors && errors.accessToken && (
