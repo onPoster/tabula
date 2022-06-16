@@ -1,5 +1,5 @@
 import { Box, Button, Chip, CircularProgress, FormHelperText, Grid, TextField, Typography } from "@mui/material"
-import { remove } from "lodash"
+import { findIndex, remove } from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
@@ -9,10 +9,17 @@ import * as yup from "yup"
 import { useFiles } from "../../../../hooks/useFiles"
 import usePoster from "../../../../services/poster/hooks/usePoster"
 import usePublication from "../../../../services/publications/hooks/usePublication"
+import usePublications from "../../../../services/publications/hooks/usePublications"
+import { useNavigate } from "react-router-dom"
 
 type Post = {
   title: string
   description?: string
+}
+
+type SettingsSectionProps = {
+  couldEdit: boolean
+  couldDelete: boolean
 }
 
 const publicationSchema = yup.object().shape({
@@ -22,15 +29,18 @@ const publicationSchema = yup.object().shape({
   image: yup.string(),
 })
 
-export const SettingSection: React.FC = () => {
+export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
+  const navigate = useNavigate()
   const [tags, setTags] = useState<string[]>([])
   const [tag, setTag] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const [lastUpdate, setLastUpdate] = useState<number | undefined>(undefined)
   const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage, savePublication } =
     usePublicationContext()
-  const { executePublication } = usePoster()
+  const { executePublication, deletePublication } = usePoster()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
+  const { data: publications, refetch: publicationsRefetch } = usePublications()
   const { uploadFile, ipfs } = useFiles()
   const {
     control,
@@ -40,10 +50,9 @@ export const SettingSection: React.FC = () => {
   } = useForm({
     resolver: yupResolver(publicationSchema),
   })
-
+ 
   useEffect(() => {
     saveIsEditing(true)
-
     // returned function will be called on component unmount
     return () => {
       saveIsEditing(false)
@@ -60,6 +69,16 @@ export const SettingSection: React.FC = () => {
     }
   }, [loading, publication, setValue])
 
+  useEffect(() => {
+    if (publications?.length && publication && deleteLoading) {
+      const currentPublication = findIndex(publications, { id: publication?.id })
+      if (currentPublication === -1) {
+        navigate("/publication/publish")
+        setDeleteLoading(false)
+      }
+    }
+  }, [publications, publication, deleteLoading, navigate])
+
   //Execute poll interval to know the latest publications indexed
   useEffect(() => {
     if (loading) {
@@ -69,6 +88,16 @@ export const SettingSection: React.FC = () => {
       return () => clearInterval(interval)
     }
   }, [refetch, loading])
+
+  //Execute poll interval to know the latest publications indexed
+  useEffect(() => {
+    if (deleteLoading) {
+      const interval = setInterval(() => {
+        publicationsRefetch()
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [publicationsRefetch, deleteLoading])
 
   //Method to know recent publication
   useEffect(() => {
@@ -99,10 +128,10 @@ export const SettingSection: React.FC = () => {
   }
 
   const onSubmitHandler = (data: Post) => {
-    handlePublication(data)
+    handlePublicationUpdate(data)
   }
 
-  const handlePublication = async (data: Post) => {
+  const handlePublicationUpdate = async (data: Post) => {
     setLoading(true)
     const { title, description } = data
     let image
@@ -125,6 +154,20 @@ export const SettingSection: React.FC = () => {
       })
     } else {
       setLoading(false)
+    }
+  }
+
+  const handlePublicationDelete = async () => {
+    setDeleteLoading(true)
+    if (publication && publication.id) {
+      await deletePublication({
+        action: "publication/delete",
+        id: publication.id,
+      }).then((res) => {
+        if (res && res.error) setDeleteLoading(false)
+      })
+    } else {
+      setDeleteLoading(false)
     }
   }
 
@@ -177,11 +220,24 @@ export const SettingSection: React.FC = () => {
             </Grid>
           </Grid>
           <Grid item>
-            <Grid container justifyContent="flex-end">
-              <Button variant="contained" size="large" type="submit" disabled={loading}>
-                {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                Update Publication
-              </Button>
+            <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
+              {couldDelete && (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={handlePublicationDelete}
+                  disabled={deleteLoading || loading}
+                >
+                  {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                  Delete Publication
+                </Button>
+              )}
+              {couldEdit && (
+                <Button variant="contained" size="large" type="submit" disabled={loading || deleteLoading}>
+                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                  Update Publication
+                </Button>
+              )}
             </Grid>
           </Grid>
         </Grid>

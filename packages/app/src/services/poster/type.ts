@@ -22,6 +22,11 @@ export interface PosterDeleteArticle {
   id: string
 }
 
+export interface PosterDeletePublication {
+  action: "publication/delete"
+  id: string
+}
+
 export interface PosterPermission {
   action: "publication/permissions"
   id: string
