@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Button, Chip, CircularProgress, Grid, TextField, Typography } from "@mui/material"
+import { Box, Button, Chip, CircularProgress, Grid, TextField, Typography } from "@mui/material"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
@@ -175,12 +175,24 @@ export const PreviewPostView: React.FC = () => {
         <form onSubmit={handleSubmit((data) => onSubmitHandler(data as { description: string }))}>
           <Grid container gap={4} flexDirection="column" mt={12.5}>
             <Grid item>
-              <Grid container alignItems="center" gap={2} sx={{ cursor: "pointer" }} onClick={() => navigate(-2)}>
+              <Box
+                gap={2}
+                sx={{ 
+                  alignItems: "center",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  transition: "opacity 0.25s ease-in-out",
+                  "&:hover": {
+                    opacity: 0.6,
+                  }
+                }}
+                onClick={() => navigate(-1)}
+              >
                 <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2">
+                <Typography color="secondary" variant="subtitle2" sx={{textDecoration: "underline"}}>
                   Back to Publication
                 </Typography>
-              </Grid>
+              </Box>
             </Grid>
             <Grid item>
               <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />
