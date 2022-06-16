@@ -59,5 +59,23 @@ export const useFiles = () => {
     }
   }
 
-  return { ipfs, uploadFile, pinAction }
+  const isValidIpfsService = async (data: Pinning): Promise<boolean> => {
+    let isValid = false
+    await axios
+      .get(`${data.endpoint}/pins`, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.accessToken}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          isValid = true
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        isValid = false
+      })
+    return isValid
+  }
+
+  return { ipfs, uploadFile, pinAction, isValidIpfsService }
 }

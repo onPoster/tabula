@@ -48,6 +48,9 @@ export const WalletView: React.FC = () => {
       if (currentPath) {
         navigate(currentPath)
       }
+      if (currentPath && !pinning) {
+        navigate("/pinning")
+      }
       if (!currentPath && !pinning) {
         navigate("/pinning")
       }

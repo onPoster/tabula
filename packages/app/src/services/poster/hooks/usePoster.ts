@@ -4,7 +4,7 @@ import { useFiles } from "../../../hooks/useFiles"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
 import { getContract } from "../contracts/contract"
-import { PosterArticle, PosterDeleteArticle, PosterPermission, PosterUpdateArticle, Publication } from "../type"
+import { PosterArticle, PosterDeleteArticle, PosterDeletePublication, PosterPermission, PosterUpdateArticle, Publication } from "../type"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
@@ -16,6 +16,7 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
+
   const executePublication = async (fields: Publication): Promise<any> => {
     const content: Publication = {
       action: fields.action,
@@ -41,6 +42,37 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         content.image && (await pinAction(content.image, `${content.title}-image`))
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: URL + receipt.transactionHash,
+        })
+        openNotification({
+          message: "Your transaction is indexing",
+          autoHideDuration: 5000,
+          variant: "info",
+        })
+        setLoading(false)
+      } catch (error: any) {
+        setLoading(false)
+        openNotification({
+          message: "An error has happened with execute transaction!",
+          variant: "error",
+          autoHideDuration: 5000,
+        })
+        return { error: true, message: error.message }
+      }
+    }
+  }
+
+  const deletePublication = async (publication: PosterDeletePublication): Promise<any> => {
+    if (signer) {
+      setLoading(true)
+      const poster = contract.connect(signer)
+      try {
+        const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
+        const receipt: TransactionReceipt = await tx.wait()
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -237,6 +269,6 @@ const usePoster = () => {
     }
   }
 
-  return { executePublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
+  return { executePublication, deletePublication, createArticle, deleteArticle, givePermission, updateArticle, loading }
 }
 export default usePoster
