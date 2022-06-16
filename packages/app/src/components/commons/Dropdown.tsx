@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { palette } from "../../theme"
 import { DropdownOption, DropdownProps } from "../../models/dropdown"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
+import { findIndex } from "lodash"
 
 const DropdownContainer = styled(Paper)({
   padding: 12,
@@ -33,7 +34,7 @@ const DropdownArrowContainer = styled(Grid)({
   transition: "all 0.2s ease",
 })
 
-export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, onSelected }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, value, title, onSelected }) => {
   const [show, setShow] = useState<boolean>(false)
   const [currentSelected, setCurrentSelected] = useState<DropdownOption | undefined>(undefined)
 
@@ -42,6 +43,13 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, onSel
       setCurrentSelected(defaultValue)
     }
   }, [currentSelected, defaultValue])
+
+  useEffect(() => {
+    if (value && !currentSelected && options.length) {
+      const index = findIndex(options, { value })
+      setCurrentSelected(options[index])
+    }
+  }, [currentSelected, options, value])
 
   useEffect(() => {
     if (currentSelected) {
@@ -59,7 +67,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, onSel
               <Typography>{currentSelected.label}</Typography>
             </Grid>
           )}
-          {!currentSelected && <Typography sx={{ color: palette.grays[800] }}>Select A Pinning Service</Typography>}
+          {!currentSelected && <Typography sx={{ color: palette.grays[800] }}>{title}</Typography>}
         </Grid>
         <DropdownArrowContainer item style={{ transform: !show ? "rotate(0deg)" : "rotate(180deg)" }}>
           <KeyboardArrowDownIcon />

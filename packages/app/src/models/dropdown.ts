@@ -6,6 +6,8 @@ export interface DropdownOption {
 
 export interface DropdownProps {
   options: DropdownOption[]
+  title: string
   onSelected: (item: DropdownOption) => void
   defaultValue?: DropdownOption
+  value?: string
 }
