@@ -13,7 +13,7 @@ const WalletAddressContainer = styled(Box)({
 })
 
 export const WalletBadge: React.FC<{ address: string; hover?: boolean }> = ({ address, hover }) => {
-  const avatarSrc = blockies.create({ seed: address }).toDataURL()
+  const avatarSrc = blockies.create({ seed: address.toLowerCase() }).toDataURL()
   return (
     <Stack
       alignItems={"center"}
