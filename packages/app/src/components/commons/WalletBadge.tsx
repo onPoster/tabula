@@ -12,7 +12,7 @@ const WalletAddressContainer = styled(Box)({
   boxSizing: "border-box",
 })
 
-export const WalletBadge: React.FC<{ address: string, hover?: boolean }> = ({ address, hover }) => {
+export const WalletBadge: React.FC<{ address: string; hover?: boolean }> = ({ address, hover }) => {
   const avatarSrc = blockies.create({ seed: address }).toDataURL()
   return (
     <Stack
@@ -22,12 +22,14 @@ export const WalletBadge: React.FC<{ address: string, hover?: boolean }> = ({ ad
       sx={{
         "&:hover": {
           opacity: hover ? 0.8 : null,
-        }
+        },
       }}
     >
       <Avatar src={avatarSrc} sx={{ width: 24, height: 24 }} />
       <WalletAddressContainer>
-        <Typography color={palette.secondary[800]} fontFamily={typography.fontFamilies.sans} fontWeight={600}>{shortAddress(address)}</Typography>
+        <Typography color={palette.secondary[800]} fontFamily={typography.fontFamilies.sans} fontWeight={600}>
+          {shortAddress(address).toLowerCase()}
+        </Typography>
       </WalletAddressContainer>
     </Stack>
   )
