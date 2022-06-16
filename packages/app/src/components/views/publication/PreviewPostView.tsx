@@ -191,12 +191,13 @@ export const PreviewPostView: React.FC = () => {
             </Grid>
             <Grid item>
               <Typography
-                color={palette.grays[800]}
-                variant="h5"
+                color={palette.grays[1000]}
+                variant="h6"
+                fontSize={18}
                 fontFamily={typography.fontFamilies.sans}
                 sx={{ mb: 1, mt: 0 }}
               >
-                {publication?.title}
+                Description
               </Typography>
               <Controller
                 control={control}
@@ -215,9 +216,10 @@ export const PreviewPostView: React.FC = () => {
             <Grid item>
               <Typography
                 color={palette.grays[1000]}
-                variant="body1"
+                variant="h6"
+                fontSize={18}
                 fontFamily={typography.fontFamilies.sans}
-                sx={{ margin: 0 }}
+                sx={{ mb: 1, mt: 0 }}
               >
                 Add up to 5 tags so your readers know what this post is about:
               </Typography>
