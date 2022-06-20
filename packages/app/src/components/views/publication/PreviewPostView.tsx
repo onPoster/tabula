@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react"
-import { Button, CircularProgress, Grid, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Grid, TextField, Typography } from "@mui/material"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
-import CloseIcon from "@mui/icons-material/Close"
+
 import { useNavigate, useParams } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
@@ -19,6 +19,7 @@ import { Pinning } from "../../../models/pinning"
 import { PinningAlert } from "../../commons/PinningAlert"
 import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
@@ -179,17 +180,24 @@ export const PreviewPostView: React.FC = () => {
         <form onSubmit={handleSubmit((data) => onSubmitHandler(data as { description: string }))}>
           <Grid container gap={4} flexDirection="column" mt={12.5}>
             <Grid item>
-              <Grid container justifyContent={"space-between"} alignItems="center">
-                <Typography
-                  color={palette.grays[1000]}
-                  variant="h5"
-                  fontFamily={typography.fontFamilies.sans}
-                  sx={{ margin: 0 }}
-                >
-                  Post Preview
+              <Box
+                gap={2}
+                sx={{ 
+                  alignItems: "center",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  transition: "opacity 0.25s ease-in-out",
+                  "&:hover": {
+                    opacity: 0.6,
+                  }
+                }}
+                onClick={() => navigate(-1)}
+              >
+                <ArrowBackIcon color="secondary" />
+                <Typography color="secondary" variant="subtitle2" sx={{textDecoration: "underline"}}>
+                  Back to Publication
                 </Typography>
-                <CloseIcon style={{ cursor: "pointer" }} onClick={() => navigate(-1)} />
-              </Grid>
+              </Box>
             </Grid>
             <Grid item>
               <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />
@@ -253,10 +261,15 @@ export const PreviewPostView: React.FC = () => {
               </Grid>
             )}
             <Grid item xs={12}>
-              <Button variant="contained" size="large" type="submit" disabled={loading}>
-                {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                {type === "new" ? "Publish now" : "Publish update now"}
-              </Button>
+              <Grid container justifyContent={"space-between"}>
+                <Button variant="outlined" size="large" onClick={() => navigate(-2)}>
+                  Cancel
+                </Button>
+                <Button variant="contained" size="large" type="submit" disabled={loading}>
+                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                  {type === "new" ? "Publish now" : "Publish update now"}
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </form>
