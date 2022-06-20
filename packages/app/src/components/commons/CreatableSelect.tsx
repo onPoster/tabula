@@ -20,7 +20,7 @@ const customStyles = {
     minHeight: "56px",
     background: "#e7e7e6",
     borderRadius: 4,
-    border: state.isFocused ? `2px solid ${palette.primary[1000]}` : `1px solid ${palette.grays[1000]}`,
+    border: state.isFocused ? `2px solid ${palette.primary[1000]}` : `1px solid rgba(0, 0, 0, 0.23)`,
     boxShadow: state.isFocused ? null : null,
     "&:hover": {
       border: state.isFocused ? `2px solid ${palette.primary[1000]}` : `1px solid ${palette.grays[1000]}`,
