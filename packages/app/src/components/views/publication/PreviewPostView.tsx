@@ -113,10 +113,16 @@ export const PreviewPostView: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!authors.length && account) {
+    if (!authors.length && account && article && !article.authors?.length) {
       setAuthors([account])
     }
-  }, [account, authors])
+  }, [account, article, authors])
+
+  useEffect(() => {
+    if (!authors.length && article && article.authors?.length) {
+      setAuthors(article.authors)
+    }
+  }, [account, authors, article])
 
   useEffect(() => {
     if (article && type === "edit") {
@@ -182,19 +188,19 @@ export const PreviewPostView: React.FC = () => {
             <Grid item>
               <Box
                 gap={2}
-                sx={{ 
+                sx={{
                   alignItems: "center",
                   cursor: "pointer",
                   display: "inline-flex",
                   transition: "opacity 0.25s ease-in-out",
                   "&:hover": {
                     opacity: 0.6,
-                  }
+                  },
                 }}
                 onClick={() => navigate(-1)}
               >
                 <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2" sx={{textDecoration: "underline"}}>
+                <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
                   Back to Publication
                 </Typography>
               </Box>
@@ -251,6 +257,7 @@ export const PreviewPostView: React.FC = () => {
               <CreatableSelect
                 placeholder="Add up to 5 tags for your article..."
                 onSelected={handleTags}
+                value={tags}
                 errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
               />
             </Grid>
