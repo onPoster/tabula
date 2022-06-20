@@ -18,20 +18,23 @@ import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { PinningAlert } from "../../commons/PinningAlert"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
+import { usePosterContext } from "../../../services/poster/context"
+import { useNotification } from "../../../hooks/useNotification"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
+  const openNotification = useNotification()
   const { account } = useWeb3React()
   const { type } = useParams<{ type: "new" | "edit" }>()
   const { publication, article, draftArticle, saveArticle, setMarkdownArticle } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tag, setTag] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
-
   const [articleImg, setArticleImg] = useState<File>()
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
   const { uploadFile, ipfs } = useFiles()
   const { createArticle, updateArticle } = usePoster()
+  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
   const { data, executeQuery, refetch } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
@@ -71,7 +74,10 @@ export const PreviewPostView: React.FC = () => {
             },
             hashArticle ? true : false,
           ).then((res) => {
-            if (res && res.error) setLoading(false)
+            if (res && res.error) {
+              setLoading(false)
+              setIsIndexing(false)
+            }
           })
         }
         if (type === "edit" && havePermissionToUpdate && article?.id) {
@@ -88,7 +94,10 @@ export const PreviewPostView: React.FC = () => {
             },
             hashArticle ? true : false,
           ).then((res) => {
-            if (res && res.error) setLoading(false)
+            if (res && res.error) {
+              setLoading(false)
+              setIsIndexing(false)
+            }
           })
         }
       }
@@ -150,6 +159,13 @@ export const PreviewPostView: React.FC = () => {
           saveArticle(recentArticle)
           navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
           setLoading(false)
+          setIsIndexing(false)
+          openNotification({
+            message: "Execute transaction confirmed!",
+            autoHideDuration: 5000,
+            variant: "success",
+            detailsLink: transactionUrl,
+          })
           return
         }
         if (
@@ -163,12 +179,40 @@ export const PreviewPostView: React.FC = () => {
           saveArticle(recentArticle)
           navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
           setLoading(false)
+          setIsIndexing(false)
+          openNotification({
+            message: "Execute transaction confirmed!",
+            autoHideDuration: 5000,
+            variant: "success",
+            detailsLink: transactionUrl,
+          })
           return
         }
       }
     }
-  }, [loading, navigate, data, draftArticle, saveArticle, type, article, setMarkdownArticle])
+  }, [
+    loading,
+    navigate,
+    data,
+    draftArticle,
+    saveArticle,
+    type,
+    article,
+    setMarkdownArticle,
+    setIsIndexing,
+    openNotification,
+    transactionUrl,
+  ])
 
+  const generateButtonLabel = (): string => {
+    if (isIndexing) {
+      return "Indexing"
+    }
+    if (type === "new") {
+      return "Publish now"
+    }
+    return "Publish update now"
+  }
   return (
     <PublicationPage publication={publication} showCreatePost={false}>
       <ViewContainer maxWidth="sm">
@@ -177,19 +221,19 @@ export const PreviewPostView: React.FC = () => {
             <Grid item>
               <Box
                 gap={2}
-                sx={{ 
+                sx={{
                   alignItems: "center",
                   cursor: "pointer",
                   display: "inline-flex",
                   transition: "opacity 0.25s ease-in-out",
                   "&:hover": {
                     opacity: 0.6,
-                  }
+                  },
                 }}
                 onClick={() => navigate(-1)}
               >
                 <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2" sx={{textDecoration: "underline"}}>
+                <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
                   Back to Publication
                 </Typography>
               </Box>
@@ -250,6 +294,7 @@ export const PreviewPostView: React.FC = () => {
                 <PinningAlert />
               </Grid>
             )}
+
             <Grid item xs={12}>
               <Grid container justifyContent={"space-between"}>
                 <Button variant="outlined" size="large" onClick={() => navigate(-2)}>
@@ -257,7 +302,7 @@ export const PreviewPostView: React.FC = () => {
                 </Button>
                 <Button variant="contained" size="large" type="submit" disabled={loading}>
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {type === "new" ? "Publish now" : "Publish update now"}
+                  {generateButtonLabel()}
                 </Button>
               </Grid>
             </Grid>

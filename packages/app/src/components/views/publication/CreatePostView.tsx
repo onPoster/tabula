@@ -17,6 +17,8 @@ import usePublication from "../../../services/publications/hooks/usePublication"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { find } from "lodash"
 import isIPFS from "is-ipfs"
+import { usePosterContext } from "../../../services/poster/context"
+import { useNotification } from "../../../hooks/useNotification"
 
 const articleSchema = yup.object().shape({
   title: yup.string().required(),
@@ -34,8 +36,10 @@ const DeletePostButton = styled(Button)({
 
 export const CreatePostView: React.FC = () => {
   const navigate = useNavigate()
+  const openNotification = useNotification()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
+  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
   const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, savePublication } =
     usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
@@ -90,14 +94,22 @@ export const CreatePostView: React.FC = () => {
       const articleDeleted = find(publicationRefetch.articles, { id: article.id })
       if (!articleDeleted) {
         setLoading(false)
+        setIsIndexing(false)
         savePublication(publicationRefetch)
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: transactionUrl,
+        })
         navigate(-1)
       }
     }
-  }, [article, loading, navigate, publicationRefetch, savePublication])
+  }, [article, loading, navigate, openNotification, publicationRefetch, savePublication, setIsIndexing, transactionUrl])
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
+    setIsIndexing(false)
     navigate(`/publication/preview-post/${type}`)
   }
 
@@ -108,7 +120,10 @@ export const CreatePostView: React.FC = () => {
         action: "article/delete",
         id: article.id,
       }).then((res) => {
-        if (res && res.error) setLoading(false)
+        if (res && res.error) {
+          setLoading(false)
+          setIsIndexing(false)
+        }
       })
     }
   }
@@ -121,19 +136,19 @@ export const CreatePostView: React.FC = () => {
             <Grid item>
               <Box
                 gap={2}
-                sx={{ 
+                sx={{
                   alignItems: "center",
                   cursor: "pointer",
                   display: "inline-flex",
                   transition: "opacity 0.25s ease-in-out",
                   "&:hover": {
                     opacity: 0.6,
-                  }
+                  },
                 }}
                 onClick={() => navigate(-1)}
               >
                 <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2" sx={{textDecoration: "underline"}}>
+                <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
                   Back to Publication
                 </Typography>
               </Box>
@@ -192,7 +207,7 @@ export const CreatePostView: React.FC = () => {
                       sx={{ whiteSpace: "nowrap" }}
                     >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                      Delete Post
+                      {isIndexing ? "Indexing..." : "Delete Post"}
                     </DeletePostButton>
                   )}
                   {havePermissionToUpdate && (

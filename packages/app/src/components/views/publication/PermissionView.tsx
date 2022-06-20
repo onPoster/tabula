@@ -10,7 +10,7 @@ import {
   FormHelperText,
   CircularProgress,
 } from "@mui/material"
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline"
 import { palette, typography } from "../../../theme"
 import CloseIcon from "@mui/icons-material/Close"
 import { useNavigate, useParams } from "react-router-dom"
@@ -23,6 +23,8 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { find, isEqual } from "lodash"
 import { WalletBadge } from "../../commons/WalletBadge"
+import { usePosterContext } from "../../../services/poster/context"
+import { useNotification } from "../../../hooks/useNotification"
 
 type OptionsType = {
   label: string
@@ -104,7 +106,9 @@ const INITIAL_VALUE = {
 
 export const PermissionView: React.FC = () => {
   const navigate = useNavigate()
+  const openNotification = useNotification()
   const { givePermission } = usePoster()
+  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
   const { type } = useParams<{ type: "edit" | "new" }>()
   const { publication, permission, savePublication } = usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
@@ -175,11 +179,30 @@ export const PermissionView: React.FC = () => {
       const isIndexed = find(permissions, { address: account.toLowerCase() })
       if (isIndexed && !isEqual(oldPermission, isIndexed)) {
         setLoading(false)
+        setIsIndexing(false)
         savePublication(publicationRefetch)
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: transactionUrl,
+        })
         navigate(-1)
       }
     }
-  }, [savePublication, type, account, publicationRefetch, navigate, permission, loading, publication])
+  }, [
+    savePublication,
+    type,
+    account,
+    publicationRefetch,
+    navigate,
+    permission,
+    loading,
+    publication,
+    setIsIndexing,
+    openNotification,
+    transactionUrl,
+  ])
 
   //Check if the update or delete permission is already indexed
   useEffect(() => {
@@ -194,8 +217,15 @@ export const PermissionView: React.FC = () => {
           const isIndexed = isEqual(oldPermission, indexedPermission)
           if (!isIndexed) {
             setLoading(false)
+            setIsIndexing(false)
             setDeleteLoading(false)
             savePublication(publicationRefetch)
+            openNotification({
+              message: "Execute transaction confirmed!",
+              autoHideDuration: 5000,
+              variant: "success",
+              detailsLink: transactionUrl,
+            })
             navigate(-1)
           }
           return
@@ -203,7 +233,18 @@ export const PermissionView: React.FC = () => {
       }
       return
     }
-  }, [deleteLoading, loading, navigate, permission, publication, publicationRefetch, savePublication])
+  }, [
+    deleteLoading,
+    loading,
+    navigate,
+    openNotification,
+    permission,
+    publication,
+    publicationRefetch,
+    savePublication,
+    setIsIndexing,
+    transactionUrl,
+  ])
 
   const onSubmitHandler = (data: PermissionFormType) => {
     if (type === "new") {
@@ -233,6 +274,7 @@ export const PermissionView: React.FC = () => {
         if (res && res.error) {
           setDeleteLoading(false)
           setLoading(false)
+          setIsIndexing(false)
         }
       })
     }
@@ -285,23 +327,25 @@ export const PermissionView: React.FC = () => {
                 </Grid>
               )}
               {type === "edit" && permission && (
-                <Box sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                  spacing: 1,
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexDirection: "row",
+                    spacing: 1,
+                  }}
+                >
                   <WalletBadge address={permission.address} />
                   <RemoveUserButton
                     variant="contained"
                     size="small"
                     onClick={handleDeletePermission}
-                    disabled={deleteLoading}
-                    startIcon={<RemoveCircleOutlineIcon/>}
-                    sx={{whiteSpace: "nowrap"}}
+                    disabled={deleteLoading || isIndexing}
+                    startIcon={<RemoveCircleOutlineIcon />}
+                    sx={{ whiteSpace: "nowrap" }}
                   >
                     {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Remove User
+                    {isIndexing ? "Indexing..." : "Remove User"}
                   </RemoveUserButton>
                 </Box>
               )}
@@ -338,18 +382,28 @@ export const PermissionView: React.FC = () => {
 
               {type === "new" && (
                 <Grid item display="flex" justifyContent="flex-end">
-                  <Button variant="contained" size="medium" disabled={loading} type="submit">
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    disabled={loading || deleteLoading || isIndexing}
+                    type="submit"
+                  >
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Add Permission
+                    {isIndexing ? "Indexing..." : "Add Permission"}
                   </Button>
                 </Grid>
               )}
 
               {type === "edit" && (
                 <Grid item display="flex" justifyContent="flex-end">
-                  <Button variant="contained" size="medium" disabled={loading} type="submit">
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    disabled={loading || deleteLoading || isIndexing}
+                    type="submit"
+                  >
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Update
+                    {isIndexing ? "Indexing..." : "Update"}
                   </Button>
                 </Grid>
               )}

@@ -2,6 +2,8 @@ import Header from "./Header"
 import { Box } from "@mui/material"
 import { useLocation } from "react-router-dom"
 import theme, { palette } from "../../theme"
+import { useEffect } from "react"
+import { usePosterContext } from "../../services/poster/context"
 
 type Props = {
   title?: string
@@ -10,6 +12,11 @@ type Props = {
 
 const Page: React.FC<Props> = ({ children, showBadge }) => {
   const location = useLocation()
+  const { setIsIndexing } = usePosterContext()
+
+  useEffect(() => {
+    setIsIndexing(false)
+  }, [setIsIndexing])
   return (
     <>
       <Header

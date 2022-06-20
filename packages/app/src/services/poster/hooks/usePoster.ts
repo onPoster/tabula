@@ -3,8 +3,16 @@ import { useState } from "react"
 import { useFiles } from "../../../hooks/useFiles"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
+import { usePosterContext } from "../context"
 import { getContract } from "../contracts/contract"
-import { PosterArticle, PosterDeleteArticle, PosterDeletePublication, PosterPermission, PosterUpdateArticle, Publication } from "../type"
+import {
+  PosterArticle,
+  PosterDeleteArticle,
+  PosterDeletePublication,
+  PosterPermission,
+  PosterUpdateArticle,
+  Publication,
+} from "../type"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
@@ -12,6 +20,7 @@ const URL = "https://rinkeby.etherscan.io/tx/"
 
 const usePoster = () => {
   const openNotification = useNotification()
+  const { setIsIndexing, setTransactionUrl } = usePosterContext()
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
@@ -42,17 +51,8 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         content.image && (await pinAction(content.image, `${content.title}-image`))
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
+        setIsIndexing(true)
+        setTransactionUrl(URL + receipt.transactionHash)
         setLoading(false)
       } catch (error: any) {
         setLoading(false)
@@ -73,17 +73,8 @@ const usePoster = () => {
       try {
         const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
+        setTransactionUrl(URL + receipt.transactionHash)
+        setIsIndexing(true)
         setLoading(false)
       } catch (error: any) {
         setLoading(false)
@@ -126,17 +117,8 @@ const usePoster = () => {
         setLoading(false)
         content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
         pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
+        setTransactionUrl(URL + receipt.transactionHash)
+        setIsIndexing(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -184,17 +166,8 @@ const usePoster = () => {
             `Article-${content.title}-${content.lastUpdated}`,
             "Successfully article pinned",
           ))
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
+        setTransactionUrl(URL + receipt.transactionHash)
+        setIsIndexing(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -215,17 +188,8 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
+        setTransactionUrl(URL + receipt.transactionHash)
+        setIsIndexing(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -246,17 +210,8 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(fields), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: URL + receipt.transactionHash,
-        })
-        openNotification({
-          message: "Your transaction is indexing",
-          autoHideDuration: 5000,
-          variant: "info",
-        })
+        setTransactionUrl(URL + receipt.transactionHash)
+        setIsIndexing(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({

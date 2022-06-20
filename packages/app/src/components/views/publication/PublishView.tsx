@@ -28,6 +28,8 @@ import { ViewContainer } from "../../commons/ViewContainer"
 import usePublications from "../../../services/publications/hooks/usePublications"
 import { maxBy } from "lodash"
 import { usePublicationContext } from "../../../services/publications/contexts"
+import { usePosterContext } from "../../../services/poster/context"
+import { useNotification } from "../../../hooks/useNotification"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -83,6 +85,8 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
+  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
+  const openNotification = useNotification()
   const [loading, setLoading] = useState<boolean>(false)
   const { data: publications, executeQuery, refetch } = usePublications()
   const { savePublications } = usePublicationContext()
@@ -143,11 +147,18 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
       if (recentPublished && recentPublished.title === title) {
         savePublications(publications)
         navigate(`/publication/${recentPublished.id}`)
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: transactionUrl,
+        })
         reset()
         setLoading(false)
+        setIsIndexing(false)
       }
     }
-  }, [publications, loading, savePublications, navigate, title, reset])
+  }, [publications, loading, savePublications, navigate, title, reset, setIsIndexing, openNotification, transactionUrl])
 
   const onSubmitHandler = (data: Post) => {
     handlePublication(data)
@@ -173,7 +184,10 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
         tags,
         image: image?.path,
       }).then((res) => {
-        if (res && res.error) setLoading(false)
+        if (res && res.error) {
+          setLoading(false)
+          setIsIndexing(false)
+        }
       })
     }
   }
@@ -286,7 +300,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
             <PublishButton variant="contained" type="submit" disabled={loading}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-              Create Publication
+              {isIndexing ? "Indexing..." : "Create Publication"}
             </PublishButton>
           </Grid>
         </ViewContainer>
