@@ -7,11 +7,24 @@ const [usePosterContext, PosterContextProvider] = createGenericContext<PosterCon
 
 const PosterProvider = ({ children }: PosterProviderProps) => {
   const openNotification = useNotification()
-  const [isIndexing, setIsIndexing] = useState<boolean>(false)
+
+  const [isIndexingPublication, setIsIndexingPublication] = useState<boolean>(false)
+  const [isIndexingDeletePublication, setIsIndexingDeletePublication] = useState<boolean>(false)
+  const [isIndexingCreateArticle, setIsIndexingCreateArticle] = useState<boolean>(false)
+  const [isIndexingDeleteArticle, setIsIndexingDeleteArticle] = useState<boolean>(false)
+  const [isIndexingUpdateArticle, setIsIndexingUpdateArticle] = useState<boolean>(false)
+  const [isIndexingGivePermission, setIsIndexingGivePermission] = useState<boolean>(false)
   const [transactionUrl, setTransactionUrl] = useState<string>("")
 
   useEffect(() => {
-    if (isIndexing && transactionUrl) {
+    if (
+      (isIndexingPublication ||
+        isIndexingDeletePublication ||
+        isIndexingCreateArticle ||
+        isIndexingDeleteArticle ||
+        isIndexingGivePermission) &&
+      transactionUrl
+    ) {
       openNotification({
         message: "The transaction is indexing",
         autoHideDuration: 2000,
@@ -20,14 +33,42 @@ const PosterProvider = ({ children }: PosterProviderProps) => {
         preventDuplicate: true,
       })
     }
-  }, [isIndexing, openNotification, transactionUrl])
+  }, [
+    isIndexingCreateArticle,
+    isIndexingDeleteArticle,
+    isIndexingDeletePublication,
+    isIndexingGivePermission,
+    isIndexingPublication,
+    openNotification,
+    transactionUrl,
+  ])
+
+  const clearAllIndexingStates = () => {
+    setIsIndexingPublication(false)
+    setIsIndexingDeletePublication(false)
+    setIsIndexingCreateArticle(false)
+    setIsIndexingDeleteArticle(false)
+    setIsIndexingUpdateArticle(false)
+    setIsIndexingGivePermission(false)
+  }
 
   return (
     <PosterContextProvider
       value={{
-        isIndexing,
-        setIsIndexing,
+        isIndexingPublication,
+        isIndexingDeletePublication,
+        isIndexingCreateArticle,
+        isIndexingDeleteArticle,
+        isIndexingUpdateArticle,
+        isIndexingGivePermission,
         transactionUrl,
+        setIsIndexingPublication,
+        setIsIndexingDeletePublication,
+        setIsIndexingCreateArticle,
+        setIsIndexingDeleteArticle,
+        setIsIndexingUpdateArticle,
+        setIsIndexingGivePermission,
+        clearAllIndexingStates,
         setTransactionUrl,
       }}
     >

@@ -108,7 +108,7 @@ export const PermissionView: React.FC = () => {
   const navigate = useNavigate()
   const openNotification = useNotification()
   const { givePermission } = usePoster()
-  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
+  const { isIndexingGivePermission, setIsIndexingGivePermission, transactionUrl } = usePosterContext()
   const { type } = useParams<{ type: "edit" | "new" }>()
   const { publication, permission, savePublication } = usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
@@ -179,7 +179,7 @@ export const PermissionView: React.FC = () => {
       const isIndexed = find(permissions, { address: account.toLowerCase() })
       if (isIndexed && !isEqual(oldPermission, isIndexed)) {
         setLoading(false)
-        setIsIndexing(false)
+        setIsIndexingGivePermission(false)
         savePublication(publicationRefetch)
         openNotification({
           message: "Execute transaction confirmed!",
@@ -199,7 +199,7 @@ export const PermissionView: React.FC = () => {
     permission,
     loading,
     publication,
-    setIsIndexing,
+    setIsIndexingGivePermission,
     openNotification,
     transactionUrl,
   ])
@@ -217,7 +217,7 @@ export const PermissionView: React.FC = () => {
           const isIndexed = isEqual(oldPermission, indexedPermission)
           if (!isIndexed) {
             setLoading(false)
-            setIsIndexing(false)
+            setIsIndexingGivePermission(false)
             setDeleteLoading(false)
             savePublication(publicationRefetch)
             openNotification({
@@ -242,7 +242,7 @@ export const PermissionView: React.FC = () => {
     publication,
     publicationRefetch,
     savePublication,
-    setIsIndexing,
+    setIsIndexingGivePermission,
     transactionUrl,
   ])
 
@@ -274,7 +274,7 @@ export const PermissionView: React.FC = () => {
         if (res && res.error) {
           setDeleteLoading(false)
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingGivePermission(false)
         }
       })
     }
@@ -340,12 +340,12 @@ export const PermissionView: React.FC = () => {
                     variant="contained"
                     size="small"
                     onClick={handleDeletePermission}
-                    disabled={deleteLoading || isIndexing}
+                    disabled={deleteLoading || isIndexingGivePermission}
                     startIcon={<RemoveCircleOutlineIcon />}
                     sx={{ whiteSpace: "nowrap" }}
                   >
                     {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    {isIndexing ? "Indexing..." : "Remove User"}
+                    {isIndexingGivePermission ? "Indexing..." : "Remove User"}
                   </RemoveUserButton>
                 </Box>
               )}
@@ -385,11 +385,11 @@ export const PermissionView: React.FC = () => {
                   <Button
                     variant="contained"
                     size="medium"
-                    disabled={loading || deleteLoading || isIndexing}
+                    disabled={loading || deleteLoading || isIndexingGivePermission}
                     type="submit"
                   >
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    {isIndexing ? "Indexing..." : "Add Permission"}
+                    {isIndexingGivePermission ? "Indexing..." : "Add Permission"}
                   </Button>
                 </Grid>
               )}
@@ -399,11 +399,11 @@ export const PermissionView: React.FC = () => {
                   <Button
                     variant="contained"
                     size="medium"
-                    disabled={loading || deleteLoading || isIndexing}
+                    disabled={loading || deleteLoading || isIndexingGivePermission}
                     type="submit"
                   >
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    {isIndexing ? "Indexing..." : "Update"}
+                    {isIndexingGivePermission ? "Indexing..." : "Update"}
                   </Button>
                 </Grid>
               )}
