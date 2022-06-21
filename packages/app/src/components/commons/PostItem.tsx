@@ -54,7 +54,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
   const navigate = useNavigate()
   const openNotification = useNotification()
   const { saveArticle, savePublication } = usePublicationContext()
-  const { setIsIndexing, isIndexing, transactionUrl } = usePosterContext()
+  const { setIsIndexingDeleteArticle, isIndexingDeleteArticle, transactionUrl } = usePosterContext()
   const { deleteArticle } = usePoster()
   const { description, image, title, tags, lastUpdated, id, publication } = article
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
@@ -80,7 +80,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
       const articleDeleted = find(publicationRefetch.articles, { id: article.id })
       if (!articleDeleted) {
         setLoading(false)
-        setIsIndexing(false)
+        setIsIndexingDeleteArticle(false)
         savePublication(publicationRefetch)
         openNotification({
           message: "Execute transaction confirmed!",
@@ -91,7 +91,16 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
         navigate(-1)
       }
     }
-  }, [article, loading, navigate, openNotification, publicationRefetch, savePublication, setIsIndexing, transactionUrl])
+  }, [
+    article,
+    loading,
+    navigate,
+    openNotification,
+    publicationRefetch,
+    savePublication,
+    setIsIndexingDeleteArticle,
+    transactionUrl,
+  ])
 
   const handleDeleteArticle = async () => {
     if (article && article.id && couldDelete) {
@@ -102,7 +111,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
       }).then((res) => {
         if (res && res.error) {
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingDeleteArticle(false)
         }
       })
     }
@@ -167,11 +176,11 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                   onClick={handleDeleteArticle}
                   variant="contained"
                   size="small"
-                  disabled={loading || isIndexing}
+                  disabled={loading || isIndexingDeleteArticle}
                   startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
                 >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {isIndexing ? "Indexing..." : "Delete Post"}
+                  {isIndexingDeleteArticle ? "Indexing..." : "Delete Post"}
                 </PostItemEditButton>
               </Box>
             )}
