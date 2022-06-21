@@ -17,6 +17,7 @@ import { PermissionView } from "./components/views/publication/PermissionView"
 import SetupIpfsView from "./components/views/pinning/SetupIpfsView"
 import { useWeb3React } from "@web3-react/core"
 import { SelectNetwork } from "./components/views/wallet/SelectNetwork"
+import { WalletProvider } from "./connectors/WalletProvider"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
@@ -35,24 +36,29 @@ const App: React.FC = () => {
   return (
     <SnackbarProvider maxSnack={3}>
       <UrqlProvider value={currentSubgraphClient}>
-        <PublicationProvider>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<LandingView />} />
-            <Route path="/wallet" element={<WalletView />} />
-            <Route path="/select-network" element={<SelectNetwork />} />
-            <Route path="/pinning" element={<SetupIpfsView />} />
-            <Route path="/publication/publish" element={<PublishView updateChainId={updateChainId} />} />
-            <Route path="/publication/post-action/:type" element={<CreatePostView />} />
-            <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
-            <Route path="/publication/:publicationId" element={<PublicationPostView updateChainId={updateChainId} />} />
-            <Route
-              path="/publication/:publicationId/article/:articleId"
-              element={<ArticleView updateChainId={updateChainId} />}
-            />
-            <Route path="/publication/permission/:type" element={<PermissionView />} />
-          </Routes>
-        </PublicationProvider>
+        <WalletProvider>
+          <PublicationProvider>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<LandingView />} />
+              <Route path="/wallet" element={<WalletView />} />
+              <Route path="/select-network" element={<SelectNetwork />} />
+              <Route path="/pinning" element={<SetupIpfsView />} />
+              <Route path="/publication/publish" element={<PublishView updateChainId={updateChainId} />} />
+              <Route path="/publication/post-action/:type" element={<CreatePostView />} />
+              <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
+              <Route
+                path="/publication/:publicationId"
+                element={<PublicationPostView updateChainId={updateChainId} />}
+              />
+              <Route
+                path="/publication/:publicationId/article/:articleId"
+                element={<ArticleView updateChainId={updateChainId} />}
+              />
+              <Route path="/publication/permission/:type" element={<PermissionView />} />
+            </Routes>
+          </PublicationProvider>
+        </WalletProvider>
       </UrqlProvider>
     </SnackbarProvider>
   )

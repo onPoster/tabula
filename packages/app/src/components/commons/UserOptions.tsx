@@ -7,6 +7,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp"
 import { useWeb3React } from "@web3-react/core"
 import { useLocation, useNavigate } from "react-router-dom"
 import { usePublicationContext } from "../../services/publications/contexts"
+import useLocalStorage from "../../hooks/useLocalStorage"
 
 const UserOptionsContainer = styled(Paper)({
   padding: 8,
@@ -27,6 +28,7 @@ const MenuItem = styled(Grid)({
 export const UserOptions: React.FC = () => {
   const { deactivate } = useWeb3React()
   const { setCurrentPath } = usePublicationContext()
+  const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
   const location = useLocation()
   const navigate = useNavigate()
   return (
@@ -62,7 +64,16 @@ export const UserOptions: React.FC = () => {
         </Grid>
       </MenuItem>
 
-      <MenuItem item sx={{ cursor: "pointer" }} onClick={() => deactivate()}>
+      <MenuItem
+        item
+        sx={{ cursor: "pointer" }}
+        onClick={() => {
+          if (walletAutoConnect) {
+            setWalletAutoConnect(undefined)
+          }
+          deactivate()
+        }}
+      >
         <Grid container gap={1} alignItems="center">
           <Avatar sx={{ width: 28, height: 28, background: palette.grays[100] }}>
             <LinkOffIcon sx={{ color: palette.primary[800], width: 18 }} />
