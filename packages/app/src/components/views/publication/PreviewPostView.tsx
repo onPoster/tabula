@@ -34,7 +34,13 @@ export const PreviewPostView: React.FC = () => {
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
   const { uploadFile, ipfs } = useFiles()
   const { createArticle, updateArticle } = usePoster()
-  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
+  const {
+    isIndexingCreateArticle,
+    setIsIndexingCreateArticle,
+    isIndexingUpdateArticle,
+    setIsIndexingUpdateArticle,
+    transactionUrl,
+  } = usePosterContext()
   const { data, executeQuery, refetch } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
@@ -76,7 +82,7 @@ export const PreviewPostView: React.FC = () => {
           ).then((res) => {
             if (res && res.error) {
               setLoading(false)
-              setIsIndexing(false)
+              setIsIndexingCreateArticle(false)
             }
           })
         }
@@ -96,7 +102,7 @@ export const PreviewPostView: React.FC = () => {
           ).then((res) => {
             if (res && res.error) {
               setLoading(false)
-              setIsIndexing(false)
+              setIsIndexingUpdateArticle(false)
             }
           })
         }
@@ -159,7 +165,7 @@ export const PreviewPostView: React.FC = () => {
           saveArticle(recentArticle)
           navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingCreateArticle(false)
           openNotification({
             message: "Execute transaction confirmed!",
             autoHideDuration: 5000,
@@ -179,7 +185,7 @@ export const PreviewPostView: React.FC = () => {
           saveArticle(recentArticle)
           navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingUpdateArticle(false)
           openNotification({
             message: "Execute transaction confirmed!",
             autoHideDuration: 5000,
@@ -199,14 +205,18 @@ export const PreviewPostView: React.FC = () => {
     type,
     article,
     setMarkdownArticle,
-    setIsIndexing,
     openNotification,
     transactionUrl,
+    setIsIndexingCreateArticle,
+    setIsIndexingUpdateArticle,
   ])
 
   const generateButtonLabel = (): string => {
-    if (isIndexing) {
-      return "Indexing"
+    if (isIndexingCreateArticle) {
+      return "Indexing..."
+    }
+    if (isIndexingUpdateArticle) {
+      return "Indexing..."
     }
     if (type === "new") {
       return "Publish now"
@@ -300,7 +310,12 @@ export const PreviewPostView: React.FC = () => {
                 <Button variant="outlined" size="large" onClick={() => navigate(-2)}>
                   Cancel
                 </Button>
-                <Button variant="contained" size="large" type="submit" disabled={loading}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  type="submit"
+                  disabled={loading || isIndexingCreateArticle || isIndexingUpdateArticle}
+                >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                   {generateButtonLabel()}
                 </Button>

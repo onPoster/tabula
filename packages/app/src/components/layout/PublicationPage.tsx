@@ -11,11 +11,11 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
-  const { setIsIndexing } = usePosterContext()
+  const { clearAllIndexingStates } = usePosterContext()
 
   useEffect(() => {
-    setIsIndexing(false)
-  }, [setIsIndexing])
+    clearAllIndexingStates()
+  }, [clearAllIndexingStates])
   return (
     <>
       <Helmet>

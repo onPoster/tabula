@@ -39,7 +39,7 @@ export const CreatePostView: React.FC = () => {
   const openNotification = useNotification()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
-  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
+  const { isIndexingDeleteArticle, setIsIndexingDeleteArticle, transactionUrl } = usePosterContext()
   const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, savePublication } =
     usePublicationContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
@@ -94,7 +94,7 @@ export const CreatePostView: React.FC = () => {
       const articleDeleted = find(publicationRefetch.articles, { id: article.id })
       if (!articleDeleted) {
         setLoading(false)
-        setIsIndexing(false)
+        setIsIndexingDeleteArticle(false)
         savePublication(publicationRefetch)
         openNotification({
           message: "Execute transaction confirmed!",
@@ -105,11 +105,20 @@ export const CreatePostView: React.FC = () => {
         navigate(-1)
       }
     }
-  }, [article, loading, navigate, openNotification, publicationRefetch, savePublication, setIsIndexing, transactionUrl])
+  }, [
+    article,
+    loading,
+    navigate,
+    openNotification,
+    publicationRefetch,
+    savePublication,
+    setIsIndexingDeleteArticle,
+    transactionUrl,
+  ])
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
-    setIsIndexing(false)
+    setIsIndexingDeleteArticle(false)
     navigate(`/publication/preview-post/${type}`)
   }
 
@@ -122,7 +131,7 @@ export const CreatePostView: React.FC = () => {
       }).then((res) => {
         if (res && res.error) {
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingDeleteArticle(false)
         }
       })
     }
@@ -202,12 +211,12 @@ export const CreatePostView: React.FC = () => {
                       variant="contained"
                       size="large"
                       onClick={handleDeleteArticle}
-                      disabled={loading}
+                      disabled={loading || isIndexingDeleteArticle}
                       startIcon={<DeleteOutlineIcon />}
                       sx={{ whiteSpace: "nowrap" }}
                     >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                      {isIndexing ? "Indexing..." : "Delete Post"}
+                      {isIndexingDeleteArticle ? "Indexing..." : "Delete Post"}
                     </DeletePostButton>
                   )}
                   {havePermissionToUpdate && (

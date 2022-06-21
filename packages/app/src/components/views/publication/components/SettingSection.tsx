@@ -42,7 +42,13 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage, savePublication } =
     usePublicationContext()
   const { executePublication, deletePublication } = usePoster()
-  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
+  const {
+    isIndexingPublication,
+    isIndexingDeletePublication,
+    setIsIndexingPublication,
+    setIsIndexingDeletePublication,
+    transactionUrl,
+  } = usePosterContext()
   const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
   const { data: publications, refetch: publicationsRefetch } = usePublications()
   const { uploadFile, ipfs } = useFiles()
@@ -79,7 +85,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
       if (currentPublication === -1) {
         navigate("/publication/publish")
         setDeleteLoading(false)
-        setIsIndexing(false)
+        setIsIndexingDeletePublication(false)
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -88,7 +94,15 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         })
       }
     }
-  }, [publications, publication, deleteLoading, navigate, setIsIndexing, openNotification, transactionUrl])
+  }, [
+    publications,
+    publication,
+    deleteLoading,
+    navigate,
+    setIsIndexingDeletePublication,
+    openNotification,
+    transactionUrl,
+  ])
 
   //Execute poll interval to know the latest publications indexed
   useEffect(() => {
@@ -116,7 +130,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
       if (publicationRefetch.lastUpdated && parseInt(publicationRefetch.lastUpdated) > lastUpdate) {
         savePublication(publicationRefetch)
         setLoading(false)
-        setIsIndexing(false)
+        setIsIndexingPublication(false)
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -125,7 +139,15 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         })
       }
     }
-  }, [lastUpdate, loading, openNotification, publicationRefetch, savePublication, setIsIndexing, transactionUrl])
+  }, [
+    lastUpdate,
+    loading,
+    openNotification,
+    publicationRefetch,
+    savePublication,
+    setIsIndexingPublication,
+    transactionUrl,
+  ])
 
   const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
     if (ev.key === "Enter") {
@@ -170,12 +192,12 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
       }).then((res) => {
         if (res && res.error) {
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingPublication(false)
         }
       })
     } else {
       setLoading(false)
-      setIsIndexing(false)
+      setIsIndexingPublication(false)
     }
   }
 
@@ -186,10 +208,14 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         action: "publication/delete",
         id: publication.id,
       }).then((res) => {
-        if (res && res.error) setDeleteLoading(false)
+        if (res && res.error) {
+          setDeleteLoading(false)
+          setIsIndexingDeletePublication(false)
+        }
       })
     } else {
       setDeleteLoading(false)
+      setIsIndexingDeletePublication(false)
     }
   }
 
@@ -248,16 +274,21 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                   variant="outlined"
                   size="large"
                   onClick={handlePublicationDelete}
-                  disabled={deleteLoading || loading}
+                  disabled={deleteLoading || loading || isIndexingDeletePublication}
                 >
                   {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {isIndexing ? "Indexing..." : "Delete Publication"}
+                  {isIndexingDeletePublication ? "Indexing..." : "Delete Publication"}
                 </Button>
               )}
               {couldEdit && (
-                <Button variant="contained" size="large" type="submit" disabled={loading || deleteLoading}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  type="submit"
+                  disabled={loading || deleteLoading || isIndexingPublication}
+                >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {isIndexing ? "Indexing..." : " Update Publication"}
+                  {isIndexingPublication ? "Indexing..." : " Update Publication"}
                 </Button>
               )}
             </Grid>

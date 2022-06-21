@@ -85,7 +85,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
-  const { isIndexing, setIsIndexing, transactionUrl } = usePosterContext()
+  const { isIndexingPublication, setIsIndexingPublication, transactionUrl } = usePosterContext()
   const openNotification = useNotification()
   const [loading, setLoading] = useState<boolean>(false)
   const { data: publications, executeQuery, refetch } = usePublications()
@@ -155,10 +155,20 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
         })
         reset()
         setLoading(false)
-        setIsIndexing(false)
+        setIsIndexingPublication(false)
       }
     }
-  }, [publications, loading, savePublications, navigate, title, reset, setIsIndexing, openNotification, transactionUrl])
+  }, [
+    publications,
+    loading,
+    savePublications,
+    navigate,
+    title,
+    reset,
+    setIsIndexingPublication,
+    openNotification,
+    transactionUrl,
+  ])
 
   const onSubmitHandler = (data: Post) => {
     handlePublication(data)
@@ -186,7 +196,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
       }).then((res) => {
         if (res && res.error) {
           setLoading(false)
-          setIsIndexing(false)
+          setIsIndexingPublication(false)
         }
       })
     }
@@ -298,9 +308,9 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
             </Grid>
           </Grid>
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublishButton variant="contained" type="submit" disabled={loading}>
+            <PublishButton variant="contained" type="submit" disabled={loading || isIndexingPublication}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-              {isIndexing ? "Indexing..." : "Create Publication"}
+              {isIndexingPublication ? "Indexing..." : "Create Publication"}
             </PublishButton>
           </Grid>
         </ViewContainer>

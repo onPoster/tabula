@@ -20,7 +20,15 @@ const URL = "https://rinkeby.etherscan.io/tx/"
 
 const usePoster = () => {
   const openNotification = useNotification()
-  const { setIsIndexing, setTransactionUrl } = usePosterContext()
+  const {
+    setIsIndexingPublication,
+    setIsIndexingDeletePublication,
+    setIsIndexingCreateArticle,
+    setIsIndexingUpdateArticle,
+    setIsIndexingDeleteArticle,
+    setIsIndexingGivePermission,
+    setTransactionUrl,
+  } = usePosterContext()
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
@@ -51,7 +59,7 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         content.image && (await pinAction(content.image, `${content.title}-image`))
-        setIsIndexing(true)
+        setIsIndexingPublication(true)
         setTransactionUrl(URL + receipt.transactionHash)
         setLoading(false)
       } catch (error: any) {
@@ -74,7 +82,7 @@ const usePoster = () => {
         const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
         setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexing(true)
+        setIsIndexingDeletePublication(true)
         setLoading(false)
       } catch (error: any) {
         setLoading(false)
@@ -118,7 +126,7 @@ const usePoster = () => {
         content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
         pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
         setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexing(true)
+        setIsIndexingCreateArticle(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -167,7 +175,7 @@ const usePoster = () => {
             "Successfully article pinned",
           ))
         setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexing(true)
+        setIsIndexingUpdateArticle(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -189,7 +197,7 @@ const usePoster = () => {
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
         setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexing(true)
+        setIsIndexingDeleteArticle(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
@@ -211,7 +219,7 @@ const usePoster = () => {
         const receipt: TransactionReceipt = await tx.wait()
         setLoading(false)
         setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexing(true)
+        setIsIndexingGivePermission(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({

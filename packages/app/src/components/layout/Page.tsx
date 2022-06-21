@@ -12,11 +12,12 @@ type Props = {
 
 const Page: React.FC<Props> = ({ children, showBadge }) => {
   const location = useLocation()
-  const { setIsIndexing } = usePosterContext()
+  const { clearAllIndexingStates } = usePosterContext()
 
   useEffect(() => {
-    setIsIndexing(false)
-  }, [setIsIndexing])
+    clearAllIndexingStates()
+  }, [clearAllIndexingStates])
+  
   return (
     <>
       <Header
