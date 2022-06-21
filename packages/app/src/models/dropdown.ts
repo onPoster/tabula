@@ -4,6 +4,8 @@ export interface DropdownOption {
   icon?: any
 }
 
+export type CreateSelectOption = Omit<DropdownOption, "icon">
+
 export interface DropdownProps {
   options: DropdownOption[]
   title: string
