@@ -16,6 +16,7 @@ const PostSection: React.FC = () => {
   const permissions = publication && publication.permissions
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
   const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
+  const havePermissionToDelete = permissions ? haveActionPermission(permissions, "articleDelete", account || "") : false
   return (
     <>
       <Grid container justifyContent="space-between" alignItems={"center"} my={4}>
@@ -43,7 +44,7 @@ const PostSection: React.FC = () => {
           articles.length > 0 &&
           articles.map((article) => (
             <Grid item sx={{ width: "100%" }} key={article.id || ""}>
-              <PostItem article={article} couldUpdate={havePermissionToUpdate}/>
+              <PostItem article={article} couldUpdate={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
             </Grid>
           ))}
       </Grid>
