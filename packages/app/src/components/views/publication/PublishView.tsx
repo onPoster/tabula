@@ -15,10 +15,6 @@ import { useNavigate } from "react-router-dom"
 import { accessPublications } from "../../../utils/permission"
 import { ViewContainer } from "../../commons/ViewContainer"
 import usePublications from "../../../services/publications/hooks/usePublications"
-import { maxBy } from "lodash"
-import { usePublicationContext } from "../../../services/publications/contexts"
-import { usePosterContext } from "../../../services/poster/context"
-import { useNotification } from "../../../hooks/useNotification"
 import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 
@@ -76,11 +72,16 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
-  const { isIndexingPublication, setIsIndexingPublication, transactionUrl } = usePosterContext()
-  const openNotification = useNotification()
   const [loading, setLoading] = useState<boolean>(false)
-  const { data: publications, executeQuery, refetch } = usePublications()
-  const { savePublications } = usePublicationContext()
+  const {
+    data: publications,
+    executeQuery,
+    indexing,
+    redirect,
+    lastPublicationId,
+    setLastPublicationTitle,
+    setExecutePollInterval,
+  } = usePublications()
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
@@ -88,14 +89,10 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const {
     control,
     handleSubmit,
-    watch,
-    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(publicationSchema),
   })
-
-  const title = watch("title")
 
   useEffect(() => {
     if (chainId != null) {
@@ -109,58 +106,21 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
     }
   }, [publications, executeQuery])
 
-  //Execute poll interval to know the latest publications indexed
-  useEffect(() => {
-    if (title !== "") {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [refetch, watch, title])
-
   useEffect(() => {
     if (publications && publications.length && account) {
       handlePublicationsToShow(publications, account)
     }
   }, [publications, account])
 
-  //Method to know recent publication created
   useEffect(() => {
-    if (publications && publications.length && loading && title !== "") {
-      const recentPublished = maxBy(publications, (publication) => {
-        if (publication.lastUpdated) {
-          return parseInt(publication.lastUpdated)
-        }
-      })
-
-      if (recentPublished && recentPublished.title === title) {
-        savePublications(publications)
-        navigate(`/publication/${recentPublished.id}`)
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: transactionUrl,
-        })
-        reset()
-        setLoading(false)
-        setIsIndexingPublication(false)
-      }
+    if (redirect && lastPublicationId) {
+      setLoading(false)
+      navigate(`/publication/${lastPublicationId}`)
     }
-  }, [
-    publications,
-    loading,
-    savePublications,
-    navigate,
-    title,
-    reset,
-    setIsIndexingPublication,
-    openNotification,
-    transactionUrl,
-  ])
+  }, [lastPublicationId, navigate, redirect])
 
   const onSubmitHandler = (data: Post) => {
+    setLastPublicationTitle(data.title)
     handlePublication(data)
   }
 
@@ -184,9 +144,10 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
         tags,
         image: image?.path,
       }).then((res) => {
+        setExecutePollInterval(true)
         if (res && res.error) {
           setLoading(false)
-          setIsIndexingPublication(false)
+          setExecutePollInterval(false)
         }
       })
     }
@@ -280,9 +241,9 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
           </Grid>
 
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublishButton variant="contained" type="submit" disabled={loading || isIndexingPublication}>
+            <PublishButton variant="contained" type="submit" disabled={loading || indexing}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-              {isIndexingPublication ? "Indexing..." : "Create Publication"}
+              {indexing ? "Indexing..." : "Create Publication"}
             </PublishButton>
           </Grid>
         </ViewContainer>

@@ -1,5 +1,4 @@
 import { Box, Button, CircularProgress, FormHelperText, Grid, TextField, Typography } from "@mui/material"
-import { findIndex } from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
@@ -11,8 +10,6 @@ import usePoster from "../../../../services/poster/hooks/usePoster"
 import usePublication from "../../../../services/publications/hooks/usePublication"
 import usePublications from "../../../../services/publications/hooks/usePublications"
 import { useNavigate } from "react-router-dom"
-import { usePosterContext } from "../../../../services/poster/context"
-import { useNotification } from "../../../../hooks/useNotification"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 
@@ -35,23 +32,18 @@ const publicationSchema = yup.object().shape({
 
 export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
   const navigate = useNavigate()
-  const openNotification = useNotification()
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
-  const [lastUpdate, setLastUpdate] = useState<number | undefined>(undefined)
-  const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage, savePublication } =
-    usePublicationContext()
+  const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage } = usePublicationContext()
   const { executePublication, deletePublication } = usePoster()
   const {
-    isIndexingPublication,
-    isIndexingDeletePublication,
-    setIsIndexingPublication,
-    setIsIndexingDeletePublication,
-    transactionUrl,
-  } = usePosterContext()
-  const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
-  const { data: publications, refetch: publicationsRefetch } = usePublications()
+    indexing: updateIndexing,
+    setCurrentTimestamp,
+    setExecutePollInterval: setUpdateInterval,
+    transactionCompleted,
+  } = usePublication(publication?.id || "")
+  const { indexing: deleteIndexing, redirect, setExecutePollInterval, setDeletedPublicationId } = usePublications()
   const { uploadFile, ipfs } = useFiles()
   const {
     control,
@@ -76,79 +68,21 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
       setValue("title", publication.title)
       setValue("description", publication.description || "")
       setTags(publication.tags || [])
-      setLastUpdate(parseInt(publication.lastUpdated))
+      setCurrentTimestamp(parseInt(publication.lastUpdated))
     }
-  }, [loading, publication, setValue])
+  }, [loading, publication, setCurrentTimestamp, setValue])
 
   useEffect(() => {
-    if (publications?.length && publication && deleteLoading) {
-      const currentPublication = findIndex(publications, { id: publication?.id })
-      if (currentPublication === -1) {
-        navigate("/publication/publish")
-        setDeleteLoading(false)
-        setIsIndexingDeletePublication(false)
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: transactionUrl,
-        })
-      }
+    if (redirect) {
+      navigate("/publication/publish")
     }
-  }, [
-    publications,
-    publication,
-    deleteLoading,
-    navigate,
-    setIsIndexingDeletePublication,
-    openNotification,
-    transactionUrl,
-  ])
+  }, [navigate, redirect])
 
-  //Execute poll interval to know the latest publications indexed
   useEffect(() => {
-    if (loading) {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
+    if (transactionCompleted) {
+      setLoading(false)
     }
-  }, [refetch, loading])
-
-  //Execute poll interval to know the latest publications indexed
-  useEffect(() => {
-    if (deleteLoading) {
-      const interval = setInterval(() => {
-        publicationsRefetch()
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [publicationsRefetch, deleteLoading])
-
-  //Method to know recent publication
-  useEffect(() => {
-    if (publicationRefetch && loading && lastUpdate) {
-      if (publicationRefetch.lastUpdated && parseInt(publicationRefetch.lastUpdated) > lastUpdate) {
-        savePublication(publicationRefetch)
-        setLoading(false)
-        setIsIndexingPublication(false)
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: transactionUrl,
-        })
-      }
-    }
-  }, [
-    lastUpdate,
-    loading,
-    openNotification,
-    publicationRefetch,
-    savePublication,
-    setIsIndexingPublication,
-    transactionUrl,
-  ])
+  }, [transactionCompleted])
 
   const onSubmitHandler = (data: Post) => {
     handlePublicationUpdate(data)
@@ -173,32 +107,33 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         tags,
         image: image?.path,
       }).then((res) => {
+        setUpdateInterval(true)
         if (res && res.error) {
+          setUpdateInterval(false)
           setLoading(false)
-          setIsIndexingPublication(false)
         }
       })
     } else {
       setLoading(false)
-      setIsIndexingPublication(false)
     }
   }
 
   const handlePublicationDelete = async () => {
     setDeleteLoading(true)
     if (publication && publication.id) {
+      setDeletedPublicationId(publication.id)
       await deletePublication({
         action: "publication/delete",
         id: publication.id,
       }).then((res) => {
+        setExecutePollInterval(true)
         if (res && res.error) {
+          setExecutePollInterval(false)
           setDeleteLoading(false)
-          setIsIndexingDeletePublication(false)
         }
       })
     } else {
       setDeleteLoading(false)
-      setIsIndexingDeletePublication(false)
     }
   }
 
@@ -258,10 +193,10 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                   variant="outlined"
                   size="large"
                   onClick={handlePublicationDelete}
-                  disabled={deleteLoading || loading || isIndexingDeletePublication}
+                  disabled={deleteLoading || loading || deleteIndexing || updateIndexing}
                 >
                   {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {isIndexingDeletePublication ? "Indexing..." : "Delete Publication"}
+                  {deleteIndexing ? "Indexing..." : "Delete Publication"}
                 </Button>
               )}
               {couldEdit && (
@@ -269,10 +204,10 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                   variant="contained"
                   size="large"
                   type="submit"
-                  disabled={loading || deleteLoading || isIndexingPublication}
+                  disabled={loading || deleteLoading || deleteIndexing || updateIndexing}
                 >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {isIndexingPublication ? "Indexing..." : " Update Publication"}
+                  {updateIndexing ? "Indexing..." : " Update Publication"}
                 </Button>
               )}
             </Grid>
