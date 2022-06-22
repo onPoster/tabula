@@ -107,11 +107,6 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                       <WalletBadge address={author} />
                     </Grid>
                   ))}
-                  {article.authors.map((author) => (
-                    <Grid item>
-                      <WalletBadge address={author} />
-                    </Grid>
-                  ))}
                 </Grid>
               )}
               {article.publication && (

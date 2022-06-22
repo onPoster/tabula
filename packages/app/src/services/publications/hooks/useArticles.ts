@@ -1,10 +1,23 @@
+import { maxBy } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import { useQuery } from "urql"
+import { useNotification } from "../../../hooks/useNotification"
 import { Article } from "../../../models/publication"
+import { usePosterContext } from "../../poster/context"
+import { usePublicationContext } from "../contexts"
 import { GET_ARTICLES_QUERY } from "../queries"
 
 const useArticles = () => {
+  const openNotification = useNotification()
+  const { transactionUrl } = usePosterContext()
+  const { draftArticle, saveDraftArticle, saveArticle, setMarkdownArticle } = usePublicationContext()
+  const [showToast, setShowToast] = useState<boolean>(true)
   const [data, setData] = useState<Article[] | undefined>(undefined)
+  const [indexing, setIndexing] = useState<boolean>(false)
+  const [executePollInterval, setExecutePollInterval] = useState<boolean>(false)
+  const [transactionCompleted, setTransactionCompleted] = useState<boolean>(false)
+  const [newArticleId, setNewArticleId] = useState<string>()
+  const [currentTimestamp, setCurrentTimestamp] = useState<number | undefined>(undefined)
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_ARTICLES_QUERY,
@@ -20,7 +33,120 @@ const useArticles = () => {
     }
   }, [result])
 
-  return { loading, data, refetch, executeQuery }
+  //Execute poll interval to know the latest publications indexed
+  useEffect(() => {
+    if (executePollInterval) {
+      setIndexing(true)
+      const interval = setInterval(() => {
+        refetch()
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [executePollInterval, refetch])
+
+  //Execute poll interval to know is the last article created is already indexed
+  useEffect(() => {
+    if (data && data.length && executePollInterval && draftArticle) {
+      const recentArticle = maxBy(data, (fetchedArticle) => {
+        if (fetchedArticle.lastUpdated) {
+          return parseInt(fetchedArticle.lastUpdated)
+        }
+      })
+      if (recentArticle && recentArticle.title === draftArticle.title) {
+        setNewArticleId(recentArticle.id)
+        saveDraftArticle(undefined)
+        saveArticle(recentArticle)
+        setTransactionCompleted(true)
+        setIndexing(false)
+        setExecutePollInterval(false)
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: transactionUrl,
+        })
+        return
+      }
+    }
+  }, [
+    loading,
+    data,
+    openNotification,
+    transactionUrl,
+    executePollInterval,
+    draftArticle,
+    saveArticle,
+    saveDraftArticle,
+  ])
+
+  //Execute poll interval to know is the last article updated is already indexed
+  useEffect(() => {
+    if (data && data.length && executePollInterval && draftArticle) {
+      const recentArticle = maxBy(data, (fetchedArticle) => {
+        if (fetchedArticle.lastUpdated) {
+          return parseInt(fetchedArticle.lastUpdated)
+        }
+      })
+      if (
+        recentArticle &&
+        recentArticle.lastUpdated &&
+        currentTimestamp &&
+        parseInt(recentArticle.lastUpdated) > currentTimestamp
+      ) {
+        setNewArticleId(recentArticle.id)
+        setMarkdownArticle(draftArticle.article)
+        saveDraftArticle(undefined)
+        saveArticle(recentArticle)
+        setTransactionCompleted(true)
+        setIndexing(false)
+        setExecutePollInterval(false)
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: transactionUrl,
+        })
+        return
+      }
+    }
+  }, [
+    loading,
+    data,
+    openNotification,
+    transactionUrl,
+    executePollInterval,
+    draftArticle,
+    saveArticle,
+    saveDraftArticle,
+    currentTimestamp,
+    setMarkdownArticle,
+  ])
+
+  //Show toast when transaction is indexing
+  useEffect(() => {
+    if (indexing && transactionUrl && showToast) {
+      setShowToast(false)
+      openNotification({
+        message: "The transaction is indexing",
+        autoHideDuration: 2000,
+        variant: "info",
+        detailsLink: transactionUrl,
+        preventDuplicate: true,
+      })
+    }
+  }, [indexing, openNotification, showToast, transactionUrl])
+
+  return {
+    loading,
+    data,
+    indexing,
+    transactionCompleted,
+    newArticleId,
+    setExecutePollInterval,
+    refetch,
+    executeQuery,
+    setCurrentTimestamp,
+  }
 }
 
 export default useArticles

@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, Chip, CircularProgress, Grid, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Grid, TextField, Typography } from "@mui/material"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
-
 import { useNavigate, useParams } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
-import { maxBy, remove } from "lodash"
 import { useFiles } from "../../../hooks/useFiles"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { useWeb3React } from "@web3-react/core"
@@ -17,31 +15,36 @@ import { haveActionPermission } from "../../../utils/permission"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { PinningAlert } from "../../commons/PinningAlert"
+import { CreatableSelect } from "../../commons/CreatableSelect"
+import { CreateSelectOption } from "../../../models/dropdown"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
-import { usePosterContext } from "../../../services/poster/context"
-import { useNotification } from "../../../hooks/useNotification"
 
 export const PreviewPostView: React.FC = () => {
   const navigate = useNavigate()
-  const openNotification = useNotification()
+
   const { account } = useWeb3React()
   const { type } = useParams<{ type: "new" | "edit" }>()
-  const { publication, article, draftArticle, saveArticle, setMarkdownArticle } = usePublicationContext()
+  const { publication, article, draftArticle } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const [tag, setTag] = useState<string>("")
   const [tags, setTags] = useState<string[]>([])
+  const [authors, setAuthors] = useState<string[]>([])
   const [articleImg, setArticleImg] = useState<File>()
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
   const { uploadFile, ipfs } = useFiles()
   const { createArticle, updateArticle } = usePoster()
   const {
-    isIndexingCreateArticle,
-    setIsIndexingCreateArticle,
-    isIndexingUpdateArticle,
-    setIsIndexingUpdateArticle,
-    transactionUrl,
-  } = usePosterContext()
-  const { data, executeQuery, refetch } = useArticles()
+    indexing: createArticleIndexing,
+    setExecutePollInterval: createPoll,
+    transactionCompleted: newArticleTransaction,
+    newArticleId,
+  } = useArticles()
+  const {
+    indexing: updateArticleIndexing,
+    setExecutePollInterval: updatePoll,
+    transactionCompleted: updateTransaction,
+    newArticleId: updateArticleId,
+    setCurrentTimestamp,
+  } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
@@ -64,7 +67,7 @@ export const PreviewPostView: React.FC = () => {
         hashArticle = await uploadFile(draftArticleText)
       }
 
-      if (title) {
+      if (title && authors.length) {
         setLoading(true)
         if (type === "new") {
           await createArticle(
@@ -76,13 +79,14 @@ export const PreviewPostView: React.FC = () => {
               description,
               tags,
               image: image?.path,
-              authors: [account],
+              authors,
             },
             hashArticle ? true : false,
           ).then((res) => {
+            createPoll(true)
             if (res && res.error) {
+              createPoll(false)
               setLoading(false)
-              setIsIndexingCreateArticle(false)
             }
           })
         }
@@ -96,13 +100,18 @@ export const PreviewPostView: React.FC = () => {
               description,
               tags,
               image: image ? image?.path : article.image,
-              authors: [account],
+              authors,
             },
             hashArticle ? true : false,
           ).then((res) => {
+            if (article && article.lastUpdated) {
+              setCurrentTimestamp(parseInt(article.lastUpdated))
+              updatePoll(true)
+            }
+
             if (res && res.error) {
               setLoading(false)
-              setIsIndexingUpdateArticle(false)
+              updatePoll(false)
             }
           })
         }
@@ -110,23 +119,33 @@ export const PreviewPostView: React.FC = () => {
     }
   }
 
-  const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
-    if (ev.key === "Enter") {
-      const currentTags = [...tags]
-      currentTags.push(tag)
-      setTags(currentTags)
-      setTag("")
-      ev.preventDefault()
+  const handleTags = (items: CreateSelectOption[]) => {
+    if (items.length) {
+      const newTags = items.map((item) => item.value)
+      setTags(newTags)
+    } else {
+      setTags([])
     }
   }
 
-  const handleDeleteTag = (index: number) => {
-    const currentTags = [...tags]
-    remove(currentTags, (tag: string) => {
-      return tag === currentTags[index]
-    })
-    setTags(currentTags)
+  const handleAuthors = (items: CreateSelectOption[]) => {
+    if (items.length) {
+      const newTags = items.map((item) => item.value)
+      setAuthors(newTags)
+    }
   }
+
+  useEffect(() => {
+    if (!authors.length && account && type === "new") {
+      setAuthors([account])
+    }
+  }, [account, authors, type])
+
+  useEffect(() => {
+    if (!authors.length && article && article.authors?.length) {
+      setAuthors(article.authors)
+    }
+  }, [account, authors, article])
 
   useEffect(() => {
     if (article && type === "edit") {
@@ -135,87 +154,17 @@ export const PreviewPostView: React.FC = () => {
     }
   }, [article, setValue, type])
 
-  //Execute method to bring all articles
   useEffect(() => {
-    if (!data) {
-      executeQuery()
+    if ((newArticleTransaction || updateTransaction) && publication) {
+      navigate(`/publication/${publication.id}/article/${newArticleId || updateArticleId}`)
     }
-  }, [data, executeQuery])
-
-  //Execute poll interval to know the latest publications indexed
-  useEffect(() => {
-    if (draftArticle && draftArticle.title !== "" && loading) {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [refetch, draftArticle, loading])
-
-  //Method to know recent article created
-  useEffect(() => {
-    if (data && data.length && loading && draftArticle && draftArticle.title !== "") {
-      const recentArticle = maxBy(data, (fetchedArticle) => {
-        if (fetchedArticle.lastUpdated) {
-          return parseInt(fetchedArticle.lastUpdated)
-        }
-      })
-      if (recentArticle && recentArticle.title === draftArticle.title) {
-        if (type === "new") {
-          saveArticle(recentArticle)
-          navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
-          setLoading(false)
-          setIsIndexingCreateArticle(false)
-          openNotification({
-            message: "Execute transaction confirmed!",
-            autoHideDuration: 5000,
-            variant: "success",
-            detailsLink: transactionUrl,
-          })
-          return
-        }
-        if (
-          type === "edit" &&
-          recentArticle.lastUpdated &&
-          article &&
-          article.lastUpdated &&
-          parseInt(recentArticle.lastUpdated) > parseInt(article.lastUpdated)
-        ) {
-          setMarkdownArticle(draftArticle.article)
-          saveArticle(recentArticle)
-          navigate(`/publication/${recentArticle.publication?.id}/article/${recentArticle.id}`)
-          setLoading(false)
-          setIsIndexingUpdateArticle(false)
-          openNotification({
-            message: "Execute transaction confirmed!",
-            autoHideDuration: 5000,
-            variant: "success",
-            detailsLink: transactionUrl,
-          })
-          return
-        }
-      }
-    }
-  }, [
-    loading,
-    navigate,
-    data,
-    draftArticle,
-    saveArticle,
-    type,
-    article,
-    setMarkdownArticle,
-    openNotification,
-    transactionUrl,
-    setIsIndexingCreateArticle,
-    setIsIndexingUpdateArticle,
-  ])
+  }, [navigate, newArticleId, newArticleTransaction, publication, updateArticleId, updateTransaction])
 
   const generateButtonLabel = (): string => {
-    if (isIndexingCreateArticle) {
+    if (createArticleIndexing) {
       return "Indexing..."
     }
-    if (isIndexingUpdateArticle) {
+    if (updateArticleIndexing) {
       return "Indexing..."
     }
     if (type === "new") {
@@ -259,6 +208,18 @@ export const PreviewPostView: React.FC = () => {
                 fontFamily={typography.fontFamilies.sans}
                 sx={{ mb: 1, mt: 0 }}
               >
+                Author(s):
+              </Typography>
+              <CreatableSelect placeholder="Add an author..." onSelected={handleAuthors} value={authors} />
+            </Grid>
+            <Grid item>
+              <Typography
+                color={palette.grays[1000]}
+                variant="h6"
+                fontSize={18}
+                fontFamily={typography.fontFamilies.sans}
+                sx={{ mb: 1, mt: 0 }}
+              >
                 Description
               </Typography>
               <Controller
@@ -285,18 +246,12 @@ export const PreviewPostView: React.FC = () => {
               >
                 Add up to 5 tags so your readers know what this post is about:
               </Typography>
-              <TextField
-                value={tag}
-                onChange={({ target }) => setTag(target.value)}
-                sx={{ width: "100%" }}
-                placeholder="Add a tag..."
-                onKeyPress={handleTagKeyEvent}
+              <CreatableSelect
+                placeholder="Add up to 5 tags for your article..."
+                onSelected={handleTags}
+                value={tags}
+                errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
               />
-              <Grid container gap={1} mt={1}>
-                {tags.map((name, index) => (
-                  <Chip label={name} size="small" key={index} onDelete={() => handleDeleteTag(index)} />
-                ))}
-              </Grid>
             </Grid>
 
             {!pinning && (
@@ -307,14 +262,19 @@ export const PreviewPostView: React.FC = () => {
 
             <Grid item xs={12}>
               <Grid container justifyContent={"space-between"}>
-                <Button variant="outlined" size="large" onClick={() => navigate(-2)}>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={() => navigate(-2)}
+                  disabled={loading || updateArticleIndexing || createArticleIndexing}
+                >
                   Cancel
                 </Button>
                 <Button
                   variant="contained"
                   size="large"
                   type="submit"
-                  disabled={loading || isIndexingCreateArticle || isIndexingUpdateArticle}
+                  disabled={loading || updateArticleIndexing || createArticleIndexing}
                 >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                   {generateButtonLabel()}

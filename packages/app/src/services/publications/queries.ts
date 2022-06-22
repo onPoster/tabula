@@ -71,7 +71,7 @@ export const GET_ARTICLE_QUERY = gql`
 `
 
 export const GET_ARTICLES_QUERY = gql`
-  query getArticle {
+  query getArticles {
     articles {
       ${ARTICLE_CONTENT}
     }
