@@ -48,13 +48,14 @@ export const useFiles = () => {
             autoHideDuration: 5000,
           })
         })
-        .catch((error) => {
-          console.error(error)
-          openNotification({
-            message: `Pinning of ${name} failed. [Hash: ${path}]`,
-            variant: "error",
-            autoHideDuration: 5000,
-          })
+        .catch(({ response }) => {
+          if (response.data.error.reason !== "DUPLICATE_OBJECT") {
+            openNotification({
+              message: `Pinning of ${name} failed. [Hash: ${path}]`,
+              variant: "error",
+              autoHideDuration: 5000,
+            })
+          }
         })
     }
   }

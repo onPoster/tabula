@@ -37,6 +37,7 @@ export const WalletView: React.FC = () => {
   const navigate = useNavigate()
   const { currentPath } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
   const { activate, active } = useWeb3React()
   const search = useLocation().search
   const publicationChainId = new URLSearchParams(search).get("publicationChainId")
@@ -82,6 +83,9 @@ export const WalletView: React.FC = () => {
         setShowModal(true)
       }
     })
+    if (!walletAutoConnect) {
+      setWalletAutoConnect(true)
+    }
   }
   return (
     <Grid container justifyContent={"center"} alignItems={"center"} height={"100vh"} gap={24} flexDirection={"column"}>

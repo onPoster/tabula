@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from "react"
-import {
-  Button,
-  Chip,
-  Divider,
-  Grid,
-  styled,
-  TextField,
-  Typography,
-  CircularProgress,
-  FormHelperText,
-} from "@mui/material"
+import { Button, Divider, Grid, styled, TextField, Typography, CircularProgress, FormHelperText } from "@mui/material"
 import Page from "../../layout/Page"
 import { palette, typography } from "../../../theme"
 import PublicationAvatar from "../../commons/PublicationAvatar"
 import PublicationItem from "../../commons/PublicationItem"
-import { remove } from "lodash"
 import { useFiles } from "../../../hooks/useFiles"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -30,6 +19,8 @@ import { maxBy } from "lodash"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { usePosterContext } from "../../../services/poster/context"
 import { useNotification } from "../../../hooks/useNotification"
+import { CreatableSelect } from "../../commons/CreatableSelect"
+import { CreateSelectOption } from "../../../models/dropdown"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -92,7 +83,6 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const { savePublications } = usePublicationContext()
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
-  const [tag, setTag] = useState<string>("")
   const [publicationImg, setPublicationImg] = useState<File>()
   const { uploadFile, ipfs } = useFiles()
   const {
@@ -202,22 +192,13 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
     }
   }
 
-  const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
-    if (ev.key === "Enter") {
-      const currentTags = [...tags]
-      currentTags.push(tag)
-      setTags(currentTags)
-      setTag("")
-      ev.preventDefault()
+  const handleTags = (items: CreateSelectOption[]) => {
+    if (items.length) {
+      const newTags = items.map((item) => item.value)
+      setTags(newTags)
+    } else {
+      setTags([])
     }
-  }
-
-  const handleDeleteTag = (index: number) => {
-    const currentTags = [...tags]
-    remove(currentTags, (tag: string) => {
-      return tag === currentTags[index]
-    })
-    setTags(currentTags)
   }
 
   return (
@@ -237,7 +218,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
                 {publicationsToShow.map((publication) => (
                   <PublicationItem
                     publication={publication}
-                    key={publication.title}
+                    key={publication.id}
                     onClick={() => navigate(`/publication/${publication.id}`)}
                   />
                 ))}
@@ -289,24 +270,15 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
                   render={({ field }) => <TextField {...field} placeholder="Tagline" />}
                 />
 
-                <TextField
-                  value={tag}
-                  onChange={({ target }) => setTag(target.value)}
+                <CreatableSelect
                   placeholder="Add up to 5 tags for your publication..."
-                  onKeyPress={handleTagKeyEvent}
+                  onSelected={handleTags}
+                  errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
                 />
               </Grid>
             </Grid>
           </Grid>
-          <Grid container justifyContent={"flex-end"}>
-            <Grid item xs={12} md={8}>
-              <Grid container gap={1} my={2}>
-                {tags.map((name, index) => (
-                  <Chip label={name} size="small" key={index} onDelete={() => handleDeleteTag(index)} />
-                ))}
-              </Grid>
-            </Grid>
-          </Grid>
+
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
             <PublishButton variant="contained" type="submit" disabled={loading || isIndexingPublication}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}

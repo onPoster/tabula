@@ -1,5 +1,5 @@
-import { Box, Button, Chip, CircularProgress, FormHelperText, Grid, TextField, Typography } from "@mui/material"
-import { findIndex, remove } from "lodash"
+import { Box, Button, CircularProgress, FormHelperText, Grid, TextField, Typography } from "@mui/material"
+import { findIndex } from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
@@ -13,6 +13,8 @@ import usePublications from "../../../../services/publications/hooks/usePublicat
 import { useNavigate } from "react-router-dom"
 import { usePosterContext } from "../../../../services/poster/context"
 import { useNotification } from "../../../../hooks/useNotification"
+import { CreatableSelect } from "../../../commons/CreatableSelect"
+import { CreateSelectOption } from "../../../../models/dropdown"
 
 type Post = {
   title: string
@@ -35,7 +37,6 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const navigate = useNavigate()
   const openNotification = useNotification()
   const [tags, setTags] = useState<string[]>([])
-  const [tag, setTag] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const [lastUpdate, setLastUpdate] = useState<number | undefined>(undefined)
@@ -149,24 +150,6 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     transactionUrl,
   ])
 
-  const handleTagKeyEvent = (ev: React.KeyboardEvent<HTMLDivElement>) => {
-    if (ev.key === "Enter") {
-      const currentTags = [...tags]
-      currentTags.push(tag)
-      setTags(currentTags)
-      setTag("")
-      ev.preventDefault()
-    }
-  }
-
-  const handleDeleteTag = (index: number) => {
-    const currentTags = [...tags]
-    remove(currentTags, (tag: string) => {
-      return tag === currentTags[index]
-    })
-    setTags(currentTags)
-  }
-
   const onSubmitHandler = (data: Post) => {
     handlePublicationUpdate(data)
   }
@@ -219,6 +202,15 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     }
   }
 
+  const handleTags = (items: CreateSelectOption[]) => {
+    if (items.length) {
+      const newTags = items.map((item) => item.value)
+      setTags(newTags)
+    } else {
+      setTags([])
+    }
+  }
+
   return (
     <Box>
       <Typography color={palette.grays[1000]} variant="h5" fontFamily={typography.fontFamilies.sans} mt={4} mb={3}>
@@ -252,20 +244,12 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
             />
           </Grid>
           <Grid item>
-            <TextField
-              value={tag}
-              sx={{ width: "100%" }}
-              onChange={({ target }) => setTag(target.value)}
+            <CreatableSelect
               placeholder="Add up to 5 tags for your publication..."
-              onKeyPress={handleTagKeyEvent}
+              onSelected={handleTags}
+              value={tags}
+              errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
             />
-          </Grid>
-          <Grid item>
-            <Grid container gap={1}>
-              {tags.map((name, index) => (
-                <Chip label={name} size="small" key={index} onDelete={() => handleDeleteTag(index)} />
-              ))}
-            </Grid>
           </Grid>
           <Grid item>
             <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
