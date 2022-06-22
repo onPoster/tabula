@@ -10,11 +10,9 @@ import moment from "moment"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { useNavigate } from "react-router-dom"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import { usePosterContext } from "../../services/poster/context"
 import usePoster from "../../services/poster/hooks/usePoster"
 import usePublication from "../../services/publications/hooks/usePublication"
-import { find } from "lodash"
-import { useNotification } from "../../hooks/useNotification"
+
 
 const PostItemContainer = styled(Box)({
   minHeight: "105px",
@@ -52,55 +50,23 @@ type PostItemProps = {
 }
 const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }) => {
   const navigate = useNavigate()
-  const openNotification = useNotification()
-  const { saveArticle, savePublication } = usePublicationContext()
-  const { setIsIndexingDeleteArticle, isIndexingDeleteArticle, transactionUrl } = usePosterContext()
+  const { saveArticle } = usePublicationContext()
   const { deleteArticle } = usePoster()
   const { description, image, title, tags, lastUpdated, id, publication } = article
-  const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
+  const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } = usePublication(
+    publication?.id || "",
+  )
   const articleTitle = shortTitle(title, 30)
   const articleDescription = description && shortTitle(description, 165)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
   const publicationId = article.publication?.id
   const [loading, setLoading] = useState<boolean>(false)
 
-  //Execute poll interval to know the latest permission indexed
   useEffect(() => {
-    if (loading) {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
+    if (transactionCompleted) {
+      navigate(-1)
     }
-  }, [refetch, loading])
-
-  //Check is the transaction is already indexed
-  useEffect(() => {
-    if (loading && publicationRefetch?.articles && article) {
-      const articleDeleted = find(publicationRefetch.articles, { id: article.id })
-      if (!articleDeleted) {
-        setLoading(false)
-        setIsIndexingDeleteArticle(false)
-        savePublication(publicationRefetch)
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: transactionUrl,
-        })
-        navigate(-1)
-      }
-    }
-  }, [
-    article,
-    loading,
-    navigate,
-    openNotification,
-    publicationRefetch,
-    savePublication,
-    setIsIndexingDeleteArticle,
-    transactionUrl,
-  ])
+  }, [navigate, transactionCompleted])
 
   const handleDeleteArticle = async () => {
     if (article && article.id && couldDelete) {
@@ -109,9 +75,11 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
         action: "article/delete",
         id: article.id,
       }).then((res) => {
+        setCurrentArticleId(article.id)
+        setExecutePollInterval(true)
         if (res && res.error) {
           setLoading(false)
-          setIsIndexingDeleteArticle(false)
+          setExecutePollInterval(false)
         }
       })
     }
@@ -165,6 +133,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                   variant="contained"
                   size="small"
                   startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
+                  disabled={loading || indexing}
                 >
                   Edit Post
                 </PostItemEditButton>
@@ -176,11 +145,11 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                   onClick={handleDeleteArticle}
                   variant="contained"
                   size="small"
-                  disabled={loading || isIndexingDeleteArticle}
+                  disabled={loading || indexing}
                   startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
                 >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {isIndexingDeleteArticle ? "Indexing..." : "Delete Post"}
+                  {indexing ? "Indexing..." : "Delete Post"}
                 </PostItemEditButton>
               </Box>
             )}
@@ -192,6 +161,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
           color="primary"
           size="small"
           endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
+          disabled={loading || indexing}
           onClick={() => {
             navigate(`/publication/${publicationId}/article/${id}`)
             saveArticle(article)
