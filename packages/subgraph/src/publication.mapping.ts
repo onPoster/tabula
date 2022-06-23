@@ -112,6 +112,12 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permission = new Permission(permissionId)
       permission.address = account
       permission.publication = publicationId
+      permission.articleCreate = false
+      permission.articleDelete = false
+      permission.articleUpdate = false
+      permission.publicationDelete = false
+      permission.publicationPermissions = false
+      permission.publicationUpdate = false
     }
 
     if (newPermissions == null) {
