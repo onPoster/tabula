@@ -42,7 +42,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     publication.image = jsonToString(content.get("image"))
     publication.tags = jsonToArrayString(content.get("tags"))
     publication.articles = []
-    publication.permissions = []
+    publication.permissions = [permissionId]
     publication.createdOn = event.block.timestamp
     publication.lastUpdated = event.block.timestamp
     publication.save()
@@ -90,20 +90,16 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       log.error("Puclication: Publication does not exist.", [publicationId])
     } else {
       const articles = publication.articles
-      if (articles != null) {
-        articles.forEach((article) => {
-          log.info("Publication: Deleting Article: ", [article])
-          store.remove(ARTICLE_ENTITY_TYPE, article)
-        })
-      }
+      articles.forEach((article) => {
+        log.info("Publication: Deleting Article: ", [article])
+        store.remove(ARTICLE_ENTITY_TYPE, article)
+      })
 
       const permissions = publication.permissions
-      if (permissions != null) {
-        permissions.forEach((permission) => {
-          log.info("Publication: Deleting Permission: ", [permission])
-          store.remove(PERMISSION_ENTITY_TYPE, permission)
-        })
-      }
+      permissions.forEach((permission) => {
+        log.info("Publication: Deleting Permission: ", [permission])
+        store.remove(PERMISSION_ENTITY_TYPE, permission)
+      })
 
       log.info("Deleting Publication: ", [publicationId])
       store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
