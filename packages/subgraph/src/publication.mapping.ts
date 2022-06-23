@@ -42,6 +42,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     publication.image = jsonToString(content.get("image"))
     publication.tags = jsonToArrayString(content.get("tags"))
     publication.articles = []
+    publication.permissions = []
     publication.createdOn = event.block.timestamp
     publication.lastUpdated = event.block.timestamp
     publication.save()
@@ -143,17 +144,32 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permission.publicationPermissions = publicationPermissions.toBool()
     }
 
+    const publication = Publication.load(publicationId)
     if (
-      articleCreate ||
-      articleUpdate ||
-      articleDelete ||
-      publicationUpdate ||
-      publicationDelete ||
-      publicationPermissions
+      permission.articleCreate ||
+      permission.articleUpdate ||
+      permission.articleDelete ||
+      permission.publicationUpdate ||
+      permission.publicationDelete ||
+      permission.publicationPermissions
     ) {
       permission.save()
+      if (publication) {
+        let permissions = publication.permissions
+        permissions.push(permissionId)
+        publication.permissions = permissions
+        publication.save()
+      }
     } else {
-      log.info("Deleting permissions: ", [permissionId])
+      if (publication) {
+        const index = publication.permissions.indexOf(permissionId)
+        if (index) {
+          let permissions = publication.permissions
+          permissions.splice(index)
+          publication.permissions = permissions
+          publication.save()
+        }
+      }
       store.remove(PERMISSION_ENTITY_TYPE, permissionId)
     }
   }
