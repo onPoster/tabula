@@ -119,7 +119,7 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       const index = publication.articles.indexOf(articleId)
       if (index) {
         let articles = publication.articles
-        articles.splice(index)
+        articles.splice(index, 1)
         publication.articles = articles
         publication.save()
       }

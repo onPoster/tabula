@@ -103,6 +103,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
   }
   if (subAction == SUB_ACTION__PERMISSIONS) {
     const publicationId = jsonToString(content.get("id"))
+    const publication = Publication.load(publicationId)
     const account = Address.fromString(jsonToString(content.get("account")))
     const newPermissions = content.get("permissions")
 
@@ -118,6 +119,13 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permission.publicationDelete = false
       permission.publicationPermissions = false
       permission.publicationUpdate = false
+    }
+
+    if (publication) {
+      let permissions = publication.permissions
+      permissions.push(permissionId)
+      publication.permissions = permissions
+      publication.save()
     }
 
     if (newPermissions == null) {
@@ -150,7 +158,6 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permission.publicationPermissions = publicationPermissions.toBool()
     }
 
-    const publication = Publication.load(publicationId)
     if (
       permission.articleCreate ||
       permission.articleUpdate ||
@@ -160,23 +167,18 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permission.publicationPermissions
     ) {
       permission.save()
-      if (publication) {
-        let permissions = publication.permissions
-        permissions.push(permissionId)
-        publication.permissions = permissions
-        publication.save()
-      }
     } else {
       if (publication) {
+        store.remove(PERMISSION_ENTITY_TYPE, permissionId)
+
         const index = publication.permissions.indexOf(permissionId)
         if (index) {
           let permissions = publication.permissions
-          permissions.splice(index)
+          permissions.splice(index, 1)
           publication.permissions = permissions
           publication.save()
         }
       }
-      store.remove(PERMISSION_ENTITY_TYPE, permissionId)
     }
   }
 }
