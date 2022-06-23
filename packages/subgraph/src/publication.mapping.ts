@@ -116,71 +116,66 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     const account = Address.fromString(jsonToString(content.get("account")))
     const newPermissions = content.get("permissions")
 
-    const permissionId = getPermissionId(publicationId, account)
-    let permission = Permission.load(permissionId)
-    if (!permission) {
-      permission = new Permission(permissionId)
-      permission.address = account
-      permission.publication = publicationId
-      permission.articleCreate = false
-      permission.articleDelete = false
-      permission.articleUpdate = false
-      permission.publicationDelete = false
-      permission.publicationPermissions = false
-      permission.publicationUpdate = false
-    }
-
     if (publication) {
-      let permissions = publication.permissions
-      permissions.push(permissionId)
-      publication.permissions = permissions
-      publication.save()
-    } else {
-      log.warning("Permission: Publication does not exist", [publicationId])
-      return
-    }
+      const permissionId = getPermissionId(publicationId, account)
+      let permission = Permission.load(permissionId)
+      if (!permission) {
+        permission = new Permission(permissionId)
+        permission.address = account
+        permission.publication = publicationId
+        permission.articleCreate = false
+        permission.articleDelete = false
+        permission.articleUpdate = false
+        permission.publicationDelete = false
+        permission.publicationPermissions = false
+        permission.publicationUpdate = false
+      }
 
-    if (newPermissions == null) {
-      log.warning("No new permissions to set.", [publicationId, account.toHex()])
-      return
-    }
-    // update permissions
-    const articleCreate = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__CREATE)
-    if (articleCreate != null && articleCreate.kind == JSONValueKind.BOOL) {
-      permission.articleCreate = articleCreate.toBool()
-    }
-    const articleUpdate = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__UPDATE)
-    if (articleUpdate != null && articleUpdate.kind == JSONValueKind.BOOL) {
-      permission.articleUpdate = articleUpdate.toBool()
-    }
-    const articleDelete = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__DELETE)
-    if (articleDelete != null && articleDelete.kind == JSONValueKind.BOOL) {
-      permission.articleDelete = articleDelete.toBool()
-    }
-    const publicationUpdate = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__UPDATE)
-    if (publicationUpdate != null && publicationUpdate.kind == JSONValueKind.BOOL) {
-      permission.publicationUpdate = publicationUpdate.toBool()
-    }
-    const publicationDelete = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__DELETE)
-    if (publicationDelete != null && publicationDelete.kind == JSONValueKind.BOOL) {
-      permission.publicationDelete = publicationDelete.toBool()
-    }
-    const publicationPermissions = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__PERMISSIONS)
-    if (publicationPermissions != null && publicationPermissions.kind == JSONValueKind.BOOL) {
-      permission.publicationPermissions = publicationPermissions.toBool()
-    }
+      if (newPermissions == null) {
+        log.warning("No new permissions to set.", [publicationId, account.toHex()])
+        return
+      }
+      // update permissions
+      const articleCreate = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__CREATE)
+      if (articleCreate != null && articleCreate.kind == JSONValueKind.BOOL) {
+        permission.articleCreate = articleCreate.toBool()
+      }
+      const articleUpdate = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__UPDATE)
+      if (articleUpdate != null && articleUpdate.kind == JSONValueKind.BOOL) {
+        permission.articleUpdate = articleUpdate.toBool()
+      }
+      const articleDelete = newPermissions.toObject().get(ACTION__ARTICLE + "/" + SUB_ACTION__DELETE)
+      if (articleDelete != null && articleDelete.kind == JSONValueKind.BOOL) {
+        permission.articleDelete = articleDelete.toBool()
+      }
+      const publicationUpdate = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__UPDATE)
+      if (publicationUpdate != null && publicationUpdate.kind == JSONValueKind.BOOL) {
+        permission.publicationUpdate = publicationUpdate.toBool()
+      }
+      const publicationDelete = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__DELETE)
+      if (publicationDelete != null && publicationDelete.kind == JSONValueKind.BOOL) {
+        permission.publicationDelete = publicationDelete.toBool()
+      }
+      const publicationPermissions = newPermissions.toObject().get(ACTION__PUBLICATION + "/" + SUB_ACTION__PERMISSIONS)
+      if (publicationPermissions != null && publicationPermissions.kind == JSONValueKind.BOOL) {
+        permission.publicationPermissions = publicationPermissions.toBool()
+      }
 
-    if (
-      permission.articleCreate ||
-      permission.articleUpdate ||
-      permission.articleDelete ||
-      permission.publicationUpdate ||
-      permission.publicationDelete ||
-      permission.publicationPermissions
-    ) {
-      permission.save()
-    } else {
-      if (publication) {
+      if (
+        permission.articleCreate ||
+        permission.articleUpdate ||
+        permission.articleDelete ||
+        permission.publicationUpdate ||
+        permission.publicationDelete ||
+        permission.publicationPermissions
+      ) {
+        permission.save()
+
+        let permissions = publication.permissions
+        permissions.push(permissionId)
+        publication.permissions = permissions
+        publication.save()
+      } else {
         store.remove(PERMISSION_ENTITY_TYPE, permissionId)
 
         const index = publication.permissions.indexOf(permissionId)
@@ -191,6 +186,9 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
           publication.save()
         }
       }
+    } else {
+      log.warning("Permission: Publication does not exist", [publicationId])
+      return
     }
   }
 }
