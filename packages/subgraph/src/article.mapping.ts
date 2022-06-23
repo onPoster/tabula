@@ -19,6 +19,12 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
   let publicationId = jsonToString(content.get("publicationId"))
 
   if (subAction == SUB_ACTION__CREATE) {
+    let publication = Publication.load(publicationId)
+    if (publication == null) {
+      log.error("Publication does not exist.", [publicationId])
+      return
+    }
+
     const articleId = getArticleId(event)
     const article = new Article(articleId)
     if (publicationId != "") {

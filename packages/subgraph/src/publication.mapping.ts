@@ -13,6 +13,7 @@ import {
   SUB_ACTION__UPDATE,
 } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
+import { ARTICLE_ENTITY_TYPE } from "../tests/util"
 
 export const getPublicationId = (event: NewPost): string =>
   dataSource.network() + ":P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
@@ -81,7 +82,19 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
   }
   if (subAction == SUB_ACTION__DELETE) {
     const publicationId = jsonToString(content.get("id"))
-    store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
+    const publication = Publication.load(publicationId)
+    if (publication == null) {
+      log.error("Publication does not exist.", [publicationId])
+      return
+    } else {
+      const articles = publication.articles
+      if (articles != null) {
+        articles.forEach((article) => {
+          store.remove(ARTICLE_ENTITY_TYPE, article)
+        })
+      }
+      store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
+    }
   }
   if (subAction == SUB_ACTION__PERMISSIONS) {
     const publicationId = jsonToString(content.get("id"))
