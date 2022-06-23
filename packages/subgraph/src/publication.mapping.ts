@@ -89,14 +89,23 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     if (publication == null) {
       log.error("Puclication: Publication does not exist.", [publicationId])
     } else {
-      const articles = publication.articles
       log.info("Deleting Publication: ", [publicationId])
+      const articles = publication.articles
       if (articles != null) {
         articles.forEach((article) => {
           log.info("Deleting Article: ", [article])
           store.remove(ARTICLE_ENTITY_TYPE, article)
         })
       }
+
+      const permissions = publication.permissions
+      if (permissions != null) {
+        permissions.forEach((permission) => {
+          log.info("Deleting Permissions: ", [permission])
+          store.remove(PERMISSION_ENTITY_TYPE, permission)
+        })
+      }
+
       store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
     }
     return
@@ -126,6 +135,9 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permissions.push(permissionId)
       publication.permissions = permissions
       publication.save()
+    } else {
+      log.warning("Permission: Publication does not exist", [publicationId])
+      return
     }
 
     if (newPermissions == null) {
