@@ -24,9 +24,14 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       log.error("Article: Publication does not exist.", [publicationId])
       return
     }
-
     const articleId = getArticleId(event)
     const article = new Article(articleId)
+
+    let articles = publication.articles
+    articles.push(articleId)
+    publication.articles = articles
+    publication.save()
+
     article.publication = publicationId
     article.poster = event.params.user
     article.article = jsonToString(content.get("article"))
@@ -105,6 +110,19 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
     if (!article) {
       log.info("Trying to delete unknown article", [articleId])
       return
+    }
+
+    const publicationId = article.publication
+    const publication = Publication.load(publicationId)
+
+    if (publication) {
+      const index = publication.articles.indexOf(articleId)
+      if (index) {
+        let articles = publication.articles
+        articles.splice(index)
+        publication.articles = articles
+        publication.save()
+      }
     }
 
     store.remove(ARTICLE_ENTITY_TYPE, articleId)

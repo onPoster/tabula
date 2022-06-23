@@ -13,11 +13,12 @@ import {
   SUB_ACTION__UPDATE,
 } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
-import { ARTICLE_ENTITY_TYPE } from "../tests/util"
 
 export const getPublicationId = (event: NewPost): string =>
   dataSource.network() + ":P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 const PUBLICATION_ENTITY_TYPE = "Publication"
+const ARTICLE_ENTITY_TYPE = "Article"
+const PERMISSION_ENTITY_TYPE = "Permission"
 
 export function handlePublicationAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {
   if (subAction == SUB_ACTION__CREATE) {
@@ -40,6 +41,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     publication.description = jsonToString(content.get("description"))
     publication.image = jsonToString(content.get("image"))
     publication.tags = jsonToArrayString(content.get("tags"))
+    publication.articles = []
     publication.createdOn = event.block.timestamp
     publication.lastUpdated = event.block.timestamp
     publication.save()
@@ -85,16 +87,18 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     const publication = Publication.load(publicationId)
     if (publication == null) {
       log.error("Puclication: Publication does not exist.", [publicationId])
-      return
     } else {
       const articles = publication.articles
+      log.info("Deleting Publication: ", [publicationId])
       if (articles != null) {
         articles.forEach((article) => {
+          log.info("Deleting Article: ", [article])
           store.remove(ARTICLE_ENTITY_TYPE, article)
         })
       }
       store.remove(PUBLICATION_ENTITY_TYPE, publicationId)
     }
+    return
   }
   if (subAction == SUB_ACTION__PERMISSIONS) {
     const publicationId = jsonToString(content.get("id"))
@@ -139,6 +143,18 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       permission.publicationPermissions = publicationPermissions.toBool()
     }
 
-    permission.save()
+    if (
+      articleCreate ||
+      articleUpdate ||
+      articleDelete ||
+      publicationUpdate ||
+      publicationDelete ||
+      publicationPermissions
+    ) {
+      permission.save()
+    } else {
+      log.info("Deleting permissions: ", [permissionId])
+      store.remove(PERMISSION_ENTITY_TYPE, permissionId)
+    }
   }
 }
