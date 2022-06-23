@@ -19,11 +19,20 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
   let publicationId = jsonToString(content.get("publicationId"))
 
   if (subAction == SUB_ACTION__CREATE) {
+    let publication = Publication.load(publicationId)
+    if (publication == null) {
+      log.error("Article: Publication does not exist.", [publicationId])
+      return
+    }
     const articleId = getArticleId(event)
     const article = new Article(articleId)
-    if (publicationId != "") {
-      article.publication = publicationId
-    }
+
+    let articles = publication.articles
+    articles.push(articleId)
+    publication.articles = articles
+    publication.save()
+
+    article.publication = publicationId
     article.poster = event.params.user
     article.article = jsonToString(content.get("article"))
     article.title = jsonToString(content.get("title"))
@@ -33,9 +42,14 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
     article.tags = jsonToArrayString(content.get("tags"))
     article.postedOn = event.block.timestamp
     article.lastUpdated = event.block.timestamp
+    if (article.publication == null) {
+      store.remove(ARTICLE_ENTITY_TYPE, articleId)
+      return
+    }
     article.save()
     return
   }
+
   if (subAction == SUB_ACTION__UPDATE) {
     const articleId = jsonToString(content.get("id"))
     const article = Article.load(articleId)
@@ -43,6 +57,9 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
     if (!article) {
       log.info("Trying to update unknown article", [articleId])
       return
+    }
+    if (article.publication == null) {
+      log.error("Article has no publication", [article.id])
     }
     let hasChanges = false
     const theArticle = jsonToString(content.get("article"))
@@ -78,9 +95,14 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
 
     if (hasChanges) {
       article.lastUpdated = event.block.timestamp
+      if (article.publication == null) {
+        store.remove(ARTICLE_ENTITY_TYPE, articleId)
+        return
+      }
       article.save()
     }
   }
+
   if (subAction == SUB_ACTION__DELETE) {
     const articleId = jsonToString(content.get("id"))
     const article = Article.load(articleId)
@@ -88,6 +110,19 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
     if (!article) {
       log.info("Trying to delete unknown article", [articleId])
       return
+    }
+
+    const publicationId = article.publication
+    const publication = Publication.load(publicationId)
+
+    if (publication) {
+      const index = publication.articles.indexOf(articleId)
+      if (index) {
+        let articles = publication.articles
+        articles.splice(index, 1)
+        publication.articles = articles
+        publication.save()
+      }
     }
 
     store.remove(ARTICLE_ENTITY_TYPE, articleId)
