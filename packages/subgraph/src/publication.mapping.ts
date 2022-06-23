@@ -84,7 +84,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     const publicationId = jsonToString(content.get("id"))
     const publication = Publication.load(publicationId)
     if (publication == null) {
-      log.error("Publication does not exist.", [publicationId])
+      log.error("Puclication: Publication does not exist.", [publicationId])
       return
     } else {
       const articles = publication.articles
