@@ -78,12 +78,22 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       hasChanges = true
     }
     const description = jsonToString(content.get("description"))
-    if (description != "") {
+    if (!description) {
+      if (description == "") {
+        article.description = null
+        hasChanges = true
+      }
+    } else {
       article.description = description
       hasChanges = true
     }
     const image = jsonToString(content.get("image"))
-    if (image != "") {
+    if (!image) {
+      if (image == "") {
+        article.image = null
+        hasChanges = true
+      }
+    } else {
       article.image = image
       hasChanges = true
     }
