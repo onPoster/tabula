@@ -35,7 +35,7 @@ export const CreatePostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
-  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle } =
+  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, saveArticle } =
     usePublicationContext()
   const { indexing, setExecutePollInterval, transactionCompleted, setCurrentArticleId } = usePublication(
     publication?.id || "",
@@ -121,7 +121,11 @@ export const CreatePostView: React.FC = () => {
                     opacity: 0.6,
                   },
                 }}
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  navigate(-1)
+                  saveArticle(undefined)
+                  saveDraftArticle(undefined)
+                }}
               >
                 <ArrowBackIcon color="secondary" />
                 <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>

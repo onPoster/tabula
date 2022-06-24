@@ -42,6 +42,8 @@ const usePublications = () => {
         refetch()
       }, 5000)
       return () => clearInterval(interval)
+    } else {
+      setIndexing(false)
     }
   }, [executePollInterval, refetch])
 
@@ -81,6 +83,7 @@ const usePublications = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
+          preventDuplicate: true
         })
         setRedirect(true)
         savePublications(data)

@@ -18,6 +18,7 @@ const useArticles = () => {
   const [transactionCompleted, setTransactionCompleted] = useState<boolean>(false)
   const [newArticleId, setNewArticleId] = useState<string>()
   const [currentTimestamp, setCurrentTimestamp] = useState<number | undefined>(undefined)
+  const [articleId, setArticleId] = useState<string | undefined>(undefined)
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_ARTICLES_QUERY,
@@ -41,6 +42,8 @@ const useArticles = () => {
         refetch()
       }, 5000)
       return () => clearInterval(interval)
+    } else {
+      setIndexing(false)
     }
   }, [executePollInterval, refetch])
 
@@ -64,6 +67,7 @@ const useArticles = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
+          preventDuplicate: true
         })
         return
       }
@@ -89,8 +93,10 @@ const useArticles = () => {
       })
       if (
         recentArticle &&
+        articleId &&
         recentArticle.lastUpdated &&
         currentTimestamp &&
+        recentArticle.id === articleId &&
         parseInt(recentArticle.lastUpdated) > currentTimestamp
       ) {
         setNewArticleId(recentArticle.id)
@@ -105,6 +111,7 @@ const useArticles = () => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
+          preventDuplicate: true
         })
         return
       }
@@ -120,6 +127,7 @@ const useArticles = () => {
     saveDraftArticle,
     currentTimestamp,
     setMarkdownArticle,
+    articleId,
   ])
 
   //Show toast when transaction is indexing
@@ -146,6 +154,7 @@ const useArticles = () => {
     refetch,
     executeQuery,
     setCurrentTimestamp,
+    setArticleId,
   }
 }
 

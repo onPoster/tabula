@@ -1,22 +1,30 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Button, Grid, Typography } from "@mui/material"
 import { palette, typography } from "../../../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import PostItem from "../../../commons/PostItem"
-import { useNavigate } from "react-router-dom"
-import { usePublicationContext } from "../../../../services/publications/contexts"
+import { useNavigate, useParams } from "react-router-dom"
 import { haveActionPermission } from "../../../../utils/permission"
 import { useWeb3React } from "@web3-react/core"
+import usePublication from "../../../../services/publications/hooks/usePublication"
 
 const PostSection: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
-  const { publication } = usePublicationContext()
-  const articles = publication && publication.articles
-  const permissions = publication && publication.permissions
+  const { publicationId } = useParams<{ publicationId: string }>()
+  const { data, refetch } = usePublication(publicationId ?? "")
+  const articles = data && data.articles
+  const permissions = data && data.permissions
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
   const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
   const havePermissionToDelete = permissions ? haveActionPermission(permissions, "articleDelete", account || "") : false
+
+  useEffect(() => {
+    if (!data && publicationId) {
+      refetch()
+    }
+  }, [refetch, data, publicationId])
+
   return (
     <>
       <Grid container justifyContent="space-between" alignItems={"center"} my={4}>

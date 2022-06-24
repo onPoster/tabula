@@ -4,7 +4,6 @@ import { ExternalLink } from "../components/commons/ExternalLink"
 import { Grid, styled } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
-import { usePosterContext } from "../services/poster/context"
 
 const CloseStyledIcon = styled(CloseIcon)({
   color: "#fff",
@@ -49,15 +48,4 @@ export const useNotification = () => {
   }
 
   return open
-}
-
-export const useShowSuccessNotification = () => {
-  const { transactionUrl } = usePosterContext()
-  const openNotification = useNotification()
-  return openNotification({
-    message: "Execute transaction confirmed!",
-    autoHideDuration: 5000,
-    variant: "success",
-    detailsLink: transactionUrl,
-  })
 }
