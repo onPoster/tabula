@@ -77,14 +77,24 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       article.authors = authors
       hasChanges = true
     }
-    const description = jsonToString(content.get("description"))
-    if (description != "") {
-      article.description = description
+    const descriptionData = content.get("description")
+    const description = jsonToString(descriptionData)
+    if (descriptionData != null) {
+      if (description == "") {
+        article.description = null
+      } else {
+        article.description = description
+      }
       hasChanges = true
     }
-    const image = jsonToString(content.get("image"))
-    if (image != "") {
-      article.image = image
+    const imageData = content.get("image")
+    const image = jsonToString(imageData)
+    if (imageData != null) {
+      if (image == "") {
+        article.image = null
+      } else {
+        article.image = image
+      }
       hasChanges = true
     }
     const tags = jsonToArrayString(content.get("tags"))
