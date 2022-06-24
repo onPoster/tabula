@@ -20,7 +20,7 @@ export function handleNewPost(event: NewPost): void {
   const contentData = json.try_fromString(event.params.content)
   if (contentData.isError) {
     // decode json content, fail gracefully.
-    log.warning("Failed to decode the JSON content", [contentData.value.toString()])
+    log.warning("Failed to decode the JSON content", [])
     return
   }
   const actionType = getActionType(contentData.value)
