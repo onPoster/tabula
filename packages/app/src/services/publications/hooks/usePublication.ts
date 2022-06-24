@@ -45,6 +45,8 @@ const usePublication = (id: string) => {
         refetch()
       }, 5000)
       return () => clearInterval(interval)
+    } else {
+      setIndexing(false)
     }
   }, [executePollInterval, refetch])
 
@@ -61,6 +63,7 @@ const usePublication = (id: string) => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
+          preventDuplicate: true
         })
       }
     }
@@ -86,6 +89,7 @@ const usePublication = (id: string) => {
               autoHideDuration: 5000,
               variant: "success",
               detailsLink: transactionUrl,
+              preventDuplicate: true
             })
           }
           return
@@ -122,6 +126,7 @@ const usePublication = (id: string) => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
+          preventDuplicate: true
         })
       }
     }
@@ -151,6 +156,7 @@ const usePublication = (id: string) => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
+          preventDuplicate: true
         })
       }
     }

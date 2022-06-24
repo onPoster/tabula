@@ -28,7 +28,7 @@ export const PreviewPostView: React.FC = () => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [authors, setAuthors] = useState<string[]>([])
-  const [articleImg, setArticleImg] = useState<File>()
+  const [articleImg, setArticleImg] = useState<File | undefined>(undefined)
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
   const { uploadFile, ipfs } = useFiles()
   const { createArticle, updateArticle } = usePoster()
@@ -43,6 +43,7 @@ export const PreviewPostView: React.FC = () => {
     setExecutePollInterval: updatePoll,
     transactionCompleted: updateTransaction,
     newArticleId: updateArticleId,
+    setArticleId,
     setCurrentTimestamp,
   } = useArticles()
   const [loading, setLoading] = useState<boolean>(false)
@@ -60,9 +61,18 @@ export const PreviewPostView: React.FC = () => {
       const { title, article: draftArticleText } = draftArticle
       let image
       let hashArticle
+      let imageUrl
       if (ipfs && articleImg) {
         image = await uploadFile(articleImg)
+        if (image.path) {
+          imageUrl = image.path
+        }
       }
+
+      if (!articleImg && type === "edit") {
+        imageUrl = undefined
+      }
+
       if (pinning && draftArticleText) {
         hashArticle = await uploadFile(draftArticleText)
       }
@@ -99,12 +109,13 @@ export const PreviewPostView: React.FC = () => {
               article: hashArticle ? hashArticle.path : draftArticleText,
               description,
               tags,
-              image: image ? image?.path : article.image,
+              image: imageUrl,
               authors,
             },
             hashArticle ? true : false,
           ).then((res) => {
             if (article && article.lastUpdated) {
+              setArticleId(article.id)
               setCurrentTimestamp(parseInt(article.lastUpdated))
               updatePoll(true)
             }

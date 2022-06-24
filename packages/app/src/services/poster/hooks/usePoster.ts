@@ -145,6 +145,7 @@ const usePoster = () => {
       title: fields.title,
       article: fields.article,
       id: fields.id,
+      image: "",
     }
     if (fields.description) {
       content.description = fields.description

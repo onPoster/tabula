@@ -46,6 +46,7 @@ export const useFiles = () => {
             message: msg ? msg : "Successfully file pinned!",
             variant: "success",
             autoHideDuration: 5000,
+            preventDuplicate: true,
           })
         })
         .catch(({ response }) => {
@@ -54,6 +55,7 @@ export const useFiles = () => {
               message: `Pinning of ${name} failed. [Hash: ${path}]`,
               variant: "error",
               autoHideDuration: 5000,
+              preventDuplicate: true,
             })
           }
         })

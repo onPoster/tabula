@@ -50,14 +50,3 @@ export const useNotification = () => {
 
   return open
 }
-
-export const useShowSuccessNotification = () => {
-  const { transactionUrl } = usePosterContext()
-  const openNotification = useNotification()
-  return openNotification({
-    message: "Execute transaction confirmed!",
-    autoHideDuration: 5000,
-    variant: "success",
-    detailsLink: transactionUrl,
-  })
-}

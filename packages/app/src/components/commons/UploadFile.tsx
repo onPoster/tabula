@@ -3,7 +3,7 @@ import { Fab, Grid, styled, Typography } from "@mui/material"
 import Box from "@mui/material/Box"
 import { palette } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
-import EditIcon from "@mui/icons-material/Edit"
+import ClearIcon from "@mui/icons-material/Clear"
 
 const UploadFileContainer = styled(Grid)({
   justifyContent: "center",
@@ -16,7 +16,7 @@ const UploadFileContainer = styled(Grid)({
   flexDirection: "column",
   "&:hover": {
     background: palette.grays[200],
-  }
+  },
 })
 
 const UploadContainer = styled(Grid)({
@@ -31,13 +31,14 @@ const UploadEditButton = styled(Fab)({
 
 type UploadFileProps = {
   defaultImage?: string | undefined | null
-  onFileSelected: (file: File) => void
+  onFileSelected: (file: File | undefined) => void
 }
 
 export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSelected }) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
-  const [file, setFile] = useState<File>()
+  const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null>(null)
+  const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage)
 
   useEffect(() => {
     if (file) onFileSelected(file)
@@ -45,6 +46,11 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
 
   const openImagePicker = () => inputFile && inputFile.current?.click()
 
+  const removeImage = () => {
+    setFile(null)
+    setUri(null)
+    setImageHash(null)
+  }
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let reader = new FileReader()
@@ -58,7 +64,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
 
   return (
     <>
-      {!defaultImage && !uri && (
+      {!imageHash && !uri && (
         <UploadFileContainer container gap={1} onClick={openImagePicker}>
           <AddIcon />
           <Typography textAlign="center" color={palette.grays[600]} lineHeight={1.25} maxWidth="50%">
@@ -66,7 +72,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
           </Typography>
         </UploadFileContainer>
       )}
-      {(defaultImage || uri) && (
+      {(imageHash || uri) && (
         <UploadContainer>
           <Box
             component="img"
@@ -76,11 +82,13 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
               objectFit: "cover",
             }}
             alt="Article image"
-            src={uri ? uri : `https://ipfs.infura.io/ipfs/${defaultImage}`}
+            src={uri ? uri : `https://ipfs.infura.io/ipfs/${imageHash}`}
           />
-          <UploadEditButton color="primary" aria-label="edit" onClick={openImagePicker}>
-            <EditIcon />
-          </UploadEditButton>
+          {(imageHash || uri) && (
+            <UploadEditButton color="primary" aria-label="edit" onClick={removeImage}>
+              <ClearIcon />
+            </UploadEditButton>
+          )}
         </UploadContainer>
       )}
       <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />

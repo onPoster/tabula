@@ -42,10 +42,10 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
 
   const handleNavigation = async () => {
-    await refetch()
-    navigate(`/publication/${publication?.id}`)
+    refetch()
     saveDraftArticle(undefined)
     saveArticle(undefined)
+    navigate(`/publication/${publication?.id}`)
   }
 
   return (
