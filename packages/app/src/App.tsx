@@ -22,6 +22,7 @@ import { WalletProvider } from "./connectors/WalletProvider"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
+
   const { chainId: initialChainIdFromProvider } = useWeb3React() // chain id from connected wallet
   const [chainId, setChainId] = useState(initialChainIdFromProvider)
   const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
@@ -33,6 +34,10 @@ const App: React.FC = () => {
   useEffect(() => {
     setCurrentSubgraphClient(subgraphClient(chainId))
   }, [chainId])
+
+  useEffect(() => {
+    setChainId(initialChainIdFromProvider)
+  }, [initialChainIdFromProvider])
 
   return (
     <SnackbarProvider maxSnack={1}>

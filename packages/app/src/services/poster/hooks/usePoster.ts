@@ -1,8 +1,10 @@
 import { TransactionReceipt } from "@ethersproject/providers"
+import { useWeb3React } from "@web3-react/core"
 import { useState } from "react"
 import { useFiles } from "../../../hooks/useFiles"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
+import { checkIsValidChain } from "../../../utils/validation"
 import { usePosterContext } from "../context"
 import { getContract } from "../contracts/contract"
 import {
@@ -29,10 +31,30 @@ const usePoster = () => {
     setIsIndexingGivePermission,
     setTransactionUrl,
   } = usePosterContext()
+  const { chainId } = useWeb3React()
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
+  const isValidChain = chainId && checkIsValidChain(chainId)
+
+  const showChainError = () => {
+    return openNotification({
+      message: "Please switch back to the correct network before initiating the transaction.",
+      variant: "error",
+      autoHideDuration: 5000,
+      preventDuplicate: true,
+    })
+  }
+
+  const showTransactionError = () => {
+    return openNotification({
+      message: "An error has occurred with your transaction!",
+      variant: "error",
+      autoHideDuration: 5000,
+      preventDuplicate: true,
+    })
+  }
 
   const executePublication = async (fields: Publication): Promise<any> => {
     const content: Publication = {
@@ -51,48 +73,49 @@ const usePoster = () => {
     if (fields.image) {
       content.image = fields.image
     }
-
-    if (signer) {
-      setLoading(true)
-      const poster = contract.connect(signer)
-      try {
-        const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
-        const receipt: TransactionReceipt = await tx.wait()
-        content.image && (await pinAction(content.image, `${content.title}-image`))
-        setIsIndexingPublication(true)
-        setTransactionUrl(URL + receipt.transactionHash)
-        setLoading(false)
-      } catch (error: any) {
-        setLoading(false)
-        openNotification({
-          message: "An error has occurred with your transaction!",
-          variant: "error",
-          autoHideDuration: 5000,
-        })
-        return { error: true, message: error.message }
+    if (isValidChain) {
+      if (signer) {
+        setLoading(true)
+        const poster = contract.connect(signer)
+        try {
+          const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
+          const receipt: TransactionReceipt = await tx.wait()
+          content.image && (await pinAction(content.image, `${content.title}-image`))
+          setIsIndexingPublication(true)
+          setTransactionUrl(URL + receipt.transactionHash)
+          setLoading(false)
+        } catch (error: any) {
+          setLoading(false)
+          showTransactionError()
+          return { error: true, message: error.message }
+        }
       }
+    } else {
+      showChainError()
+      return { error: true }
     }
   }
 
   const deletePublication = async (publication: PosterDeletePublication): Promise<any> => {
-    if (signer) {
-      setLoading(true)
-      const poster = contract.connect(signer)
-      try {
-        const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
-        const receipt: TransactionReceipt = await tx.wait()
-        setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexingDeletePublication(true)
-        setLoading(false)
-      } catch (error: any) {
-        setLoading(false)
-        openNotification({
-          message: "An error has occurred with your transaction!",
-          variant: "error",
-          autoHideDuration: 5000,
-        })
-        return { error: true, message: error.message }
+    if (isValidChain) {
+      if (signer) {
+        setLoading(true)
+        const poster = contract.connect(signer)
+        try {
+          const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
+          const receipt: TransactionReceipt = await tx.wait()
+          setTransactionUrl(URL + receipt.transactionHash)
+          setIsIndexingDeletePublication(true)
+          setLoading(false)
+        } catch (error: any) {
+          setLoading(false)
+          showTransactionError()
+          return { error: true, message: error.message }
+        }
       }
+    } else {
+      showChainError()
+      return { error: true }
     }
   }
 
@@ -115,27 +138,27 @@ const usePoster = () => {
     if (fields.authors) {
       content.authors = fields.authors
     }
-
-    if (signer) {
-      setLoading(true)
-      const poster = contract.connect(signer)
-      try {
-        const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
-        const receipt: TransactionReceipt = await tx.wait()
-        setLoading(false)
-        content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
-        pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
-        setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexingCreateArticle(true)
-      } catch (error: any) {
-        setLoading(false)
-        openNotification({
-          message: "An error has occurred with your transaction!",
-          variant: "error",
-          autoHideDuration: 5000,
-        })
-        return { error: true, message: error.message }
+    if (isValidChain) {
+      if (signer) {
+        setLoading(true)
+        const poster = contract.connect(signer)
+        try {
+          const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
+          const receipt: TransactionReceipt = await tx.wait()
+          setLoading(false)
+          content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
+          pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
+          setTransactionUrl(URL + receipt.transactionHash)
+          setIsIndexingCreateArticle(true)
+        } catch (error: any) {
+          setLoading(false)
+          showTransactionError()
+          return { error: true, message: error.message }
+        }
       }
+    } else {
+      showChainError()
+      return { error: true }
     }
   }
 
@@ -145,7 +168,6 @@ const usePoster = () => {
       title: fields.title,
       article: fields.article,
       id: fields.id,
-      image: "",
     }
     if (fields.description) {
       content.description = fields.description
@@ -159,77 +181,83 @@ const usePoster = () => {
     if (fields.authors) {
       content.authors = fields.authors
     }
-
-    if (signer) {
-      setLoading(true)
-      const poster = contract.connect(signer)
-      try {
-        const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
-        const receipt: TransactionReceipt = await tx.wait()
-        setLoading(false)
-        content.image &&
-          (await pinAction(content.image, `Image-${content.title}-${content.lastUpdated}`, "Successfully image pinned"))
-        pin &&
-          (await pinAction(
-            content.article,
-            `Article-${content.title}-${content.lastUpdated}`,
-            "Successfully pinned article",
-          ))
-        setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexingUpdateArticle(true)
-      } catch (error: any) {
-        setLoading(false)
-        openNotification({
-          message: "An error has occurred with your transaction!",
-          variant: "error",
-          autoHideDuration: 5000,
-        })
-        return { error: true, message: error.message }
+    if (isValidChain) {
+      if (signer) {
+        setLoading(true)
+        const poster = contract.connect(signer)
+        try {
+          const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
+          const receipt: TransactionReceipt = await tx.wait()
+          setLoading(false)
+          content.image &&
+            (await pinAction(
+              content.image,
+              `Image-${content.title}-${content.lastUpdated}`,
+              "Successfully image pinned",
+            ))
+          pin &&
+            (await pinAction(
+              content.article,
+              `Article-${content.title}-${content.lastUpdated}`,
+              "Successfully pinned article",
+            ))
+          setTransactionUrl(URL + receipt.transactionHash)
+          setIsIndexingUpdateArticle(true)
+        } catch (error: any) {
+          setLoading(false)
+          showTransactionError()
+          return { error: true, message: error.message }
+        }
       }
+    } else {
+      showChainError()
+      return { error: true }
     }
   }
 
   const deleteArticle = async (content: PosterDeleteArticle): Promise<any> => {
-    if (signer) {
-      setLoading(true)
-      const poster = contract.connect(signer)
-      try {
-        const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
-        const receipt: TransactionReceipt = await tx.wait()
-        setLoading(false)
-        setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexingDeleteArticle(true)
-      } catch (error: any) {
-        setLoading(false)
-        openNotification({
-          message: "An error has occurred with your transaction!",
-          variant: "error",
-          autoHideDuration: 5000,
-        })
-        return { error: true, message: error.message }
+    if (isValidChain) {
+      if (signer) {
+        setLoading(true)
+        const poster = contract.connect(signer)
+        try {
+          const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
+          const receipt: TransactionReceipt = await tx.wait()
+          setLoading(false)
+          setTransactionUrl(URL + receipt.transactionHash)
+          setIsIndexingDeleteArticle(true)
+        } catch (error: any) {
+          setLoading(false)
+          showTransactionError()
+          return { error: true, message: error.message }
+        }
       }
+    } else {
+      showChainError()
+      return { error: true }
     }
   }
 
   const givePermission = async (fields: PosterPermission): Promise<any> => {
-    if (signer) {
-      setLoading(true)
-      const poster = contract.connect(signer)
-      try {
-        const tx = await poster.post(JSON.stringify(fields), PUBLICATION_TAG)
-        const receipt: TransactionReceipt = await tx.wait()
-        setLoading(false)
-        setTransactionUrl(URL + receipt.transactionHash)
-        setIsIndexingGivePermission(true)
-      } catch (error: any) {
-        setLoading(false)
-        openNotification({
-          message: "An error has occurred with your transaction!",
-          variant: "error",
-          autoHideDuration: 5000,
-        })
-        return { error: true, message: error.message }
+    if (isValidChain) {
+      if (signer) {
+        setLoading(true)
+        const poster = contract.connect(signer)
+        try {
+          const tx = await poster.post(JSON.stringify(fields), PUBLICATION_TAG)
+          const receipt: TransactionReceipt = await tx.wait()
+          setLoading(false)
+          setTransactionUrl(URL + receipt.transactionHash)
+          setIsIndexingGivePermission(true)
+        } catch (error: any) {
+          setLoading(false)
+          showTransactionError()
+          return { error: true, message: error.message }
+        }
       }
+    } else {
+      showChainError()
+      return { error: true }
     }
   }
 

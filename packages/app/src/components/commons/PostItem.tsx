@@ -75,6 +75,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
         action: "article/delete",
         id: article.id,
       }).then((res) => {
+        
         setCurrentArticleId(article.id)
         setExecutePollInterval(true)
         if (res && res.error) {

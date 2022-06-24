@@ -4,6 +4,12 @@ export enum SupportedChainId {
   GNOSIS_CHAIN = 100,
 }
 
+export enum SupportedChain {
+  MAINNET = "mainnet",
+  RINKEBY = "rinkeby",
+  GNOSIS_CHAIN = "gnosis_chain",
+}
+
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
   SupportedChainId.RINKEBY,
