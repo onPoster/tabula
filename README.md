@@ -38,7 +38,7 @@ Lets an account update a publication's information. The present properties will 
 
 #### Delete Publication
 
-Lets an account delete a publication. The sender must have `publication/delete` permissions to the referenced publication.
+Lets an account delete a publication, along with all associated articles and permissions. The sender must have `publication/delete` permissions to the referenced publication.
 | Property | Type | Value |
 | ------------------ |:------:| -------- |
 | action* | String | "publication/delete" |
@@ -90,8 +90,8 @@ Lets an account update an article. The present properties will overwrite old pro
 | title | String | Content title |
 | authors | String Array | Author addresses or names |
 | tags | String Array | Relevant content tags |
-| description | String | Content description |
-| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+| description | String | Content description. Providing an empty string (`""`) will set description to `null`. |
+| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string. Providing an empty string (`""`) will set image to `null`. |
 
 #### Delete Article
 
