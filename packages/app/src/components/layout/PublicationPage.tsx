@@ -1,8 +1,9 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Box } from "@mui/material"
 import PublicationHeader from "./PublicationHeader"
 import { Publications } from "../../models/publication"
 import { Helmet } from "react-helmet"
+import { usePosterContext } from "../../services/poster/context"
 
 type Props = {
   publication?: Publications
@@ -10,6 +11,11 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
+  const { clearAllIndexingStates } = usePosterContext()
+
+  useEffect(() => {
+    clearAllIndexingStates()
+  }, [clearAllIndexingStates])
   return (
     <>
       <Helmet>

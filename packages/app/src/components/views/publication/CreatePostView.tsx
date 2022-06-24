@@ -15,7 +15,6 @@ import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
-import { find } from "lodash"
 import isIPFS from "is-ipfs"
 
 const articleSchema = yup.object().shape({
@@ -36,9 +35,11 @@ export const CreatePostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
-  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, savePublication } =
+  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle } =
     usePublicationContext()
-  const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
+  const { indexing, setExecutePollInterval, transactionCompleted, setCurrentArticleId } = usePublication(
+    publication?.id || "",
+  )
   const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
@@ -74,27 +75,12 @@ export const CreatePostView: React.FC = () => {
     }
   }, [type, article, setValue, isValidHash, markdownArticle, getPinnedData, draftArticle])
 
-  //Execute poll interval to know the latest permission indexed
   useEffect(() => {
-    if (loading) {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
+    if (transactionCompleted) {
+      saveDraftArticle(undefined)
+      navigate(-1)
     }
-  }, [refetch, loading])
-
-  //Check is the transaction is already indexed
-  useEffect(() => {
-    if (loading && publicationRefetch?.articles && article) {
-      const articleDeleted = find(publicationRefetch.articles, { id: article.id })
-      if (!articleDeleted) {
-        setLoading(false)
-        savePublication(publicationRefetch)
-        navigate(-1)
-      }
-    }
-  }, [article, loading, navigate, publicationRefetch, savePublication])
+  }, [navigate, saveDraftArticle, transactionCompleted])
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
@@ -104,11 +90,16 @@ export const CreatePostView: React.FC = () => {
   const handleDeleteArticle = async () => {
     if (article && article.id && havePermissionToDelete) {
       setLoading(true)
+      setCurrentArticleId(article.id)
       await deleteArticle({
         action: "article/delete",
         id: article.id,
       }).then((res) => {
-        if (res && res.error) setLoading(false)
+        setExecutePollInterval(true)
+        if (res && res.error) {
+          setExecutePollInterval(false)
+          setLoading(false)
+        }
       })
     }
   }
@@ -121,19 +112,19 @@ export const CreatePostView: React.FC = () => {
             <Grid item>
               <Box
                 gap={2}
-                sx={{ 
+                sx={{
                   alignItems: "center",
                   cursor: "pointer",
                   display: "inline-flex",
                   transition: "opacity 0.25s ease-in-out",
                   "&:hover": {
                     opacity: 0.6,
-                  }
+                  },
                 }}
                 onClick={() => navigate(-1)}
               >
                 <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2" sx={{textDecoration: "underline"}}>
+                <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
                   Back to Publication
                 </Typography>
               </Box>
@@ -187,16 +178,16 @@ export const CreatePostView: React.FC = () => {
                       variant="contained"
                       size="large"
                       onClick={handleDeleteArticle}
-                      disabled={loading}
+                      disabled={loading || indexing}
                       startIcon={<DeleteOutlineIcon />}
                       sx={{ whiteSpace: "nowrap" }}
                     >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                      Delete Post
+                      {indexing ? "Indexing..." : "Delete Post"}
                     </DeletePostButton>
                   )}
                   {havePermissionToUpdate && (
-                    <Button variant="contained" size="large" type="submit">
+                    <Button variant="contained" size="large" type="submit" disabled={loading || indexing}>
                       Update Post
                     </Button>
                   )}

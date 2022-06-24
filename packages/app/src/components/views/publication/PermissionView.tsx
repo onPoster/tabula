@@ -10,18 +10,16 @@ import {
   FormHelperText,
   CircularProgress,
 } from "@mui/material"
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline"
 import { palette, typography } from "../../../theme"
 import CloseIcon from "@mui/icons-material/Close"
 import { useNavigate, useParams } from "react-router-dom"
 import { CustomCheckbox } from "../../commons/Checkbox"
 import { Controller, useForm } from "react-hook-form"
-
 import { ethers } from "ethers"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
-import { find, isEqual } from "lodash"
 import { WalletBadge } from "../../commons/WalletBadge"
 
 type OptionsType = {
@@ -104,10 +102,28 @@ const INITIAL_VALUE = {
 
 export const PermissionView: React.FC = () => {
   const navigate = useNavigate()
+
   const { givePermission } = usePoster()
   const { type } = useParams<{ type: "edit" | "new" }>()
-  const { publication, permission, savePublication } = usePublicationContext()
-  const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
+  const { publication, permission } = usePublicationContext()
+  const {
+    indexing: deleteIndexing,
+    setExecutePollInterval: deleteInterval,
+    transactionCompleted: deleteTransaction,
+    setCurrentUserPermission,
+  } = usePublication(publication?.id || "")
+  const {
+    indexing: newPermissionIndexing,
+    setExecutePollInterval: newPermissionInterval,
+    transactionCompleted: permissionTransaction,
+    setAccountPermission,
+  } = usePublication(publication?.id || "")
+  const {
+    indexing: updateIndexing,
+    setExecutePollInterval: updateInterval,
+    transactionCompleted: updateTransaction,
+    setCurrentUserPermission: updateCurrentUser,
+  } = usePublication(publication?.id || "")
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {
@@ -156,57 +172,15 @@ export const PermissionView: React.FC = () => {
     }
   }, [account, setError, clearErrors])
 
-  //Execute poll interval to know the latest permission indexed
   useEffect(() => {
-    if (loading || deleteLoading) {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
+    if (deleteTransaction || updateTransaction || permissionTransaction) {
+      navigate(-1)
     }
-  }, [refetch, loading, deleteLoading])
-
-  //Check if the new permission is already indexed
-  useEffect(() => {
-    const oldPermissions = publication && publication.permissions
-    const permissions = publicationRefetch?.permissions || []
-    if (type === "new" && permissions && permissions.length > 0 && account && loading) {
-      const oldPermission = find(oldPermissions, { address: account?.toLowerCase() })
-      const isIndexed = find(permissions, { address: account.toLowerCase() })
-      if (isIndexed && !isEqual(oldPermission, isIndexed)) {
-        setLoading(false)
-        savePublication(publicationRefetch)
-        navigate(-1)
-      }
-    }
-  }, [savePublication, type, account, publicationRefetch, navigate, permission, loading, publication])
-
-  //Check if the update or delete permission is already indexed
-  useEffect(() => {
-    const oldPermissions = publication && publication.permissions
-    const permissions = publicationRefetch && publicationRefetch.permissions
-    if (oldPermissions && permissions && oldPermissions.length <= permissions.length) {
-      if (loading || deleteLoading) {
-        const address = permission?.address
-        const oldPermission = find(oldPermissions, { address: address?.toLowerCase() })
-        const indexedPermission = find(permissions, { address: address?.toLowerCase() })
-        if (oldPermission?.id === indexedPermission?.id) {
-          const isIndexed = isEqual(oldPermission, indexedPermission)
-          if (!isIndexed) {
-            setLoading(false)
-            setDeleteLoading(false)
-            savePublication(publicationRefetch)
-            navigate(-1)
-          }
-          return
-        }
-      }
-      return
-    }
-  }, [deleteLoading, loading, navigate, permission, publication, publicationRefetch, savePublication])
+  }, [deleteTransaction, navigate, permissionTransaction, updateTransaction])
 
   const onSubmitHandler = (data: PermissionFormType) => {
     if (type === "new") {
+      setAccountPermission(data.account)
       handlePermission(data, "new")
     }
     if (type === "edit") {
@@ -216,7 +190,9 @@ export const PermissionView: React.FC = () => {
 
   const handlePermission = async (data: PermissionFormType, type: "new" | "edit" | "delete") => {
     if (publication) {
-      if (type === "new" || type === "edit") setLoading(true)
+      if (["new", "edit"].includes(type)) {
+        setLoading(true)
+      }
       await givePermission({
         action: "publication/permissions",
         id: publication.id,
@@ -230,28 +206,46 @@ export const PermissionView: React.FC = () => {
           "publication/permissions": data.publicationPermissions,
         },
       }).then((res) => {
+        if (type === "delete") {
+          deleteInterval(true)
+        }
+        if (type === "new") {
+          newPermissionInterval(true)
+        }
+        if (type === "edit") {
+          updateInterval(true)
+          if (publication && publication.permissions) {
+            updateCurrentUser(publication.permissions)
+          }
+        }
         if (res && res.error) {
           setDeleteLoading(false)
           setLoading(false)
+          deleteInterval(false)
+          updateInterval(false)
+          newPermissionInterval(false)
         }
       })
     }
   }
 
   const handleDeletePermission = () => {
-    setDeleteLoading(true)
-    handlePermission(
-      {
-        articleCreate: false,
-        articleDelete: false,
-        articleUpdate: false,
-        publicationDelete: false,
-        publicationPermissions: false,
-        publicationUpdate: false,
-        account: "",
-      },
-      "delete",
-    )
+    if (publication && publication.permissions) {
+      setDeleteLoading(true)
+      setCurrentUserPermission(publication.permissions)
+      handlePermission(
+        {
+          articleCreate: false,
+          articleDelete: false,
+          articleUpdate: false,
+          publicationDelete: false,
+          publicationPermissions: false,
+          publicationUpdate: false,
+          account: "",
+        },
+        "delete",
+      )
+    }
   }
 
   return (
@@ -285,23 +279,25 @@ export const PermissionView: React.FC = () => {
                 </Grid>
               )}
               {type === "edit" && permission && (
-                <Box sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                  spacing: 1,
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexDirection: "row",
+                    spacing: 1,
+                  }}
+                >
                   <WalletBadge address={permission.address} />
                   <RemoveUserButton
                     variant="contained"
                     size="small"
                     onClick={handleDeletePermission}
-                    disabled={deleteLoading}
-                    startIcon={<RemoveCircleOutlineIcon/>}
-                    sx={{whiteSpace: "nowrap"}}
+                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing || newPermissionIndexing}
+                    startIcon={<RemoveCircleOutlineIcon />}
+                    sx={{ whiteSpace: "nowrap" }}
                   >
                     {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Remove User
+                    {deleteIndexing ? "Indexing..." : "Remove User"}
                   </RemoveUserButton>
                 </Box>
               )}
@@ -338,18 +334,28 @@ export const PermissionView: React.FC = () => {
 
               {type === "new" && (
                 <Grid item display="flex" justifyContent="flex-end">
-                  <Button variant="contained" size="medium" disabled={loading} type="submit">
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing || newPermissionIndexing}
+                    type="submit"
+                  >
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Add Permission
+                    {newPermissionIndexing ? "Indexing..." : "Add Permission"}
                   </Button>
                 </Grid>
               )}
 
               {type === "edit" && (
                 <Grid item display="flex" justifyContent="flex-end">
-                  <Button variant="contained" size="medium" disabled={loading} type="submit">
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing || newPermissionIndexing}
+                    type="submit"
+                  >
                     {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    Update
+                    {updateIndexing ? "Indexing..." : "Update"}
                   </Button>
                 </Grid>
               )}

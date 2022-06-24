@@ -1,5 +1,4 @@
 import { Box, Button, CircularProgress, FormHelperText, Grid, TextField, Typography } from "@mui/material"
-import { findIndex } from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
@@ -36,12 +35,15 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
-  const [lastUpdate, setLastUpdate] = useState<number | undefined>(undefined)
-  const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage, savePublication } =
-    usePublicationContext()
+  const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage } = usePublicationContext()
   const { executePublication, deletePublication } = usePoster()
-  const { data: publicationRefetch, refetch } = usePublication(publication?.id || "")
-  const { data: publications, refetch: publicationsRefetch } = usePublications()
+  const {
+    indexing: updateIndexing,
+    setCurrentTimestamp,
+    setExecutePollInterval: setUpdateInterval,
+    transactionCompleted,
+  } = usePublication(publication?.id || "")
+  const { indexing: deleteIndexing, redirect, setExecutePollInterval, setDeletedPublicationId } = usePublications()
   const { uploadFile, ipfs } = useFiles()
   const {
     control,
@@ -66,49 +68,21 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
       setValue("title", publication.title)
       setValue("description", publication.description || "")
       setTags(publication.tags || [])
-      setLastUpdate(parseInt(publication.lastUpdated))
+      setCurrentTimestamp(parseInt(publication.lastUpdated))
     }
-  }, [loading, publication, setValue])
+  }, [loading, publication, setCurrentTimestamp, setValue])
 
   useEffect(() => {
-    if (publications?.length && publication && deleteLoading) {
-      const currentPublication = findIndex(publications, { id: publication?.id })
-      if (currentPublication === -1) {
-        navigate("/publication/publish")
-        setDeleteLoading(false)
-      }
+    if (redirect) {
+      navigate("/publication/publish")
     }
-  }, [publications, publication, deleteLoading, navigate])
+  }, [navigate, redirect])
 
-  //Execute poll interval to know the latest publications indexed
   useEffect(() => {
-    if (loading) {
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
+    if (transactionCompleted) {
+      setLoading(false)
     }
-  }, [refetch, loading])
-
-  //Execute poll interval to know the latest publications indexed
-  useEffect(() => {
-    if (deleteLoading) {
-      const interval = setInterval(() => {
-        publicationsRefetch()
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [publicationsRefetch, deleteLoading])
-
-  //Method to know recent publication
-  useEffect(() => {
-    if (publicationRefetch && loading && lastUpdate) {
-      if (publicationRefetch.lastUpdated && parseInt(publicationRefetch.lastUpdated) > lastUpdate) {
-        savePublication(publicationRefetch)
-        setLoading(false)
-      }
-    }
-  }, [lastUpdate, loading, publicationRefetch, savePublication])
+  }, [transactionCompleted])
 
   const onSubmitHandler = (data: Post) => {
     handlePublicationUpdate(data)
@@ -133,7 +107,11 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         tags,
         image: image?.path,
       }).then((res) => {
-        if (res && res.error) setLoading(false)
+        setUpdateInterval(true)
+        if (res && res.error) {
+          setUpdateInterval(false)
+          setLoading(false)
+        }
       })
     } else {
       setLoading(false)
@@ -143,11 +121,16 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const handlePublicationDelete = async () => {
     setDeleteLoading(true)
     if (publication && publication.id) {
+      setDeletedPublicationId(publication.id)
       await deletePublication({
         action: "publication/delete",
         id: publication.id,
       }).then((res) => {
-        if (res && res.error) setDeleteLoading(false)
+        setExecutePollInterval(true)
+        if (res && res.error) {
+          setExecutePollInterval(false)
+          setDeleteLoading(false)
+        }
       })
     } else {
       setDeleteLoading(false)
@@ -210,16 +193,21 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                   variant="outlined"
                   size="large"
                   onClick={handlePublicationDelete}
-                  disabled={deleteLoading || loading}
+                  disabled={deleteLoading || loading || deleteIndexing || updateIndexing}
                 >
                   {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  Delete Publication
+                  {deleteIndexing ? "Indexing..." : "Delete Publication"}
                 </Button>
               )}
               {couldEdit && (
-                <Button variant="contained" size="large" type="submit" disabled={loading || deleteLoading}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  type="submit"
+                  disabled={loading || deleteLoading || deleteIndexing || updateIndexing}
+                >
                   {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  Update Publication
+                  {updateIndexing ? "Indexing..." : " Update Publication"}
                 </Button>
               )}
             </Grid>
