@@ -65,7 +65,7 @@ const usePoster = () => {
       } catch (error: any) {
         setLoading(false)
         openNotification({
-          message: "An error has happened with execute transaction!",
+          message: "An error has occurred with your transaction!",
           variant: "error",
           autoHideDuration: 5000,
         })
@@ -87,7 +87,7 @@ const usePoster = () => {
       } catch (error: any) {
         setLoading(false)
         openNotification({
-          message: "An error has happened with execute transaction!",
+          message: "An error has occurred with your transaction!",
           variant: "error",
           autoHideDuration: 5000,
         })
@@ -130,7 +130,7 @@ const usePoster = () => {
       } catch (error: any) {
         setLoading(false)
         openNotification({
-          message: "An error has happened with execute transaction!",
+          message: "An error has occurred with your transaction!",
           variant: "error",
           autoHideDuration: 5000,
         })
@@ -172,14 +172,14 @@ const usePoster = () => {
           (await pinAction(
             content.article,
             `Article-${content.title}-${content.lastUpdated}`,
-            "Successfully article pinned",
+            "Successfully pinned article",
           ))
         setTransactionUrl(URL + receipt.transactionHash)
         setIsIndexingUpdateArticle(true)
       } catch (error: any) {
         setLoading(false)
         openNotification({
-          message: "An error has happened with execute transaction!",
+          message: "An error has occurred with your transaction!",
           variant: "error",
           autoHideDuration: 5000,
         })
@@ -201,7 +201,7 @@ const usePoster = () => {
       } catch (error: any) {
         setLoading(false)
         openNotification({
-          message: "An error has happened with execute transaction!",
+          message: "An error has occurred with your transaction!",
           variant: "error",
           autoHideDuration: 5000,
         })
@@ -223,7 +223,7 @@ const usePoster = () => {
       } catch (error: any) {
         setLoading(false)
         openNotification({
-          message: "An error has happened with execute transaction!",
+          message: "An error has occurred with your transaction!",
           variant: "error",
           autoHideDuration: 5000,
         })

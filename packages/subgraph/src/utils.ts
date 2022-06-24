@@ -98,7 +98,7 @@ export const getActionType = (content: JSONValue): String[] => {
 function hasPublicationPermission(publicationId: string, user: Address, actionType: String[]): bool {
   const publication = Publication.load(publicationId)
   if (!publication) {
-    log.warning("Publication does not exist.", [publicationId])
+    log.warning("Permissions: Publication does not exist.", [publicationId])
     return false
   }
   const permissionId = getPermissionId(publicationId, user)
