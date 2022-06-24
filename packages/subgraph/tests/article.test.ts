@@ -13,12 +13,34 @@ import { handleNewPost } from "../src/mapping"
 import { getPublicationId } from "../src/publication.mapping"
 import { ARTICLE_ENTITY_TYPE, createNewPostEvent, PUBLICATION_ENTITY_TYPE, PUBLICATION_TAG } from "./util"
 
-test("An account can NOTE create an article without specifying the publication.", () => {
+test("An account can NOT create an article without specifying the publication.", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const articleTitle = "My First Blog Post"
   const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
   const articleContent = `{
     "action": "article/create",
+    "article": "${article}",
+    "title": "${articleTitle}"
+  }`
+
+  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(newArticlePostEvent)
+  handleNewPost(newArticlePostEvent)
+
+  assert.notInStore(ARTICLE_ENTITY_TYPE, articleId)
+
+  clearStore()
+})
+
+test("An account can NOT create a article with in an invalid publication", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationId = "invalidId"
+
+  const articleTitle = "My First Blog Post"
+  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+  const articleContent = `{
+    "action": "article/create",
+    "publicationId": "${publicationId}",
     "article": "${article}",
     "title": "${articleTitle}"
   }`
