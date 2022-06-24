@@ -1,5 +1,5 @@
-import React from "react"
-import { Box, Button, Chip, Grid, Stack, Typography } from "@mui/material"
+import React, { useEffect, useState } from "react"
+import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette, typography } from "../../theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
@@ -9,6 +9,10 @@ import { shortTitle } from "../../utils/string"
 import moment from "moment"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { useNavigate } from "react-router-dom"
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
+import usePoster from "../../services/poster/hooks/usePoster"
+import usePublication from "../../services/publications/hooks/usePublication"
+
 
 const PostItemContainer = styled(Box)({
   minHeight: "105px",
@@ -42,26 +46,53 @@ const ThumbnailImage = styled("img")({
 type PostItemProps = {
   article: Article
   couldUpdate: boolean
+  couldDelete: boolean
 }
-const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
+const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }) => {
   const navigate = useNavigate()
   const { saveArticle } = usePublicationContext()
-  const { description, image, title, tags, lastUpdated, id } = article
+  const { deleteArticle } = usePoster()
+  const { description, image, title, tags, lastUpdated, id, publication } = article
+  const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } = usePublication(
+    publication?.id || "",
+  )
   const articleTitle = shortTitle(title, 30)
   const articleDescription = description && shortTitle(description, 165)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
   const publicationId = article.publication?.id
+  const [loading, setLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (transactionCompleted) {
+      navigate(-1)
+    }
+  }, [navigate, transactionCompleted])
+
+  const handleDeleteArticle = async () => {
+    if (article && article.id && couldDelete) {
+      setLoading(true)
+      await deleteArticle({
+        action: "article/delete",
+        id: article.id,
+      }).then((res) => {
+        setCurrentArticleId(article.id)
+        setExecutePollInterval(true)
+        if (res && res.error) {
+          setLoading(false)
+          setExecutePollInterval(false)
+        }
+      })
+    }
+  }
+
   return (
-    <PostItemContainer
-      onClick={() => {
-        navigate(`/publication/${publicationId}/article/${id}`)
-        saveArticle(article)
-      }}
-    >
+    <PostItemContainer>
       <Grid container spacing={2}>
-        <Grid item xs={4}>
-          {image && <ThumbnailImage src={`https://ipfs.infura.io/ipfs/${image}`} />}
-        </Grid>
+        {image && (
+          <Grid item xs={4}>
+            <ThumbnailImage src={`https://ipfs.infura.io/ipfs/${image}`} />
+          </Grid>
+        )}
         <Grid item xs={8}>
           <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
             {articleTitle}
@@ -90,26 +121,51 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate }) => {
 
       <Box alignItems="center" display="flex" justifyContent="space-between">
         <Box>
-          {couldUpdate && (
-            <PostItemEditButton
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate(`/publication/post-action/edit`)
-                saveArticle(article)
-              }}
-              variant="contained"
-              size="small"
-              startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
-            >
-              Edit Post
-            </PostItemEditButton>
-          )}
+          <Grid container gap={2}>
+            {couldUpdate && (
+              <Box>
+                <PostItemEditButton
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigate(`/publication/post-action/edit`)
+                    saveArticle(article)
+                  }}
+                  variant="contained"
+                  size="small"
+                  startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
+                  disabled={loading || indexing}
+                >
+                  Edit Post
+                </PostItemEditButton>
+              </Box>
+            )}
+            {couldDelete && (
+              <Box>
+                <PostItemEditButton
+                  onClick={handleDeleteArticle}
+                  variant="contained"
+                  size="small"
+                  disabled={loading || indexing}
+                  startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
+                >
+                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                  {indexing ? "Indexing..." : "Delete Post"}
+                </PostItemEditButton>
+              </Box>
+            )}
+          </Grid>
         </Box>
+
         <Button
           variant="contained"
           color="primary"
           size="small"
           endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
+          disabled={loading || indexing}
+          onClick={() => {
+            navigate(`/publication/${publicationId}/article/${id}`)
+            saveArticle(article)
+          }}
         >
           Read Post
         </Button>
