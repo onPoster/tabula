@@ -36,11 +36,12 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
-  const isValidChain = chainId && checkIsValidChain(chainId)
+  const isValidChain = chainId && checkIsValidChain(chainId).isValid
+  const properlyNetwork = chainId && checkIsValidChain(chainId).network
 
   const showChainError = () => {
     return openNotification({
-      message: "Please switch back to the correct network before initiating the transaction.",
+      message: `Wrong network. Please switch to ${properlyNetwork}.`,
       variant: "error",
       autoHideDuration: 5000,
       preventDuplicate: true,
