@@ -69,7 +69,27 @@ export const WalletView: React.FC = () => {
           ? parseInt(rawChainIdString, 16)
           : parseInt(rawChainIdString)
         if (parseInt(publicationChainId) !== currentChainId) {
-          setShowModal(true)
+          // we are on the wrong chain
+          const provider = await connector.getProvider()
+          const requiredChainIdHex = `0x${parseInt(publicationChainId).toString(16)}`
+          provider!
+            .request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: requiredChainIdHex }],
+            })
+            .catch((error: any) => {
+              if (error.code === 4902) {
+                // the user's wallet does not have this network
+                // return provider!.request({
+                //   method: "wallet_addEthereumChain",
+                //   params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
+                // })
+                console.log("User's wallet does not have this network")
+              }
+
+              throw error
+            })
+            .then(() => handleConnector(connector))
           return
         }
       } catch (error) {
