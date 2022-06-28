@@ -1,5 +1,7 @@
 import { AbstractConnector } from "@web3-react/abstract-connector"
 
+// This is the place to add support for new networks
+
 export enum SupportedChainId {
   MAINNET = 1,
   RINKEBY = 4,
@@ -37,14 +39,61 @@ export const switchChain = async (connector: AbstractConnector, chainId: number)
     })
     .catch((error: any) => {
       if (error.code === 4902) {
-        // the user's wallet does not have this network
-        // return provider!.request({
-        //   method: "wallet_addEthereumChain",
-        //   params: [{ ...desiredChainIdOrChainParameters, chainId: desiredChainIdHex }],
-        // })
-        console.log("User's wallet does not have this network")
+        // the user's wallet does not have this network, we will request to add it
+        return provider!.request({
+          method: "wallet_addEthereumChain",
+          params: [chainParameters(chainId)],
+        })
       }
 
       throw error
     })
+}
+
+const chainParameters = (chainId: number) => {
+  const requiredChainIdHex = `0x${chainId.toString(16)}`
+  switch (chainId) {
+    case SupportedChainId.MAINNET:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Ethereum Mainnet",
+        rpcUrls: [
+          "https://cloudflare-eth.com",
+          "https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79",
+          "https://main-rpc.linkpool.io/",
+          "https://api.mycryptoapi.com/eth",
+          "https://rpc.ankr.com/eth",
+        ],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://etherscan.io"],
+      }
+    case SupportedChainId.RINKEBY:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Rinkeby Test Network",
+        rpcUrls: ["https://rinkeby.infura.io/v3/"],
+        nativeCurrency: {
+          name: "Rinkeby ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://rinkeby.etherscan.io"],
+      }
+    case SupportedChainId.GNOSIS_CHAIN:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Gnosis Chain",
+        rpcUrls: ["https://rpc.gnosischain.com"],
+        nativeCurrency: {
+          name: "xDai",
+          symbol: "xDai",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://blockscout.com/xdai/mainnet"],
+      }
+  }
 }
