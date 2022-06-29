@@ -24,7 +24,7 @@ export const PreviewPostView: React.FC = () => {
 
   const { account } = useWeb3React()
   const { type } = useParams<{ type: "new" | "edit" }>()
-  const { publication, article, draftArticle } = usePublicationContext()
+  const { publication, article, draftArticle, saveDraftArticle } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [authors, setAuthors] = useState<string[]>([])
@@ -183,6 +183,14 @@ export const PreviewPostView: React.FC = () => {
     }
     return "Publish update now"
   }
+
+  const goToPost = () => navigate(-1)
+
+  const goToPublication = () => {
+    saveDraftArticle(undefined)
+    navigate(-2)
+  }
+
   return (
     <PublicationPage publication={publication} showCreatePost={false}>
       <ViewContainer maxWidth="sm">
@@ -200,11 +208,11 @@ export const PreviewPostView: React.FC = () => {
                     opacity: 0.6,
                   },
                 }}
-                onClick={() => navigate(-1)}
+                onClick={goToPost}
               >
                 <ArrowBackIcon color="secondary" />
                 <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
-                  Back to Publication
+                  Back to Edit Post
                 </Typography>
               </Box>
             </Grid>
@@ -276,7 +284,7 @@ export const PreviewPostView: React.FC = () => {
                 <Button
                   variant="outlined"
                   size="large"
-                  onClick={() => navigate(-2)}
+                  onClick={goToPublication}
                   disabled={loading || updateArticleIndexing || createArticleIndexing}
                 >
                   Cancel

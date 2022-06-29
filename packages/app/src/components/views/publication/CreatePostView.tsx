@@ -104,6 +104,12 @@ export const CreatePostView: React.FC = () => {
     }
   }
 
+  const goToPublication = () => {
+    saveDraftArticle(undefined)
+    saveArticle(undefined)
+    navigate(-1)
+  }
+
   return (
     <PublicationPage publication={publication} showCreatePost={false}>
       <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}>
@@ -121,11 +127,7 @@ export const CreatePostView: React.FC = () => {
                     opacity: 0.6,
                   },
                 }}
-                onClick={() => {
-                  navigate(-1)
-                  saveArticle(undefined)
-                  saveDraftArticle(undefined)
-                }}
+                onClick={goToPublication}
               >
                 <ArrowBackIcon color="secondary" />
                 <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
@@ -165,7 +167,7 @@ export const CreatePostView: React.FC = () => {
             {type === "new" && (
               <Grid item xs={12} mt={1}>
                 <Grid container justifyContent={"space-between"}>
-                  <Button variant="outlined" size="large" onClick={() => navigate(-1)}>
+                  <Button variant="outlined" size="large" onClick={goToPublication}>
                     Cancel
                   </Button>
                   <Button variant="contained" size="large" type="submit">
