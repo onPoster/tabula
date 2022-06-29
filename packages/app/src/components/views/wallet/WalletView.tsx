@@ -1,4 +1,4 @@
-import { Box, Grid, Modal, styled, Typography } from "@mui/material"
+import { Box, Grid, Link, Modal, styled, Typography } from "@mui/material"
 import React, { useEffect, useRef, useState } from "react"
 import { palette, typography } from "../../../theme"
 import CloseIcon from "@mui/icons-material/Close"
@@ -11,7 +11,7 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { ViewContainer } from "../../commons/ViewContainer"
-import { ALL_SUPPORTED_CHAIN_IDS, chainToString } from "../../../constants/chain"
+import { ALL_SUPPORTED_CHAIN_IDS, chainToString, switchChain } from "../../../constants/chain"
 import WarningAmberIcon from "@mui/icons-material/WarningAmber"
 
 const AFTER_CONNECT_SCREEN = "/publication/publish"
@@ -30,7 +30,6 @@ const ModalContainer = styled(ViewContainer)({
 const ModalContentContainer = styled(Box)({
   background: palette.secondary[200],
   borderRadius: 4,
-  cursor: "pointer",
   padding: 24,
 })
 export const WalletView: React.FC = () => {
@@ -40,8 +39,10 @@ export const WalletView: React.FC = () => {
   const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
   const { activate, active } = useWeb3React()
   const search = useLocation().search
-  const publicationChainId = new URLSearchParams(search).get("publicationChainId")
+  const publicationChainIdRaw = new URLSearchParams(search).get("publicationChainId")
+  const publicationChainId: number | null = publicationChainIdRaw != null ? parseInt(publicationChainIdRaw) : null
   const [showModal, setShowModal] = useState<boolean>(false)
+  const [connector, setConnector] = useState<AbstractConnector | null>(null)
   const ref = useRef(null)
 
   useEffect(() => {
@@ -62,14 +63,18 @@ export const WalletView: React.FC = () => {
   }, [active, currentPath, navigate, pinning])
 
   const handleConnector = async (connector: AbstractConnector) => {
+    setConnector(connector)
     if (publicationChainId != null) {
+      // we are in a publication
       try {
         const rawChainIdString = (await connector.getChainId()).toString()
         const currentChainId = rawChainIdString.startsWith("0x")
           ? parseInt(rawChainIdString, 16)
           : parseInt(rawChainIdString)
-        if (parseInt(publicationChainId) !== currentChainId) {
-          setShowModal(true)
+
+        if (publicationChainId !== currentChainId) {
+          // we are on the wrong chain
+          await switchChain(connector, publicationChainId).then(() => handleConnector(connector))
           return
         }
       } catch (error) {
@@ -135,16 +140,24 @@ export const WalletView: React.FC = () => {
                 <Typography variant="body1" fontWeight={700} color={palette.secondary[1000]}>
                   {publicationChainId != null ? (
                     <Typography>
-                      This publication is on {chainToString(Number(publicationChainId))}. Please change your wallet to
-                      that network.
+                      This publication is on {chainToString(publicationChainId)}. Please change your wallet to that
+                      network.
                     </Typography>
                   ) : (
                     <Grid item>
                       <Typography>Please, change to one of the supported networks:</Typography>
                       <Grid container flexDirection="column" gap={1}>
                         {ALL_SUPPORTED_CHAIN_IDS.map((chainId) => (
-                          <Grid item key={chainId}>
-                            <Typography>{chainToString(Number(chainId))}</Typography>
+                          <Grid
+                            item
+                            key={chainId}
+                            onClick={() =>
+                              connector != null &&
+                              switchChain(connector, chainId).then(() => handleConnector(connector))
+                            }
+                            style={{ cursor: "pointer" }}
+                          >
+                            <Link>{chainToString(Number(chainId))}</Link>
                           </Grid>
                         ))}
                       </Grid>
