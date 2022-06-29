@@ -17,6 +17,7 @@ import { ViewContainer } from "../../commons/ViewContainer"
 import usePublications from "../../../services/publications/hooks/usePublications"
 import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
+import { usePosterContext } from "../../../services/poster/context"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -72,6 +73,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
+  const { setLastPathWithChainName } = usePosterContext()
   const [loading, setLoading] = useState<boolean>(false)
   const {
     data: publications,
@@ -93,6 +95,10 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   } = useForm({
     resolver: yupResolver(publicationSchema),
   })
+
+  useEffect(() => {
+    setLastPathWithChainName(undefined)
+  }, [setLastPathWithChainName])
 
   useEffect(() => {
     if (chainId != null) {

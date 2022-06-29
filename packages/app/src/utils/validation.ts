@@ -1,8 +1,9 @@
 import { SupportedChain, SupportedChainId } from "../constants/chain"
 
-export const checkIsValidChain = (currentChain: number): { network: string; isValid: boolean } => {
-  const path = window.location.hash
-
+export const checkIsValidChain = (currentChain: number, url?: string): { network: string; isValid: boolean } => {
+  console.log("url", url)
+  console.log("currentChain", currentChain)
+  const path = url ? url : window.location.hash
   const isMainnet = path.includes(SupportedChain.MAINNET)
   const isRinkeby = path.includes(SupportedChain.RINKEBY)
   const isGnosis = path.includes(SupportedChain.GNOSIS_CHAIN)
@@ -30,6 +31,6 @@ export const checkIsValidChain = (currentChain: number): { network: string; isVa
   if (isGnosis && currentChain !== SupportedChainId.GNOSIS_CHAIN) {
     return { network: "gnosis chain", isValid: false }
   }
-  
-  return { network: "", isValid: false }
+
+  return { network: "", isValid: true }
 }

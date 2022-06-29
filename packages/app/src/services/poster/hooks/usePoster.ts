@@ -22,22 +22,14 @@ const URL = "https://rinkeby.etherscan.io/tx/"
 
 const usePoster = () => {
   const openNotification = useNotification()
-  const {
-    setIsIndexingPublication,
-    setIsIndexingDeletePublication,
-    setIsIndexingCreateArticle,
-    setIsIndexingUpdateArticle,
-    setIsIndexingDeleteArticle,
-    setIsIndexingGivePermission,
-    setTransactionUrl,
-  } = usePosterContext()
+  const { setTransactionUrl, lastPathWithChainName } = usePosterContext()
   const { chainId } = useWeb3React()
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
-  const isValidChain = chainId && checkIsValidChain(chainId).isValid
-  const properlyNetwork = chainId && checkIsValidChain(chainId).network
+  const isValidChain = chainId && checkIsValidChain(chainId, lastPathWithChainName).isValid
+  const properlyNetwork = chainId && checkIsValidChain(chainId, lastPathWithChainName).network
 
   const showChainError = () => {
     return openNotification({
@@ -82,7 +74,7 @@ const usePoster = () => {
           const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
           const receipt: TransactionReceipt = await tx.wait()
           content.image && (await pinAction(content.image, `${content.title}-image`))
-          setIsIndexingPublication(true)
+
           setTransactionUrl(URL + receipt.transactionHash)
           setLoading(false)
         } catch (error: any) {
@@ -106,7 +98,7 @@ const usePoster = () => {
           const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
           const receipt: TransactionReceipt = await tx.wait()
           setTransactionUrl(URL + receipt.transactionHash)
-          setIsIndexingDeletePublication(true)
+
           setLoading(false)
         } catch (error: any) {
           setLoading(false)
@@ -150,7 +142,6 @@ const usePoster = () => {
           content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
           pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
           setTransactionUrl(URL + receipt.transactionHash)
-          setIsIndexingCreateArticle(true)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
@@ -203,7 +194,6 @@ const usePoster = () => {
               "Successfully pinned article",
             ))
           setTransactionUrl(URL + receipt.transactionHash)
-          setIsIndexingUpdateArticle(true)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
@@ -226,7 +216,6 @@ const usePoster = () => {
           const receipt: TransactionReceipt = await tx.wait()
           setLoading(false)
           setTransactionUrl(URL + receipt.transactionHash)
-          setIsIndexingDeleteArticle(true)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
@@ -249,7 +238,6 @@ const usePoster = () => {
           const receipt: TransactionReceipt = await tx.wait()
           setLoading(false)
           setTransactionUrl(URL + receipt.transactionHash)
-          setIsIndexingGivePermission(true)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
