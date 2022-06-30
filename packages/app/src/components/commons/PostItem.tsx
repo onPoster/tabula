@@ -132,7 +132,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                 <PostItemEditButton
                   onClick={(e) => {
                     e.stopPropagation()
-                    navigate(`/publication/post-action/edit`)
+                    navigate(`/publication/${publicationId}/post-action/edit`)
                     saveArticle(article)
                   }}
                   variant="contained"

@@ -14,6 +14,17 @@ export enum SupportedChain {
   GNOSIS_CHAIN = "gnosis_chain",
 }
 
+export const chainIdToChainName = (chainId: number) => {
+  switch (chainId) {
+    case SupportedChainId.MAINNET:
+      return SupportedChain.MAINNET
+    case SupportedChainId.RINKEBY:
+      return SupportedChain.RINKEBY
+    case SupportedChainId.GNOSIS_CHAIN:
+      return SupportedChain.GNOSIS_CHAIN
+  }
+}
+
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
   SupportedChainId.RINKEBY,

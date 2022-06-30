@@ -84,7 +84,7 @@ export const CreatePostView: React.FC = () => {
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
-    navigate(`/publication/preview-post/${type}`)
+    navigate(`/publication/${publication?.id}/preview-post/${type}`)
   }
 
   const handleDeleteArticle = async () => {

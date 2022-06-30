@@ -1,36 +1,20 @@
-import { SupportedChain, SupportedChainId } from "../constants/chain"
+import { chainIdToChainName, SupportedChain, SupportedChainId } from "../constants/chain"
 
-export const checkIsValidChain = (currentChain: number, url?: string): { network: string; isValid: boolean } => {
-  console.log("url", url)
-  console.log("currentChain", currentChain)
-  const path = url ? url : window.location.hash
-  const isMainnet = path.includes(SupportedChain.MAINNET)
-  const isRinkeby = path.includes(SupportedChain.RINKEBY)
-  const isGnosis = path.includes(SupportedChain.GNOSIS_CHAIN)
+export const checkIsValidChain = (
+  currentChain: number,
+  publicationId: string | undefined,
+): { network: string; isValid: boolean } => {
+  const currentChainName = chainIdToChainName(currentChain)
+  const publicationChainName = publicationId?.split(":")[0]
 
-  if (isMainnet && currentChain === SupportedChainId.MAINNET) {
-    return { network: "mainnet", isValid: true }
+  if (currentChainName == null) {
+    // unsupported chain
+    return { network: "", isValid: false }
   }
 
-  if (isMainnet && currentChain !== SupportedChainId.MAINNET) {
-    return { network: "mainnet", isValid: false }
+  if (publicationChainName == null) {
+    return { network: currentChainName, isValid: true }
   }
 
-  if (isRinkeby && currentChain === SupportedChainId.RINKEBY) {
-    return { network: "rinkeby", isValid: true }
-  }
-
-  if (isRinkeby && currentChain !== SupportedChainId.RINKEBY) {
-    return { network: "rinkeby", isValid: false }
-  }
-
-  if (isGnosis && currentChain === SupportedChainId.GNOSIS_CHAIN) {
-    return { network: "gnosis chain", isValid: true }
-  }
-
-  if (isGnosis && currentChain !== SupportedChainId.GNOSIS_CHAIN) {
-    return { network: "gnosis chain", isValid: false }
-  }
-
-  return { network: "", isValid: true }
+  return { network: currentChainName, isValid: currentChainName === publicationChainName }
 }

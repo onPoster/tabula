@@ -52,8 +52,9 @@ const App: React.FC = () => {
                 <Route path="/select-network" element={<SelectNetwork />} />
                 <Route path="/pinning" element={<SetupIpfsView />} />
                 <Route path="/publication/publish" element={<PublishView updateChainId={updateChainId} />} />
-                <Route path="/publication/post-action/:type" element={<CreatePostView />} />
-                <Route path="/publication/preview-post/:type" element={<PreviewPostView />} />
+
+                <Route path="/publication/:publicationId/post-action/:type" element={<CreatePostView />} />
+                <Route path="/publication/:publicationId/preview-post/:type" element={<PreviewPostView />} />
                 <Route
                   path="/publication/:publicationId"
                   element={<PublicationPostView updateChainId={updateChainId} />}
@@ -62,7 +63,7 @@ const App: React.FC = () => {
                   path="/publication/:publicationId/article/:articleId"
                   element={<ArticleView updateChainId={updateChainId} />}
                 />
-                <Route path="/publication/permission/:type" element={<PermissionView />} />
+                <Route path="/publication/:publicationId/permission/:type" element={<PermissionView />} />
               </Routes>
             </PosterProvider>
           </PublicationProvider>

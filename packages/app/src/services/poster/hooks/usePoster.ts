@@ -1,6 +1,7 @@
 import { TransactionReceipt } from "@ethersproject/providers"
 import { useWeb3React } from "@web3-react/core"
 import { useState } from "react"
+import { useParams } from "react-router-dom"
 import { useFiles } from "../../../hooks/useFiles"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
@@ -28,8 +29,9 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
-  const isValidChain = chainId && checkIsValidChain(chainId, lastPathWithChainName).isValid
-  const properlyNetwork = chainId && checkIsValidChain(chainId, lastPathWithChainName).network
+  const { publicationId } = useParams<{ publicationId: string }>()
+  const isValidChain = chainId && checkIsValidChain(chainId, publicationId).isValid
+  const properlyNetwork = chainId && checkIsValidChain(chainId, publicationId).network
 
   const showChainError = () => {
     return openNotification({
