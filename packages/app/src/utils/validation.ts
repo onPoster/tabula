@@ -2,7 +2,7 @@ import { chainIdToChainName } from "../constants/chain"
 
 export const checkIsValidChain = (
   currentChain: number,
-  publicationId: string | undefined,
+  publicationId?: string,
 ): { network: string; isValid: boolean } => {
   const currentChainName = chainIdToChainName(currentChain)
   const publicationChainName = publicationId?.split(":")[0]
@@ -16,5 +16,5 @@ export const checkIsValidChain = (
     return { network: currentChainName, isValid: true }
   }
 
-  return { network: currentChainName, isValid: currentChainName === publicationChainName }
+  return { network: publicationChainName, isValid: currentChainName === publicationChainName }
 }
