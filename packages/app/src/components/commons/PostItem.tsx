@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import usePoster from "../../services/poster/hooks/usePoster"
 import usePublication from "../../services/publications/hooks/usePublication"
-
+import { usePosterContext } from "../../services/poster/context"
 
 const PostItemContainer = styled(Box)({
   minHeight: "105px",
@@ -51,6 +51,7 @@ type PostItemProps = {
 const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }) => {
   const navigate = useNavigate()
   const { saveArticle } = usePublicationContext()
+  const { setLastPathWithChainName } = usePosterContext()
   const { deleteArticle } = usePoster()
   const { description, image, title, tags, lastUpdated, id, publication } = article
   const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } = usePublication(
@@ -67,6 +68,10 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
       navigate(-1)
     }
   }, [navigate, transactionCompleted])
+
+  useEffect(() => {
+    setLastPathWithChainName(window.location.hash)
+  }, [setLastPathWithChainName])
 
   const handleDeleteArticle = async () => {
     if (article && article.id && couldDelete) {
@@ -127,7 +132,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                 <PostItemEditButton
                   onClick={(e) => {
                     e.stopPropagation()
-                    navigate(`/publication/post-action/edit`)
+                    navigate(`/publication/${publicationId}/post-action/edit`)
                     saveArticle(article)
                   }}
                   variant="contained"

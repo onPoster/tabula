@@ -32,7 +32,6 @@ const ModalContainer = styled(ViewContainer)({
 const ModalContentContainer = styled(Box)({
   background: palette.secondary[200],
   borderRadius: 4,
-  cursor: "pointer",
   padding: 24,
 })
 

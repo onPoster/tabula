@@ -5,8 +5,10 @@ import useLocalStorage from "../hooks/useLocalStorage"
 
 export const WalletProvider: React.FC<any> = ({ children }) => {
   const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React()
+
   const [loaded, setLoaded] = useState(false)
   const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
+
   useEffect(() => {
     injected
       .isAuthorized()
@@ -20,8 +22,10 @@ export const WalletProvider: React.FC<any> = ({ children }) => {
         setLoaded(true)
       })
   }, [activateNetwork, networkActive, networkError, setWalletAutoConnect, walletAutoConnect])
+
   if (loaded) {
     return children
   }
+
   return null
 }

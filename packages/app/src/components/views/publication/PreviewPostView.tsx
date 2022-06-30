@@ -93,10 +93,10 @@ export const PreviewPostView: React.FC = () => {
             },
             hashArticle ? true : false,
           ).then((res) => {
-            createPoll(true)
-            if (res && res.error) {
-              createPoll(false)
+            if (res?.error) {
               setLoading(false)
+            } else {
+              createPoll(true)
             }
           })
         }
