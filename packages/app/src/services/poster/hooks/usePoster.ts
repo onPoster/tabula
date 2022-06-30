@@ -23,7 +23,7 @@ const URL = "https://rinkeby.etherscan.io/tx/"
 
 const usePoster = () => {
   const openNotification = useNotification()
-  const { setTransactionUrl, lastPathWithChainName } = usePosterContext()
+  const { setTransactionUrl } = usePosterContext()
   const { chainId } = useWeb3React()
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()

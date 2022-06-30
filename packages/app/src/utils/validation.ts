@@ -1,4 +1,4 @@
-import { chainIdToChainName, SupportedChain, SupportedChainId } from "../constants/chain"
+import { chainIdToChainName } from "../constants/chain"
 
 export const checkIsValidChain = (
   currentChain: number,
