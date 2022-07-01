@@ -5,6 +5,7 @@ import { NewPost } from "../generated/Poster/Poster"
 
 export const ARTICLE_ENTITY_TYPE = "Article"
 export const PUBLICATION_ENTITY_TYPE = "Publication"
+export const PERMISSION_ENTITY_TYPE = "Permission"
 export const PUBLICATION_TAG = "0x1d2f2ddf66fd037a52a179e4e4fca655871584011016b01fc2dfc39cc1e2bb62" // keccak-256 of PUBLICATION
 
 export const createNewPostEvent = (user: Address, content: string, tag: string): NewPost => {
