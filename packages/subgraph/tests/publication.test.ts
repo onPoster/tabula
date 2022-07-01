@@ -1,17 +1,9 @@
 import { Address } from "@graphprotocol/graph-ts"
-import {
-  assert,
-  createMockedFunction,
-  clearStore,
-  test,
-  newMockEvent,
-  newMockCall,
-  countEntities,
-} from "matchstick-as/assembly/index"
-import { getArticleId } from "../src/article.mapping"
+import { assert, clearStore, test } from "matchstick-as/assembly/index"
 import { handleNewPost } from "../src/mapping"
 import { getPublicationId } from "../src/publication.mapping"
-import { ARTICLE_ENTITY_TYPE, createNewPostEvent, PUBLICATION_ENTITY_TYPE, PUBLICATION_TAG } from "./util"
+import { getPermissionId } from "../src/utils"
+import { createNewPostEvent, PUBLICATION_ENTITY_TYPE, PUBLICATION_TAG, PERMISSION_ENTITY_TYPE } from "./util"
 
 test("An account can can create a publication", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
@@ -151,6 +143,62 @@ test("An account can update a publication where the account is given `publicatio
 
   assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", newPublicationTitle)
   assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "description", newPublicationDescription)
+
+  clearStore()
+})
+
+test("The account that created the publication can add new, update and delete a publication permissions", () => {
+  // create a new publication
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  // give an account permission to update the publication
+  const otherUser = Address.fromString("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4")
+  const publicationSetPermissions = `{
+    "action": "publication/permissions",
+    "id": "${publicationId}",
+    "account": "${otherUser.toHex()}",
+    "permissions": {
+      "publication/update": true
+    }
+  }`
+
+  const setPermissionsPostEvent = createNewPostEvent(user, publicationSetPermissions, PUBLICATION_TAG)
+  handleNewPost(setPermissionsPostEvent)
+
+  const permissionIdCreator = getPermissionId(publicationId, user)
+  const permissionIdOtherUser = getPermissionId(publicationId, otherUser)
+
+  assert.fieldEquals(
+    PUBLICATION_ENTITY_TYPE,
+    publicationId,
+    "permissions",
+    "[" + permissionIdCreator + ", " + permissionIdOtherUser + "]",
+  )
+  assert.fieldEquals(PERMISSION_ENTITY_TYPE, permissionIdOtherUser, "id", permissionIdOtherUser) // check its in the store
+
+  // revoke an account permission to update the publication
+  const publicationUpdatePermissions = `{
+    "action": "publication/permissions",
+    "id": "${publicationId}",
+    "account": "${otherUser.toHex()}",
+    "permissions": {
+      "publication/update": false
+    }
+  }`
+  const updatePermissionsPostEvent = createNewPostEvent(user, publicationUpdatePermissions, PUBLICATION_TAG)
+  handleNewPost(updatePermissionsPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "permissions", "[" + permissionIdCreator + "]")
+  assert.notInStore(PERMISSION_ENTITY_TYPE, permissionIdOtherUser)
 
   clearStore()
 })

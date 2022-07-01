@@ -157,7 +157,10 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
         permission.publicationPermissions = publicationPermissions.toBool()
       }
 
-      const index = publication.permissions.indexOf(permissionId)
+      permission.save()
+
+      const permissionIndex = publication.permissions.indexOf(permissionId)
+      const isNewPermission = permissionIndex == -1
       if (
         permission.articleCreate ||
         permission.articleUpdate ||
@@ -166,19 +169,19 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
         permission.publicationDelete ||
         permission.publicationPermissions
       ) {
-        permission.save()
-        if (!index) {
+        if (isNewPermission) {
           let permissions = publication.permissions
           permissions.push(permissionId)
           publication.permissions = permissions
           publication.save()
         }
       } else {
+        // has no permissions
         store.remove(PERMISSION_ENTITY_TYPE, permissionId)
 
-        if (index) {
+        if (!isNewPermission) {
           let permissions = publication.permissions
-          permissions.splice(index, 1)
+          permissions.splice(permissionIndex, 1)
           publication.permissions = permissions
           publication.save()
         }

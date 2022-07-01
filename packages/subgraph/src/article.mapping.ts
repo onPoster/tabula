@@ -127,7 +127,7 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
 
     if (publication) {
       const index = publication.articles.indexOf(articleId)
-      if (index) {
+      if (index >= 0) {
         let articles = publication.articles
         articles.splice(index, 1)
         publication.articles = articles
