@@ -2,7 +2,7 @@ name: Prod Release Deployment
 
 on:
   release:
-    types: created
+    types: published
 
 env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
