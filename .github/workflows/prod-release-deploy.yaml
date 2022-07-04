@@ -76,18 +76,12 @@ jobs:
 
       - name: Prep graph cli for deployment
         working-directory: packages/subgraph
-        run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
-
-      - name: Deploy subgraph to Gnosis Chain
-        working-directory: packages/subgraph
-        env:
-          HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: samepant/tabula-gnosis-chain
-        run: yarn deploy:gnosis-chain
+        run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
 
       - name: Deploy subgraph to Mainnet
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__MAINNET: samepant/tabula
+          SUBGRAPH__MAINNET: tabula-mainnet
         run: yarn deploy:mainnet
 
       - name: Deploy to Github Pages

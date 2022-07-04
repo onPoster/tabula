@@ -63,10 +63,10 @@ jobs:
 
       - name: Prep graph cli for deployment
         working-directory: packages/subgraph
-        run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
+        run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
 
       - name: Deploy subgraphs
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__RINKEBY: samepant/tabula-dev
+          SUBGRAPH__RINKEBY: tabula-rinkeby
         run: yarn deploy:rinkeby
