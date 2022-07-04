@@ -1,6 +1,5 @@
 {
   "name": "tabula",
-  "version": "0.0.0",
   "description": "A blogging app built on Poster (EIP-3722)",
   "repository": "git@github.com:gnosis/tabula.git",
   "author": "Auryn Macmillan <hi@auryn.xyz>",
