@@ -6,14 +6,15 @@
     "build": "graph build",
     "prebuild": "yarn prepare:rinkeby && yarn codegen",
     "test": "graph test",
-    "deploy:mainnet": "yarn prepare:mainnet && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__MAINNET'",
+    "deploy:mainnet": "yarn prepare:mainnet && VERSION=$(bash -c 'git describe --tags --abbrev=0 | cut -c 2-') && bash -c 'source .env || true && graph deploy --version-label v$VERSION --studio $SUBGRAPH__MAINNET'",
     "prepare:mainnet": "mustache network_configs/mainnet.json subgraph.template.yaml > subgraph.yaml",
     "deploy:gnosis-chain": "yarn prepare:gnosis-chain && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN'",
     "prepare:gnosis-chain": "mustache network_configs/gnosis-chain.json subgraph.template.yaml > subgraph.yaml",
-    "deploy:rinkeby": "yarn prepare:rinkeby && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__RINKEBY'",
+    "deploy:rinkeby": "yarn prepare:rinkeby && VERSION=$(bash -c 'git describe --tags --abbrev=0 | cut -c 2-') && bash -c 'source .env || true && graph deploy --version-label v$VERSION --studio $SUBGRAPH__RINKEBY'",
     "prepare:rinkeby": "mustache network_configs/rinkeby.json subgraph.template.yaml > subgraph.yaml",
     "fmt": "prettier '(test|src)/**/*.ts' -w",
-    "pre-commit": "yarn fmt"
+    "pre-commit": "yarn fmt",
+    "auth": "bash -c 'source .env || true && graph auth --studio $SUBGRAPH_DEPLOYMENT_KEY'"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.28.0",
