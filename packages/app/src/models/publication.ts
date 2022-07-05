@@ -54,8 +54,8 @@ export interface Article {
   }
 }
 
-const THE_GRAPH_NAME_TO_CHAINID: { [name: string]: number } = {
-  xdai: 100,
+const CHAINNAME_TO_CHAINID: { [name: string]: number } = {
+  gnosis_chain: 100,
   mainnet: 1,
   rinkeby: 4,
 }
@@ -63,5 +63,5 @@ const THE_GRAPH_NAME_TO_CHAINID: { [name: string]: number } = {
 export const publicationIdToChainId = (id: string): number => {
   // The Graph network names (see: `packages/subgraph/network_configs/`)
   const chainName = id.split(":")[0]
-  return THE_GRAPH_NAME_TO_CHAINID[chainName]
+  return CHAINNAME_TO_CHAINID[chainName]
 }
