@@ -150,10 +150,10 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
         tags,
         image: image?.path,
       }).then((res) => {
-        setExecutePollInterval(true)
         if (res && res.error) {
           setLoading(false)
-          setExecutePollInterval(false)
+        } else {
+          setExecutePollInterval(true)
         }
       })
     }

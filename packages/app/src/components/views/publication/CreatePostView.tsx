@@ -95,10 +95,10 @@ export const CreatePostView: React.FC = () => {
         action: "article/delete",
         id: article.id,
       }).then((res) => {
-        setExecutePollInterval(true)
         if (res && res.error) {
-          setExecutePollInterval(false)
           setLoading(false)
+        } else {
+          setExecutePollInterval(true)
         }
       })
     }

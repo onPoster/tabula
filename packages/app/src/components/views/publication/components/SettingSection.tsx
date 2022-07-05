@@ -107,10 +107,10 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         tags,
         image: image?.path,
       }).then((res) => {
-        setUpdateInterval(true)
         if (res && res.error) {
-          setUpdateInterval(false)
           setLoading(false)
+        } else {
+          setUpdateInterval(true)
         }
       })
     } else {
@@ -126,10 +126,10 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
         action: "publication/delete",
         id: publication.id,
       }).then((res) => {
-        setExecutePollInterval(true)
         if (res && res.error) {
-          setExecutePollInterval(false)
           setDeleteLoading(false)
+        } else {
+          setExecutePollInterval(true)
         }
       })
     } else {
