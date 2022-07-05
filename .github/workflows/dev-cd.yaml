@@ -61,7 +61,7 @@ jobs:
       - name: Get IPFS url
         run: echo "IPFS gateways — https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.dweb.link/ or https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.cf-ipfs.com/"
 
-      - name: Prep graph cli for deployment
+      - name: Authenticate graph cli studio
         working-directory: packages/subgraph
         run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
 

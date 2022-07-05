@@ -74,7 +74,7 @@ jobs:
               - https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.dweb.link/
               - https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.cf-ipfs.com/
 
-      - name: Prep graph cli for deployment
+      - name: Authenticate graph cli studio
         working-directory: packages/subgraph
         run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
 
@@ -83,6 +83,16 @@ jobs:
         env:
           SUBGRAPH__MAINNET: tabula-mainnet
         run: yarn deploy:mainnet
+
+      - name: Authenticate graph cli hosted service
+        working-directory: packages/subgraph
+        run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
+
+      - name: Deploy subgraph to Gnosis Chain
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: samepant/tabula-gnosis-chain
+        run: yarn deploy:gnosis-chain
 
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@v4.3.3
