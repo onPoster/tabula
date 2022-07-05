@@ -206,24 +206,22 @@ export const PermissionView: React.FC = () => {
           "publication/permissions": data.publicationPermissions,
         },
       }).then((res) => {
-        if (type === "delete") {
-          deleteInterval(true)
-        }
-        if (type === "new") {
-          newPermissionInterval(true)
-        }
-        if (type === "edit") {
-          updateInterval(true)
-          if (publication && publication.permissions) {
-            updateCurrentUser(publication.permissions)
-          }
-        }
         if (res && res.error) {
           setDeleteLoading(false)
           setLoading(false)
-          deleteInterval(false)
-          updateInterval(false)
-          newPermissionInterval(false)
+        } else {
+          if (type === "delete") {
+            deleteInterval(true)
+          }
+          if (type === "new") {
+            newPermissionInterval(true)
+          }
+          if (type === "edit") {
+            updateInterval(true)
+            if (publication && publication.permissions) {
+              updateCurrentUser(publication.permissions)
+            }
+          }
         }
       })
     }

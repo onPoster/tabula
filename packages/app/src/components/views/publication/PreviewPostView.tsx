@@ -122,7 +122,10 @@ export const PreviewPostView: React.FC = () => {
 
             if (res && res.error) {
               setLoading(false)
-              updatePoll(false)
+            } else if (article && article.lastUpdated) {
+              setArticleId(article.id)
+              setCurrentTimestamp(parseInt(article.lastUpdated))
+              updatePoll(true)
             }
           })
         }
