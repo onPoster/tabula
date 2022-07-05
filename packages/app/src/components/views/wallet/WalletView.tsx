@@ -1,5 +1,5 @@
 import { Box, Grid, Link, Modal, styled, Typography } from "@mui/material"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { palette, typography } from "../../../theme"
 import CloseIcon from "@mui/icons-material/Close"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -84,7 +84,7 @@ export const WalletView: React.FC = () => {
     }
     await activate(connector, undefined, true).catch((error) => {
       if (error instanceof UnsupportedChainIdError && connector) {
-        console.error(error)
+        console.warn(error.message)
         setShowModal(true)
       }
     })
@@ -137,33 +137,32 @@ export const WalletView: React.FC = () => {
             </Grid>
             <Grid item>
               <ModalContentContainer>
-                <Typography variant="body1" fontWeight={700} color={palette.secondary[1000]}>
-                  {publicationChainId != null ? (
-                    <Typography>
-                      This publication is on {chainToString(publicationChainId)}. Please change your wallet to that
-                      network.
+                {publicationChainId != null ? (
+                  <Typography variant="body1" fontWeight={700} color={palette.secondary[1000]}>
+                    This publication is on {chainToString(publicationChainId)}. Please change your wallet to that
+                    network.
+                  </Typography>
+                ) : (
+                  <Grid item>
+                    <Typography variant="body1" fontWeight={700} color={palette.secondary[1000]}>
+                      Please, change to one of the supported networks:
                     </Typography>
-                  ) : (
-                    <Grid item>
-                      <Typography>Please, change to one of the supported networks:</Typography>
-                      <Grid container flexDirection="column" gap={1}>
-                        {ALL_SUPPORTED_CHAIN_IDS.map((chainId) => (
-                          <Grid
-                            item
-                            key={chainId}
-                            onClick={() =>
-                              connector != null &&
-                              switchChain(connector, chainId).then(() => handleConnector(connector))
-                            }
-                            style={{ cursor: "pointer" }}
-                          >
-                            <Link>{chainToString(Number(chainId))}</Link>
-                          </Grid>
-                        ))}
-                      </Grid>
+                    <Grid container flexDirection="column" gap={1}>
+                      {ALL_SUPPORTED_CHAIN_IDS.map((chainId) => (
+                        <Grid
+                          item
+                          key={chainId}
+                          onClick={() =>
+                            connector != null && switchChain(connector, chainId).then(() => handleConnector(connector))
+                          }
+                          style={{ cursor: "pointer" }}
+                        >
+                          <Link>{chainToString(Number(chainId))}</Link>
+                        </Grid>
+                      ))}
                     </Grid>
-                  )}
-                </Typography>
+                  </Grid>
+                )}
               </ModalContentContainer>
             </Grid>
           </Grid>

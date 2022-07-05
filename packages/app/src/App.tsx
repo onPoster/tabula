@@ -16,7 +16,6 @@ import { subgraphClient } from "./services/graphql"
 import { PermissionView } from "./components/views/publication/PermissionView"
 import SetupIpfsView from "./components/views/pinning/SetupIpfsView"
 import { useWeb3React } from "@web3-react/core"
-import { SelectNetwork } from "./components/views/wallet/SelectNetwork"
 import { PosterProvider } from "./services/poster/context"
 import { WalletProvider } from "./connectors/WalletProvider"
 
@@ -51,7 +50,6 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<LandingView />} />
                 <Route path="/wallet" element={<WalletView />} />
-                <Route path="/select-network" element={<SelectNetwork />} />
                 <Route path="/pinning" element={<SetupIpfsView />} />
                 <Route path="/publication/publish" element={<PublishView updateChainId={updateChainId} />} />
 
