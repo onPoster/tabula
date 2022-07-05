@@ -26,9 +26,12 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
 
-  if (publicationId != null) {
-    updateChainId(publicationIdToChainId(publicationId))
-  }
+  useEffect(() => {
+    if (publicationId != null) {
+      updateChainId(publicationIdToChainId(publicationId))
+    }
+  }, [publicationId, updateChainId])
+
   useEffect(() => {
     if (!article && articleId) {
       executeQuery()

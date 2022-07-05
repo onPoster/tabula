@@ -28,7 +28,9 @@ const App: React.FC = () => {
   const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
 
   const updateChainId = (newChainId: number | undefined) => {
-    setChainId(newChainId)
+    if (newChainId !== chainId) {
+      setChainId(newChainId)
+    }
   }
 
   useEffect(() => {
