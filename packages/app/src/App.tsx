@@ -54,7 +54,7 @@ const App: React.FC = () => {
                   <Route path="pinning" element={<SetupIpfsView />} />
                   <Route path="publications" element={<PublishView updateChainId={updateChainId} />} />
 
-                  <Route path=":publicationId/permission/:type" element={<PermissionView />} />
+                  <Route path=":publicationId/permissions/:type" element={<PermissionView />} />
 
                   <Route path=":publicationId/:postId/:type" element={<CreatePostView />} />
                   <Route path=":publicationId/:postId/preview/:type" element={<PreviewPostView />} />
