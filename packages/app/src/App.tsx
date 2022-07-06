@@ -56,8 +56,6 @@ const App: React.FC = () => {
 
                   <Route path=":publicationId/permission/:type" element={<PermissionView />} />
 
-                  <Route path=":publicationId/create/:type" element={<CreatePostView />} />
-                  <Route path=":publicationId/create/preview/:type" element={<PreviewPostView />} />
                   <Route path=":publicationId/:postId/:type" element={<CreatePostView />} />
                   <Route path=":publicationId/:postId/preview/:type" element={<PreviewPostView />} />
                   <Route path=":publicationId/:articleId" element={<ArticleView updateChainId={updateChainId} />} />

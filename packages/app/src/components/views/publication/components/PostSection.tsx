@@ -40,7 +40,7 @@ const PostSection: React.FC = () => {
         </Grid>
         {havePermissionToCreate && (
           <Grid item>
-            <Button variant="contained" size="medium" onClick={() => navigate(`new`)}>
+            <Button variant="contained" size="medium" onClick={() => navigate(`new-post/new`)}>
               <AddIcon style={{ marginRight: 13 }} />
               New Post
             </Button>

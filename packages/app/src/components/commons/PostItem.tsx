@@ -18,7 +18,6 @@ const PostItemContainer = styled(Box)({
   minHeight: "105px",
   background: palette.grays[100],
   borderRadius: 4,
-  cursor: "pointer",
   padding: 20,
   "&:hover": {
     background: palette.grays[200],

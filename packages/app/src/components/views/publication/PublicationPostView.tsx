@@ -2,7 +2,7 @@ import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/materia
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { publicationIdToChainId } from "../../../models/publication"
+import { chainNameToChainId } from "../../../constants/chain"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
@@ -32,7 +32,7 @@ interface PublicationPostViewProps {
 }
 
 export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ updateChainId }) => {
-  const { publicationId } = useParams<{ publicationId: string }>()
+  const { publicationId, network } = useParams<{ publicationId: string; network: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
   const { data: publication, loading, executeQuery } = usePublication(publicationId || "")
@@ -47,10 +47,8 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
     : false
 
   useEffect(() => {
-    if (publicationId != null) {
-      updateChainId(publicationIdToChainId(publicationId))
-    }
-  }, [publicationId, updateChainId])
+    updateChainId(chainNameToChainId(network))
+  }, [network, updateChainId])
 
   useEffect(() => {
     if (publicationId) {

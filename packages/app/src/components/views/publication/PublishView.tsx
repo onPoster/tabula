@@ -18,6 +18,7 @@ import usePublications from "../../../services/publications/hooks/usePublication
 import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
+import { chainIdToChainName } from "../../../constants/chain"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -102,9 +103,10 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
 
   useEffect(() => {
     if (chainId != null) {
-      updateChainId(chainId)
+      const chainName = chainIdToChainName(chainId)
+      navigate(`/${chainName}/publications`)
     }
-  }, [chainId, updateChainId])
+  }, [chainId, updateChainId, navigate])
 
   useEffect(() => {
     if (!publications) {

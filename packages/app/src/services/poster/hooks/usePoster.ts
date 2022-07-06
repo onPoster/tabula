@@ -22,6 +22,7 @@ const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
 const URL = "https://rinkeby.etherscan.io/tx/"
 
 const usePoster = () => {
+  const { network } = useParams<{ network: string }>()
   const openNotification = useNotification()
   const { setTransactionUrl } = usePosterContext()
   const { chainId } = useWeb3React()
@@ -29,9 +30,8 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
-  const { publicationId } = useParams<{ publicationId: string }>()
-  const isValidChain = chainId && checkIsValidChain(chainId, publicationId).isValid
-  const properlyNetwork = chainId && checkIsValidChain(chainId, publicationId).network
+  const isValidChain = chainId && checkIsValidChain(chainId, network).isValid
+  const properlyNetwork = chainId && checkIsValidChain(chainId, network).network
 
   const showChainError = () => {
     return openNotification({

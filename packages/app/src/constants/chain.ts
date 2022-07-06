@@ -25,6 +25,19 @@ export const chainIdToChainName = (chainId: number) => {
   }
 }
 
+export const chainNameToChainId = (chainName?: string) => {
+  switch (chainName) {
+    case SupportedChain.MAINNET:
+      return SupportedChainId.MAINNET
+    case SupportedChain.RINKEBY:
+      return SupportedChainId.RINKEBY
+    case SupportedChain.GNOSIS_CHAIN:
+      return SupportedChainId.GNOSIS_CHAIN
+    default:
+      return -1
+  }
+}
+
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
   SupportedChainId.RINKEBY,
