@@ -51,7 +51,7 @@ export const PermissionSection: React.FC = () => {
                 canEdit={havePermissionToEdit}
                 onClick={() => {
                   savePermission(permission)
-                  navigate(`/publication/${publication?.id}/permission/edit`)
+                  navigate(`../${publication?.id}/permission/edit`)
                 }}
               />
             </Grid>

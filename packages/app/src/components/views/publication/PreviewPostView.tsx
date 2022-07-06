@@ -170,7 +170,7 @@ export const PreviewPostView: React.FC = () => {
 
   useEffect(() => {
     if ((newArticleTransaction || updateTransaction) && publication) {
-      navigate(`/publication/${publication.id}/article/${newArticleId || updateArticleId}`)
+      navigate(`../${publication.id}/${newArticleId || updateArticleId}`)
     }
   }, [navigate, newArticleId, newArticleTransaction, publication, updateArticleId, updateTransaction])
 

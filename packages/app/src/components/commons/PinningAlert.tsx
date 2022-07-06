@@ -19,7 +19,7 @@ const StyledButton = styled(Button)({
   padding: "4px 16px",
   "&:hover": {
     background: palette.secondary[100],
-  }
+  },
 })
 
 export const PinningAlert: React.FC = () => {
@@ -55,7 +55,7 @@ export const PinningAlert: React.FC = () => {
               fontWeight={700}
               color={palette.secondary[1000]}
               onClick={() => {
-                navigate("/pinning")
+                navigate("../pinning")
                 setCurrentPath(location.pathname)
               }}
             >

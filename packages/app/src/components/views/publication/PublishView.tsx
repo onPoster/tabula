@@ -121,7 +121,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   useEffect(() => {
     if (redirect && lastPublicationId) {
       setLoading(false)
-      navigate(`/publication/${lastPublicationId}`)
+      navigate(`../${lastPublicationId}`)
     }
   }, [lastPublicationId, navigate, redirect])
 
@@ -186,7 +186,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
                   <PublicationItem
                     publication={publication}
                     key={publication.id}
-                    onClick={() => navigate(`/publication/${publication.id}`)}
+                    onClick={() => navigate(`../${publication.id}`)}
                   />
                 ))}
               </Grid>
