@@ -159,3 +159,5 @@ function hasPublicationPermission(publicationId: string, user: Address, actionTy
 
   return false
 }
+
+export const getNetwork = (rawNetwork: string): string => (rawNetwork == "xdai" ? "gnosis_chain" : rawNetwork)

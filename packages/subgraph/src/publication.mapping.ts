@@ -4,6 +4,7 @@ import { Permission, Publication } from "../generated/schema"
 import {
   ACTION__ARTICLE,
   ACTION__PUBLICATION,
+  getNetwork,
   getPermissionId,
   jsonToArrayString,
   jsonToString,
@@ -15,7 +16,7 @@ import {
 import { store } from "@graphprotocol/graph-ts"
 
 export const getPublicationId = (event: NewPost): string =>
-  dataSource.network() + ":P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  getNetwork(dataSource.network()) + ":P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 const PUBLICATION_ENTITY_TYPE = "Publication"
 const ARTICLE_ENTITY_TYPE = "Article"
 const PERMISSION_ENTITY_TYPE = "Permission"

@@ -46,9 +46,11 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
     ? haveActionPermission(permissions, "publicationDelete", account || "")
     : false
 
-  if (publicationId != null) {
-    updateChainId(publicationIdToChainId(publicationId))
-  }
+  useEffect(() => {
+    if (publicationId != null) {
+      updateChainId(publicationIdToChainId(publicationId))
+    }
+  }, [publicationId, updateChainId])
 
   useEffect(() => {
     if (publicationId) {
