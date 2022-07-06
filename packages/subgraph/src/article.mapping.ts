@@ -1,14 +1,7 @@
 import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
-import { Article, Publication, Permission } from "../generated/schema"
-import {
-  getPermissionId,
-  jsonToArrayString,
-  jsonToString,
-  SUB_ACTION__CREATE,
-  SUB_ACTION__DELETE,
-  SUB_ACTION__UPDATE,
-} from "./utils"
+import { Article, Publication } from "../generated/schema"
+import { jsonToArrayString, jsonToString, SUB_ACTION__CREATE, SUB_ACTION__DELETE, SUB_ACTION__UPDATE } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
 
 export const getArticleId = (event: NewPost): string =>

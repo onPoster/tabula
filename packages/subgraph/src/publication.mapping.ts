@@ -1,4 +1,4 @@
-import { Address, dataSource, JSONValue, JSONValueKind, log, TypedMap, ValueKind } from "@graphprotocol/graph-ts"
+import { Address, dataSource, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Permission, Publication } from "../generated/schema"
 import {

@@ -1,6 +1,5 @@
-import { BigInt, Bytes, crypto, ipfs, json, JSONValue, log } from "@graphprotocol/graph-ts"
-import { Poster, NewPost } from "../generated/Poster/Poster"
-import { Article } from "../generated/schema"
+import { json, log } from "@graphprotocol/graph-ts"
+import { NewPost } from "../generated/Poster/Poster"
 import { ACTION__ARTICLE, ACTION__PUBLICATION, getActionType, hasPermission } from "./utils"
 import { handleArticleAction } from "./article.mapping"
 import { handlePublicationAction } from "./publication.mapping"
