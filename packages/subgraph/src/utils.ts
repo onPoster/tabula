@@ -10,6 +10,16 @@ export const SUB_ACTION__UPDATE = "update"
 export const SUB_ACTION__DELETE = "delete"
 export const SUB_ACTION__PERMISSIONS = "permissions"
 
+export const PUBLICATION_ENTITY_TYPE = "Publication"
+export const ARTICLE_ENTITY_TYPE = "Article"
+export const PERMISSION_ENTITY_TYPE = "Permission"
+
+export const getPublicationId = (event: NewPost): string =>
+  "P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+
+export const getArticleId = (event: NewPost): string =>
+  "A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+
 export const getPermissionId = (publicationId: string, user: Address): string =>
   "X-" + publicationId + "-" + user.toHex()
 
@@ -158,5 +168,3 @@ function hasPublicationPermission(publicationId: string, user: Address, actionTy
 
   return false
 }
-
-export const getNetwork = (rawNetwork: string): string => (rawNetwork == "xdai" ? "gnosis_chain" : rawNetwork)

@@ -1,8 +1,7 @@
 import { Address } from "@graphprotocol/graph-ts"
 import { assert, clearStore, test } from "matchstick-as/assembly/index"
 import { handleNewPost } from "../src/mapping"
-import { getPublicationId } from "../src/publication.mapping"
-import { getPermissionId } from "../src/utils"
+import { getPermissionId, getPublicationId } from "../src/utils"
 import { createNewPostEvent, PUBLICATION_ENTITY_TYPE, PUBLICATION_TAG, PERMISSION_ENTITY_TYPE } from "./util"
 
 test("An account can can create a publication", () => {

@@ -1,12 +1,16 @@
 import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Publication } from "../generated/schema"
-import { jsonToArrayString, jsonToString, SUB_ACTION__CREATE, SUB_ACTION__DELETE, SUB_ACTION__UPDATE } from "./utils"
+import {
+  getArticleId,
+  jsonToArrayString,
+  jsonToString,
+  SUB_ACTION__CREATE,
+  SUB_ACTION__DELETE,
+  SUB_ACTION__UPDATE,
+} from "./utils"
 import { store } from "@graphprotocol/graph-ts"
-
-export const getArticleId = (event: NewPost): string =>
-  "A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-const ARTICLE_ENTITY_TYPE = "Article"
+import { ARTICLE_ENTITY_TYPE } from "../tests/util"
 
 export function handleArticleAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {
   let publicationId = jsonToString(content.get("publicationId"))
