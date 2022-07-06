@@ -31,11 +31,7 @@ export const PermissionSection: React.FC = () => {
         </Grid>
         {havePermissionToEdit && (
           <Grid item>
-            <Button
-              variant="contained"
-              size="medium"
-              onClick={() => navigate(`/publication/${publication?.id}/permission/new`)}
-            >
+            <Button variant="contained" size="medium" onClick={() => navigate(`../${publication?.id}/permission/new`)}>
               <AddIcon style={{ marginRight: 13 }} />
               New Permission
             </Button>
