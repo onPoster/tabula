@@ -74,7 +74,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
 
   useEffect(() => {
     if (redirect) {
-      navigate("/publication/publish")
+      navigate("../publications")
     }
   }, [navigate, redirect])
 

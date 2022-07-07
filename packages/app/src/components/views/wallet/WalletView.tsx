@@ -11,10 +11,15 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { ViewContainer } from "../../commons/ViewContainer"
-import { ALL_SUPPORTED_CHAIN_IDS, chainToString, switchChain } from "../../../constants/chain"
+import { ALL_SUPPORTED_CHAIN_IDS, chainIdToChainName, chainToString, switchChain } from "../../../constants/chain"
 import WarningAmberIcon from "@mui/icons-material/WarningAmber"
 
-const AFTER_CONNECT_SCREEN = "/publication/publish"
+const getNetwork = async (connector: AbstractConnector) => {
+  const rawChainIdString = (await connector.getChainId()).toString()
+  const currentChainId = rawChainIdString.startsWith("0x") ? parseInt(rawChainIdString, 16) : parseInt(rawChainIdString)
+
+  return { name: chainIdToChainName(currentChainId), id: currentChainId }
+}
 
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
@@ -43,35 +48,39 @@ export const WalletView: React.FC = () => {
   const publicationChainId: number | null = publicationChainIdRaw != null ? parseInt(publicationChainIdRaw) : null
   const [showModal, setShowModal] = useState<boolean>(false)
   const [connector, setConnector] = useState<AbstractConnector | null>(null)
+
   const ref = useRef(null)
 
   useEffect(() => {
     if (active) {
+      const doNavigation = async () => {
+        if (connector != null) {
+          const { name: networkName } = await getNetwork(connector)
+          if (currentPath && !pinning) {
+            navigate(`/${networkName}/pinning`)
+          }
+          if (!currentPath && !pinning) {
+            navigate(`/${networkName}/pinning`)
+          }
+          if (!currentPath && pinning) {
+            navigate(`/${networkName}/publications`)
+          }
+        }
+      }
       if (currentPath) {
         navigate(currentPath)
-      }
-      if (currentPath && !pinning) {
-        navigate("/pinning")
-      }
-      if (!currentPath && !pinning) {
-        navigate("/pinning")
-      }
-      if (!currentPath && pinning) {
-        navigate(AFTER_CONNECT_SCREEN)
+      } else {
+        doNavigation()
       }
     }
-  }, [active, currentPath, navigate, pinning])
+  }, [active, currentPath, navigate, pinning, connector])
 
   const handleConnector = async (connector: AbstractConnector) => {
     setConnector(connector)
     if (publicationChainId != null) {
       // we are in a publication
       try {
-        const rawChainIdString = (await connector.getChainId()).toString()
-        const currentChainId = rawChainIdString.startsWith("0x")
-          ? parseInt(rawChainIdString, 16)
-          : parseInt(rawChainIdString)
-
+        const { id: currentChainId } = await getNetwork(connector)
         if (publicationChainId !== currentChainId) {
           // we are on the wrong chain
           await switchChain(connector, publicationChainId).then(() => handleConnector(connector))

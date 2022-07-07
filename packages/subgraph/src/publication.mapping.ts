@@ -1,11 +1,11 @@
-import { Address, dataSource, JSONValue, JSONValueKind, log, TypedMap, ValueKind } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Permission, Publication } from "../generated/schema"
 import {
   ACTION__ARTICLE,
   ACTION__PUBLICATION,
-  getNetwork,
   getPermissionId,
+  getPublicationId,
   jsonToArrayString,
   jsonToString,
   SUB_ACTION__CREATE,
@@ -14,12 +14,7 @@ import {
   SUB_ACTION__UPDATE,
 } from "./utils"
 import { store } from "@graphprotocol/graph-ts"
-
-export const getPublicationId = (event: NewPost): string =>
-  getNetwork(dataSource.network()) + ":P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-const PUBLICATION_ENTITY_TYPE = "Publication"
-const ARTICLE_ENTITY_TYPE = "Article"
-const PERMISSION_ENTITY_TYPE = "Permission"
+import { ARTICLE_ENTITY_TYPE, PERMISSION_ENTITY_TYPE, PUBLICATION_ENTITY_TYPE } from "../tests/util"
 
 export function handlePublicationAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {
   if (subAction == SUB_ACTION__CREATE) {
@@ -88,7 +83,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     const publicationId = jsonToString(content.get("id"))
     const publication = Publication.load(publicationId)
     if (publication == null) {
-      log.error("Puclication: Publication does not exist.", [publicationId])
+      log.error("Publication: Publication does not exist.", [publicationId])
     } else {
       const articles = publication.articles
       articles.forEach((article) => {

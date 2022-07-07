@@ -10,15 +10,15 @@ import { Markdown } from "../../commons/Markdown"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
-import { publicationIdToChainId } from "../../../models/publication"
 import { WalletBadge } from "../../commons/WalletBadge"
+import { chainNameToChainId } from "../../../constants/chain"
 
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
 }
 
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
-  const { articleId } = useParams<{ articleId: string }>()
+  const { articleId, network } = useParams<{ articleId: string; network: string }>()
   const { publicationId } = useParams<{ publicationId: string }>()
   const { article, saveArticle, getPinnedData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery } = useArticle(articleId || "")
@@ -28,9 +28,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
 
   useEffect(() => {
     if (publicationId != null) {
-      updateChainId(publicationIdToChainId(publicationId))
+      updateChainId(chainNameToChainId(network))
     }
-  }, [publicationId, updateChainId])
+  }, [publicationId, updateChainId, network])
 
   useEffect(() => {
     if (!article && articleId) {

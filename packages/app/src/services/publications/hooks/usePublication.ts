@@ -1,14 +1,17 @@
 import { find, isEqual } from "lodash"
 import { useCallback, useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 import { useQuery } from "urql"
+import { chainNameToChainId } from "../../../constants/chain"
 import { useNotification } from "../../../hooks/useNotification"
-import { Permission, publicationIdToChainId, Publications } from "../../../models/publication"
+import { Permission, Publications } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
 import { usePublicationContext } from "../contexts"
 import { GET_PUBLICATION_QUERY } from "../queries"
 
 const usePublication = (id: string) => {
-  const chainId = publicationIdToChainId(id)
+  const { network } = useParams<{ network: string }>()
+  const chainId = chainNameToChainId(network)
   const openNotification = useNotification()
   const { transactionUrl } = usePosterContext()
   const { publication, permission, savePublication } = usePublicationContext()
@@ -63,7 +66,7 @@ const usePublication = (id: string) => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
-          preventDuplicate: true
+          preventDuplicate: true,
         })
       }
     }
@@ -89,7 +92,7 @@ const usePublication = (id: string) => {
               autoHideDuration: 5000,
               variant: "success",
               detailsLink: transactionUrl,
-              preventDuplicate: true
+              preventDuplicate: true,
             })
           }
           return
@@ -126,7 +129,7 @@ const usePublication = (id: string) => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
-          preventDuplicate: true
+          preventDuplicate: true,
         })
       }
     }
@@ -156,7 +159,7 @@ const usePublication = (id: string) => {
           autoHideDuration: 5000,
           variant: "success",
           detailsLink: transactionUrl,
-          preventDuplicate: true
+          preventDuplicate: true,
         })
       }
     }

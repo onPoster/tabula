@@ -1,12 +1,10 @@
 import { chainIdToChainName } from "../constants/chain"
 
 export const checkIsValidChain = (
-  currentChain: number,
-  publicationId?: string,
+  currentConnectedChainId: number,
+  publicationChainName?: string,
 ): { network: string; isValid: boolean } => {
-  const currentChainName = chainIdToChainName(currentChain)
-  const publicationChainName = publicationId?.split(":")[0]
-
+  const currentChainName = chainIdToChainName(currentConnectedChainId)
   if (currentChainName == null) {
     // unsupported chain
     return { network: "", isValid: false }

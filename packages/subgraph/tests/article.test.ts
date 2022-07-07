@@ -1,16 +1,7 @@
 import { Address } from "@graphprotocol/graph-ts"
-import {
-  assert,
-  createMockedFunction,
-  clearStore,
-  test,
-  newMockEvent,
-  newMockCall,
-  countEntities,
-} from "matchstick-as/assembly/index"
-import { getArticleId } from "../src/article.mapping"
+import { assert, clearStore, test } from "matchstick-as/assembly/index"
 import { handleNewPost } from "../src/mapping"
-import { getPublicationId } from "../src/publication.mapping"
+import { getArticleId, getPublicationId } from "../src/utils"
 import { ARTICLE_ENTITY_TYPE, createNewPostEvent, PUBLICATION_ENTITY_TYPE, PUBLICATION_TAG } from "./util"
 
 test("An account can NOT create an article without specifying the publication.", () => {

@@ -50,20 +50,18 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<LandingView />} />
                 <Route path="/wallet" element={<WalletView />} />
-                <Route path="/pinning" element={<SetupIpfsView />} />
-                <Route path="/publication/publish" element={<PublishView updateChainId={updateChainId} />} />
+                <Route path="/:network">
+                  <Route path="pinning" element={<SetupIpfsView />} />
+                  <Route path="publications" element={<PublishView updateChainId={updateChainId} />} />
 
-                <Route path="/publication/:publicationId/post-action/:type" element={<CreatePostView />} />
-                <Route path="/publication/:publicationId/preview-post/:type" element={<PreviewPostView />} />
-                <Route
-                  path="/publication/:publicationId"
-                  element={<PublicationPostView updateChainId={updateChainId} />}
-                />
-                <Route
-                  path="/publication/:publicationId/article/:articleId"
-                  element={<ArticleView updateChainId={updateChainId} />}
-                />
-                <Route path="/publication/:publicationId/permission/:type" element={<PermissionView />} />
+                  <Route path=":publicationId/permissions/:type" element={<PermissionView />} />
+
+                  <Route path=":publicationId/:postId/:type" element={<CreatePostView />} />
+                  <Route path=":publicationId/:postId/preview/:type" element={<PreviewPostView />} />
+                  <Route path=":publicationId/:articleId" element={<ArticleView updateChainId={updateChainId} />} />
+
+                  <Route path=":publicationId" element={<PublicationPostView updateChainId={updateChainId} />} />
+                </Route>
               </Routes>
             </PosterProvider>
           </PublicationProvider>

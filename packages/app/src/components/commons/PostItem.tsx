@@ -18,7 +18,6 @@ const PostItemContainer = styled(Box)({
   minHeight: "105px",
   background: palette.grays[100],
   borderRadius: 4,
-  cursor: "pointer",
   padding: 20,
   "&:hover": {
     background: palette.grays[200],
@@ -132,7 +131,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                 <PostItemEditButton
                   onClick={(e) => {
                     e.stopPropagation()
-                    navigate(`/publication/${publicationId}/post-action/edit`)
+                    navigate(`../${publicationId}/${id}/edit`)
                     saveArticle(article)
                   }}
                   variant="contained"
@@ -168,7 +167,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
           endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
           disabled={loading || indexing}
           onClick={() => {
-            navigate(`/publication/${publicationId}/article/${id}`)
+            navigate(`../${publicationId}/${id}`)
             saveArticle(article)
           }}
         >

@@ -102,7 +102,7 @@ const SetupIpfsView: React.FC = () => {
       setCurrentPath(undefined)
       return
     }
-    navigate("/publication/publish")
+    navigate("../publications")
   }
 
   const handleClose = () => {
@@ -113,7 +113,7 @@ const SetupIpfsView: React.FC = () => {
     }
 
     if (!currentPath) {
-      navigate("/publication/publish")
+      navigate("../publications")
       return
     }
     if (!currentPath && !showModal) {

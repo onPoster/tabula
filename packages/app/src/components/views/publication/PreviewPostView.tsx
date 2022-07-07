@@ -114,12 +114,6 @@ export const PreviewPostView: React.FC = () => {
             },
             hashArticle ? true : false,
           ).then((res) => {
-            if (article && article.lastUpdated) {
-              setArticleId(article.id)
-              setCurrentTimestamp(parseInt(article.lastUpdated))
-              updatePoll(true)
-            }
-
             if (res && res.error) {
               setLoading(false)
             } else if (article && article.lastUpdated) {
@@ -170,7 +164,7 @@ export const PreviewPostView: React.FC = () => {
 
   useEffect(() => {
     if ((newArticleTransaction || updateTransaction) && publication) {
-      navigate(`/publication/${publication.id}/article/${newArticleId || updateArticleId}`)
+      navigate(`../${publication.id}/${newArticleId || updateArticleId}`)
     }
   }, [navigate, newArticleId, newArticleTransaction, publication, updateArticleId, updateTransaction])
 

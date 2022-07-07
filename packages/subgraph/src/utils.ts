@@ -1,7 +1,6 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap, Value, ValueKind } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
-import * as ArticleAction from "../typings/ArticleAction"
 
 export const ACTION__ARTICLE = "article"
 export const ACTION__PUBLICATION = "publication"
@@ -10,6 +9,16 @@ export const SUB_ACTION__CREATE = "create"
 export const SUB_ACTION__UPDATE = "update"
 export const SUB_ACTION__DELETE = "delete"
 export const SUB_ACTION__PERMISSIONS = "permissions"
+
+export const PUBLICATION_ENTITY_TYPE = "Publication"
+export const ARTICLE_ENTITY_TYPE = "Article"
+export const PERMISSION_ENTITY_TYPE = "Permission"
+
+export const getPublicationId = (event: NewPost): string =>
+  "P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+
+export const getArticleId = (event: NewPost): string =>
+  "A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getPermissionId = (publicationId: string, user: Address): string =>
   "X-" + publicationId + "-" + user.toHex()
@@ -159,5 +168,3 @@ function hasPublicationPermission(publicationId: string, user: Address, actionTy
 
   return false
 }
-
-export const getNetwork = (rawNetwork: string): string => (rawNetwork == "xdai" ? "gnosis_chain" : rawNetwork)
