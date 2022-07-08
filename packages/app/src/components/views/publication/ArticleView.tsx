@@ -88,10 +88,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                   <meta property="og:description" content={article?.description} key="1" />,
                   <meta name="description" content={article?.description} key="2" />,
                 ]}
-                <meta
-                  property="og:url"
-                  content={`https://tabula.gg/#/publication/${article.publication?.id}/article/${article.id}`}
-                />
+                <meta property="og:url" content={`https://tabula.gg/#/${article.publication?.id}/${article.id}`} />
                 {article.image != null && (
                   <meta property="og:image" content={`https://ipfs.infura.io/ipfs/${article?.image}`} />
                 )}
