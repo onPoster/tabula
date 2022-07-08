@@ -19,7 +19,7 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
           <meta property="og:description" content={publication?.description} key="1" />,
           <meta name="description" content={publication?.description} key="2" />,
         ]}
-        <meta property="og:url" content={`https://tabula.gg/#/publication/${publication?.id}`} />
+        <meta property="og:url" content={`https://tabula.gg/#/${publication?.id}`} />
       </Helmet>
       <PublicationHeader publication={publication} showCreatePost={showCreatePost} />
       <Box component="main" sx={{ pb: 12 }}>
