@@ -114,7 +114,7 @@ jobs:
       - name: Deploy subgraph to Goerli
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__POLYGON: auryn-macmillan/tabula-goerli
+          HOSTED_SERVICE_SUBGRAPH__GOERLI: auryn-macmillan/tabula-goerli
         run: yarn deploy:goerli
 
       - name: Deploy subgraph to Polygon
