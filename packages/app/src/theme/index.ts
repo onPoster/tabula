@@ -174,6 +174,9 @@ let theme = createTheme({
         img {
           width: 100%;
         }
+        em {
+          font-style: italic;
+        }
       `,
     },
   },
