@@ -9,9 +9,13 @@ env:
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
   REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS_DEV }}
   REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
-  REACT_APP_SUBGRAPH_RINKEBY: samepant/tabula-dev
-  REACT_APP_SUBGRAPH_GNOSIS_CHAIN: samepant/tabula-gnosis-chain
-  REACT_APP_SUBGRAPH_MAINNET: samepant/tabula
+  REACT_APP_SUBGRAPH_RINKEBY: auryn-macmillan/tabula-rinkeby
+  REACT_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
+  REACT_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula-mainnet
+  REACT_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
+  REACT_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
+  REACT_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
+  REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -68,5 +72,7 @@ jobs:
       - name: Deploy subgraphs
         working-directory: packages/subgraph
         env:
-          SUBGRAPH__RINKEBY: tabula-rinkeby
+          HOSTED_SERVICE_SUBGRAPH__RINKEBY: auryn-macmillan/tabula-rinkeby
+          HOSTED_SERVICE_SUBGRAPH__GOERLI: auryn-macmillan/tabula-goerli
         run: yarn deploy:rinkeby
+        run: yarn deploy:goerli

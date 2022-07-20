@@ -18,18 +18,29 @@ const BASE_SUBGRAPH_URL = process.env.REACT_APP_SUBGRAPH_BASE_URL
 const SUBGRAPH_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_GNOSIS_CHAIN
 const SUBGRAPH_RINKEBY = process.env.REACT_APP_SUBGRAPH_RINKEBY
 const SUBGRAPH_MAINNET = process.env.REACT_APP_SUBGRAPH_MAINNET
+const SUBGRAPH_GOERLI = process.env.REACT_APP_SUBGRAPH_GOERLI
+const SUBGRAPH_POLYGON = process.env.REACT_APP_SUBGRAPH_POLYGON
+const SUBGRAPH_ARBITRUM = process.env.REACT_APP_SUBGRAPH_ARBITRUM
+const SUBGRAPH_OPTIMISM = process.env.REACT_APP_SUBGRAPH_OPTIMISM
 
 const getUrl = (chainId?: number) => {
-  if (chainId === SupportedChainId.MAINNET) {
-    return BASE_SUBGRAPH_URL + SUBGRAPH_MAINNET
-  }
-  if (chainId === SupportedChainId.GNOSIS_CHAIN) {
-    return BASE_SUBGRAPH_URL + SUBGRAPH_GNOSIS_CHAIN
-  }
-  if (chainId === SupportedChainId.RINKEBY) {
-    return BASE_SUBGRAPH_URL + SUBGRAPH_RINKEBY
-  } else {
-    return BASE_SUBGRAPH_URL + SUBGRAPH_RINKEBY
+  switch (chainId) {
+    case SupportedChainId.MAINNET:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_MAINNET
+    case SupportedChainId.GNOSIS_CHAIN:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_GNOSIS_CHAIN
+    case SupportedChainId.RINKEBY:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_RINKEBY
+    case SupportedChainId.GOERLI:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_GOERLI
+    case SupportedChainId.POLYGON:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_POLYGON
+    case SupportedChainId.OPTIMISM:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_OPTIMISM
+    case SupportedChainId.ARBITRUM:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_ARBITRUM
+    default:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_RINKEBY
   }
 }
 

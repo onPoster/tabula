@@ -6,12 +6,20 @@ export enum SupportedChainId {
   MAINNET = 1,
   RINKEBY = 4,
   GNOSIS_CHAIN = 100,
+  GOERLI = 420,
+  POLYGON = 137,
+  ARBITRUM = 42161,
+  OPTIMISM = 10,
 }
 
 export enum SupportedChain {
   MAINNET = "mainnet",
   RINKEBY = "rinkeby",
   GNOSIS_CHAIN = "gnosis_chain",
+  GOERLI = "goerli",
+  POLYGON = "polygon",
+  ARBITRUM = "arbitrum",
+  OPTIMISM = "optimism",
 }
 
 export const chainIdToChainName = (chainId: number) => {
