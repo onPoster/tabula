@@ -109,31 +109,31 @@ jobs:
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__RINKEBY: auryn-macmillan/tabula-rinkeby
-        run: yarn deploy:gnosis-rinkeby
+        run: yarn deploy:rinkeby
 
       - name: Deploy subgraph to Goerli
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__POLYGON: auryn-macmillan/tabula-goerli
-        run: yarn deploy:gnosis-goerli
+        run: yarn deploy:goerli
 
       - name: Deploy subgraph to Polygon
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__POLYGON: auryn-macmillan/tabula-polygon
-        run: yarn deploy:gnosis-polygon
+        run: yarn deploy:polygon
 
       - name: Deploy subgraph to Arbitrum
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__ARBITRUM: auryn-macmillan/tabula-arbitrum
-        run: yarn deploy:gnosis-polygon
+        run: yarn deploy:arbitrum
 
       - name: Deploy subgraph to Optimism
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__OPTIMISM: auryn-macmillan/tabula-optimism
-        run: yarn deploy:gnosis-polygon
+        run: yarn deploy:optimism
 
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@v4.3.3
