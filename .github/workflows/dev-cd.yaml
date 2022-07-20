@@ -13,7 +13,7 @@ env:
   REACT_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
   REACT_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula-mainnet
   REACT_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
-  REACT_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
+  REACT_APP_SUBGRAPH_MATIC: auryn-macmillan/tabula-matic
   REACT_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
   REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
 jobs:

@@ -7,7 +7,7 @@ export enum SupportedChainId {
   RINKEBY = 4,
   GNOSIS_CHAIN = 100,
   GOERLI = 420,
-  POLYGON = 137,
+  MATIC = 137,
   ARBITRUM = 42161,
   OPTIMISM = 10,
 }
@@ -17,7 +17,7 @@ export enum SupportedChain {
   RINKEBY = "rinkeby",
   GNOSIS_CHAIN = "gnosis_chain",
   GOERLI = "goerli",
-  POLYGON = "polygon",
+  MATIC = "matic",
   ARBITRUM = "arbitrum",
   OPTIMISM = "optimism",
 }
