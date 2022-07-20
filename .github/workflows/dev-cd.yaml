@@ -65,16 +65,20 @@ jobs:
       - name: Get IPFS url
         run: echo "IPFS gateways — https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.dweb.link/ or https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.cf-ipfs.com/"
 
-      - name: Authenticate graph cli studio
+      # - name: Authenticate graph cli studio
+      #   working-directory: packages/subgraph
+      #   run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
+
+      - name: Authenticate graph cli hosted service
         working-directory: packages/subgraph
-        run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
+        run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
 
       - name: Deploy Rinkeby subgraphs
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__RINKEBY: auryn-macmillan/tabula-rinkeby
         run: yarn deploy:rinkeby
-      
+
       - name: Deploy Goerli subgraphs
         working-directory: packages/subgraph
         env:
