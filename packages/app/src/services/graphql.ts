@@ -13,6 +13,18 @@ if (!process.env.REACT_APP_SUBGRAPH_RINKEBY) {
 if (!process.env.REACT_APP_SUBGRAPH_MAINNET) {
   throw new Error("REACT_APP_SUBGRAPH_MAINNET is not set")
 }
+if (!process.env.REACT_APP_SUBGRAPH_GOERLI) {
+  throw new Error("REACT_APP_SUBGRAPH_GOERLI is not set")
+}
+if (!process.env.REACT_APP_SUBGRAPH_POLYGON) {
+  throw new Error("REACT_APP_SUBGRAPH_POLYGON is not set")
+}
+if (!process.env.REACT_APP_SUBGRAPH_ARBITRUM) {
+  throw new Error("REACT_APP_SUBGRAPH_ARBITRUM is not set")
+}
+if (!process.env.REACT_APP_SUBGRAPH_OPTIMISM) {
+  throw new Error("REACT_APP_SUBGRAPH_OPTIMISM is not set")
+}
 
 const BASE_SUBGRAPH_URL = process.env.REACT_APP_SUBGRAPH_BASE_URL
 const SUBGRAPH_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_GNOSIS_CHAIN
