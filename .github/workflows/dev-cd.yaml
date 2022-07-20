@@ -69,10 +69,14 @@ jobs:
         working-directory: packages/subgraph
         run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
 
-      - name: Deploy subgraphs
+      - name: Deploy Rinkeby subgraphs
         working-directory: packages/subgraph
         env:
           HOSTED_SERVICE_SUBGRAPH__RINKEBY: auryn-macmillan/tabula-rinkeby
-          HOSTED_SERVICE_SUBGRAPH__GOERLI: auryn-macmillan/tabula-goerli
         run: yarn deploy:rinkeby
+      
+      - name: Deploy Goerli subgraphs
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__GOERLI: auryn-macmillan/tabula-goerli
         run: yarn deploy:goerli
