@@ -7,10 +7,15 @@ on:
 env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
+  REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS_PROD }}
   REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
   REACT_APP_SUBGRAPH_RINKEBY: auryn-macmillan/tabula-dev
   REACT_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
   REACT_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula
+  REACT_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
+  REACT_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
+  REACT_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
+  REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
 jobs:
   deploy:
     runs-on: ubuntu-latest
