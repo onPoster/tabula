@@ -8,9 +8,9 @@ env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
   REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
-  REACT_APP_SUBGRAPH_RINKEBY: samepant/tabula-dev
-  REACT_APP_SUBGRAPH_GNOSIS_CHAIN: samepant/tabula-gnosis-chain
-  REACT_APP_SUBGRAPH_MAINNET: samepant/tabula
+  REACT_APP_SUBGRAPH_RINKEBY: auryn-macmillan/tabula-dev
+  REACT_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
+  REACT_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -74,25 +74,61 @@ jobs:
               - https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.dweb.link/
               - https://${{ steps.convert_cidv0.outputs.cidv1 }}.ipfs.cf-ipfs.com/
 
-      - name: Authenticate graph cli studio
-        working-directory: packages/subgraph
-        run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
+      # - name: Authenticate graph cli studio
+      #   working-directory: packages/subgraph
+      #   run: yarn run graph auth --studio ${{ secrets.SUBGRAPH_DEPLOYMENT_KEY }}
 
-      - name: Deploy subgraph to Mainnet
-        working-directory: packages/subgraph
-        env:
-          SUBGRAPH__MAINNET: tabula-mainnet
-        run: yarn deploy:mainnet
+      # - name: Deploy subgraph to Mainnet on Studio
+      #   working-directory: packages/subgraph
+      #   env:
+      #     SUBGRAPH__MAINNET: tabula-mainnet
+      #   run: yarn deploy:mainnet
 
       - name: Authenticate graph cli hosted service
         working-directory: packages/subgraph
         run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
 
+      - name: Deploy subgraph to mainnet
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__MAINNET: auryn-macmillan/tabula-mainnet
+        run: yarn deploy:mainnet
+
       - name: Deploy subgraph to Gnosis Chain
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: samepant/tabula-gnosis-chain
+          HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
         run: yarn deploy:gnosis-chain
+
+      - name: Deploy subgraph to Rinkeby
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__RINKEBY: auryn-macmillan/tabula-rinkeby
+        run: yarn deploy:gnosis-rinkeby
+
+      - name: Deploy subgraph to Goerli
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__POLYGON: auryn-macmillan/tabula-goerli
+        run: yarn deploy:gnosis-goerli
+
+      - name: Deploy subgraph to Polygon
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__POLYGON: auryn-macmillan/tabula-polygon
+        run: yarn deploy:gnosis-polygon
+
+      - name: Deploy subgraph to Arbitrum
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__ARBITRUM: auryn-macmillan/tabula-arbitrum
+        run: yarn deploy:gnosis-polygon
+
+      - name: Deploy subgraph to Optimism
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__OPTIMISM: auryn-macmillan/tabula-optimism
+        run: yarn deploy:gnosis-polygon
 
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@v4.3.3
