@@ -30,6 +30,14 @@ export const chainIdToChainName = (chainId: number) => {
       return SupportedChain.RINKEBY
     case SupportedChainId.GNOSIS_CHAIN:
       return SupportedChain.GNOSIS_CHAIN
+    case SupportedChainId.GOERLI:
+      return SupportedChain.GOERLI
+    case SupportedChainId.POLYGON:
+      return SupportedChain.POLYGON
+    case SupportedChainId.ARBITRUM:
+      return SupportedChain.ARBITRUM
+    case SupportedChainId.OPTIMISM:
+      return SupportedChain.OPTIMISM
   }
 }
 
@@ -41,6 +49,14 @@ export const chainNameToChainId = (chainName?: string) => {
       return SupportedChainId.RINKEBY
     case SupportedChain.GNOSIS_CHAIN:
       return SupportedChainId.GNOSIS_CHAIN
+    case SupportedChain.GOERLI:
+      return SupportedChainId.GOERLI
+    case SupportedChain.POLYGON:
+      return SupportedChainId.POLYGON
+    case SupportedChain.ARBITRUM:
+      return SupportedChainId.ARBITRUM
+    case SupportedChain.OPTIMISM:
+      return SupportedChainId.OPTIMISM
     default:
       return -1
   }
@@ -50,6 +66,10 @@ export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
   SupportedChainId.RINKEBY,
   SupportedChainId.GNOSIS_CHAIN,
+  SupportedChainId.GOERLI,
+  SupportedChainId.POLYGON,
+  SupportedChainId.ARBITRUM,
+  SupportedChainId.OPTIMISM,
 ]
 
 export const chainToString = (chainId: number) => {
@@ -60,6 +80,14 @@ export const chainToString = (chainId: number) => {
       return `Rinkeby (ChainID: ${chainId})`
     case SupportedChainId.GNOSIS_CHAIN:
       return `Gnosis Chain (ChainID: ${chainId})`
+    case SupportedChainId.GOERLI:
+      return `Goerli (ChainID: ${chainId})`
+    case SupportedChainId.POLYGON:
+      return `Polygon (ChainID: ${chainId})`
+    case SupportedChainId.ARBITRUM:
+      return `Arbitrum (ChainID: ${chainId})`
+    case SupportedChainId.OPTIMISM:
+      return `Optimism (ChainID: ${chainId})`
     default: {
       console.warn(`Missing "chainToString" implementation for ChainID: ${chainId}`)
       return "Unknown chain"
@@ -96,11 +124,11 @@ const chainParameters = (chainId: number) => {
         chainId: requiredChainIdHex,
         chainName: "Ethereum Mainnet",
         rpcUrls: [
+          "https://rpc.ankr.com/eth",
           "https://cloudflare-eth.com",
           "https://eth-mainnet.gateway.pokt.network/v1/5f3453978e354ab992c4da79",
           "https://main-rpc.linkpool.io/",
           "https://api.mycryptoapi.com/eth",
-          "https://rpc.ankr.com/eth",
         ],
         nativeCurrency: {
           name: "ETH",
@@ -113,7 +141,11 @@ const chainParameters = (chainId: number) => {
       return {
         chainId: requiredChainIdHex,
         chainName: "Rinkeby Test Network",
-        rpcUrls: ["https://rinkeby.infura.io/v3/"],
+        rpcUrls: [
+          "https://rpc.ankr.com/eth_rinkeby	",
+          "https://rinkeby.infura.io/v3/",
+          "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+        ],
         nativeCurrency: {
           name: "Rinkeby ETH",
           symbol: "ETH",
@@ -132,6 +164,67 @@ const chainParameters = (chainId: number) => {
           decimals: 18,
         },
         blockExplorerUrls: ["https://blockscout.com/xdai/mainnet"],
+      }
+    case SupportedChainId.GOERLI:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Goerli",
+        rpcUrls: [
+          "https://rpc.goerli.mudit.blog",
+          "https://rpc.ankr.com/eth_goerli",
+          "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+        ],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://goerli.etherscan.io/"],
+      }
+    case SupportedChainId.POLYGON:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Polygon",
+        rpcUrls: [
+          "https://poly-rpc.gateway.pokt.network",
+          "https://rpc-mainnet.matic.quiknode.pro",
+          "https://rpc-mainnet.matic.network",
+          "https://rpc.ankr.com/polygon",
+        ],
+        nativeCurrency: {
+          name: "MATIC",
+          symbol: "MATIC",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://polygonscan.com/"],
+      }
+    case SupportedChainId.ARBITRUM:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Arbitrum",
+        rpcUrls: ["https://rpc.ankr.com/arbitrum", "https://arb1.arbitrum.io/rpc"],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://arbiscan.io/"],
+      }
+    case SupportedChainId.OPTIMISM:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Optimism",
+        rpcUrls: [
+          "https://mainnet.optimism.io",
+          "https://optimism-mainnet.public.blastapi.io",
+          "https://rpc.ankr.com/optimism",
+        ],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://optimistic.etherscan.io/"],
       }
   }
 }
