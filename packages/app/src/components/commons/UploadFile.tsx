@@ -20,7 +20,12 @@ const UploadFileContainer = styled(Grid)({
 })
 
 const UploadContainer = styled(Grid)({
+  cursor: "pointer",
+  display: "flex",
   position: "relative",
+  "&:hover img": {
+    opacity: 0.8,
+  }
 })
 
 const UploadEditButton = styled(Fab)({
@@ -73,23 +78,25 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
         </UploadFileContainer>
       )}
       {(imageHash || uri) && (
-        <UploadContainer>
-          <Box
-            component="img"
-            style={{
-              height: 213,
-              borderRadius: 4,
-              objectFit: "cover",
-            }}
-            alt="Article image"
-            src={uri ? uri : `https://ipfs.infura.io/ipfs/${imageHash}`}
-          />
+        <Box sx={{position: "relative"}}>
+          <UploadContainer onClick={openImagePicker}>
+            <Box
+              component="img"
+              sx={{
+                height: 213,
+                borderRadius: 1,
+                objectFit: "cover",
+              }}
+              alt="Article image"
+              src={uri ? uri : `https://ipfs.infura.io/ipfs/${imageHash}`}
+            />
+          </UploadContainer>
           {(imageHash || uri) && (
             <UploadEditButton color="primary" aria-label="edit" onClick={removeImage}>
               <ClearIcon />
             </UploadEditButton>
           )}
-        </UploadContainer>
+        </Box>
       )}
       <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
     </>
