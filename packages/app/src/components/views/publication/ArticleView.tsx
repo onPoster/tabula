@@ -110,11 +110,15 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                 </Grid>
               )}
               {article.publication && (
-                <Stack alignItems="center" direction="row" spacing={1} my={1}>
+                <Grid container spacing={1} sx={{ marginLeft: -0.5 }}>
                   {article.tags &&
                     article.tags.length > 0 &&
-                    article.tags.map((tag, index) => <Chip label={tag} size="small" key={index} />)}
-                </Stack>
+                    article.tags.map((tag, index) => (
+                      <Grid item>
+                        <Chip sx={{ height: "100%" }} label={tag} size="small" key={index} />
+                      </Grid>
+                    ))}
+                </Grid>
               )}
               <Grid item my={5}>
                 <Markdown>{articleToShow}</Markdown>
