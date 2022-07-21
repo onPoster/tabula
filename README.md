@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/gnosis/tabula/actions/workflows/ci.yaml/badge.svg)](https://github.com/gnosis/tabula/actions/workflows/ci.yaml)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/gnosis/CODE_OF_CONDUCT)
 
-A blogging app built on Poster (EIP-3722)
+Instant web3 publications for writers, DAOs, and any Ethereum-based account. Built on Poster (EIP-3722).
 
 ## Poster Format
 
