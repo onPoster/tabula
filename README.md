@@ -1,5 +1,8 @@
 # Tabula
 
+[![Build Status](https://github.com/gnosis/zodiac-tabula/actions/workflows/ci.yml/badge.svg)](https://github.com/gnosis/zodiac-tabula/actions/workflows/ci.yml)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/gnosis/CODE_OF_CONDUCT)
+
 A blogging app built on Poster (EIP-3722)
 
 ## Poster Format
