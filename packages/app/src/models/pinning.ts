@@ -14,6 +14,6 @@ export enum PinningService {
 export enum PinningServiceEndpoint {
   PINATA = "https://api.pinata.cloud/psa",
   ESTUARY = "https://api.estuary.tech/pinning",
-  WEB3_STORAGE = "https://api.web3.storage",
-  NFT_STORAGE = "https://nft.storage",
+  WEB3_STORAGE = "https://api.web3.storage/pins",
+  NFT_STORAGE = "https://api.nft.storage/pins",
 }
