@@ -101,11 +101,17 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
           <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
             {articleTitle}
           </Typography>
-          <Stack alignItems="center" direction="row" spacing={2}>
+          <Stack alignItems="left" spacing={1}>
             {date && <Typography variant="body2">{moment(date).format("MMMM DD, YYYY")}</Typography>}
-            <Stack alignItems="center" direction="row" spacing={1}>
-              {tags && tags.length > 0 && tags.map((tag, index) => <Chip label={tag} size="small" key={index} />)}
-            </Stack>
+            <Grid container spacing={0.5} sx={{ marginLeft: -0.5 }}>
+              {tags &&
+                tags.length > 0 &&
+                tags.map((tag, index) => (
+                  <Grid item>
+                    <Chip sx={{ height: "100%" }} label={tag} size="small" key={index} />
+                  </Grid>
+                ))}
+            </Grid>
           </Stack>
           <Typography
             variant="body1"
@@ -113,7 +119,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
               color: palette.grays[900],
               fontSize: 14,
               lineHeight: 1.5,
-              mt: 1,
+              mt: 2,
             }}
           >
             {articleDescription}
