@@ -118,7 +118,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
               color: palette.grays[900],
               fontSize: 14,
               lineHeight: 1.5,
-              mt: 1,
+              mt: 2,
             }}
           >
             {articleDescription}
