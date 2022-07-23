@@ -19,12 +19,6 @@ const PostItemContainer = styled(Box)({
   background: palette.grays[100],
   borderRadius: 4,
   padding: 20,
-  "&:hover": {
-    background: palette.grays[200],
-    "& .arrow-forward": {
-      color: palette.grays[600],
-    },
-  },
 })
 
 const PostItemEditButton = styled(Button)({
@@ -101,17 +95,22 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
           <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
             {articleTitle}
           </Typography>
-          <Stack alignItems="left" spacing={1}>
-            {date && <Typography variant="body2">{moment(date).format("MMMM DD, YYYY")}</Typography>}
-            <Grid container spacing={0.5} sx={{ marginLeft: -0.5 }}>
-              {tags &&
-                tags.length > 0 &&
-                tags.map((tag, index) => (
-                  <Grid item>
-                    <Chip sx={{ height: "100%" }} label={tag} size="small" key={index} />
-                  </Grid>
-                ))}
-            </Grid>
+          <Stack alignItems="flex-start" direction="row" spacing={2}>
+            {date && <Typography variant="body2" sx={{whiteSpace: "nowrap"}}>{moment(date).format("MMMM DD, YYYY")}</Typography>}
+            <Box sx={{
+              display: "flex",
+              alignItems: "center",
+              direction: "row",
+              flexWrap: "wrap",
+            }}>
+              {tags && tags.length > 0 && tags.map((tag, index) => { 
+                return (
+                  <Box sx={{display: "flex", p:"2px"}}>
+                    <Chip label={tag} size="small" key={index} />
+                  </Box>
+                )
+              })}
+            </Box>
           </Stack>
           <Typography
             variant="body1"

@@ -190,7 +190,7 @@ theme = createTheme(theme, {
         fontSize: "5rem",
       },
       [`${theme.breakpoints.down("sm")}`]: {
-        fontSize: "4rem",
+        fontSize: "2.25rem",
       },
     },
     subtitle1: {
