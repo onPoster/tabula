@@ -120,7 +120,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                     ))}
                 </Grid>
               )}
-              <Grid item my={5}>
+              <Grid item my={5} width="100%">
                 <Markdown>{articleToShow}</Markdown>
               </Grid>
 
