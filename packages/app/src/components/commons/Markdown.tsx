@@ -1,7 +1,7 @@
 import ReactMarkdown from "markdown-to-jsx"
 import { List, ListItem, Typography } from "@mui/material"
 import Link from "@mui/material/Link"
-import { palette, typography } from "../../theme"
+import { typography } from "../../theme"
 
 const options = {
   overrides: {
@@ -50,13 +50,26 @@ const options = {
       props: { gutterBottom: true, paragraph: true },
     },
     a: { component: Link },
+    ol: {
+      component: List,
+      dense: true,
+      props: {
+        sx: {
+          mb: 2,
+          pl: 2,
+          "& li": {
+            listStyleType: "decimal"
+          }
+        },
+      },
+    },
     ul: {
       component: List,
       dense: true,
       props: {
         sx: {
           mb: 2,
-          pl: 0,
+          pl: 2,
         },
       },
     },
@@ -65,24 +78,10 @@ const options = {
       props: {
         sx: {
           display: "list-item",
-          listStylePosition: "inside",
+          listStylePosition: "outside",
           listStyleType: "circle",
           pl: 0,
           py: "0.25rem",
-        },
-      },
-    },
-    pre: {
-      props: {
-        style: {
-          background: palette.grays[800],
-          borderRadius: 4,
-          color: palette.whites[1000],
-          fontFamily: typography.fontFamilies.monospace,
-          marginBottom: "1rem",
-          overflow: "auto",
-          paddingBottom: "1rem",
-          paddingTop: "1rem",
         },
       },
     },
