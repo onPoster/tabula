@@ -177,6 +177,20 @@ let theme = createTheme({
         em {
           font-style: italic;
         }
+        blockquote {
+          padding: 0 1rem;
+          border-left: 2px solid ${palette.grays[200]};
+          color: ${palette.grays[800]};
+        }
+        pre, :not(pre) > code {
+          background-color: ${palette.grays[800]};
+          border-radius: 4px;
+          color: ${palette.whites[1000]};
+          font-family: ${typography.fontFamilies.monospace};
+          margin-bottom: 1rem;
+          overflow: auto;
+          padding: 1rem;
+        }
       `,
     },
   },
