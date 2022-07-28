@@ -1,11 +1,13 @@
 import { Box, Button, CircularProgress, FormHelperText, Grid, styled, TextField, Typography } from "@mui/material"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import React, { useEffect, useState } from "react"
+import React, { ChangeEvent, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
+import ArticleTabs from "./ArticleTabs"
+import { Markdown } from "../../commons/Markdown"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Article } from "../../../models/publication"
@@ -42,6 +44,8 @@ export const CreatePostView: React.FC = () => {
   )
   const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
+  const [currentTab, setCurrentTab] = useState<"write" | "preview">("write")
+  const [articleContent, setArticleContent] = useState<string>("")
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToDelete = haveActionPermission(permissions || [], "articleDelete", account || "")
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
@@ -81,6 +85,10 @@ export const CreatePostView: React.FC = () => {
       navigate(-1)
     }
   }, [navigate, saveDraftArticle, transactionCompleted])
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement> ) => {
+    setArticleContent(event.target.value)
+  }
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
@@ -150,20 +158,55 @@ export const CreatePostView: React.FC = () => {
               )}
             </Grid>
             <Grid item xs={12}>
-              <Controller
-                control={control}
-                name="article"
-                render={({ field }) => (
-                  <TextField {...field} placeholder="Start your post..." sx={{ width: "100%" }} multiline rows={14} />
-                )}
-                rules={{ required: true }}
-              />
 
-              {errors && errors.article && (
-                <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                  {errors.article.message}
-                </FormHelperText>
+              <ArticleTabs onChange={setCurrentTab} />
+              {currentTab === "write" && (
+                <>
+                  <Controller
+                    control={control}
+                    name="article"
+                    render={({ field }) => (
+                      <TextField
+                      {...field}
+                      placeholder="Start your post..."
+                      multiline
+                      rows={14}
+                      onChange={handleChange}
+                      value={articleContent}
+                      sx={{
+                        width: "100%",
+                        "& .MuiInputBase-root": {
+                          borderTopLeftRadius: 0,
+                        }
+                      }}
+                    />
+                    )}
+                    rules={{ required: true }}
+                  />
+    
+                  {errors && errors.article && (
+                    <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                      {errors.article.message}
+                    </FormHelperText>
+                  )}
+                </>
               )}
+              {currentTab === "preview" && (
+                articleContent ? (
+                  <Markdown>{articleContent}</Markdown>
+                ) : (
+                  <Box
+                    sx={{
+                      color: palette.grays[800],
+                      fontSize: 14,
+                      mt: 1
+                    }}
+                  >
+                    Nothing to preview
+                  </Box>
+                )
+              )}
+
             </Grid>
             {type === "new" && (
               <Grid item xs={12} mt={1}>
