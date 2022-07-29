@@ -15,6 +15,7 @@ env:
   REACT_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
   REACT_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
   REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
+  REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism-on-gnosis-chain
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -133,6 +134,12 @@ jobs:
         env:
           HOSTED_SERVICE_SUBGRAPH__OPTIMISM: auryn-macmillan/tabula-optimism
         run: yarn deploy:optimism
+
+      - name: Deploy subgraph to Optimism on Gnosis Chain
+        working-directory: packages/subgraph
+        env:
+          HOSTED_SERVICE_SUBGRAPH__OPTIMISM__ON__GNOSIS__CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
+        run: yarn deploy:optimism-on-gnosis-chain
 
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@v4.3.3

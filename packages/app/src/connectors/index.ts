@@ -21,6 +21,7 @@ const NETWORK_URLS: { [key in SupportedChainId]: string } = {
   [SupportedChainId.POLYGON]: `https://polygon-rpc.com/`,
   [SupportedChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc/`,
   [SupportedChainId.OPTIMISM]: `https://mainnet.optimism.io/`,
+  [SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN]: `https://optimism.gnosischain.com`,
 }
 
 export const network = new NetworkConnector({

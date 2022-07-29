@@ -18,6 +18,8 @@
     "prepare:polygon": "mustache network_configs/polygon.json subgraph.template.yaml > subgraph.yaml",
     "deploy:optimism": "yarn prepare:optimism && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__OPTIMISM'",
     "prepare:optimism": "mustache network_configs/optimism.json subgraph.template.yaml > subgraph.yaml",
+    "deploy:optimism-on-gnosis-chain": "yarn prepare:optimism-on-gnosis-chain && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__OPTIMISM__ON__GNOSIS__CHAIN'",
+    "prepare:optimism": "mustache network_configs/optimism-on-gnosis-chain.json subgraph.template.yaml > subgraph.yaml",
     "deploy:arbitrum": "yarn prepare:arbitrum && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__ARBITRUM'",
     "prepare:arbitrum": "mustache network_configs/arbitrum.json subgraph.template.yaml > subgraph.yaml",
     "fmt": "prettier '(test|src)/**/*.ts' -w",

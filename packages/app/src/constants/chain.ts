@@ -10,6 +10,7 @@ export enum SupportedChainId {
   POLYGON = 137,
   ARBITRUM = 42161,
   OPTIMISM = 10,
+  OPTIMISM_ON_GNOSIS_CHAIN = 300,
 }
 
 export enum SupportedChain {
@@ -20,6 +21,7 @@ export enum SupportedChain {
   POLYGON = "polygon",
   ARBITRUM = "arbitrum",
   OPTIMISM = "optimism",
+  OPTIMISM_ON_GNOSIS_CHAIN = "optimism_on_gnosis_chain",
 }
 
 export const chainIdToChainName = (chainId: number) => {
@@ -38,6 +40,8 @@ export const chainIdToChainName = (chainId: number) => {
       return SupportedChain.ARBITRUM
     case SupportedChainId.OPTIMISM:
       return SupportedChain.OPTIMISM
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+      return SupportedChain.OPTIMISM_ON_GNOSIS_CHAIN
   }
 }
 
@@ -57,6 +61,8 @@ export const chainNameToChainId = (chainName?: string) => {
       return SupportedChainId.ARBITRUM
     case SupportedChain.OPTIMISM:
       return SupportedChainId.OPTIMISM
+    case SupportedChain.OPTIMISM_ON_GNOSIS_CHAIN:
+      return SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN
     default:
       return -1
   }
@@ -70,6 +76,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.POLYGON,
   SupportedChainId.ARBITRUM,
   SupportedChainId.OPTIMISM,
+  SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN,
 ]
 
 export const chainToString = (chainId: number) => {
@@ -88,6 +95,8 @@ export const chainToString = (chainId: number) => {
       return `Arbitrum (ChainID: ${chainId})`
     case SupportedChainId.OPTIMISM:
       return `Optimism (ChainID: ${chainId})`
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+      return `Optimism on Gnosis Chain (ChainID: ${chainId})`
     default: {
       console.warn(`Missing "chainToString" implementation for ChainID: ${chainId}`)
       return "Unknown chain"
@@ -225,6 +234,18 @@ const chainParameters = (chainId: number) => {
           decimals: 18,
         },
         blockExplorerUrls: ["https://optimistic.etherscan.io/"],
+      }
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Optimism on Gnosis Chain",
+        rpcUrls: ["https://optimism.gnosischain.com"],
+        nativeCurrency: {
+          name: "xDai",
+          symbol: "xDai",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://blockscout.com/xdai/optimism/"],
       }
   }
 }
