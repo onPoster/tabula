@@ -45,7 +45,6 @@ export const CreatePostView: React.FC = () => {
   const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState<"write" | "preview">("write")
-  const [articleContent, setArticleContent] = useState<string>("")
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToDelete = haveActionPermission(permissions || [], "articleDelete", account || "")
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
@@ -86,8 +85,9 @@ export const CreatePostView: React.FC = () => {
     }
   }, [navigate, saveDraftArticle, transactionCompleted])
 
+
   const handleChange = (event: ChangeEvent<HTMLInputElement> ) => {
-    setArticleContent(event.target.value)
+    setValue("article", event.target.value)
   }
 
   const onSubmitHandler = (data: Article) => {
@@ -158,53 +158,46 @@ export const CreatePostView: React.FC = () => {
               )}
             </Grid>
             <Grid item xs={12}>
-
               <ArticleTabs onChange={setCurrentTab} />
-              {currentTab === "write" && (
-                <>
-                  <Controller
-                    control={control}
-                    name="article"
-                    render={({ field }) => (
+              <Controller
+                control={control}
+                name="article"
+                render={({ field }) => {
+                  return (
+                    currentTab === "write" ? (
                       <TextField
-                      {...field}
-                      placeholder="Start your post..."
-                      multiline
-                      rows={14}
-                      onChange={handleChange}
-                      value={articleContent}
-                      sx={{
-                        width: "100%",
-                        "& .MuiInputBase-root": {
-                          borderTopLeftRadius: 0,
-                        }
-                      }}
-                    />
-                    )}
-                    rules={{ required: true }}
-                  />
-    
-                  {errors && errors.article && (
-                    <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                      {errors.article.message}
-                    </FormHelperText>
-                  )}
-                </>
-              )}
-              {currentTab === "preview" && (
-                articleContent ? (
-                  <Markdown>{articleContent}</Markdown>
-                ) : (
-                  <Box
-                    sx={{
-                      color: palette.grays[800],
-                      fontSize: 14,
-                      mt: 1
-                    }}
-                  >
-                    Nothing to preview
-                  </Box>
-                )
+                        {...field}
+                        placeholder="Start your post..."
+                        multiline
+                        rows={14}
+                        onChange={handleChange}
+                        sx={{
+                          width: "100%",
+                          "& .MuiInputBase-root": {
+                            borderTopLeftRadius: 0,
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Box sx={{borderTop: `1px solid ${palette.grays[400]}`, pt: 1}}>
+                        {field.value ? (
+                          <Markdown>{field.value}</Markdown>
+                        ) : (
+                          <Box sx={{color: palette.grays[800], fontSize: 14}}>
+                            Nothing to preview
+                          </Box>
+                        )}
+                      </Box>
+                    )
+                  )
+                }}
+                rules={{ required: true }}
+              />
+
+              {errors && errors.article && (
+                <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                  {errors.article.message}
+                </FormHelperText>
               )}
 
             </Grid>
