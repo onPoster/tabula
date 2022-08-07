@@ -29,6 +29,7 @@ const options = {
         component: "h3",
       },
     },
+    
     h4: {
       component: Typography,
       props: {
@@ -49,7 +50,7 @@ const options = {
       component: Typography,
       props: { gutterBottom: true, paragraph: true },
     },
-    a: { component: Link },
+    a: { component: Link, props: { target: "_self" } },
     ol: {
       component: List,
       dense: true,
@@ -58,8 +59,8 @@ const options = {
           mb: 2,
           pl: 2,
           "& li": {
-            listStyleType: "decimal"
-          }
+            listStyleType: "decimal",
+          },
         },
       },
     },
