@@ -25,6 +25,9 @@ if (!process.env.REACT_APP_SUBGRAPH_ARBITRUM) {
 if (!process.env.REACT_APP_SUBGRAPH_OPTIMISM) {
   throw new Error("REACT_APP_SUBGRAPH_OPTIMISM is not set")
 }
+if (!process.env.REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN) {
+  throw new Error("REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN is not set")
+}
 
 const BASE_SUBGRAPH_URL = process.env.REACT_APP_SUBGRAPH_BASE_URL
 const SUBGRAPH_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_GNOSIS_CHAIN
@@ -34,6 +37,7 @@ const SUBGRAPH_GOERLI = process.env.REACT_APP_SUBGRAPH_GOERLI
 const SUBGRAPH_POLYGON = process.env.REACT_APP_SUBGRAPH_POLYGON
 const SUBGRAPH_ARBITRUM = process.env.REACT_APP_SUBGRAPH_ARBITRUM
 const SUBGRAPH_OPTIMISM = process.env.REACT_APP_SUBGRAPH_OPTIMISM
+const SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN
 
 const getUrl = (chainId?: number) => {
   switch (chainId) {
@@ -49,6 +53,8 @@ const getUrl = (chainId?: number) => {
       return BASE_SUBGRAPH_URL + SUBGRAPH_POLYGON
     case SupportedChainId.OPTIMISM:
       return BASE_SUBGRAPH_URL + SUBGRAPH_OPTIMISM
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN
     case SupportedChainId.ARBITRUM:
       return BASE_SUBGRAPH_URL + SUBGRAPH_ARBITRUM
     default:
