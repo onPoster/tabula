@@ -76,7 +76,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.POLYGON,
   SupportedChainId.ARBITRUM,
   SupportedChainId.OPTIMISM,
-  SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN,
+  // SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN,
 ]
 
 export const chainToString = (chainId: number) => {
