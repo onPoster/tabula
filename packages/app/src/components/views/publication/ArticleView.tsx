@@ -13,6 +13,8 @@ import isIPFS from "is-ipfs"
 import { WalletBadge } from "../../commons/WalletBadge"
 import { chainNameToChainId } from "../../../constants/chain"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
 }
@@ -89,11 +91,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                   <meta name="description" content={article?.description} key="2" />,
                 ]}
                 <meta property="og:url" content={`https://tabula.gg/#/${article.publication?.id}/${article.id}`} />
-                {article.image != null && (
-                  <meta property="og:image" content={`https://ipfs.infura.io/ipfs/${article?.image}`} />
-                )}
+                {article.image != null && <meta property="og:image" content={`${IPFS_GATEWAY}/${article?.image}`} />}
               </Helmet>
-              {article.image && <img src={`https://ipfs.infura.io/ipfs/${article?.image}`} alt={article.title} />}
+              {article.image && <img src={`${IPFS_GATEWAY}/${article?.image}`} alt={article.title} />}
               <Grid item>
                 <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
                   {article.title}

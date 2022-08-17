@@ -5,6 +5,8 @@ import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import EditIcon from "@mui/icons-material/Edit"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+
 const SmallAvatar = styled(Avatar)({
   width: 40,
   height: 40,
@@ -61,7 +63,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
         }
       >
         <Avatar
-          src={uri ? uri : `https://ipfs.infura.io/ipfs/${defaultImage}`}
+          src={uri ? uri : `${IPFS_GATEWAY}/${defaultImage}`}
           onClick={openImagePicker}
           sx={{
             width: 160,

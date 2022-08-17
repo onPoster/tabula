@@ -15,6 +15,8 @@ import PostSection from "./components/PostSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+
 const PublicationPostContainer = styled(Grid)(({ theme }) => ({
   [`${theme.breakpoints.down("md")}`]: {
     justifyContent: "center",
@@ -78,7 +80,7 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
                   {!editingPublication && (
                     <Avatar
                       sx={{ width: 160, height: 160 }}
-                      src={publication.image ? `https://ipfs.infura.io/ipfs/${publication.image}` : ""}
+                      src={publication.image ? `${IPFS_GATEWAY}/${publication.image}` : ""}
                     >
                       {" "}
                     </Avatar>

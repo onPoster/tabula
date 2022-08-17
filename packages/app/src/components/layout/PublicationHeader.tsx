@@ -11,6 +11,8 @@ import { haveActionPermission } from "../../utils/permission"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+
 type Props = {
   publication?: Publications
   showCreatePost?: boolean
@@ -73,7 +75,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
             >
               <Avatar
                 sx={{ width: 47, height: 47 }}
-                src={publication?.image ? `https://ipfs.infura.io/ipfs/${publication.image}` : ""}
+                src={publication?.image ? `${IPFS_GATEWAY}/${publication.image}` : ""}
               >
                 {" "}
               </Avatar>

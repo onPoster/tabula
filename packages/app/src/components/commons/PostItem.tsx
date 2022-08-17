@@ -14,6 +14,8 @@ import usePoster from "../../services/poster/hooks/usePoster"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { usePosterContext } from "../../services/poster/context"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+
 const PostItemContainer = styled(Box)({
   minHeight: "105px",
   background: palette.grays[100],
@@ -88,7 +90,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
       <Grid container spacing={2}>
         {image && (
           <Grid item xs={4}>
-            <ThumbnailImage src={`https://ipfs.infura.io/ipfs/${image}`} />
+            <ThumbnailImage src={`${IPFS_GATEWAY}/${image}`} />
           </Grid>
         )}
         <Grid item xs={8}>
@@ -96,20 +98,28 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
             {articleTitle}
           </Typography>
           <Stack alignItems="flex-start" direction="row" spacing={2}>
-            {date && <Typography variant="body2" sx={{whiteSpace: "nowrap"}}>{moment(date).format("MMMM DD, YYYY")}</Typography>}
-            <Box sx={{
-              display: "flex",
-              alignItems: "center",
-              direction: "row",
-              flexWrap: "wrap",
-            }}>
-              {tags && tags.length > 0 && tags.map((tag, index) => { 
-                return (
-                  <Box sx={{display: "flex", p:"2px"}}>
-                    <Chip label={tag} size="small" key={index} />
-                  </Box>
-                )
-              })}
+            {date && (
+              <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+                {moment(date).format("MMMM DD, YYYY")}
+              </Typography>
+            )}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                direction: "row",
+                flexWrap: "wrap",
+              }}
+            >
+              {tags &&
+                tags.length > 0 &&
+                tags.map((tag, index) => {
+                  return (
+                    <Box sx={{ display: "flex", p: "2px" }}>
+                      <Chip label={tag} size="small" key={index} />
+                    </Box>
+                  )
+                })}
             </Box>
           </Stack>
           <Typography
