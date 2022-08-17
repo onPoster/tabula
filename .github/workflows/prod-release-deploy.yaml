@@ -136,12 +136,6 @@ jobs:
           HOSTED_SERVICE_SUBGRAPH__OPTIMISM: auryn-macmillan/tabula-optimism
         run: yarn deploy:optimism
 
-      - name: Deploy subgraph to Optimism on Gnosis Chain
-        working-directory: packages/subgraph
-        env:
-          HOSTED_SERVICE_SUBGRAPH__OPTIMISM__ON__GNOSIS__CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
-        run: yarn deploy:optimism-on-gnosis-chain
-
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@v4.3.3
         with:
