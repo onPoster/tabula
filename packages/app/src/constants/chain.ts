@@ -235,17 +235,17 @@ const chainParameters = (chainId: number) => {
         },
         blockExplorerUrls: ["https://optimistic.etherscan.io/"],
       }
-    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
-      return {
-        chainId: requiredChainIdHex,
-        chainName: "Optimism on Gnosis Chain",
-        rpcUrls: ["https://optimism.gnosischain.com"],
-        nativeCurrency: {
-          name: "xDai",
-          symbol: "xDai",
-          decimals: 18,
-        },
-        blockExplorerUrls: ["https://blockscout.com/xdai/optimism/"],
-      }
+    // case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+    //   return {
+    //     chainId: requiredChainIdHex,
+    //     chainName: "Optimism on Gnosis Chain",
+    //     rpcUrls: ["https://optimism.gnosischain.com"],
+    //     nativeCurrency: {
+    //       name: "xDai",
+    //       symbol: "xDai",
+    //       decimals: 18,
+    //     },
+    //     blockExplorerUrls: ["https://blockscout.com/xdai/optimism/"],
+    //   }
   }
 }
