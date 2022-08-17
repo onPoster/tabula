@@ -5,6 +5,8 @@ import { palette } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+
 const UploadFileContainer = styled(Grid)({
   justifyContent: "center",
   alignItems: "center",
@@ -25,7 +27,7 @@ const UploadContainer = styled(Grid)({
   position: "relative",
   "&:hover img": {
     opacity: 0.8,
-  }
+  },
 })
 
 const UploadEditButton = styled(Fab)({
@@ -78,7 +80,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
         </UploadFileContainer>
       )}
       {(imageHash || uri) && (
-        <Box sx={{position: "relative"}}>
+        <Box sx={{ position: "relative" }}>
           <UploadContainer onClick={openImagePicker}>
             <Box
               component="img"
@@ -88,7 +90,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
                 objectFit: "cover",
               }}
               alt="Article image"
-              src={uri ? uri : `https://ipfs.infura.io/ipfs/${imageHash}`}
+              src={uri ? uri : `${IPFS_GATEWAY}/${imageHash}`}
             />
           </UploadContainer>
           {(imageHash || uri) && (

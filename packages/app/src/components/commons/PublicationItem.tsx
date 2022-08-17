@@ -5,6 +5,7 @@ import { palette, typography } from "../../theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
 import { Publications } from "../../models/publication"
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 
 const PublicationItemContainer = styled(Grid)({
   minHeight: 105,
@@ -15,7 +16,7 @@ const PublicationItemContainer = styled(Grid)({
   transition: "background 0.25s ease-in-out",
   "&:hover": {
     background: palette.grays[200],
-  }
+  },
 })
 const PublicationIconGrid = styled(Grid)({
   display: "flex",
@@ -37,7 +38,7 @@ const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick 
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
             <Grid container gap={1} alignItems="center">
-              <Avatar sx={{ width: 30, height: 30 }} src={image ? `https://ipfs.infura.io/ipfs/${image}` : ""}>
+              <Avatar sx={{ width: 30, height: 30 }} src={image ? `${IPFS_GATEWAY}/${image}` : ""}>
                 {" "}
               </Avatar>
               <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
