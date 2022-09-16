@@ -78,6 +78,7 @@ export const LandingView: React.FC = () => {
           flexDirection: "column",
           justifyContent: "center",
           height: "100vh",
+          overflowX: "clip",
           position: "absolute",
           top: 0,
           width: "100%",
@@ -118,7 +119,7 @@ export const LandingView: React.FC = () => {
         </Container>
         <Box
           sx={{
-            overflowX: "hidden",
+            overflow: "clip",
             height: "140vw",
             position: "absolute",
             transform: "translateY(80%)",
