@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, CircularProgress, Grid, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Grid, Stack, TextField, Typography } from "@mui/material"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
@@ -192,31 +192,27 @@ export const PreviewPostView: React.FC = () => {
     <PublicationPage publication={publication} showCreatePost={false}>
       <ViewContainer maxWidth="sm">
         <form onSubmit={handleSubmit((data) => onSubmitHandler(data as { description: string }))}>
-          <Grid container gap={4} flexDirection="column" mt={12.5}>
-            <Grid item>
-              <Box
-                gap={2}
-                sx={{
-                  alignItems: "center",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  transition: "opacity 0.25s ease-in-out",
-                  "&:hover": {
-                    opacity: 0.6,
-                  },
-                }}
-                onClick={goToPost}
-              >
-                <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
-                  Back to Edit Post
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item>
-              <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />
-            </Grid>
-            <Grid item>
+          <Stack spacing={4} mt={12.5}>
+            <Box
+              gap={2}
+              sx={{
+                alignItems: "center",
+                cursor: "pointer",
+                display: "inline-flex",
+                transition: "opacity 0.25s ease-in-out",
+                "&:hover": {
+                  opacity: 0.6,
+                },
+              }}
+              onClick={goToPost}
+            >
+              <ArrowBackIcon color="secondary" />
+              <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
+                Back to Edit Post
+              </Typography>
+            </Box>
+            <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />
+            <Stack spacing={0}>
               <Typography
                 color={palette.grays[1000]}
                 variant="h6"
@@ -227,8 +223,8 @@ export const PreviewPostView: React.FC = () => {
                 Author(s):
               </Typography>
               <CreatableSelect placeholder="Add an author..." onSelected={handleAuthors} value={authors} />
-            </Grid>
-            <Grid item>
+            </Stack>
+            <Stack spacing={0}>
               <Typography
                 color={palette.grays[1000]}
                 variant="h6"
@@ -251,8 +247,8 @@ export const PreviewPostView: React.FC = () => {
                   />
                 )}
               />
-            </Grid>
-            <Grid item>
+            </Stack>
+            <Stack spacing={0}>
               <Typography
                 color={palette.grays[1000]}
                 variant="h6"
@@ -268,36 +264,30 @@ export const PreviewPostView: React.FC = () => {
                 value={tags}
                 errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
               />
-            </Grid>
-
+            </Stack>
             {!pinning && (
-              <Grid item>
-                <PinningAlert />
-              </Grid>
+              <PinningAlert />
             )}
-
-            <Grid item xs={12}>
-              <Grid container justifyContent={"space-between"}>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={goToPublication}
-                  disabled={loading || updateArticleIndexing || createArticleIndexing}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  size="large"
-                  type="submit"
-                  disabled={loading || updateArticleIndexing || createArticleIndexing}
-                >
-                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {generateButtonLabel()}
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
+            <Stack direction="row" justifyContent={"space-between"} spacing={2}>
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={goToPublication}
+                disabled={loading || updateArticleIndexing || createArticleIndexing}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                type="submit"
+                disabled={loading || updateArticleIndexing || createArticleIndexing}
+              >
+                {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                {generateButtonLabel()}
+              </Button>
+            </Stack>
+          </Stack>
         </form>
       </ViewContainer>
     </PublicationPage>
