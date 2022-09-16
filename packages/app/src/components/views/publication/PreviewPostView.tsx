@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, CircularProgress, Grid, Stack, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Stack, TextField, Typography } from "@mui/material"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
