@@ -4,6 +4,7 @@ import Link from "@mui/material/Link"
 import { typography } from "../../theme"
 
 const options = {
+  disableParsingRawHTML: true,
   overrides: {
     h1: {
       component: Typography,
