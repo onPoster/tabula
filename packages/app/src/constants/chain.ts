@@ -4,7 +4,6 @@ import { AbstractConnector } from "@web3-react/abstract-connector"
 
 export enum SupportedChainId {
   MAINNET = 1,
-  RINKEBY = 4,
   GNOSIS_CHAIN = 100,
   GOERLI = 420,
   POLYGON = 137,
@@ -15,7 +14,6 @@ export enum SupportedChainId {
 
 export enum SupportedChain {
   MAINNET = "mainnet",
-  RINKEBY = "rinkeby",
   GNOSIS_CHAIN = "gnosis_chain",
   GOERLI = "goerli",
   POLYGON = "polygon",
@@ -28,8 +26,6 @@ export const chainIdToChainName = (chainId: number) => {
   switch (chainId) {
     case SupportedChainId.MAINNET:
       return SupportedChain.MAINNET
-    case SupportedChainId.RINKEBY:
-      return SupportedChain.RINKEBY
     case SupportedChainId.GNOSIS_CHAIN:
       return SupportedChain.GNOSIS_CHAIN
     case SupportedChainId.GOERLI:
@@ -49,8 +45,6 @@ export const chainNameToChainId = (chainName?: string) => {
   switch (chainName) {
     case SupportedChain.MAINNET:
       return SupportedChainId.MAINNET
-    case SupportedChain.RINKEBY:
-      return SupportedChainId.RINKEBY
     case SupportedChain.GNOSIS_CHAIN:
       return SupportedChainId.GNOSIS_CHAIN
     case SupportedChain.GOERLI:
@@ -70,7 +64,6 @@ export const chainNameToChainId = (chainName?: string) => {
 
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
-  SupportedChainId.RINKEBY,
   SupportedChainId.GNOSIS_CHAIN,
   SupportedChainId.GOERLI,
   SupportedChainId.POLYGON,
@@ -83,8 +76,6 @@ export const chainToString = (chainId: number) => {
   switch (chainId) {
     case SupportedChainId.MAINNET:
       return `Mainnet (ChainID: ${chainId})`
-    case SupportedChainId.RINKEBY:
-      return `Rinkeby (ChainID: ${chainId})`
     case SupportedChainId.GNOSIS_CHAIN:
       return `Gnosis Chain (ChainID: ${chainId})`
     case SupportedChainId.GOERLI:
@@ -125,7 +116,7 @@ export const switchChain = async (connector: AbstractConnector, chainId: number)
     })
 }
 
-const chainParameters = (chainId: number) => {
+export const chainParameters = (chainId: number) => {
   const requiredChainIdHex = `0x${chainId.toString(16)}`
   switch (chainId) {
     case SupportedChainId.MAINNET:
@@ -145,22 +136,6 @@ const chainParameters = (chainId: number) => {
           decimals: 18,
         },
         blockExplorerUrls: ["https://etherscan.io"],
-      }
-    case SupportedChainId.RINKEBY:
-      return {
-        chainId: requiredChainIdHex,
-        chainName: "Rinkeby Test Network",
-        rpcUrls: [
-          "https://rpc.ankr.com/eth_rinkeby	",
-          "https://rinkeby.infura.io/v3/",
-          "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-        ],
-        nativeCurrency: {
-          name: "Rinkeby ETH",
-          symbol: "ETH",
-          decimals: 18,
-        },
-        blockExplorerUrls: ["https://rinkeby.etherscan.io"],
       }
     case SupportedChainId.GNOSIS_CHAIN:
       return {

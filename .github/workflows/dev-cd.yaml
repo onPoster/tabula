@@ -8,7 +8,6 @@ env:
   REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
   REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
   REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
-  REACT_APP_SUBGRAPH_RINKEBY: auryn-macmillan/tabula-rinkeby
   REACT_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
   REACT_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula-mainnet
   REACT_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
@@ -73,12 +72,6 @@ jobs:
       - name: Authenticate graph cli hosted service
         working-directory: packages/subgraph
         run: yarn run graph auth --product hosted-service ${{ secrets.GRAPH_ACCESS_TOKEN }}
-
-      - name: Deploy Rinkeby subgraphs
-        working-directory: packages/subgraph
-        env:
-          HOSTED_SERVICE_SUBGRAPH__RINKEBY: auryn-macmillan/tabula-rinkeby
-        run: yarn deploy:rinkeby
 
       - name: Deploy Goerli subgraphs
         working-directory: packages/subgraph
