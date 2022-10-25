@@ -84,11 +84,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
           <UploadContainer onClick={openImagePicker}>
             <Box
               component="img"
-              sx={{
-                height: 213,
-                borderRadius: 1,
-                objectFit: "cover",
-              }}
+              sx={{ borderRadius: 1 }}
               alt="Article image"
               src={uri ? uri : `${IPFS_GATEWAY}/${imageHash}`}
             />
