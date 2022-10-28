@@ -16,7 +16,7 @@ import {
   PosterUpdateArticle,
   Publication,
 } from "../type"
-import { chainParameters } from "../../../constants/chain"
+import { chainParameters, SupportedChainId } from "../../../constants/chain"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
@@ -31,7 +31,7 @@ const usePoster = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
   const isValidChain = chainId && checkIsValidChain(chainId, network).isValid
-  const parameters = chainParameters(chainId ? chainId : 420)
+  const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
   const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
   const properlyNetwork = chainId && checkIsValidChain(chainId, network).network
 
