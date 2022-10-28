@@ -5,7 +5,7 @@ import { AbstractConnector } from "@web3-react/abstract-connector"
 export enum SupportedChainId {
   MAINNET = 1,
   GNOSIS_CHAIN = 100,
-  GOERLI = 420,
+  GOERLI = 5,
   POLYGON = 137,
   ARBITRUM = 42161,
   OPTIMISM = 10,
