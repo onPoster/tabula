@@ -16,9 +16,9 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
       - run: yarn build
-      - name: Generate subgraph.yaml for Rinkeby
+      - name: Generate subgraph.yaml for Goerli
         working-directory: packages/subgraph
-        run: yarn prepare:rinkeby
+        run: yarn prepare:goerli
       - name: Run subgraph tests
         working-directory: packages/subgraph
         run: yarn test

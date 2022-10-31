@@ -16,10 +16,10 @@ import {
   PosterUpdateArticle,
   Publication,
 } from "../type"
+import { chainParameters, SupportedChainId } from "../../../constants/chain"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
-const URL = "https://rinkeby.etherscan.io/tx/"
 
 const usePoster = () => {
   const { network } = useParams<{ network: string }>()
@@ -31,6 +31,8 @@ const usePoster = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useFiles()
   const isValidChain = chainId && checkIsValidChain(chainId, network).isValid
+  const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
+  const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
   const properlyNetwork = chainId && checkIsValidChain(chainId, network).network
 
   const showChainError = () => {
