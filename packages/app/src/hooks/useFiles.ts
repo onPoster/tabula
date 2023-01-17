@@ -5,21 +5,36 @@ import { Pinning } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
 
+const INFURA_PROJECT_ID = process.env.REACT_APP_INFURA_PROJECT_ID
+const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY_SECRET
+
+if (typeof INFURA_PROJECT_ID === "undefined") {
+  throw new Error(`REACT_APP_INFURA_PROJECT_ID must be a defined environment variable`)
+}
+if (typeof INFURA_API_KEY === "undefined") {
+  throw new Error(`REACT_APP_INFURA_API_KEY_SECRET must be a defined environment variable`)
+}
+
 export const useFiles = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
   const openNotification = useNotification()
 
   useEffect(() => {
+    let ipfsClient: IPFSHTTPClient | undefined
+    const auth = "Basic " + Buffer.from(INFURA_PROJECT_ID + ":" + INFURA_API_KEY).toString("base64")
     try {
-      setIpfs(
-        create({
-          url: "https://ipfs.infura.io:5001/api/v0",
-        }),
-      )
+      ipfsClient = create({
+        url: "https://ipfs.infura.io:5001/api/v0",
+        headers: {
+          authorization: auth,
+        },
+      })
     } catch (error) {
-      setIpfs(undefined)
+      console.error("IPFS error ", error)
+      ipfsClient = undefined
     }
+    setIpfs(ipfsClient)
   }, [])
 
   const uploadFile = async (file: File | string): Promise<{ cid?: any; path: string }> => {

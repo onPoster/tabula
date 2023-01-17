@@ -19,6 +19,7 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
 import { chainIdToChainName } from "../../../constants/chain"
+import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 
 const PublishAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -75,6 +76,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
   const { setLastPathWithChainName } = usePosterContext()
+  useDynamicFavIcon(undefined)
   const [loading, setLoading] = useState<boolean>(false)
   const {
     data: publications,
