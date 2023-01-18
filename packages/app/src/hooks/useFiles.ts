@@ -5,21 +5,51 @@ import { Pinning } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
 
+const INFURA_PROJECT_ID = process.env.REACT_APP_IPFS_INFURA_PROJECT_ID
+if (INFURA_PROJECT_ID == null) {
+  throw new Error("REACT_APP_IPFS_INFURA_PROJECT_ID is not set")
+}
+
+const INFURA_SECRET_KEY = process.env.REACT_APP_IPFS_INFURA_SECRET_KEY
+if (INFURA_PROJECT_ID == null) {
+  throw new Error("REACT_APP_IPFS_INFURA_SECRET_KEY is not set")
+}
+
 export const useFiles = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
   const openNotification = useNotification()
 
   useEffect(() => {
-    try {
-      setIpfs(
-        create({
-          url: "https://ipfs.infura.io:5001/api/v0",
-        }),
-      )
-    } catch (error) {
-      setIpfs(undefined)
+    const setup = async () => {
+      try {
+        const client = create({ url: "http://localhost:5001/api/v0" }) // will connect to a locale node if available
+        if (await client.version()) {
+          return setIpfs(client)
+        }
+      } catch (e) {
+        console.log(e)
+        // use infura if there are no available locale IPFS node
+        try {
+          const auth = "Basic " + Buffer.from(INFURA_PROJECT_ID + ":" + INFURA_SECRET_KEY).toString("base64")
+          const client = create({
+            host: "ipfs.infura.io",
+            port: 5001,
+            protocol: "https",
+            headers: {
+              authorization: auth,
+            },
+          })
+          if (await client.version()) {
+            return setIpfs(client)
+          }
+        } catch (e) {
+          throw Error("Unable to connect to a running IPFS node.")
+        }
+      }
     }
+    setup()
+    // throw Error("Unable to connect to a running IPFS node.")
   }, [])
 
   const uploadFile = async (file: File | string): Promise<{ cid?: any; path: string }> => {
