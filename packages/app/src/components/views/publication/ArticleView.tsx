@@ -12,6 +12,7 @@ import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
 import { WalletBadge } from "../../commons/WalletBadge"
 import { chainNameToChainId } from "../../../constants/chain"
+import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
@@ -22,10 +23,11 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const { publicationId } = useParams<{ publicationId: string }>()
   const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
+  const publication = article?.publication
+  useDynamicFavIcon(publication?.image)
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
-
   useEffect(() => {
     if (publicationId != null) {
       updateChainId(chainNameToChainId(network))
