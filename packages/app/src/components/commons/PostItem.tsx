@@ -115,8 +115,8 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                 tags.length > 0 &&
                 tags.map((tag, index) => {
                   return (
-                    <Box sx={{ display: "flex", p: "2px" }}>
-                      <Chip label={tag} size="small" key={index} />
+                    <Box sx={{ display: "flex", p: "2px" }} key={index}>
+                      <Chip label={tag} size="small" />
                     </Box>
                   )
                 })}
