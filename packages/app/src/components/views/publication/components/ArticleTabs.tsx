@@ -1,6 +1,6 @@
 import { Tabs, Tab, styled } from "@mui/material"
 import React, { useEffect, useState } from "react"
-import theme from "../../../theme"
+import theme from "../../../../theme"
 
 const ArticleTab = styled(Tab)({
   fontSize: "1rem",
@@ -23,7 +23,7 @@ const ArticleTabs: React.FC<ArticleTabsProps> = ({ onChange }) => {
     ARTICLE_TABS[0].value as "write" | "preview",
   )
 
-  const handleChange = (event: React.SyntheticEvent, newValue: "write" | "preview") => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: "write" | "preview") => {
     setCurrentTab(newValue)
   }
 

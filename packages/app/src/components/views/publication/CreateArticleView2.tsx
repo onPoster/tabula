@@ -19,7 +19,7 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 
-export const PreviewPostView: React.FC = () => {
+export const CreateArticleView2: React.FC = () => {
   const navigate = useNavigate()
 
   const { account } = useWeb3React()
@@ -208,7 +208,7 @@ export const PreviewPostView: React.FC = () => {
             >
               <ArrowBackIcon color="secondary" />
               <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
-                Back to Edit Post
+                Back to Edit Article
               </Typography>
             </Box>
             <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />

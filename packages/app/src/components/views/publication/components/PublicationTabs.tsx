@@ -7,17 +7,17 @@ const PublicationStyledTabs = styled(Tabs)({
 })
 
 export const PUBLICATIONS_TABS_OPTIONS = [
-  { label: "Posts", value: "posts" },
+  { label: "articles", value: "articles" },
   { label: "Permissions", value: "permissions" },
   { label: "Settings", value: "settings" },
 ]
 export const PUBLICATIONS_TABS_WITHOUT_EDIT_OPTIONS = [
-  { label: "Posts", value: "posts" },
+  { label: "articles", value: "articles" },
   { label: "Permissions", value: "permissions" },
 ]
 
 export const PUBLICATIONS_TABS_WITH_DELETE_OPTIONS = [
-  { label: "Posts", value: "posts" },
+  { label: "articles", value: "articles" },
   { label: "Permissions", value: "permissions" },
   { label: "Settings", value: "settings" },
 ]
@@ -25,15 +25,15 @@ export const PUBLICATIONS_TABS_WITH_DELETE_OPTIONS = [
 type PublicationTabsProps = {
   couldEdit?: boolean
   couldDelete?: boolean
-  onChange: (tab: "posts" | "permissions" | "settings") => void
+  onChange: (tab: "articles" | "permissions" | "settings") => void
 }
 
 const PublicationTabs: React.FC<PublicationTabsProps> = ({ couldEdit, couldDelete, onChange }) => {
-  const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">(
-    PUBLICATIONS_TABS_OPTIONS[0].value as "posts" | "permissions" | "settings",
+  const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">(
+    PUBLICATIONS_TABS_OPTIONS[0].value as "articles" | "permissions" | "settings",
   )
 
-  const handleChange = (event: React.SyntheticEvent, newValue: "posts" | "permissions" | "settings") => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: "articles" | "permissions" | "settings") => {
     setCurrentTab(newValue)
   }
 

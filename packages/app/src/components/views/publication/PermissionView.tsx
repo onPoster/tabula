@@ -62,15 +62,15 @@ const RemoveUserButton = styled(Button)({
 
 const ARTICLES_OPTIONS: OptionsType[] = [
   {
-    label: "Can create posts",
+    label: "Can create article",
     key: "articleCreate",
   },
   {
-    label: "Can edit posts",
+    label: "Can edit article",
     key: "articleUpdate",
   },
   {
-    label: "Can delete posts",
+    label: "Can delete article",
     key: "articleDelete",
   },
 ]
@@ -301,7 +301,7 @@ export const PermissionView: React.FC = () => {
               )}
               <Grid item flexDirection="column">
                 <Typography fontFamily={typography.fontFamilies.sans} variant="body1" fontWeight={"bold"}>
-                  Post Permissions
+                  Article Permissions
                 </Typography>
                 {ARTICLES_OPTIONS.map(({ key, label }) => (
                   <Box>

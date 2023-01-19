@@ -117,11 +117,11 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   variant="contained"
                   size={"large"}
                   onClick={() => {
-                    navigate(`../${publication?.id}/new-post/new`)
+                    navigate(`../${publication?.id}/new-article/new`)
                   }}
                 >
                   <AddIcon style={{ marginRight: 13 }} />
-                  New Post
+                  New Article
                 </Button>
               </Grid>
             )}
