@@ -22,7 +22,7 @@ interface ArticleViewProps {
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const { articleId, network } = useParams<{ articleId: string; network: string }>()
   const { publicationId } = useParams<{ publicationId: string }>()
-  const { article, saveArticle, getPinnedData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
+  const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery } = useArticle(articleId || "")
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
   const isValidHash = article && isIPFS.multihash(article.article)
@@ -49,14 +49,14 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   useEffect(() => {
     if (article) {
       if (isValidHash && article && !markdownArticle) {
-        getPinnedData(article.article)
+        getIpfsData(article.article)
         return
       }
       if (!isValidHash && article) {
         setArticleToShow(article.article)
       }
     }
-  }, [isValidHash, article, markdownArticle, getPinnedData])
+  }, [isValidHash, article, markdownArticle, getIpfsData])
 
   useEffect(() => {
     if (markdownArticle) {
@@ -103,7 +103,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
               {article.authors?.length && (
                 <Grid container alignItems="center" gap={2} my={1}>
                   {article.authors.map((author) => (
-                    <Grid item>
+                    <Grid item key={author}>
                       <WalletBadge address={author} />
                     </Grid>
                   ))}
@@ -114,8 +114,8 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                   {article.tags &&
                     article.tags.length > 0 &&
                     article.tags.map((tag, index) => (
-                      <Grid item>
-                        <Chip sx={{ height: "100%" }} label={tag} size="small" key={index} />
+                      <Grid item key={index}>
+                        <Chip sx={{ height: "100%" }} label={tag} size="small" />
                       </Grid>
                     ))}
                 </Grid>

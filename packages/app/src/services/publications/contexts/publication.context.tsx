@@ -1,5 +1,4 @@
 import { useState } from "react"
-import useHttp from "../../../hooks/useHttp"
 import { Article, Permission, Publications } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
 import ipfsService from "../../ipfs/ipfs"
@@ -18,12 +17,15 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [editingPublication, setEditingPublication] = useState<boolean>(false)
   const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
   const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
+  const [loading, setLoading] = useState<boolean>(false)
 
-  const [getPinnedRequest, { loading }] = useHttp(ipfsService.getData)
-
-  const getPinnedData = async (hash: string) => {
-    const data = await getPinnedRequest(hash)
-    setMarkdownArticle(data)
+  const getIpfsData = async (hash: string) => {
+    setLoading(true)
+    const data = await ipfsService.getData(hash)
+    if (data != null) {
+      setMarkdownArticle(data)
+    }
+    setLoading(false)
   }
   const savePublication = (publication: Publications | undefined) => setPublication(publication)
   const savePublications = (publications: Publications[] | undefined) => setPublications(publications)
@@ -47,7 +49,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         markdownArticle,
         loading,
         setMarkdownArticle,
-        getPinnedData,
+        getIpfsData,
         setCurrentPath,
         saveIsEditing,
         saveDraftPublicationImage,

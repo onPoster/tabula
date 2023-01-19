@@ -19,6 +19,7 @@ export const useFiles = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
   const openNotification = useNotification()
+  const [isSettingUp, setIsSettingUp] = useState(false)
 
   useEffect(() => {
     const setup = async () => {
@@ -28,7 +29,6 @@ export const useFiles = () => {
           return setIpfs(client)
         }
       } catch (e) {
-        console.log(e)
         // use infura if there are no available locale IPFS node
         try {
           const auth = "Basic " + Buffer.from(INFURA_PROJECT_ID + ":" + INFURA_SECRET_KEY).toString("base64")
@@ -46,11 +46,16 @@ export const useFiles = () => {
         } catch (e) {
           throw Error("Unable to connect to a running IPFS node.")
         }
+      } finally {
+        setIsSettingUp(false)
       }
     }
-    setup()
+    if (ipfs == null && !isSettingUp) {
+      setIsSettingUp(true)
+      setup()
+    }
     // throw Error("Unable to connect to a running IPFS node.")
-  }, [])
+  }, [ipfs, isSettingUp])
 
   const uploadFile = async (file: File | string): Promise<{ cid?: any; path: string }> => {
     const result = await (ipfs as IPFSHTTPClient).add(file)
