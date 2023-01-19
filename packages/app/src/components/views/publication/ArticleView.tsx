@@ -13,8 +13,6 @@ import isIPFS from "is-ipfs"
 import { WalletBadge } from "../../commons/WalletBadge"
 import { chainNameToChainId } from "../../../constants/chain"
 
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
 }
@@ -23,7 +21,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const { articleId, network } = useParams<{ articleId: string; network: string }>()
   const { publicationId } = useParams<{ publicationId: string }>()
   const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
-  const { data, executeQuery } = useArticle(articleId || "")
+  const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
@@ -91,9 +89,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                   <meta name="description" content={article?.description} key="2" />,
                 ]}
                 <meta property="og:url" content={`https://tabula.gg/#/${article.publication?.id}/${article.id}`} />
-                {article.image != null && <meta property="og:image" content={`${IPFS_GATEWAY}/${article?.image}`} />}
+                {article.image != null && <meta property="og:image" content={imageSrc} />}
               </Helmet>
-              {article.image && <img src={`${IPFS_GATEWAY}/${article?.image}`} alt={article.title} />}
+              {article.image && <img src={imageSrc} alt={article.title} />}
               <Grid item>
                 <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
                   {article.title}

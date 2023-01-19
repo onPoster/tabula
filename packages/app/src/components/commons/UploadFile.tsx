@@ -4,8 +4,7 @@ import Box from "@mui/material/Box"
 import { palette } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
-
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+import { useIpfs } from "../../hooks/useIpfs"
 
 const UploadFileContainer = styled(Grid)({
   justifyContent: "center",
@@ -46,10 +45,24 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
   const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null>(null)
   const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage)
+  const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
+  const ipfs = useIpfs()
 
   useEffect(() => {
     if (file) onFileSelected(file)
   }, [file, onFileSelected])
+
+  useEffect(() => {
+    const getDefaultImageSrc = async () => {
+      if (defaultImage) {
+        const src = await ipfs.getImageSrc(defaultImage)
+        setDefaultImageSrc(src)
+      }
+    }
+    if (ipfs.isReady && defaultImage != null && defaultImageSrc === "") {
+      getDefaultImageSrc()
+    }
+  }, [defaultImage, ipfs, defaultImageSrc])
 
   const openImagePicker = () => inputFile && inputFile.current?.click()
 
@@ -82,12 +95,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
       {(imageHash || uri) && (
         <Box sx={{ position: "relative" }}>
           <UploadContainer onClick={openImagePicker}>
-            <Box
-              component="img"
-              sx={{ borderRadius: 1 }}
-              alt="Article image"
-              src={uri ? uri : `${IPFS_GATEWAY}/${imageHash}`}
-            />
+            <Box component="img" sx={{ borderRadius: 1 }} alt="Article image" src={uri ? uri : defaultImageSrc} />
           </UploadContainer>
           {(imageHash || uri) && (
             <UploadEditButton color="primary" aria-label="edit" onClick={removeImage}>

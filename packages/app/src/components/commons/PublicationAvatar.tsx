@@ -4,8 +4,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import EditIcon from "@mui/icons-material/Edit"
-
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+import { useIpfs } from "../../hooks/useIpfs"
 
 const SmallAvatar = styled(Avatar)({
   width: 40,
@@ -24,6 +23,8 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const inputFile = useRef<HTMLInputElement | null>(null)
   const openImagePicker = () => inputFile && inputFile.current?.click()
   const [uri, setUri] = useState<string | undefined>(undefined)
+  const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
+  const ipfs = useIpfs()
 
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -39,6 +40,18 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   useEffect(() => {
     if (file) onFileSelected(file)
   }, [file, onFileSelected])
+
+  useEffect(() => {
+    const getDefaultImageSrc = async () => {
+      if (defaultImage) {
+        const src = await ipfs.getImageSrc(defaultImage)
+        setDefaultImageSrc(src)
+      }
+    }
+    if (ipfs.isReady && defaultImage != null && defaultImageSrc === "") {
+      getDefaultImageSrc()
+    }
+  }, [defaultImage, ipfs, defaultImageSrc])
 
   return (
     <Stack direction="row" spacing={2}>
@@ -63,7 +76,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
         }
       >
         <Avatar
-          src={uri ? uri : `${IPFS_GATEWAY}/${defaultImage}`}
+          src={uri ? uri : defaultImageSrc}
           onClick={openImagePicker}
           sx={{
             width: 160,

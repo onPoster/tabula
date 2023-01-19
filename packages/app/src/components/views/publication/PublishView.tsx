@@ -88,7 +88,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
-  const { uploadFile, ipfs } = useIpfs()
+  const ipfs = useIpfs()
   const {
     control,
     handleSubmit,
@@ -141,8 +141,8 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
     setLoading(true)
     const { title, description } = data
     let image
-    if (ipfs && publicationImg) {
-      image = await uploadFile(publicationImg)
+    if (ipfs.isReady && publicationImg) {
+      image = await ipfs.uploadContent(publicationImg)
     }
     if (title) {
       await executePublication({

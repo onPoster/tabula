@@ -44,7 +44,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     transactionCompleted,
   } = usePublication(publication?.id || "")
   const { indexing: deleteIndexing, redirect, setExecutePollInterval, setDeletedPublicationId } = usePublications()
-  const { uploadFile, ipfs } = useIpfs()
+  const ipfs = useIpfs()
   const {
     control,
     handleSubmit,
@@ -92,8 +92,8 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setLoading(true)
     const { title, description } = data
     let image
-    if (ipfs && draftPublicationImage) {
-      image = await uploadFile(draftPublicationImage)
+    if (ipfs.isReady && draftPublicationImage) {
+      image = await ipfs.uploadContent(draftPublicationImage)
     }
     if (!draftPublicationImage && publication?.image) {
       image = { path: publication.image }

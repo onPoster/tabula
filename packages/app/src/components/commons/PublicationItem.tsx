@@ -4,8 +4,7 @@ import { styled } from "@mui/styles"
 import { palette, typography } from "../../theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
 import { Publications } from "../../models/publication"
-
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+import usePublication from "../../services/publications/hooks/usePublication"
 
 const PublicationItemContainer = styled(Grid)({
   minHeight: 105,
@@ -31,14 +30,16 @@ type PublicationItemProps = {
 }
 
 const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick }) => {
-  const { image, title, tags } = publication
+  const { title, tags } = publication
+  const { imageSrc } = usePublication(publication.id || "")
+
   return (
     <PublicationItemContainer container alignItems={"center"} onClick={onClick}>
       <Grid item xs={11}>
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
             <Grid container gap={1} alignItems="center">
-              <Avatar sx={{ width: 30, height: 30 }} src={image ? `${IPFS_GATEWAY}/${image}` : ""}>
+              <Avatar sx={{ width: 30, height: 30 }} src={imageSrc}>
                 {" "}
               </Avatar>
               <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>

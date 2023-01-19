@@ -15,11 +15,17 @@ if (INFURA_PROJECT_ID == null) {
   throw new Error("REACT_APP_IPFS_INFURA_SECRET_KEY is not set")
 }
 
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+if (IPFS_GATEWAY == null) {
+  throw new Error("REACT_APP_IPFS_GATEWAY is not set")
+}
+
 export const useIpfs = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
   const openNotification = useNotification()
   const [isSettingUp, setIsSettingUp] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     const setup = async () => {
@@ -47,6 +53,7 @@ export const useIpfs = () => {
           throw Error("Unable to connect to a running IPFS node.")
         }
       } finally {
+        setIsReady(true)
         setIsSettingUp(false)
       }
     }
@@ -57,12 +64,32 @@ export const useIpfs = () => {
     // throw Error("Unable to connect to a running IPFS node.")
   }, [ipfs, isSettingUp])
 
-  const uploadFile = async (file: File | string): Promise<{ cid?: any; path: string }> => {
+  const uploadContent = async (file: File | string): Promise<{ cid?: any; path: string }> => {
     const result = await (ipfs as IPFSHTTPClient).add(file)
     return {
       cid: result.cid,
       path: result.path,
     }
+  }
+
+  const getImageSrc = async (hash: string): Promise<string> => {
+    // TODO: this is a workaround. It should use the ipfs httpclient
+    // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
+    // its set up as a promise on purus at this will be required for the real implimentatio n
+    return `${IPFS_GATEWAY}/${hash}`
+  }
+
+  const getText = async (hash: string): Promise<string> => {
+    const res = await (ipfs as IPFSHTTPClient).cat(hash)
+    var decoder = new TextDecoder()
+    let str = ""
+
+    for await (const val of res) {
+      str = str + decoder.decode(val)
+    }
+    console.log("str:" + str)
+
+    return str
   }
 
   const pinAction = async (path: string, name: string, msg?: string) => {
@@ -115,5 +142,5 @@ export const useIpfs = () => {
     return isValid
   }
 
-  return { ipfs, uploadFile, pinAction, isValidIpfsService }
+  return { ipfs, uploadContent, pinAction, isValidIpfsService, getText, getImageSrc, isReady }
 }

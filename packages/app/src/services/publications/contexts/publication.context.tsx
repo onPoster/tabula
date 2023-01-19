@@ -1,7 +1,7 @@
 import { useState } from "react"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { Article, Permission, Publications } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
-import ipfsService from "../../ipfs/ipfs"
 
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
 
@@ -18,10 +18,12 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
   const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
   const [loading, setLoading] = useState<boolean>(false)
+  const ipfs = useIpfs()
 
+  // TODO: this must be changed it is not a safe, we do not know if IPFS is ready
   const getIpfsData = async (hash: string) => {
     setLoading(true)
-    const data = await ipfsService.getData(hash)
+    const data = await ipfs.getText(hash)
     if (data != null) {
       setMarkdownArticle(data)
     }
