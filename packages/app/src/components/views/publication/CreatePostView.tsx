@@ -37,7 +37,7 @@ export const CreatePostView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
-  const { publication, article, draftArticle, getPinnedData, markdownArticle, saveDraftArticle, saveArticle } =
+  const { publication, article, draftArticle, getIpfsData, markdownArticle, saveDraftArticle, saveArticle } =
     usePublicationContext()
   const { indexing, setExecutePollInterval, transactionCompleted, setCurrentArticleId } = usePublication(
     publication?.id || "",
@@ -65,7 +65,7 @@ export const CreatePostView: React.FC = () => {
       const { title } = article
       setValue("title", title)
       if (!markdownArticle) {
-        getPinnedData(article.article)
+        getIpfsData(article.article)
       }
       if (markdownArticle) {
         setValue("article", markdownArticle)
@@ -76,7 +76,7 @@ export const CreatePostView: React.FC = () => {
       setValue("title", title)
       setValue("article", articleDescription)
     }
-  }, [type, article, setValue, isValidHash, markdownArticle, getPinnedData, draftArticle])
+  }, [type, article, setValue, isValidHash, markdownArticle, getIpfsData, draftArticle])
 
   useEffect(() => {
     if (transactionCompleted) {
@@ -85,8 +85,7 @@ export const CreatePostView: React.FC = () => {
     }
   }, [navigate, saveDraftArticle, transactionCompleted])
 
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement> ) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue("article", event.target.value)
   }
 
@@ -163,32 +162,28 @@ export const CreatePostView: React.FC = () => {
                 control={control}
                 name="article"
                 render={({ field }) => {
-                  return (
-                    currentTab === "write" ? (
-                      <TextField
-                        {...field}
-                        placeholder="Start your post..."
-                        multiline
-                        rows={14}
-                        onChange={handleChange}
-                        sx={{
-                          width: "100%",
-                          "& .MuiInputBase-root": {
-                            borderTopLeftRadius: 0,
-                          }
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{borderTop: `1px solid ${palette.grays[400]}`, pt: 1}}>
-                        {field.value ? (
-                          <Markdown>{field.value}</Markdown>
-                        ) : (
-                          <Box sx={{color: palette.grays[800], fontSize: 14}}>
-                            Nothing to preview
-                          </Box>
-                        )}
-                      </Box>
-                    )
+                  return currentTab === "write" ? (
+                    <TextField
+                      {...field}
+                      placeholder="Start your post..."
+                      multiline
+                      rows={14}
+                      onChange={handleChange}
+                      sx={{
+                        width: "100%",
+                        "& .MuiInputBase-root": {
+                          borderTopLeftRadius: 0,
+                        },
+                      }}
+                    />
+                  ) : (
+                    <Box sx={{ borderTop: `1px solid ${palette.grays[400]}`, pt: 1 }}>
+                      {field.value ? (
+                        <Markdown>{field.value}</Markdown>
+                      ) : (
+                        <Box sx={{ color: palette.grays[800], fontSize: 14 }}>Nothing to preview</Box>
+                      )}
+                    </Box>
                   )
                 }}
                 rules={{ required: true }}
@@ -199,7 +194,6 @@ export const CreatePostView: React.FC = () => {
                   {errors.article.message}
                 </FormHelperText>
               )}
-
             </Grid>
             {type === "new" && (
               <Grid item xs={12} mt={1}>

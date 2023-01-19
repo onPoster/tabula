@@ -16,6 +16,8 @@ env:
   REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
   REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
   REACT_APP_IPFS_GATEWAY: https://ipfs.io/ipfs
+  REACT_APP_IPFS_INFURA_PROJECT_ID: ${{ secrets.REACT_APP_IPFS_INFURA_PROJECT_ID }}
+  REACT_APP_IPFS_INFURA_SECRET_KEY: ${{ secrets.REACT_APP_IPFS_INFURA_SECRET_KEY }}
 jobs:
   deploy:
     runs-on: ubuntu-latest

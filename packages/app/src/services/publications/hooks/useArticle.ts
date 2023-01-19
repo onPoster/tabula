@@ -1,10 +1,25 @@
 import { useCallback, useEffect, useState } from "react"
 import { useQuery } from "urql"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { Article } from "../../../models/publication"
 import { GET_ARTICLE_QUERY } from "../queries"
 
 const useArticle = (id: string) => {
   const [data, setData] = useState<Article | undefined>(undefined)
+  const [imageSrc, setImageSrc] = useState<string>("")
+  const ipfs = useIpfs()
+
+  useEffect(() => {
+    const getImageSrc = async () => {
+      if (data?.image != null) {
+        const src = await ipfs.getImgSrc(data.image)
+        setImageSrc(src)
+      }
+    }
+    if (ipfs.isReady && data?.image != null && imageSrc === "") {
+      getImageSrc()
+    }
+  }, [data, ipfs, imageSrc])
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_ARTICLE_QUERY,
@@ -21,7 +36,7 @@ const useArticle = (id: string) => {
     }
   }, [result])
 
-  return { loading, data, refetch, executeQuery }
+  return { loading, data, refetch, executeQuery, imageSrc }
 }
 
 export default useArticle

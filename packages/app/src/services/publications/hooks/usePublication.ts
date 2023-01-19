@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useQuery } from "urql"
 import { chainNameToChainId } from "../../../constants/chain"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { Permission, Publications } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
@@ -24,6 +25,20 @@ const usePublication = (id: string) => {
   const [currentUserPermission, setCurrentUserPermission] = useState<Permission[]>([])
   const [accountPermission, setAccountPermission] = useState<string>()
   const [currentArticleId, setCurrentArticleId] = useState<string>()
+  const [imageSrc, setImageSrc] = useState<string>("")
+  const ipfs = useIpfs()
+
+  useEffect(() => {
+    const getImageSrc = async () => {
+      if (data?.image != null) {
+        const src = await ipfs.getImgSrc(data.image)
+        setImageSrc(src)
+      }
+    }
+    if (ipfs.isReady && data?.image != null && imageSrc === "") {
+      getImageSrc()
+    }
+  }, [data, ipfs, imageSrc])
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_PUBLICATION_QUERY,
@@ -186,6 +201,7 @@ const usePublication = (id: string) => {
     indexing,
     transactionCompleted,
     refetch,
+    imageSrc,
     executeQuery,
     setExecutePollInterval,
     setCurrentTimestamp,

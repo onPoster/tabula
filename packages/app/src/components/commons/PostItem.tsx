@@ -13,8 +13,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import usePoster from "../../services/poster/hooks/usePoster"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { usePosterContext } from "../../services/poster/context"
-
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+import useArticle from "../../services/publications/hooks/useArticle"
 
 const PostItemContainer = styled(Box)({
   minHeight: "105px",
@@ -52,6 +51,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
   const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } = usePublication(
     publication?.id || "",
   )
+  const { imageSrc } = useArticle(article.id || "")
   const articleTitle = shortTitle(title, 30)
   const articleDescription = description && shortTitle(description, 165)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
@@ -90,7 +90,7 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
       <Grid container spacing={2}>
         {image && (
           <Grid item xs={4}>
-            <ThumbnailImage src={`${IPFS_GATEWAY}/${image}`} />
+            <ThumbnailImage src={imageSrc} />
           </Grid>
         )}
         <Grid item xs={8}>
@@ -115,8 +115,8 @@ const PostItem: React.FC<PostItemProps> = ({ article, couldUpdate, couldDelete }
                 tags.length > 0 &&
                 tags.map((tag, index) => {
                   return (
-                    <Box sx={{ display: "flex", p: "2px" }}>
-                      <Chip label={tag} size="small" key={index} />
+                    <Box sx={{ display: "flex", p: "2px" }} key={index}>
+                      <Chip label={tag} size="small" />
                     </Box>
                   )
                 })}

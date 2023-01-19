@@ -14,7 +14,7 @@ import { Pinning, PinningService, PinningServiceEndpoint } from "../../../models
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { useNotification } from "../../../hooks/useNotification"
-import { useFiles } from "../../../hooks/useFiles"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { Dropdown } from "../../commons/Dropdown"
 import { PINNING_OPTIONS } from "../../../constants/pinning"
 
@@ -60,7 +60,7 @@ const SetupIpfsView: React.FC = () => {
   const navigate = useNavigate()
   const ref = useRef(null)
   const openNotification = useNotification()
-  const { isValidIpfsService } = useFiles()
+  const { isValidIpfsService } = useIpfs()
   const { currentPath, setCurrentPath } = usePublicationContext()
   const [pinning, setPinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const {

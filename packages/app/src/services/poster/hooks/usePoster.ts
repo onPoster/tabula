@@ -2,7 +2,7 @@ import { TransactionReceipt } from "@ethersproject/providers"
 import { useWeb3React } from "@web3-react/core"
 import { useState } from "react"
 import { useParams } from "react-router-dom"
-import { useFiles } from "../../../hooks/useFiles"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
 import { checkIsValidChain } from "../../../utils/validation"
@@ -29,7 +29,7 @@ const usePoster = () => {
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
-  const { pinAction } = useFiles()
+  const { pinAction } = useIpfs()
   const isValidChain = chainId && checkIsValidChain(chainId, network).isValid
   const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
   const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
