@@ -12,7 +12,7 @@ const useArticle = (id: string) => {
   useEffect(() => {
     const getImageSrc = async () => {
       if (data?.image != null) {
-        const src = await ipfs.getImageSrc(data.image)
+        const src = await ipfs.getImgSrc(data.image)
         setImageSrc(src)
       }
     }

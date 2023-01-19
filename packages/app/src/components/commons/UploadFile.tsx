@@ -55,7 +55,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
   useEffect(() => {
     const getDefaultImageSrc = async () => {
       if (defaultImage) {
-        const src = await ipfs.getImageSrc(defaultImage)
+        const src = await ipfs.getImgSrc(defaultImage)
         setDefaultImageSrc(src)
       }
     }
