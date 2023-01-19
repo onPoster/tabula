@@ -2,7 +2,7 @@ import { TransactionReceipt } from "@ethersproject/providers"
 import { useWeb3React } from "@web3-react/core"
 import { useState } from "react"
 import { useParams } from "react-router-dom"
-import { useFiles } from "../../../hooks/useFiles"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
 import { checkIsValidChain } from "../../../utils/validation"
@@ -29,7 +29,7 @@ const usePoster = () => {
   const contract = getContract(POSTER_CONTRACT as string)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
-  const { pinAction } = useFiles()
+  const { pinAction } = useIpfs()
   const isValidChain = chainId && checkIsValidChain(chainId, network).isValid
   const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
   const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
@@ -79,7 +79,7 @@ const usePoster = () => {
           const receipt: TransactionReceipt = await tx.wait()
           content.image && (await pinAction(content.image, `${content.title}-image`))
 
-          setTransactionUrl(URL + receipt.transactionHash)
+          setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
           setLoading(false)
         } catch (error: any) {
           setLoading(false)
@@ -101,7 +101,7 @@ const usePoster = () => {
         try {
           const tx = await poster.post(JSON.stringify(publication), PUBLICATION_TAG)
           const receipt: TransactionReceipt = await tx.wait()
-          setTransactionUrl(URL + receipt.transactionHash)
+          setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
 
           setLoading(false)
         } catch (error: any) {
@@ -145,7 +145,7 @@ const usePoster = () => {
           setLoading(false)
           content.image && (await pinAction(content.image, `${content.title}-image`, "Successfully image pinned"))
           pin && (await pinAction(content.article, `Article-${content.title}`, "Successfully article pinned"))
-          setTransactionUrl(URL + receipt.transactionHash)
+          setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
@@ -197,7 +197,7 @@ const usePoster = () => {
               `Article-${content.title}-${content.lastUpdated}`,
               "Successfully pinned article",
             ))
-          setTransactionUrl(URL + receipt.transactionHash)
+          setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
@@ -219,7 +219,7 @@ const usePoster = () => {
           const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
           const receipt: TransactionReceipt = await tx.wait()
           setLoading(false)
-          setTransactionUrl(URL + receipt.transactionHash)
+          setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()
@@ -241,7 +241,7 @@ const usePoster = () => {
           const tx = await poster.post(JSON.stringify(fields), PUBLICATION_TAG)
           const receipt: TransactionReceipt = await tx.wait()
           setLoading(false)
-          setTransactionUrl(URL + receipt.transactionHash)
+          setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
         } catch (error: any) {
           setLoading(false)
           showTransactionError()

@@ -5,7 +5,7 @@ import { usePublicationContext } from "../../../../services/publications/context
 import { palette, typography } from "../../../../theme"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { useFiles } from "../../../../hooks/useFiles"
+import { useIpfs } from "../../../../hooks/useIpfs"
 import usePoster from "../../../../services/poster/hooks/usePoster"
 import usePublication from "../../../../services/publications/hooks/usePublication"
 import usePublications from "../../../../services/publications/hooks/usePublications"
@@ -44,7 +44,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     transactionCompleted,
   } = usePublication(publication?.id || "")
   const { indexing: deleteIndexing, redirect, setExecutePollInterval, setDeletedPublicationId } = usePublications()
-  const { uploadFile, ipfs } = useFiles()
+  const ipfs = useIpfs()
   const {
     control,
     handleSubmit,
@@ -92,8 +92,8 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setLoading(true)
     const { title, description } = data
     let image
-    if (ipfs && draftPublicationImage) {
-      image = await uploadFile(draftPublicationImage)
+    if (ipfs.isReady && draftPublicationImage) {
+      image = await ipfs.uploadContent(draftPublicationImage)
     }
     if (!draftPublicationImage && publication?.image) {
       image = { path: publication.image }

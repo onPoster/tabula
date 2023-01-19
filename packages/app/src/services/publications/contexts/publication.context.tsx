@@ -1,8 +1,7 @@
 import { useState } from "react"
-import useHttp from "../../../hooks/useHttp"
+import { useIpfs } from "../../../hooks/useIpfs"
 import { Article, Permission, Publications } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
-import ipfsService from "../../ipfs/ipfs"
 
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
 
@@ -18,12 +17,17 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [editingPublication, setEditingPublication] = useState<boolean>(false)
   const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
   const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
+  const [loading, setLoading] = useState<boolean>(false)
+  const ipfs = useIpfs()
 
-  const [getPinnedRequest, { loading }] = useHttp(ipfsService.getData)
-
-  const getPinnedData = async (hash: string) => {
-    const data = await getPinnedRequest(hash)
-    setMarkdownArticle(data)
+  // TODO: this must be changed it is not a safe, we do not know if IPFS is ready
+  const getIpfsData = async (hash: string) => {
+    setLoading(true)
+    const data = await ipfs.getText(hash)
+    if (data != null) {
+      setMarkdownArticle(data)
+    }
+    setLoading(false)
   }
   const savePublication = (publication: Publications | undefined) => setPublication(publication)
   const savePublications = (publications: Publications[] | undefined) => setPublications(publications)
@@ -47,7 +51,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         markdownArticle,
         loading,
         setMarkdownArticle,
-        getPinnedData,
+        getIpfsData,
         setCurrentPath,
         saveIsEditing,
         saveDraftPublicationImage,

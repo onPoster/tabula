@@ -12,7 +12,7 @@ export type PublicationContextType = {
   currentPath: string | undefined
   markdownArticle: string | undefined
   loading: boolean
-  getPinnedData: (hash: string) => void
+  getIpfsData: (hash: string) => void
   setMarkdownArticle: (markdown: string | undefined) => void
   saveIsEditing: (isEditing: boolean) => void
   saveDraftPublicationImage: (file: File | undefined) => void
