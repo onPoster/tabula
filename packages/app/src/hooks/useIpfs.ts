@@ -73,9 +73,9 @@ export const useIpfs = () => {
   }
 
   const getImageSrc = async (hash: string): Promise<string> => {
-    // TODO: this is a workaround. It should use the ipfs httpclient
+    // TODO: this is a workaround. It should use the ipfs htt pclient
     // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
-    // its set up as a promise on purus at this will be required for the real implimentatio n
+    // its set up as a promise on purus as this will be required for the real implementation
     return `${IPFS_GATEWAY}/${hash}`
   }
 
