@@ -15,7 +15,7 @@ if (INFURA_PROJECT_ID == null) {
   throw new Error("REACT_APP_IPFS_INFURA_SECRET_KEY is not set")
 }
 
-export const useFiles = () => {
+export const useIpfs = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
   const openNotification = useNotification()

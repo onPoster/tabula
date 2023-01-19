@@ -4,7 +4,7 @@ import Page from "../../layout/Page"
 import { palette, typography } from "../../../theme"
 import PublicationAvatar from "../../commons/PublicationAvatar"
 import PublicationItem from "../../commons/PublicationItem"
-import { useFiles } from "../../../hooks/useFiles"
+import { useIpfs } from "../../../hooks/useIpfs"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
@@ -88,7 +88,7 @@ export const PublishView: React.FC<PublishViewProps> = ({ updateChainId }) => {
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
-  const { uploadFile, ipfs } = useFiles()
+  const { uploadFile, ipfs } = useIpfs()
   const {
     control,
     handleSubmit,

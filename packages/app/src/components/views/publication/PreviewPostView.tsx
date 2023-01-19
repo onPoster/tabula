@@ -7,7 +7,7 @@ import PublicationPage from "../../layout/PublicationPage"
 import { useNavigate, useParams } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
-import { useFiles } from "../../../hooks/useFiles"
+import { useIpfs } from "../../../hooks/useIpfs"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import { useWeb3React } from "@web3-react/core"
 import useArticles from "../../../services/publications/hooks/useArticles"
@@ -30,7 +30,7 @@ export const PreviewPostView: React.FC = () => {
   const [authors, setAuthors] = useState<string[]>([])
   const [articleImg, setArticleImg] = useState<File | undefined>(undefined)
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
-  const { uploadFile, ipfs } = useFiles()
+  const { uploadFile, ipfs } = useIpfs()
   const { createArticle, updateArticle } = usePoster()
   const {
     indexing: createArticleIndexing,
@@ -265,9 +265,7 @@ export const PreviewPostView: React.FC = () => {
                 errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
               />
             </Stack>
-            {!pinning && (
-              <PinningAlert />
-            )}
+            {!pinning && <PinningAlert />}
             <Stack direction="row" justifyContent={"space-between"} spacing={2}>
               <Button
                 variant="outlined"
