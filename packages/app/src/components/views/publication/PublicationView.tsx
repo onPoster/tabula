@@ -11,13 +11,13 @@ import PublicationAvatar from "../../commons/PublicationAvatar"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import { PermissionSection } from "./components/PermissionSection"
-import PostSection from "./components/PostSection"
+import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 
-const PublicationPostContainer = styled(Grid)(({ theme }) => ({
+const PublicationContainer = styled(Grid)(({ theme }) => ({
   [`${theme.breakpoints.down("md")}`]: {
     justifyContent: "center",
     marginTop: 20,
@@ -29,16 +29,16 @@ const PublicationPostContainer = styled(Grid)(({ theme }) => ({
   },
 }))
 
-interface PublicationPostViewProps {
+interface PublicationViewProps {
   updateChainId: (chainId: number) => void
 }
 
-export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ updateChainId }) => {
+export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId }) => {
   const { publicationId, network } = useParams<{ publicationId: string; network: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
   const { data: publication, loading, executeQuery } = usePublication(publicationId || "")
-  const [currentTab, setCurrentTab] = useState<"posts" | "permissions" | "settings">("posts")
+  const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
   const havePermissionToUpdate = permissions
@@ -75,7 +75,7 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
         <ViewContainer maxWidth="sm">
           <Grid container gap={11} flexDirection={"column"} mt={11}>
             <Grid item>
-              <PublicationPostContainer container gap={3} alignItems={"center"}>
+              <PublicationContainer container gap={3} alignItems={"center"}>
                 <Grid item>
                   {!editingPublication && (
                     <Avatar
@@ -106,7 +106,7 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
                     )}
                   </Grid>
                 </Grid>
-              </PublicationPostContainer>
+              </PublicationContainer>
             </Grid>
             {havePermission && (
               <Grid item>
@@ -115,7 +115,7 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
                   couldEdit={havePermissionToUpdate}
                   couldDelete={havePermissionToDelete}
                 />
-                {currentTab === "posts" && <PostSection />}
+                {currentTab === "articles" && <ArticleSection />}
                 {currentTab === "permissions" && <PermissionSection />}
                 {currentTab === "settings" && (
                   <SettingSection couldEdit={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
@@ -124,7 +124,7 @@ export const PublicationPostView: React.FC<PublicationPostViewProps> = ({ update
             )}
             {!havePermission && (
               <Grid item>
-                <PostSection />
+                <ArticleSection />
               </Grid>
             )}
           </Grid>

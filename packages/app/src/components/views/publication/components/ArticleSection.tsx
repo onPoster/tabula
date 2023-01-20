@@ -2,13 +2,14 @@ import React, { useEffect } from "react"
 import { Button, Grid, Typography } from "@mui/material"
 import { palette, typography } from "../../../../theme"
 import AddIcon from "@mui/icons-material/Add"
-import PostItem from "../../../commons/PostItem"
 import { useNavigate, useParams } from "react-router-dom"
 import { haveActionPermission } from "../../../../utils/permission"
 import { useWeb3React } from "@web3-react/core"
 import usePublication from "../../../../services/publications/hooks/usePublication"
+import ArticleItem from "./ArticleItem"
 
-const PostSection: React.FC = () => {
+
+const ArticleSection: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationId } = useParams<{ publicationId: string }>()
@@ -35,14 +36,14 @@ const PostSection: React.FC = () => {
             fontFamily={typography.fontFamilies.sans}
             sx={{ margin: 0 }}
           >
-            Posts
+            Articles
           </Typography>
         </Grid>
         {havePermissionToCreate && (
           <Grid item>
-            <Button variant="contained" size="medium" onClick={() => navigate(`new-post/new`)}>
+            <Button variant="contained" size="medium" onClick={() => navigate(`new-article/new`)}>
               <AddIcon style={{ marginRight: 13 }} />
-              New Post
+              New Article
             </Button>
           </Grid>
         )}
@@ -52,7 +53,7 @@ const PostSection: React.FC = () => {
           articles.length > 0 &&
           articles.map((article) => (
             <Grid item sx={{ width: "100%" }} key={article.id || ""}>
-              <PostItem article={article} couldUpdate={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
+              <ArticleItem article={article} couldUpdate={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
             </Grid>
           ))}
       </Grid>
@@ -60,4 +61,4 @@ const PostSection: React.FC = () => {
   )
 }
 
-export default PostSection
+export default ArticleSection

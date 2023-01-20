@@ -6,7 +6,7 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
-import ArticleTabs from "./ArticleTabs"
+import ArticleTabs from "./components/ArticleTabs"
 import { Markdown } from "../../commons/Markdown"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -24,7 +24,7 @@ const articleSchema = yup.object().shape({
   article: yup.string().required(),
 })
 
-const DeletePostButton = styled(Button)({
+const DeleteArticleButton = styled(Button)({
   border: `2px solid ${palette.grays[400]}`,
   background: palette.whites[400],
   color: palette.grays[800],
@@ -33,7 +33,7 @@ const DeletePostButton = styled(Button)({
   },
 })
 
-export const CreatePostView: React.FC = () => {
+export const CreateArticleView: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
@@ -165,7 +165,7 @@ export const CreatePostView: React.FC = () => {
                   return currentTab === "write" ? (
                     <TextField
                       {...field}
-                      placeholder="Start your post..."
+                      placeholder="Start your article..."
                       multiline
                       rows={14}
                       onChange={handleChange}
@@ -211,7 +211,7 @@ export const CreatePostView: React.FC = () => {
               <Grid item xs={12} mt={1}>
                 <Grid container justifyContent={"space-between"}>
                   {havePermissionToDelete && (
-                    <DeletePostButton
+                    <DeleteArticleButton
                       variant="contained"
                       size="large"
                       onClick={handleDeleteArticle}
@@ -220,12 +220,12 @@ export const CreatePostView: React.FC = () => {
                       sx={{ whiteSpace: "nowrap" }}
                     >
                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                      {indexing ? "Indexing..." : "Delete Post"}
-                    </DeletePostButton>
+                      {indexing ? "Indexing..." : "Delete Article"}
+                    </DeleteArticleButton>
                   )}
                   {havePermissionToUpdate && (
                     <Button variant="contained" size="large" type="submit" disabled={loading || indexing}>
-                      Update Post
+                      Update Article
                     </Button>
                   )}
                 </Grid>

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react"
+import { PublicationView } from "./components/views/publication/PublicationView"
 import { Routes, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
 import { Provider as UrqlProvider } from "urql"
 /** Views **/
 import { LandingView } from "./components/views/home/LandingView"
 import { WalletView } from "./components/views/wallet/WalletView"
-import { PublishView } from "./components/views/publication/PublishView"
-import { PublicationPostView } from "./components/views/publication/PublicationPostView"
+import { PublicationsView } from "./components/views/publication/PublicationsView"
 import { PublicationProvider } from "./services/publications/contexts"
-import { CreatePostView } from "./components/views/publication/CreatePostView"
-import { PreviewPostView } from "./components/views/publication/PreviewPostView"
+import { CreateArticleView } from "./components/views/publication/CreateArticleView"
+import { CreateArticleView2 } from "./components/views/publication/CreateArticleView2"
 import { ArticleView } from "./components/views/publication/ArticleView"
 import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
@@ -52,15 +52,12 @@ const App: React.FC = () => {
                 <Route path="/wallet" element={<WalletView />} />
                 <Route path="/:network">
                   <Route path="pinning" element={<SetupIpfsView />} />
-                  <Route path="publications" element={<PublishView updateChainId={updateChainId} />} />
-
-                  <Route path=":publicationId/permissions/:type" element={<PermissionView />} />
-
-                  <Route path=":publicationId/:postId/:type" element={<CreatePostView />} />
-                  <Route path=":publicationId/:postId/preview/:type" element={<PreviewPostView />} />
+                  <Route path="publications" element={<PublicationsView updateChainId={updateChainId} />} />
+                  <Route path=":publicationId" element={<PublicationView updateChainId={updateChainId} />} />
+                  <Route path=":publicationId/:postId/:type" element={<CreateArticleView />} />
+                  <Route path=":publicationId/:postId/preview/:type" element={<CreateArticleView2 />} />
                   <Route path=":publicationId/:articleId" element={<ArticleView updateChainId={updateChainId} />} />
-
-                  <Route path=":publicationId" element={<PublicationPostView updateChainId={updateChainId} />} />
+                  <Route path=":publicationId/permissions/:type" element={<PermissionView />} />
                 </Route>
               </Routes>
             </PosterProvider>
