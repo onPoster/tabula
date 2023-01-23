@@ -22,6 +22,7 @@ if (IPFS_GATEWAY == null) {
 
 export const useIpfs = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
+  const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
   const openNotification = useNotification()
   const [isSettingUp, setIsSettingUp] = useState(false)
@@ -30,12 +31,12 @@ export const useIpfs = () => {
   useEffect(() => {
     const setup = async () => {
       try {
-        const client = create({ url: "http://localhost:5001/api/v0" }) // will connect to a locale node if available
+        //We try with the ipfs node provided by the user
+        const client = create({ url: ipfsNodeEndpoint ? ipfsNodeEndpoint : "http://localhost:5001/api/v0" })
         if (await client.version()) {
           return setIpfs(client)
         }
       } catch (e) {
-        // use infura if there are no available locale IPFS node
         try {
           const auth = "Basic " + Buffer.from(INFURA_PROJECT_ID + ":" + INFURA_SECRET_KEY).toString("base64")
           const client = create({
@@ -61,8 +62,7 @@ export const useIpfs = () => {
       setIsSettingUp(true)
       setup()
     }
-    // throw Error("Unable to connect to a running IPFS node.")
-  }, [ipfs, isSettingUp])
+  }, [ipfs, ipfsNodeEndpoint, isSettingUp])
 
   const uploadContent = async (file: File | string): Promise<{ cid?: any; path: string }> => {
     const result = await (ipfs as IPFSHTTPClient).add(file)
@@ -73,10 +73,18 @@ export const useIpfs = () => {
   }
 
   const getImgSrc = async (hash: string): Promise<string> => {
-    // TODO: this is a workaround. It should use the ipfs htt pclient
+    // TODO: this is a workaround. It should use the ipfs http client
     // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
     // its set up as a promise on purus as this will be required for the real implementation
-    return `${IPFS_GATEWAY}/${hash}`
+    try {
+      const response = await fetch(`${IPFS_GATEWAY}/${hash}`)
+      if (response.status === 200) {
+        return response.url
+      }
+      throw Error("Unable to retrieve your image src")
+    } catch (e) {
+      throw Error("Unable to retrieve your image src")
+    }
   }
 
   const getText = async (hash: string): Promise<string> => {
