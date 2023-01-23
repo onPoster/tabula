@@ -76,15 +76,7 @@ export const useIpfs = () => {
     // TODO: this is a workaround. It should use the ipfs http client
     // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
     // its set up as a promise on purus as this will be required for the real implementation
-    try {
-      const response = await fetch(`${IPFS_GATEWAY}/${hash}`)
-      if (response.status === 200) {
-        return response.url
-      }
-      throw Error("Unable to retrieve your image src")
-    } catch (e) {
-      throw Error("Unable to retrieve your image src")
-    }
+    return `${IPFS_GATEWAY}/${hash}`
   }
 
   const getText = async (hash: string): Promise<string> => {
