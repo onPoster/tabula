@@ -32,7 +32,7 @@ export const useIpfs = () => {
     const setup = async () => {
       try {
         //We try with the ipfs node provided by the user
-        const client = create({ url: ipfsNodeEndpoint ? ipfsNodeEndpoint : "http://localhost:5001/api/v0" })
+        const client = create({ url: ipfsNodeEndpoint ?? "http://localhost:5001/api/v0" })
         if (await client.version()) {
           return setIpfs(client)
         }
