@@ -3,4 +3,5 @@ packages/subgraph/build
 packages/subgraph/generated
 packages/subgraph/tests/.bin
 packages/subgraph/subgraph.yaml
-packages/subgraph/.env
+**/.env
+.vscode/*
