@@ -7,17 +7,17 @@ const PublicationStyledTabs = styled(Tabs)({
 })
 
 export const PUBLICATIONS_TABS_OPTIONS = [
-  { label: "articles", value: "articles" },
+  { label: "Articles", value: "articles" },
   { label: "Permissions", value: "permissions" },
   { label: "Settings", value: "settings" },
 ]
 export const PUBLICATIONS_TABS_WITHOUT_EDIT_OPTIONS = [
-  { label: "articles", value: "articles" },
+  { label: "Articles", value: "articles" },
   { label: "Permissions", value: "permissions" },
 ]
 
 export const PUBLICATIONS_TABS_WITH_DELETE_OPTIONS = [
-  { label: "articles", value: "articles" },
+  { label: "Articles", value: "articles" },
   { label: "Permissions", value: "permissions" },
   { label: "Settings", value: "settings" },
 ]
