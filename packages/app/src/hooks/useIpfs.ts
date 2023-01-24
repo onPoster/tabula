@@ -87,7 +87,6 @@ export const useIpfs = () => {
     for await (const val of res) {
       str = str + decoder.decode(val)
     }
-    console.log("str:" + str)
 
     return str
   }
