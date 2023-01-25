@@ -1,19 +1,8 @@
-import { useEffect, useState } from "react"
-import { create, IPFSHTTPClient } from "ipfs-http-client"
 import useLocalStorage from "./useLocalStorage"
 import { Pinning } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
-
-const INFURA_PROJECT_ID = process.env.REACT_APP_IPFS_INFURA_PROJECT_ID
-if (INFURA_PROJECT_ID == null) {
-  throw new Error("REACT_APP_IPFS_INFURA_PROJECT_ID is not set")
-}
-
-const INFURA_SECRET_KEY = process.env.REACT_APP_IPFS_INFURA_SECRET_KEY
-if (INFURA_PROJECT_ID == null) {
-  throw new Error("REACT_APP_IPFS_INFURA_SECRET_KEY is not set")
-}
+import { getClient } from "../services/ipfs"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 if (IPFS_GATEWAY == null) {
@@ -22,50 +11,30 @@ if (IPFS_GATEWAY == null) {
 
 export const useIpfs = () => {
   const [pinning] = useLocalStorage("pinning", undefined)
-  const [ipfs, setIpfs] = useState<IPFSHTTPClient | undefined>(undefined)
+  const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const openNotification = useNotification()
-  const [isSettingUp, setIsSettingUp] = useState(false)
-  const [isReady, setIsReady] = useState(false)
+  // TODO: keeping until we find a better way to handle this
+  const getClientHack = async (ipfsNodeEndpoint?: string) => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+    let client = await getClient(ipfsNodeEndpoint)
 
-  useEffect(() => {
-    const setup = async () => {
-      try {
-        const client = create({ url: "http://localhost:5001/api/v0" }) // will connect to a locale node if available
-        if (await client.version()) {
-          return setIpfs(client)
-        }
-      } catch (e) {
-        // use infura if there are no available locale IPFS node
-        try {
-          const auth = "Basic " + Buffer.from(INFURA_PROJECT_ID + ":" + INFURA_SECRET_KEY).toString("base64")
-          const client = create({
-            host: "ipfs.infura.io",
-            port: 5001,
-            protocol: "https",
-            headers: {
-              authorization: auth,
-            },
-          })
-          if (await client.version()) {
-            return setIpfs(client)
-          }
-        } catch (e) {
-          throw Error("Unable to connect to a running IPFS node.")
-        }
-      } finally {
-        setIsReady(true)
-        setIsSettingUp(false)
-      }
+    if (!client) {
+      await sleep(1000)
+      client = await getClient(ipfsNodeEndpoint)
     }
-    if (ipfs == null && !isSettingUp) {
-      setIsSettingUp(true)
-      setup()
+
+    if (!client) {
+      await sleep(2000)
+      client = await getClient(ipfsNodeEndpoint)
     }
-    // throw Error("Unable to connect to a running IPFS node.")
-  }, [ipfs, isSettingUp])
+    return client
+  }
 
   const uploadContent = async (file: File | string): Promise<{ cid?: any; path: string }> => {
-    const result = await (ipfs as IPFSHTTPClient).add(file)
+    console.log("uploading content")
+    const client = await getClientHack(ipfsNodeEndpoint)
+
+    const result = await client.add(file)
     return {
       cid: result.cid,
       path: result.path,
@@ -73,21 +42,21 @@ export const useIpfs = () => {
   }
 
   const getImgSrc = async (hash: string): Promise<string> => {
-    // TODO: this is a workaround. It should use the ipfs htt pclient
+    // TODO: this is a workaround. It should use the ipfs http client
     // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
     // its set up as a promise on purus as this will be required for the real implementation
     return `${IPFS_GATEWAY}/${hash}`
   }
 
   const getText = async (hash: string): Promise<string> => {
-    const res = await (ipfs as IPFSHTTPClient).cat(hash)
+    const client = await getClientHack(ipfsNodeEndpoint)
+    const res = client.cat(hash)
     var decoder = new TextDecoder()
     let str = ""
 
     for await (const val of res) {
       str = str + decoder.decode(val)
     }
-    console.log("str:" + str)
 
     return str
   }
@@ -142,5 +111,11 @@ export const useIpfs = () => {
     return isValid
   }
 
-  return { ipfs, uploadContent, pinAction, isValidIpfsService, getText, getImgSrc, isReady }
+  return {
+    uploadContent,
+    pinAction,
+    isValidIpfsService,
+    getText,
+    getImgSrc,
+  }
 }
