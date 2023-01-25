@@ -1,4 +1,4 @@
-import { Avatar, CircularProgress, Grid, styled, Typography } from "@mui/material"
+import { Avatar, Box, CircularProgress, Grid, Stack, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
@@ -14,20 +14,9 @@ import { PermissionSection } from "./components/PermissionSection"
 import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
+import { CopyAllOutlined } from "@mui/icons-material"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-
-const PublicationContainer = styled(Grid)(({ theme }) => ({
-  [`${theme.breakpoints.down("md")}`]: {
-    justifyContent: "center",
-    marginTop: 20,
-  },
-
-  [`${theme.breakpoints.up("lg")}`]: {
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
-}))
 
 interface PublicationViewProps {
   updateChainId: (chainId: number) => void
@@ -72,11 +61,19 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
         </Grid>
       )}
       {publication && (
-        <ViewContainer maxWidth="sm">
+        <ViewContainer maxWidth="md">
           <Grid container gap={11} flexDirection={"column"} mt={11}>
             <Grid item>
-              <PublicationContainer container gap={3} alignItems={"center"}>
-                <Grid item>
+              <Stack
+                gap={3}
+                direction={["column", "row"]}
+                sx={{
+                  alignItems: ["flex-start", "flex-start", "center"],
+                  justifyContent: ["center", "center", "flex-start"],
+                  // flexDirection: ["column", "row"],
+                }}
+              >
+                <Box width={160}>
                   {!editingPublication && (
                     <Avatar
                       sx={{ width: 160, height: 160 }}
@@ -88,25 +85,53 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                   {editingPublication && (
                     <PublicationAvatar defaultImage={publication.image} onFileSelected={saveDraftPublicationImage} />
                   )}
-                </Grid>
-                <Grid item>
-                  <Grid container gap={2} flexDirection={"column"}>
+                </Box>
+                <Stack spacing={2}>
+                  <Stack spacing={1}>
                     <Typography
                       color={palette.grays[1000]}
                       variant="h5"
                       fontFamily={typography.fontFamilies.sans}
+                      lineHeight={1}
                       sx={{ margin: 0 }}
                     >
                       {publication.title}
                     </Typography>
-                    {publication.description && (
-                      <Typography color={palette.grays[1000]} sx={{ margin: 0 }}>
-                        {publication.description}
+
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{
+                        alignItems: "center",
+                        cursor: "pointer",
+                        "&:hover .copyIcon": { color: palette.grays[1000] },
+                      }}
+                    >
+                      <Typography
+                        color={palette.grays[600]}
+                        fontFamily={typography.fontFamilies.monospace}
+                        fontSize={10}
+                        sx={{ wordBreak: "break-all" }}
+                      >
+                        {publication.id}
                       </Typography>
-                    )}
-                  </Grid>
-                </Grid>
-              </PublicationContainer>
+                      {/* <CopyAllOutlined
+                        className="copyIcon"
+                        sx={{
+                          color: palette.grays[600],
+                          width: 16,
+                          height: 16,
+                        }}
+                      /> */}
+                    </Stack>
+                  </Stack>
+                  {publication.description && (
+                    <Typography color={palette.grays[1000]} sx={{ margin: 0 }}>
+                      {publication.description}
+                    </Typography>
+                  )}
+                </Stack>
+              </Stack>
             </Grid>
             {havePermission && (
               <Grid item>

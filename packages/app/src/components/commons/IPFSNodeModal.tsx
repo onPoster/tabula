@@ -87,7 +87,7 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
           <Grid item>
             <Typography fontFamily={typography.fontFamilies.sans}>
               Otherwise, you can specify a custom endpoint below or just allow Tabula to connect to{" "}
-              <Link fontFamily={typography.fontFamilies.displaySerif} target="_blank" href="https://www.infura.io/">
+              <Link fontFamily={typography.fontFamilies.serif} target="_blank" href="https://www.infura.io/">
                 Infura
               </Link>{" "}
               by default.
