@@ -35,7 +35,7 @@ const usePublication = (id: string) => {
         setImageSrc(src)
       }
     }
-    if (ipfs.isReady && data?.image != null && imageSrc === "") {
+    if (data?.image != null && imageSrc === "") {
       getImageSrc()
     }
   }, [data, ipfs, imageSrc])

@@ -92,7 +92,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setLoading(true)
     const { title, description } = data
     let image
-    if (ipfs.isReady && draftPublicationImage) {
+    if (draftPublicationImage) {
       image = await ipfs.uploadContent(draftPublicationImage)
     }
     if (!draftPublicationImage && publication?.image) {

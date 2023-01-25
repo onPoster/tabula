@@ -143,7 +143,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setLoading(true)
     const { title, description } = data
     let image
-    if (ipfs.isReady && publicationImg) {
+    if (publicationImg) {
       image = await ipfs.uploadContent(publicationImg)
     }
     if (title) {

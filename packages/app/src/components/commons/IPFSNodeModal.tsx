@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Divider, Grid, Link, Modal, ModalProps, styled, TextField, Typography } from "@mui/material"
+import { Button, Divider, Grid, Modal, ModalProps, styled, TextField, Typography } from "@mui/material"
 import React, { useEffect, useRef, useState } from "react"
 
 import { palette, typography } from "../../theme"
@@ -75,8 +75,8 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
           <Grid item>
             <Grid container gap={1}>
               <Typography fontFamily={typography.fontFamilies.sans}>
-                Configure your IPFS node URL below. Tabula will automatically connect to your locale IPFS node if you
-                have a node running at the following default endpoint:
+                Tabula will automatically connect to your locale IPFS node if you have a node running at the default
+                endpoint:
               </Typography>
               <Typography fontWeight={700} fontFamily={typography.fontFamilies.monospace} color={palette.grays[800]}>
                 http://localhost:5001/api/v0
@@ -86,11 +86,7 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
 
           <Grid item>
             <Typography fontFamily={typography.fontFamilies.sans}>
-              Otherwise, you can specify a custom endpoint below or just allow Tabula to connect to{" "}
-              <Link fontFamily={typography.fontFamilies.displaySerif} target="_blank" href="https://www.infura.io/">
-                Infura
-              </Link>{" "}
-              by default.
+              If you want to connect to an IPFS node running at a different URL, you can specify this below.
             </Typography>
           </Grid>
 
@@ -116,6 +112,11 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
                 />
               </Grid>
             </Grid>
+          </Grid>
+          <Grid item>
+            <Typography fontFamily={typography.fontFamilies.sans} sx={{ fontStyle: "italic" }}>
+              If Tablua cannot connect to a running IPFS node, it will spin up an IPFS node in the browser.
+            </Typography>
           </Grid>
 
           <Grid item>
