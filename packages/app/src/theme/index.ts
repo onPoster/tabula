@@ -272,17 +272,29 @@ theme = createTheme(theme, {
         },
       },
     },
-    MuiTextField: {
+    MuiInputLabel: {
       styleOverrides: {
         root: {
-          background: "#e7e7e6",
-        },
-      },
+          color: palette.secondary[800],
+          fontFamily: typography.fontFamilies.sans,
+          fontSize: "1.125rem",
+          letterSpacing: 2,
+          lineHeight: 1,
+          textTransform: "uppercase",
+        }
+      }
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          minHeight: 40,
+          backgroundColor: palette.grays[50],
+          backdropFilter: "blur(2px)",
+          fontFamily: typography.fontFamilies.sans,
+          "& .MuiOutlinedInput-input": {
+            height: "auto",
+            paddingTop: 12,
+            paddingBottom: 12,
+          }
         },
       },
     },

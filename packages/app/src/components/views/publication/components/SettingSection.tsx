@@ -1,4 +1,14 @@
-import { Box, Button, CircularProgress, FormHelperText, Grid, TextField, Typography } from "@mui/material"
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  TextField,
+  Typography,
+} from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
@@ -147,73 +157,95 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   }
 
   return (
-    <Box>
-      <Typography color={palette.grays[1000]} variant="h5" fontFamily={typography.fontFamilies.sans} mt={4} mb={3}>
-        Publication Details
-      </Typography>
-      <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Post))}>
-        <Grid container gap={2} flexDirection="column">
-          <Grid item>
-            <Controller
-              control={control}
-              name="title"
-              render={({ field }) => (
-                <TextField {...field} value={field.value} placeholder="Publication Name" sx={{ width: "100%" }} />
-              )}
-              rules={{ required: true }}
-            />
-            {errors && errors.title && (
-              <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                {errors.title.message}
-              </FormHelperText>
-            )}
-          </Grid>
-          <Grid item>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <TextField {...field} value={field.value} placeholder="Tagline" sx={{ width: "100%" }} />
-              )}
-              rules={{ required: true }}
-            />
-          </Grid>
-          <Grid item>
-            <CreatableSelect
-              placeholder="Add up to 5 tags for your publication..."
-              onSelected={handleTags}
-              value={tags}
-              errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
-            />
-          </Grid>
-          <Grid item>
-            <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
-              {couldDelete && (
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={handlePublicationDelete}
-                  disabled={deleteLoading || loading || deleteIndexing || updateIndexing}
-                >
-                  {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {deleteIndexing ? "Indexing..." : "Delete Publication"}
-                </Button>
-              )}
-              {couldEdit && (
-                <Button
-                  variant="contained"
-                  size="large"
-                  type="submit"
-                  disabled={loading || deleteLoading || deleteIndexing || updateIndexing}
-                >
-                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {updateIndexing ? "Indexing..." : " Update Publication"}
-                </Button>
+    <Container maxWidth="sm">
+      <Box mt={4}>
+        <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Post))}>
+          <Grid container gap={4} flexDirection="column">
+            <Grid item>
+              <Controller
+                control={control}
+                name="title"
+                render={({ field }) => (
+                  <>
+                    <InputLabel shrink htmlFor="publication-name">
+                      Publication Name
+                    </InputLabel>
+                    <TextField
+                      {...field}
+                      value={field.value}
+                      placeholder="Publication Name"
+                      sx={{ width: "100%" }}
+                      id="publication-name"
+                    />
+                  </>
+                )}
+                rules={{ required: true }}
+              />
+              {errors && errors.title && (
+                <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                  {errors.title.message}
+                </FormHelperText>
               )}
             </Grid>
+            <Grid item>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => (
+                  <>
+                    <InputLabel shrink htmlFor="publication-description">
+                      Description
+                    </InputLabel>
+                    <TextField
+                      {...field}
+                      value={field.value}
+                      placeholder="Tagline"
+                      sx={{ width: "100%" }}
+                      id="publication-description"
+                    />
+                  </>
+                )}
+                rules={{ required: true }}
+              />
+            </Grid>
+            <Grid item>
+              <InputLabel shrink>Tags</InputLabel>
+              <CreatableSelect
+                placeholder="Add up to 5 tags for your publication..."
+                onSelected={handleTags}
+                value={tags}
+                errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
+              />
+            </Grid>
+            <Grid item>
+              <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
+                {couldDelete && (
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    onClick={handlePublicationDelete}
+                    disabled={deleteLoading || loading || deleteIndexing || updateIndexing}
+                  >
+                    {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                    {deleteIndexing ? "Indexing..." : "Delete Publication"}
+                  </Button>
+                )}
+                {couldEdit && (
+                  <Button
+                    variant="contained"
+                    size="large"
+                    type="submit"
+                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing}
+                  >
+                    {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                    {updateIndexing ? "Indexing..." : " Update Publication"}
+                  </Button>
+                )}
+              </Grid>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Box>
+        </form>
+      </Box>
+    </Container>
   )
 }

@@ -74,7 +74,7 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
 
           <Grid item>
             <Grid container gap={1}>
-              <Typography fontFamily={typography.fontFamilies.sans}>
+              <Typography>
                 Configure your IPFS node URL below. Tabula will automatically connect to your locale IPFS node if you
                 have a node running at the following default endpoint:
               </Typography>
@@ -85,7 +85,7 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
           </Grid>
 
           <Grid item>
-            <Typography fontFamily={typography.fontFamilies.sans}>
+            <Typography>
               Otherwise, you can specify a custom endpoint below or just allow Tabula to connect to{" "}
               <Link fontFamily={typography.fontFamilies.serif} target="_blank" href="https://www.infura.io/">
                 Infura

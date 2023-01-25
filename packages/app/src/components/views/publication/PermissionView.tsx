@@ -9,6 +9,7 @@ import {
   Button,
   FormHelperText,
   CircularProgress,
+  InputLabel,
 } from "@mui/material"
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline"
 import { palette, typography } from "../../../theme"
@@ -266,7 +267,10 @@ export const PermissionView: React.FC = () => {
                     control={control}
                     name={"account"}
                     render={({ field }) => (
-                      <TextField {...field} placeholder="Permission address" sx={{ width: "100%" }} />
+                      <>
+                        <InputLabel sx={{ fontSize: 14, mb: 1 }}>Address</InputLabel>
+                        <TextField {...field} placeholder="Permission address" sx={{ width: "100%" }} />
+                      </>
                     )}
                   />
                   {errors && errors.account && (
@@ -276,6 +280,26 @@ export const PermissionView: React.FC = () => {
                   )}
                 </Grid>
               )}
+              {/* {type === "new" ||
+                (type === "edit" && permission && (
+                  <Grid item>
+                    <Controller
+                      control={control}
+                      name={"account"}
+                      render={({ field }) => (
+                        <>
+                          <InputLabel sx={{ fontSize: 14, mb: 1 }}>Display Name</InputLabel>
+                          <TextField {...field} placeholder="J0hn 5mith" sx={{ width: "100%" }} />
+                        </>
+                      )}
+                    />
+                    {errors && errors.account && (
+                      <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                        {errors.account.message}
+                      </FormHelperText>
+                    )}
+                  </Grid>
+                ))} */}
               {type === "edit" && permission && (
                 <Box
                   sx={{
