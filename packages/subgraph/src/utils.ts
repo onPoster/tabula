@@ -1,7 +1,6 @@
 import { Address, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
-
 export const ACTION__ARTICLE = "article"
 export const ACTION__PUBLICATION = "publication"
 
