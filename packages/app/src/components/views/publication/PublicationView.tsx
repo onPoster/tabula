@@ -1,4 +1,4 @@
-import { Avatar, Box, CircularProgress, Grid, Stack, styled, Typography } from "@mui/material"
+import { Avatar, Box, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
@@ -14,7 +14,7 @@ import { PermissionSection } from "./components/PermissionSection"
 import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
-import { CopyAllOutlined } from "@mui/icons-material"
+
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 

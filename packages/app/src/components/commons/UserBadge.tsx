@@ -1,5 +1,5 @@
 import React from "react"
-import { Avatar, Box, Stack, Typography } from "@mui/material"
+import { Avatar, Stack, Typography } from "@mui/material"
 import * as blockies from "blockies-ts"
 import { palette, typography } from "../../theme"
 import { shortAddress } from "../../utils/string"

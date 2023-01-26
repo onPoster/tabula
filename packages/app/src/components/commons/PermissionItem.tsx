@@ -1,11 +1,15 @@
-import React from "react"
-import { Box, Button, Grid, Stack } from "@mui/material"
+import React, { useEffect, useState } from "react"
+import { Box, Grid, Stack } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette } from "../../theme"
-import { Permission } from "../../models/publication"
+import { Permission, Publications } from "../../models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 import CloseIcon from "@mui/icons-material/Close"
 import { UserBadge } from "./UserBadge"
+import usePublication from "../../services/publications/hooks/usePublication"
+import { PermissionFormType } from "../views/publication/PermissionView"
+import usePoster from "../../services/poster/hooks/usePoster"
+import { useNavigate } from "react-router-dom"
 
 const PermissionItemContainer = styled(Box)({
   alignItems: "center",
@@ -29,13 +33,69 @@ const PermissionItemEditContainer = styled(Grid)({
 })
 
 type PermissionItemProps = {
+  publication: Publications | undefined
   permission: Permission
   canEdit: boolean
   showRemove: boolean
   onClick: (id: string) => void
 }
-const PermissionItem: React.FC<PermissionItemProps> = ({ permission, canEdit, showRemove, onClick }) => {
+const PermissionItem: React.FC<PermissionItemProps> = ({ publication, permission, canEdit, showRemove, onClick }) => {
   const { address, id } = permission
+  const navigate = useNavigate()
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
+  const {
+    indexing: deleteIndexing,
+    setExecutePollInterval: deleteInterval,
+    transactionCompleted: deleteTransaction,
+    setCurrentUserPermission,
+  } = usePublication(publication?.id || "")
+
+  const { givePermission } = usePoster()
+  const handlePermission = async (data: PermissionFormType) => {
+    if (publication) {
+      await givePermission({
+        action: "publication/permissions",
+        id: publication.id,
+        account: permission?.address || "",
+        permissions: {
+          "article/create": data.articleCreate,
+          "article/update": data.articleUpdate,
+          "article/delete": data.articleDelete,
+          "publication/delete": data.publicationDelete,
+          "publication/update": data.publicationUpdate,
+          "publication/permissions": data.publicationPermissions,
+        },
+      }).then((res) => {
+        if (res && res.error) {
+          setDeleteLoading(false)
+        } else {
+          deleteInterval(true)
+        }
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (deleteTransaction) {
+      navigate(-1)
+    }
+  }, [deleteTransaction, navigate])
+
+  const handleDeletePermission = () => {
+    if (publication && publication.permissions) {
+      setDeleteLoading(true)
+      setCurrentUserPermission(publication.permissions)
+      handlePermission({
+        articleCreate: false,
+        articleDelete: false,
+        articleUpdate: false,
+        publicationDelete: false,
+        publicationPermissions: false,
+        publicationUpdate: false,
+        account: "",
+      })
+    }
+  }
 
   return (
     <PermissionItemContainer>
@@ -44,7 +104,9 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ permission, canEdit, sh
         {canEdit && (
           <PermissionItemEditContainer
             onClick={() => {
-              canEdit && onClick(id ? id : "")
+              if (!deleteLoading || !deleteIndexing) {
+                canEdit && onClick(id ? id : "")
+              }
             }}
           >
             <EditIcon sx={{ width: 20, height: 20 }} />
@@ -64,6 +126,11 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ permission, canEdit, sh
               "&:hover": {
                 bgcolor: palette.grays[1000],
               },
+            }}
+            onClick={() => {
+              if (!deleteLoading || !deleteIndexing) {
+                handleDeletePermission()
+              }
             }}
           >
             <CloseIcon

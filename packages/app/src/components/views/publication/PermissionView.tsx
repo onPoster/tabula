@@ -34,7 +34,7 @@ type OptionsType = {
     | "publicationPermissions"
 }
 
-type PermissionFormType = {
+export type PermissionFormType = {
   articleCreate: boolean
   articleDelete: boolean
   articleUpdate: boolean

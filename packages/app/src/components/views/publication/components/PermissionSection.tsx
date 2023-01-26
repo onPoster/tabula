@@ -1,6 +1,6 @@
 import React from "react"
-import { Box, Grid, Container, Typography, Stack, Button } from "@mui/material"
-import { palette, typography } from "../../../../theme"
+import { Box, Grid, Container, Typography, Stack } from "@mui/material"
+import { palette } from "../../../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import PermissionItem from "../../../commons/PermissionItem"
@@ -43,6 +43,7 @@ export const PermissionSection: React.FC = () => {
           usersPermissions.map((permission) => (
             <Grid item sx={{ width: "100%" }} key={permission.id || ""}>
               <PermissionItem
+                publication={publication}
                 permission={permission}
                 canEdit={havePermissionToEdit}
                 showRemove={usersPermissions.length > 1}

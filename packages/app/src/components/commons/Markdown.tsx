@@ -1,7 +1,6 @@
 import ReactMarkdown from "markdown-to-jsx"
 import { Box, List, ListItem, Typography } from "@mui/material"
 import Link from "@mui/material/Link"
-import { typography } from "../../theme"
 
 const options = {
   disableParsingRawHTML: true,

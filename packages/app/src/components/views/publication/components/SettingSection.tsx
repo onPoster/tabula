@@ -7,12 +7,12 @@ import {
   Grid,
   InputLabel,
   TextField,
-  Typography,
+  // Typography,
 } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
-import { palette, typography } from "../../../../theme"
+import { palette } from "../../../../theme"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import { useIpfs } from "../../../../hooks/useIpfs"
