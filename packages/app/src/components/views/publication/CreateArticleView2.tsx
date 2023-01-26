@@ -30,7 +30,7 @@ export const CreateArticleView2: React.FC = () => {
   const [authors, setAuthors] = useState<string[]>([])
   const [articleImg, setArticleImg] = useState<File | undefined>(undefined)
   const { control, handleSubmit, setValue } = useForm({ defaultValues: { description: "" } })
-  const { uploadContent, ipfs } = useIpfs()
+  const ipfs = useIpfs()
   const { createArticle, updateArticle } = usePoster()
   const {
     indexing: createArticleIndexing,
@@ -62,8 +62,8 @@ export const CreateArticleView2: React.FC = () => {
       let image
       let hashArticle
       let imageUrl
-      if (ipfs && articleImg) {
-        image = await uploadContent(articleImg)
+      if (articleImg) {
+        image = await ipfs.uploadContent(articleImg)
         if (image.path) {
           imageUrl = image.path
         }
@@ -74,7 +74,7 @@ export const CreateArticleView2: React.FC = () => {
       }
 
       if (pinning && draftArticleText) {
-        hashArticle = await uploadContent(draftArticleText)
+        hashArticle = await ipfs.uploadContent(draftArticleText)
       }
 
       if (title && authors.length) {
