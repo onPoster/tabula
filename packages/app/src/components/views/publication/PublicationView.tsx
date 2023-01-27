@@ -26,7 +26,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
   const { publicationId, network } = useParams<{ publicationId: string; network: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
-  const { data: publication, loading, executeQuery } = usePublication(publicationId || "")
+  const { data: publication, loading, executeQuery, imageSrc } = usePublication(publicationId || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
@@ -75,10 +75,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
               >
                 <Box width={160}>
                   {!editingPublication && (
-                    <Avatar
-                      sx={{ width: 160, height: 160 }}
-                      src={publication.image ? `${IPFS_GATEWAY}/${publication.image}` : ""}
-                    >
+                    <Avatar sx={{ width: 160, height: 160 }} src={imageSrc}>
                       {" "}
                     </Avatar>
                   )}
