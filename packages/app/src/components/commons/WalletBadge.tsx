@@ -6,6 +6,7 @@ import { palette, typography } from "../../theme"
 import { shortAddress } from "../../utils/string"
 import { useNotification } from "../../hooks/useNotification"
 import { ethers } from "ethers"
+import { useWeb3React } from "@web3-react/core"
 
 type WalletBadgeProps = {
   copyable?: boolean
@@ -22,21 +23,23 @@ const WalletAddressContainer = styled(Box)({
 
 export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyable }) => {
   const avatarSrc = blockies.create({ seed: address.toLowerCase() }).toDataURL()
-  const provider = new ethers.providers.Web3Provider(window.ethereum)
+  const { connector, active } = useWeb3React()
+
   const [ensName, setEnsName] = useState<string | null>(null)
   const openNotification = useNotification()
 
   useEffect(() => {
     const fetchData = async () => {
-      if (provider && !ensName && address) {
-        const names = await provider.lookupAddress(address)
+      if (!ensName && address && active) {
+        const provider = await connector?.getProvider()
+        const web3Provider = new ethers.providers.Web3Provider(provider)
+        const names = await web3Provider.lookupAddress(address)
         setEnsName(names)
       }
     }
 
     fetchData().catch(console.error)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, ensName])
+  }, [active, address, connector, ensName])
 
   const handleAddressClick = async () => {
     if (copyable) {

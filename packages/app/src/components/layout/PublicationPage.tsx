@@ -8,6 +8,7 @@ import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 type Props = {
   publication?: Publications
   showCreatePost?: boolean
+  children: React.ReactNode
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {

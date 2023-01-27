@@ -50,14 +50,15 @@ export const useIpfs = () => {
 
   const getText = async (hash: string): Promise<string> => {
     const client = await getClientHack(ipfsNodeEndpoint)
-    const res = client.cat(hash)
-    var decoder = new TextDecoder()
     let str = ""
+    if (client) {
+      const res = client.cat(hash)
+      var decoder = new TextDecoder()
 
-    for await (const val of res) {
-      str = str + decoder.decode(val)
+      for await (const val of res) {
+        str = str + decoder.decode(val)
+      }
     }
-
     return str
   }
 
