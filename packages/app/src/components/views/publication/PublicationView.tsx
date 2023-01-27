@@ -15,8 +15,6 @@ import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
 
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-
 const PublicationContainer = styled(Grid)(({ theme }) => ({
   [`${theme.breakpoints.down("md")}`]: {
     justifyContent: "center",
@@ -37,7 +35,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
   const { publicationId, network } = useParams<{ publicationId: string; network: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
-  const { data: publication, loading, executeQuery } = usePublication(publicationId || "")
+  const { data: publication, loading, executeQuery, imageSrc } = usePublication(publicationId || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
@@ -78,10 +76,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
               <PublicationContainer container gap={3} alignItems={"center"}>
                 <Grid item>
                   {!editingPublication && (
-                    <Avatar
-                      sx={{ width: 160, height: 160 }}
-                      src={publication.image ? `${IPFS_GATEWAY}/${publication.image}` : ""}
-                    >
+                    <Avatar sx={{ width: 160, height: 160 }} src={imageSrc}>
                       {" "}
                     </Avatar>
                   )}

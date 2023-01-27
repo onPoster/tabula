@@ -4,6 +4,7 @@ import PublicationHeader from "./PublicationHeader"
 import { Publications } from "../../models/publication"
 import { Helmet } from "react-helmet"
 import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
+import usePublication from "../../services/publications/hooks/usePublication"
 
 type Props = {
   publication?: Publications
@@ -11,7 +12,8 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
-  useDynamicFavIcon(publication?.image)
+  const { imageSrc } = usePublication(publication?.id || "")
+  useDynamicFavIcon(imageSrc)
   return (
     <>
       <Helmet>
