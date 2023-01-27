@@ -105,7 +105,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                 <Grid container alignItems="center" gap={2} my={1}>
                   {article.authors.map((author) => (
                     <Grid item key={author}>
-                      <WalletBadge address={author} />
+                      <WalletBadge address={author} copyable />
                     </Grid>
                   ))}
                 </Grid>
