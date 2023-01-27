@@ -15,9 +15,6 @@ import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
 
-
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-
 interface PublicationViewProps {
   updateChainId: (chainId: number) => void
 }
@@ -70,7 +67,6 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                 sx={{
                   alignItems: ["flex-start", "flex-start", "center"],
                   justifyContent: ["center", "center", "flex-start"],
-                  // flexDirection: ["column", "row"],
                 }}
               >
                 <Box width={160}>
@@ -112,14 +108,6 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                       >
                         {publication.id}
                       </Typography>
-                      {/* <CopyAllOutlined
-                        className="copyIcon"
-                        sx={{
-                          color: palette.grays[600],
-                          width: 16,
-                          height: 16,
-                        }}
-                      /> */}
                     </Stack>
                   </Stack>
                   {publication.description && (

@@ -280,26 +280,6 @@ export const PermissionView: React.FC = () => {
                   )}
                 </Grid>
               )}
-              {/* {type === "new" ||
-                (type === "edit" && permission && (
-                  <Grid item>
-                    <Controller
-                      control={control}
-                      name={"account"}
-                      render={({ field }) => (
-                        <>
-                          <InputLabel sx={{ fontSize: 14, mb: 1 }}>Display Name</InputLabel>
-                          <TextField {...field} placeholder="J0hn 5mith" sx={{ width: "100%" }} />
-                        </>
-                      )}
-                    />
-                    {errors && errors.account && (
-                      <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                        {errors.account.message}
-                      </FormHelperText>
-                    )}
-                  </Grid>
-                ))} */}
               {type === "edit" && permission && (
                 <Box
                   sx={{
