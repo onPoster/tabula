@@ -53,7 +53,7 @@ export const useIpfs = () => {
     let str = ""
     if (client) {
       const res = client.cat(hash)
-      var decoder = new TextDecoder()
+      const decoder = new TextDecoder()
 
       for await (const val of res) {
         str = str + decoder.decode(val)
