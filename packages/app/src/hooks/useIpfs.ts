@@ -59,7 +59,6 @@ export const useIpfs = () => {
         str = str + decoder.decode(val)
       }
     }
-
     return str
   }
 

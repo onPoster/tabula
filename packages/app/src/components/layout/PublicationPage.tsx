@@ -9,6 +9,7 @@ import usePublication from "../../services/publications/hooks/usePublication"
 type Props = {
   publication?: Publications
   showCreatePost?: boolean
+  children: React.ReactNode
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {

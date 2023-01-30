@@ -6,6 +6,7 @@ import theme, { palette } from "../../theme"
 type Props = {
   title?: string
   showBadge?: boolean
+  children: React.ReactNode
 }
 
 const Page: React.FC<Props> = ({ children, showBadge }) => {

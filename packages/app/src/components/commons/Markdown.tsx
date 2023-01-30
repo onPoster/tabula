@@ -30,7 +30,7 @@ const options = {
         component: "h3",
       },
     },
-    
+
     h4: {
       component: Typography,
       props: {
@@ -90,6 +90,9 @@ const options = {
   },
 }
 
-export const Markdown: React.FC = (props: any) => {
+export const Markdown: React.FC<{
+  [key: string]: any
+  children: string
+}> = (props) => {
   return <ReactMarkdown options={options} {...props} />
 }

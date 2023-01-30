@@ -17,8 +17,8 @@
     "@testing-library/user-event": "^13.2.1",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.13",
-    "@types/react": "^17.0.20",
-    "@types/react-dom": "^17.0.9",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.9",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/walletconnect-connector": "^6.2.13",
@@ -34,7 +34,7 @@
     "lodash": "^4.17.21",
     "markdown-to-jsx": "^7.1.7",
     "moment": "^2.29.2",
-    "notistack": "^2.0.3",
+    "notistack": "^2.0.8",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0",
@@ -80,7 +80,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.180",
-    "@types/react-helmet": "^6.1.5",
     "prettier": "^2.5.1"
   }
 }
