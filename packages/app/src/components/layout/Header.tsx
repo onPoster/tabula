@@ -5,8 +5,9 @@ import { ReactComponent as Logo } from "../../assets/images/tabula-logo-wordmark
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { UserOptions } from "../commons/UserOptions"
+import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -33,6 +34,12 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
   const navigate = useNavigate()
   const classes = useStyles()
   const [show, setShow] = useState<boolean>(false)
+  const ref = useRef<React.Ref<unknown> | undefined>()
+  useOnClickOutside(ref, () => {
+    if (show) {
+      setShow(!show)
+    }
+  })
 
   return (
     <Container
@@ -66,7 +73,9 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
           </Grid>
           {show && (
             <Grid item sx={{ position: "absolute", top: 45 }}>
-              <UserOptions />
+              <Box ref={ref}>
+                <UserOptions />
+              </Box>
             </Grid>
           )}
         </Grid>

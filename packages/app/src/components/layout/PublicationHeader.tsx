@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { Avatar, Button, Container, Grid, styled, Typography } from "@mui/material"
+import React, { useEffect, useRef, useState } from "react"
+import { Avatar, Box, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Publications } from "../../models/publication"
@@ -10,6 +10,7 @@ import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
+import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
 type Props = {
   publication?: Publications
@@ -33,6 +34,12 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
   const { imageSrc } = usePublication(publication?.id || "")
+  const ref = useRef()
+  useOnClickOutside(ref, () => {
+    if (show) {
+      setShow(!show)
+    }
+  })
 
   useEffect(() => {
     if (location.pathname) {
@@ -104,7 +111,9 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   </Grid>
                   {show && (
                     <Grid item sx={{ position: "absolute", top: 45 }}>
-                      <UserOptions />
+                      <Box ref={ref}>
+                        <UserOptions />
+                      </Box>
                     </Grid>
                   )}
                 </Grid>

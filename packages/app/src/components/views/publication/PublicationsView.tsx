@@ -229,7 +229,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
                   />
                   {errors && errors.title && (
                     <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                      {errors.title.message}
+                      {errors.title.message as string}
                     </FormHelperText>
                   )}
                 </Grid>

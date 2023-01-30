@@ -115,7 +115,7 @@ const IPFSNodeModal: React.FC<IPFSNodeModalProps> = (props) => {
           </Grid>
           <Grid item>
             <Typography fontFamily={typography.fontFamilies.sans} sx={{ fontStyle: "italic" }}>
-              If Tablua cannot connect to a running IPFS node, it will spin up an IPFS node in the browser.
+              If Tabula cannot connect to a running IPFS node, it will spin up an IPFS node in the browser.
             </Typography>
           </Grid>
 
