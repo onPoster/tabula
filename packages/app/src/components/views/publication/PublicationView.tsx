@@ -134,7 +134,9 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
             )}
             {!havePermission && (
               <Grid item>
-                <ArticleSection />
+                <PublicationTabs onChange={setCurrentTab} couldEdit={false} couldDelete={false} />
+                {currentTab === "articles" && <ArticleSection />}
+                {currentTab === "permissions" && <PermissionSection />}
               </Grid>
             )}
           </Grid>
