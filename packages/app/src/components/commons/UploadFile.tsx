@@ -11,7 +11,8 @@ const UploadFileContainer = styled(Grid)({
   alignItems: "center",
   minHeight: 213,
   border: `1px solid ${palette.grays[200]}`,
-  background: palette.grays[100],
+  backgroundColor: palette.grays[50],
+  backdropFilter: "blur(2px)",
   cursor: "pointer",
   borderRadius: 4,
   flexDirection: "column",
@@ -87,7 +88,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
       {!imageHash && !uri && (
         <UploadFileContainer container gap={1} onClick={openImagePicker}>
           <AddIcon />
-          <Typography textAlign="center" color={palette.grays[600]} lineHeight={1.25} maxWidth="50%">
+          <Typography fontSize={14} textAlign="center" color={palette.grays[600]} lineHeight={1.5} maxWidth="80%">
             Include a high-quality image in your post to make it more inviting.
           </Typography>
         </UploadFileContainer>

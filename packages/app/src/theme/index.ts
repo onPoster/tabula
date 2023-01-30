@@ -1,6 +1,7 @@
 import { createTheme } from "@mui/material/styles"
 import paperTextureDay from "../assets/images/paper-texture-800-day.jpg"
 import avertaFont from "../assets/fonts/averta-normal.woff2"
+import avertaSemiBoldFont from "../assets/fonts/averta-semibold.woff2"
 import avertaBoldFont from "../assets/fonts/averta-bold.woff2"
 
 declare module "*.woff2"
@@ -78,7 +79,7 @@ let theme = createTheme({
     h2: {
       fontFamily: typography.fontFamilies.serif,
       fontSize: "2.5rem",
-      fontWeight: 600,
+      fontWeight: 500,
       marginBlockStart: "2.5rem",
       lineHeight: 1,
     },
@@ -86,25 +87,25 @@ let theme = createTheme({
       fontSize: "2rem",
       marginBlockStart: "2rem",
       fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
+      fontWeight: 500,
     },
     h4: {
       fontSize: "1.75rem",
       marginBlockStart: "2rem",
       fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
+      fontWeight: 500,
     },
     h5: {
       fontSize: "1.5rem",
       marginBlockStart: "2rem",
       fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
+      fontWeight: 500,
     },
     h6: {
       fontSize: "1.25rem",
       marginBlockStart: "2rem",
       fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
+      fontWeight: 500,
     },
     subtitle1: {
       fontFamily: typography.fontFamilies.serif,
@@ -130,8 +131,13 @@ let theme = createTheme({
       styleOverrides: `
         @font-face {
           font-family: 'Averta';
-          font-weight: 500;
+          font-weight: 300;
           src: local('Averta'), local('Averta-Regular'), url(${avertaFont}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Averta';
+          font-weight: 500;
+          src: local('Averta'), local('Averta-SemiBold'), url(${avertaSemiBoldFont}) format('woff2');
         }
         @font-face {
           font-family: 'Averta';
@@ -224,7 +230,7 @@ theme = createTheme(theme, {
         root: {
           fontFamily: typography.fontFamilies.sans,
           fontSize: "1rem",
-          fontWeight: 700,
+          fontWeight: 500,
           position: "relative",
           textTransform: "none",
         },
@@ -277,7 +283,7 @@ theme = createTheme(theme, {
         root: {
           color: palette.secondary[800],
           fontFamily: typography.fontFamilies.sans,
-          fontSize: "1.125rem",
+          fontSize: "1rem",
           letterSpacing: 2,
           lineHeight: 1,
           textTransform: "uppercase",
@@ -290,7 +296,7 @@ theme = createTheme(theme, {
           backgroundColor: palette.grays[50],
           backdropFilter: "blur(2px)",
           fontFamily: typography.fontFamilies.sans,
-          "& .MuiOutlinedInput-input": {
+          "& .MuiOutlinedInput-input:not(textarea)": {
             height: "auto",
             paddingTop: 12,
             paddingBottom: 12,

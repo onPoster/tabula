@@ -5,7 +5,7 @@ import { Controller, useForm } from "react-hook-form"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
-import PublicationPage from "../../layout/PublicationPage"
+import CreateArticlePage from "../../layout/CreateArticlePage"
 import ArticleTabs from "./components/ArticleTabs"
 import { Markdown } from "../../commons/Markdown"
 import * as yup from "yup"
@@ -119,30 +119,10 @@ export const CreateArticleView: React.FC = () => {
   }
 
   return (
-    <PublicationPage publication={publication} showCreatePost={false}>
+    <CreateArticlePage publication={publication}>
       <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}>
         <ViewContainer maxWidth="sm">
           <Grid container gap={4} flexDirection="column" mt={12.5}>
-            <Grid item>
-              <Box
-                gap={2}
-                sx={{
-                  alignItems: "center",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  transition: "opacity 0.25s ease-in-out",
-                  "&:hover": {
-                    opacity: 0.6,
-                  },
-                }}
-                onClick={goToPublication}
-              >
-                <ArrowBackIcon color="secondary" />
-                <Typography color="secondary" variant="subtitle2" sx={{ textDecoration: "underline" }}>
-                  Back to Publication
-                </Typography>
-              </Box>
-            </Grid>
             <Grid item xs={12}>
               <Controller
                 control={control}
@@ -234,6 +214,6 @@ export const CreateArticleView: React.FC = () => {
           </Grid>
         </ViewContainer>
       </form>
-    </PublicationPage>
+    </CreateArticlePage>
   )
 }

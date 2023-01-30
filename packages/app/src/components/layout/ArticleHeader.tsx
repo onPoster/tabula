@@ -1,0 +1,167 @@
+import React, { useEffect, useState, SetStateAction } from "react"
+import { Avatar, Box, Button, Container, Grid, Stack, styled, Typography } from "@mui/material"
+import { useWeb3React } from "@web3-react/core"
+import { WalletBadge } from "../commons/WalletBadge"
+import { Publications } from "../../models/publication"
+import AddIcon from "@mui/icons-material/Add"
+import theme, { palette, typography } from "../../theme"
+import { useLocation, useNavigate } from "react-router-dom"
+import usePublication from "../../services/publications/hooks/usePublication"
+import { haveActionPermission } from "../../utils/permission"
+import { usePublicationContext } from "../../services/publications/contexts"
+import { UserOptions } from "../commons/UserOptions"
+import SettingsIcon from "../../assets/images/icons/settings"
+
+type Props = {
+  publication?: Publications
+  setShowSidebar: React.Dispatch<SetStateAction<boolean>>
+  showSidebar: boolean
+}
+
+const ArticleHeader: React.FC<Props> = ({ publication, setShowSidebar, showSidebar }) => {
+  const { account, active } = useWeb3React()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
+  const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
+  const [show, setShow] = useState<boolean>(false)
+  const permissions = publication && publication.permissions
+  const { imageSrc } = usePublication(publication?.id || "")
+
+  const handleSidebarChange = () => {
+    setShowSidebar(!showSidebar)
+  }
+
+  useEffect(() => {
+    if (location.pathname) {
+      setCurrentPath(location.pathname)
+    }
+  }, [location, setCurrentPath])
+
+  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
+
+  const handleNavigation = async () => {
+    refetch()
+    saveDraftArticle(undefined)
+    saveArticle(undefined)
+    navigate(`../${publication?.id}`)
+  }
+
+  return (
+    <Container
+      maxWidth="lg"
+      component="header"
+      disableGutters
+      sx={{
+        alignItems: "center",
+        display: "flex",
+        justifyContent: "space-between",
+        position: "relative",
+        zIndex: 2,
+      }}
+    >
+      <Grid container mt={1} alignItems={"center"} justifyContent={publication ? "space-between" : "flex-end"}>
+        {publication && (
+          <Grid item>
+            <Grid
+              container
+              alignItems={"center"}
+              gap={0.5}
+              sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
+              onClick={handleNavigation}
+            >
+              <Avatar sx={{ width: 31, height: 31 }} src={imageSrc}>
+                {" "}
+              </Avatar>
+
+              <Typography
+                color={palette.grays[1000]}
+                variant="h6"
+                fontFamily={typography.fontFamilies.sans}
+                sx={{ margin: 0 }}
+              >
+                {publication.title}
+              </Typography>
+            </Grid>
+          </Grid>
+        )}
+
+        <Grid item>
+          <Stack
+            spacing={3}
+            direction="row"
+            sx={{
+              alignItems: "center",
+              justifyContent: "spabe-between",
+              [theme.breakpoints.down("md")]: {
+                margin: "15px 0px",
+              },
+            }}
+          >
+            {account && (
+              <Grid
+                container
+                flexDirection="column"
+                alignItems={"end"}
+                justifyContent={"flex-end"}
+                sx={{ position: "relative" }}
+              >
+                <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
+                  <WalletBadge hover address={account} />
+                </Grid>
+                {show && (
+                  <Grid item sx={{ position: "absolute", top: 45 }}>
+                    <UserOptions />
+                  </Grid>
+                )}
+              </Grid>
+            )}
+            <Button
+              variant="text"
+              onClick={() => {
+                // Preview
+                // navigate(`../${publication?.id}/new-article/new`)
+              }}
+            >
+              Preview
+            </Button>
+            <Button
+              variant="contained"
+              size={"large"}
+              onClick={() => {
+                navigate(`../${publication?.id}/new-article/new`)
+              }}
+            >
+              Publish
+            </Button>
+            <Box onClick={handleSidebarChange}>
+              <SettingsIcon
+                sx={{ color: palette.primary[1000], cursor: "pointer", "&:hover": { color: palette.primary[600] } }}
+              />
+            </Box>
+          </Stack>
+        </Grid>
+
+        {!active && (
+          <Button
+            variant="outlined"
+            sx={{
+              color: "#000000",
+              border: `2px solid ${palette.grays[400]}`,
+              "&:hover": {
+                backgroundColor: palette.grays[200],
+                border: `2px solid ${palette.grays[400]}`,
+                boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
+              },
+            }}
+            onClick={() => navigate(`/wallet?publicationChainId=${publicationChainId}`)}
+          >
+            Connect Wallet
+          </Button>
+        )}
+      </Grid>
+    </Container>
+  )
+}
+
+export default ArticleHeader
