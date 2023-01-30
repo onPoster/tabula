@@ -1,7 +1,7 @@
 import Select from "react-select/creatable"
 import { OnChangeValue } from "react-select"
 import React, { useEffect, useState } from "react"
-import { palette } from "../../theme"
+import { palette, typography } from "../../theme"
 import { CreateSelectOption } from "../../models/dropdown"
 import { FormHelperText } from "@mui/material"
 
@@ -17,11 +17,14 @@ export interface CreateSelectProps {
 const customStyles = {
   control: (base: any, state: { isFocused: any }) => ({
     ...base,
-    minHeight: "56px",
-    background: "#e7e7e6",
+    minHeight: "47px",
+    background: palette.grays[50],
+    backdropFilter: "blur(2px)",
     borderRadius: 4,
     border: state.isFocused ? `2px solid ${palette.primary[1000]}` : `1px solid rgba(0, 0, 0, 0.23)`,
     boxShadow: state.isFocused ? null : null,
+    fontFamily: typography.fontFamilies.sans,
+    fontSize: 16,
     "&:hover": {
       border: state.isFocused ? `2px solid ${palette.primary[1000]}` : `1px solid ${palette.grays[1000]}`,
     },

@@ -2,10 +2,6 @@ import { createTheme } from "@mui/material/styles"
 import paperTextureDay from "../assets/images/paper-texture-800-day.jpg"
 import avertaFont from "../assets/fonts/averta-normal.woff2"
 import avertaBoldFont from "../assets/fonts/averta-bold.woff2"
-import appareoExtraLightFont from "../assets/fonts/appareo-extralight.woff2"
-import appareoLightFont from "../assets/fonts/appareo-light.woff2"
-import appareoMediumFont from "../assets/fonts/appareo-medium.woff2"
-import appareoBlackFont from "../assets/fonts/appareo-black.woff2"
 
 declare module "*.woff2"
 
@@ -55,9 +51,8 @@ export const palette = {
 export const typography = {
   fontFamilies: {
     sans: `'Averta', 'Avenir', sans-serif`,
-    displaySerif: `'Appareo', 'Garamond', serif`,
+    serif: `'Source Serif Pro', 'Garamond', cursive;`,
     monospace: `'Roboto Mono', monospace`,
-    textSerif: `'Averia Serif Libre', 'Garamond', cursive;`,
   },
 }
 
@@ -72,16 +67,16 @@ let theme = createTheme({
   },
   typography: {
     // Base Typography
-    fontFamily: typography.fontFamilies.textSerif,
+    fontFamily: typography.fontFamilies.serif,
     h1: {
-      fontFamily: typography.fontFamilies.displaySerif,
+      fontFamily: typography.fontFamilies.serif,
       fontSize: "3rem",
       fontWeight: 600,
       marginBlockStart: "2.5rem",
       lineHeight: 1,
     },
     h2: {
-      fontFamily: typography.fontFamilies.displaySerif,
+      fontFamily: typography.fontFamilies.serif,
       fontSize: "2.5rem",
       fontWeight: 600,
       marginBlockStart: "2.5rem",
@@ -90,42 +85,42 @@ let theme = createTheme({
     h3: {
       fontSize: "2rem",
       marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.displaySerif,
+      fontFamily: typography.fontFamilies.serif,
       fontWeight: 600,
     },
     h4: {
       fontSize: "1.75rem",
       marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.displaySerif,
+      fontFamily: typography.fontFamilies.serif,
       fontWeight: 600,
     },
     h5: {
       fontSize: "1.5rem",
       marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.displaySerif,
+      fontFamily: typography.fontFamilies.serif,
       fontWeight: 600,
     },
     h6: {
       fontSize: "1.25rem",
       marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.displaySerif,
+      fontFamily: typography.fontFamilies.serif,
       fontWeight: 600,
     },
     subtitle1: {
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.serif,
       fontSize: "1.5em",
     },
     subtitle2: {
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.serif,
       fontSize: "1.25em",
     },
     body1: {
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.serif,
       fontSize: "1em",
       lineHeight: 1.75,
     },
     body2: {
-      fontFamily: typography.fontFamilies.textSerif,
+      fontFamily: typography.fontFamilies.serif,
       fontSize: "0.75em",
       lineHeight: 1.75,
     },
@@ -143,29 +138,19 @@ let theme = createTheme({
           font-weight: 700;
           src: local('Averta'), local('Averta-Regular'), url(${avertaBoldFont}) format('woff2');
         }
-        @font-face {
-          font-family: 'Appareo';
-          font-weight: 200;
-          src: local('Appareo'), local('Appareo-Extra-Light'), url(${appareoExtraLightFont}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Appareo';
-          font-weight: 400;
-          src: local('Appareo'), local('Appareo-Light'), url(${appareoLightFont}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Appareo';
-          font-weight: 600;
-          src: local('Appareo'), local('Appareo-Medium'), url(${appareoMediumFont}) format('woff2');
-        }
-        @font-face {
-          font-family: 'Appareo';
-          font-weight: 800;
-          src: local('Appareo'), local('Appareo-Black'), url(${appareoBlackFont}) format('woff2');
-        }
         body {
-          background-image: url(${paperTextureDay});
-          background-size: 400px;
+          &:after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: 400px;
+            background-image: url(${paperTextureDay});
+            opacity: 0.7;
+            z-index: -1;
+          }
         }
         a {
           text-decoration: none;
@@ -256,6 +241,20 @@ theme = createTheme(theme, {
         }
       }
     },
+    MuiContainer: {
+      styleOverrides: {
+        maxWidthSm: {
+          '&.MuiContainer-maxWidthSm': {
+            maxWidth: 650,
+          },
+        },
+        maxWidthMd: {
+          '&.MuiContainer-maxWidthMd': {
+            maxWidth: 900,
+          },
+        }
+      }
+    },
     MuiTab: {
       styleOverrides: {
         root: {
@@ -273,17 +272,29 @@ theme = createTheme(theme, {
         },
       },
     },
-    MuiTextField: {
+    MuiInputLabel: {
       styleOverrides: {
         root: {
-          background: "#e7e7e6",
-        },
-      },
+          color: palette.secondary[800],
+          fontFamily: typography.fontFamilies.sans,
+          fontSize: "1.125rem",
+          letterSpacing: 2,
+          lineHeight: 1,
+          textTransform: "uppercase",
+        }
+      }
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          minHeight: 40,
+          backgroundColor: palette.grays[50],
+          backdropFilter: "blur(2px)",
+          fontFamily: typography.fontFamilies.sans,
+          "& .MuiOutlinedInput-input": {
+            height: "auto",
+            paddingTop: 12,
+            paddingBottom: 12,
+          }
         },
       },
     },
