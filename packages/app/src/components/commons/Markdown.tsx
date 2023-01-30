@@ -1,7 +1,6 @@
 import ReactMarkdown from "markdown-to-jsx"
-import { List, ListItem, Typography } from "@mui/material"
+import { Box, List, ListItem, Typography } from "@mui/material"
 import Link from "@mui/material/Link"
-import { typography } from "../../theme"
 
 const options = {
   disableParsingRawHTML: true,
@@ -10,14 +9,15 @@ const options = {
       component: Typography,
       props: {
         gutterBottom: true,
+        fontWeight: 600,
         variant: "h1",
-        fontFamily: typography.fontFamilies.sans,
       },
     },
     h2: {
       component: Typography,
       props: {
         gutterBottom: true,
+        fontWeight: 600,
         variant: "h3",
         component: "h2",
       },
@@ -26,6 +26,7 @@ const options = {
       component: Typography,
       props: {
         gutterBottom: true,
+        fontWeight: 600,
         variant: "h4",
         component: "h3",
       },
@@ -35,21 +36,32 @@ const options = {
       component: Typography,
       props: {
         gutterBottom: true,
+        fontWeight: 600,
         variant: "h5",
         component: "h4",
       },
     },
     h5: {
       component: Typography,
-      props: { gutterBottom: true, variant: "h5" },
+      props: { gutterBottom: true, fontWeight: 600, variant: "h5" },
     },
     h6: {
       component: Typography,
-      props: { gutterBottom: true, variant: "h6" },
+      props: { gutterBottom: true, fontWeight: 600, variant: "h6" },
     },
     p: {
       component: Typography,
-      props: { gutterBottom: true, paragraph: true },
+      props: { gutterBottom: true, paragraph: true, fontSize: "1.175rem" },
+    },
+    code: {
+      component: Box,
+      props: {
+        component: "code",
+        padding: "0.25rem",
+        ml: "0.125rem",
+        mr: "0.125rem",
+        fontSize: 13,
+      },
     },
     a: { component: Link, props: { target: "_self" } },
     ol: {

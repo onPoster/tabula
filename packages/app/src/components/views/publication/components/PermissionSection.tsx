@@ -1,6 +1,6 @@
 import React from "react"
-import { Grid, Typography, Button } from "@mui/material"
-import { palette, typography } from "../../../../theme"
+import { Box, Grid, Container, Typography, Stack } from "@mui/material"
+import { palette } from "../../../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import PermissionItem from "../../../commons/PermissionItem"
@@ -17,8 +17,8 @@ export const PermissionSection: React.FC = () => {
   const usersPermissions = usersWithPermissions(permissions)
   const havePermissionToEdit = haveActionPermission(permissions, "publicationPermissions", account || "")
   return (
-    <>
-      <Grid container justifyContent="space-between" alignItems={"center"} my={4}>
+    <Container maxWidth="sm">
+      {/* <Grid container justifyContent="space-between" alignItems={"center"} my={4}>
         <Grid item>
           <Typography
             color={palette.grays[1000]}
@@ -37,14 +37,16 @@ export const PermissionSection: React.FC = () => {
             </Button>
           </Grid>
         )}
-      </Grid>
-      <Grid container flexDirection="column" alignItems="flex-start" justifyContent={"flex-start"} gap={2}>
+      </Grid> */}
+      <Grid container flexDirection="column" alignItems="flex-start" justifyContent={"flex-start"} gap={4} mt={6}>
         {usersPermissions.length > 0 &&
           usersPermissions.map((permission) => (
             <Grid item sx={{ width: "100%" }} key={permission.id || ""}>
               <PermissionItem
+                publication={publication}
                 permission={permission}
                 canEdit={havePermissionToEdit}
+                showRemove={usersPermissions.length > 1}
                 onClick={() => {
                   savePermission(permission)
                   navigate(`../${publication?.id}/permissions/edit`)
@@ -52,7 +54,54 @@ export const PermissionSection: React.FC = () => {
               />
             </Grid>
           ))}
+        {havePermissionToEdit && (
+          <Stack
+            onClick={() => navigate(`../${publication?.id}/permissions/new`)}
+            direction="row"
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              cursor: "pointer",
+              "&:hover .addIcon": {
+                bgcolor: palette.grays[1000],
+              },
+              "&:hover .add-new-permissions": {
+                color: palette.grays[600],
+              },
+            }}
+          >
+            <Typography className="add-new-permissions" color={palette.grays[400]}>
+              Add new permission
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <Box
+                className="addIcon"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 999,
+                  bgcolor: palette.grays[800],
+                  width: 16,
+                  height: 16,
+                }}
+              >
+                <AddIcon
+                  sx={{
+                    color: palette.whites[1000],
+                    stroke: palette.whites[1000],
+                    width: 10,
+                    height: 10,
+                    strokeWidth: 1,
+                  }}
+                />
+              </Box>
+              <Typography fontSize={12}>add</Typography>
+            </Stack>
+          </Stack>
+        )}
       </Grid>
-    </>
+    </Container>
   )
 }

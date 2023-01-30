@@ -1,12 +1,12 @@
 import { Avatar, Box, Grid, Paper, styled, Typography } from "@mui/material"
 import React, { useEffect, useState } from "react"
-import { palette } from "../../theme"
+import { palette, typography } from "../../theme"
 import { DropdownOption, DropdownProps } from "../../models/dropdown"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import { findIndex } from "lodash"
 
 const DropdownContainer = styled(Paper)({
-  padding: 12,
+  padding: "8px 12px",
   border: "none",
   borderRadius: "4px !important",
   position: "absolute",
@@ -15,10 +15,11 @@ const DropdownContainer = styled(Paper)({
 })
 
 const DropdownInput = styled(Grid)({
-  height: 56,
-  background: "#e7e7e6",
+  background: palette.grays[50],
+  backdropFilter: "blur(2px)",
   borderRadius: "4px",
-  padding: 12,
+  height: 47,
+  padding: "8px 12px",
   border: `1px solid #b2b2b1`,
   justifyContent: "space-between",
   alignItems: "center",
@@ -64,10 +65,20 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, value
           {currentSelected && (
             <Grid container gap={2} alignItems="center">
               {currentSelected.icon && currentSelected.icon}
-              <Typography>{currentSelected.label}</Typography>
+              <Typography
+                sx={{
+                  fontFamily: typography.fontFamilies.sans,
+                }}
+              >
+                {currentSelected.label}
+              </Typography>
             </Grid>
           )}
-          {!currentSelected && <Typography sx={{ color: palette.grays[800] }}>{title}</Typography>}
+          {!currentSelected && (
+            <Typography sx={{ color: palette.grays[800], fontSize: 16, fontFamily: typography.fontFamilies.sans }}>
+              {title}
+            </Typography>
+          )}
         </Grid>
         <DropdownArrowContainer item style={{ transform: !show ? "rotate(0deg)" : "rotate(180deg)" }}>
           <KeyboardArrowDownIcon />

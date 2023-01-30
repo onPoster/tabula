@@ -9,6 +9,7 @@ import {
   Button,
   FormHelperText,
   CircularProgress,
+  InputLabel,
 } from "@mui/material"
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline"
 import { palette, typography } from "../../../theme"
@@ -33,7 +34,7 @@ type OptionsType = {
     | "publicationPermissions"
 }
 
-type PermissionFormType = {
+export type PermissionFormType = {
   articleCreate: boolean
   articleDelete: boolean
   articleUpdate: boolean
@@ -266,7 +267,10 @@ export const PermissionView: React.FC = () => {
                     control={control}
                     name={"account"}
                     render={({ field }) => (
-                      <TextField {...field} placeholder="Permission address" sx={{ width: "100%" }} />
+                      <>
+                        <InputLabel sx={{ fontSize: 14, mb: 1 }}>Address</InputLabel>
+                        <TextField {...field} placeholder="Permission address" sx={{ width: "100%" }} />
+                      </>
                     )}
                   />
                   {errors && errors.account && (

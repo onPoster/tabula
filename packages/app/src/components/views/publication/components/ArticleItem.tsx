@@ -16,10 +16,16 @@ import { usePosterContext } from "../../../../services/poster/context"
 import useArticle from "../../../../services/publications/hooks/useArticle"
 
 const ArticleItemContainer = styled(Box)({
-  minHeight: "105px",
-  background: palette.grays[100],
+  background: palette.grays[50],
+  backdropFilter: "blur(2px)",
   borderRadius: 4,
-  padding: 20,
+  border: `1px solid ${palette.grays[200]}`,
+  boxShadow: `0 8px 32px rgba(0,0,0,0.15)`,
+  transition: "box-shadow 0.25s ease-in-out",
+  cursor: "pointer",
+  "&:hover": {
+    boxShadow: `0 8px 40px rgba(0,0,0,0.2)`,
+  },
 })
 
 const ArticleItemEditButton = styled(Button)({
@@ -86,109 +92,125 @@ const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDe
   }
 
   return (
-    <ArticleItemContainer>
+    <ArticleItemContainer
+      onClick={() => {
+        navigate(`../${publicationId}/${id}`)
+        saveArticle(article)
+      }}
+    >
       <Grid container spacing={2}>
         {image && (
           <Grid item xs={4}>
             <ThumbnailImage src={imageSrc} />
           </Grid>
         )}
-        <Grid item xs={8}>
-          <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
-            {articleTitle}
-          </Typography>
-          <Stack alignItems="flex-start" direction="row" spacing={2}>
-            {date && (
-              <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-                {moment(date).format("MMMM DD, YYYY")}
+        <Grid item xs={image ? 8 : 12}>
+          <Box sx={{ display: "flex", flexDirection: "column", height: "100%", p: 3 }}>
+            {/* Article Info */}
+            <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, mb: 2 }}>
+              <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
+                {articleTitle}
               </Typography>
-            )}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                direction: "row",
-                flexWrap: "wrap",
-              }}
-            >
-              {tags &&
-                tags.length > 0 &&
-                tags.map((tag, index) => {
-                  return (
-                    <Box sx={{ display: "flex", p: "2px" }} key={index}>
-                      <Chip label={tag} size="small" />
-                    </Box>
-                  )
-                })}
+              <Stack alignItems="flex-start" direction="row" spacing={2}>
+                {date && (
+                  <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+                    {moment(date).format("MMMM DD, YYYY")}
+                  </Typography>
+                )}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    direction: "row",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {tags &&
+                    tags.length > 0 &&
+                    tags.map((tag, index) => {
+                      return (
+                        <Box sx={{ display: "flex", p: "2px" }} key={index}>
+                          <Chip label={tag} size="small" />
+                        </Box>
+                      )
+                    })}
+                </Box>
+              </Stack>
+              {articleDescription && (
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: palette.grays[900],
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    mt: 2,
+                  }}
+                >
+                  {articleDescription}
+                </Typography>
+              )}
             </Box>
-          </Stack>
-          <Typography
-            variant="body1"
-            sx={{
-              color: palette.grays[900],
-              fontSize: 14,
-              lineHeight: 1.5,
-              mt: 2,
-            }}
-          >
-            {articleDescription}
-          </Typography>
+
+            {/* Action Buttons */}
+            <Box alignItems="center" display="flex" justifyContent="space-between">
+              <Box>
+                <Grid container gap={2}>
+                  {couldUpdate && (
+                    <Box>
+                      <ArticleItemEditButton
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          navigate(`../${publicationId}/${id}/edit`)
+                          saveArticle(article)
+                        }}
+                        variant="contained"
+                        size="small"
+                        startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
+                        disabled={loading || indexing}
+                      >
+                        Edit Article
+                      </ArticleItemEditButton>
+                    </Box>
+                  )}
+                  {couldDelete && (
+                    <Box>
+                      <ArticleItemEditButton
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleDeleteArticle()
+                        }}
+                        variant="contained"
+                        size="small"
+                        disabled={loading || indexing}
+                        startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
+                      >
+                        {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                        {indexing ? "Indexing..." : "Delete Article"}
+                      </ArticleItemEditButton>
+                    </Box>
+                  )}
+                </Grid>
+              </Box>
+
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
+                disabled={loading || indexing}
+                onClick={() => {
+                  navigate(`../${publicationId}/${id}`)
+                  saveArticle(article)
+                }}
+              >
+                Read Article
+              </Button>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
-
-      <Box sx={{ height: 2, width: "100%", my: 1, bgcolor: palette.grays[200] }} />
-
-      <Box alignItems="center" display="flex" justifyContent="space-between">
-        <Box>
-          <Grid container gap={2}>
-            {couldUpdate && (
-              <Box>
-                <ArticleItemEditButton
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    navigate(`../${publicationId}/${id}/edit`)
-                    saveArticle(article)
-                  }}
-                  variant="contained"
-                  size="small"
-                  startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
-                  disabled={loading || indexing}
-                >
-                  Edit Article
-                </ArticleItemEditButton>
-              </Box>
-            )}
-            {couldDelete && (
-              <Box>
-                <ArticleItemEditButton
-                  onClick={handleDeleteArticle}
-                  variant="contained"
-                  size="small"
-                  disabled={loading || indexing}
-                  startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
-                >
-                  {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  {indexing ? "Indexing..." : "Delete Article"}
-                </ArticleItemEditButton>
-              </Box>
-            )}
-          </Grid>
-        </Box>
-
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
-          disabled={loading || indexing}
-          onClick={() => {
-            navigate(`../${publicationId}/${id}`)
-            saveArticle(article)
-          }}
-        >
-          Read Article
-        </Button>
-      </Box>
     </ArticleItemContainer>
   )
 }
