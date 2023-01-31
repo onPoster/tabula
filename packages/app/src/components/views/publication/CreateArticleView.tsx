@@ -18,6 +18,7 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import isIPFS from "is-ipfs"
+import RichText from "../../commons/RichText"
 
 const articleSchema = yup.object().shape({
   title: yup.string().required(),
@@ -54,6 +55,7 @@ export const CreateArticleView: React.FC = () => {
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(articleSchema),
@@ -118,6 +120,11 @@ export const CreateArticleView: React.FC = () => {
     navigate(-1)
   }
 
+  const handleRichText = (text: string) => {
+    const article = watch("article")
+    setValue("article", `${article ?? ""}\n${text}`)
+  }
+
   return (
     <CreateArticlePage publication={publication}>
       <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}>
@@ -138,6 +145,9 @@ export const CreateArticleView: React.FC = () => {
             </Grid>
             <Grid item xs={12}>
               <ArticleTabs onChange={setCurrentTab} />
+              <Box sx={{ position: "absolute", zIndex: 9999 }}>
+                <RichText onRichTextSelected={handleRichText} />
+              </Box>
               <Controller
                 control={control}
                 name="article"
