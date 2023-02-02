@@ -53,7 +53,8 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
     refetch()
     saveDraftArticle(undefined)
     saveArticle(undefined)
-    navigate(`../${publication?.id}`)
+    const network = location.pathname.split("/")[1]
+    navigate(`/${network}/publications/${publication?.id}`)
   }
 
   return (
@@ -126,7 +127,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   variant="contained"
                   size={"large"}
                   onClick={() => {
-                    navigate(`../${publication?.id}/new-article/new`)
+                    navigate(`./new`)
                   }}
                 >
                   <AddIcon style={{ marginRight: 13 }} />

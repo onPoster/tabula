@@ -67,7 +67,8 @@ export const UserOptions: React.FC = () => {
         item
         sx={{ cursor: "pointer" }}
         onClick={() => {
-          navigate("../publications")
+          const network = location.pathname.split("/")[1] // TODO: can take network from here. What if its a ENS name?
+          navigate(`/${network}/publications`)
         }}
       >
         <Grid container gap={1} alignItems="center">

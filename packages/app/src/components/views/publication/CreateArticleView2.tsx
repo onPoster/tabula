@@ -4,7 +4,7 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
 import { useIpfs } from "../../../hooks/useIpfs"
@@ -19,11 +19,14 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 
-export const CreateArticleView2: React.FC = () => {
+interface CreateArticleViewProps {
+  type: "new" | "edit"
+}
+
+export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) => {
   const navigate = useNavigate()
 
   const { account } = useWeb3React()
-  const { type } = useParams<{ type: "new" | "edit" }>()
   const { publication, article, draftArticle, saveDraftArticle } = usePublicationContext()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])

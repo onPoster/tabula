@@ -40,7 +40,7 @@ const ArticleSection: React.FC = () => {
         </Grid>
         {havePermissionToCreate && (
           <Grid item>
-            <Button variant="contained" size="medium" onClick={() => navigate(`new-article/new`)}>
+            <Button variant="contained" size="medium" onClick={() => navigate(`new`)}>
               <AddIcon style={{ marginRight: 13 }} />
               New Article
             </Button>

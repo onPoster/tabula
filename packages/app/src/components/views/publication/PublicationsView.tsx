@@ -190,7 +190,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
                   <PublicationItem
                     publication={publication}
                     key={publication.id}
-                    onClick={() => navigate(`../${publication.id}`)}
+                    onClick={() => navigate(`./${publication.id}`)}
                   />
                 ))}
               </Grid>
