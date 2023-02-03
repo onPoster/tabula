@@ -4,7 +4,7 @@ import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { UploadFile } from "../../commons/UploadFile"
 import { Controller, useForm } from "react-hook-form"
 import { useIpfs } from "../../../hooks/useIpfs"
@@ -18,6 +18,7 @@ import { PinningAlert } from "../../commons/PinningAlert"
 import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
+import usePublication from "../../../services/publications/hooks/usePublication"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
@@ -25,9 +26,11 @@ interface CreateArticleViewProps {
 
 export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) => {
   const navigate = useNavigate()
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
 
   const { account } = useWeb3React()
-  const { publication, article, draftArticle, saveDraftArticle } = usePublicationContext()
+  const { publication: publicationFromContext, article, draftArticle, saveDraftArticle } = usePublicationContext()
+  const publication = usePublication(publicationSlug || "")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [authors, setAuthors] = useState<string[]>([])
@@ -60,7 +63,10 @@ export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) =
   const handleArticleAction = async (data: { description: string }) => {
     if (publication && draftArticle && account) {
       const { description } = data
-      const { id } = publication
+      const id = publication.publicationId
+      if (id == null) {
+        throw new Error("Publication id is null")
+      }
       const { title, article: draftArticleText } = draftArticle
       let image
       let hashArticle
@@ -166,10 +172,10 @@ export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) =
   }, [article, setValue, type])
 
   useEffect(() => {
-    if ((newArticleTransaction || updateTransaction) && publication) {
-      navigate(`../${publication.id}/${newArticleId || updateArticleId}`)
+    if ((newArticleTransaction || updateTransaction) && publicationSlug) {
+      navigate(`/${publicationSlug}/${newArticleId || updateArticleId}`)
     }
-  }, [navigate, newArticleId, newArticleTransaction, publication, updateArticleId, updateTransaction])
+  }, [navigate, newArticleId, newArticleTransaction, publicationSlug, updateArticleId, updateTransaction])
 
   const generateButtonLabel = (): string => {
     if (createArticleIndexing) {
@@ -192,7 +198,7 @@ export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) =
   }
 
   return (
-    <PublicationPage publication={publication} showCreatePost={false}>
+    <PublicationPage publication={publicationFromContext} showCreatePost={false}>
       <ViewContainer maxWidth="sm">
         <form onSubmit={handleSubmit((data) => onSubmitHandler(data as { description: string }))}>
           <Stack spacing={4} mt={12.5}>

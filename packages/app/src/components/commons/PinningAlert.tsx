@@ -55,7 +55,7 @@ export const PinningAlert: React.FC = () => {
               fontWeight={700}
               color={palette.secondary[1000]}
               onClick={() => {
-                navigate("../pinning")
+                navigate("/pinning")
                 setCurrentPath(location.pathname)
               }}
             >

@@ -11,8 +11,8 @@ import ArticleItem from "./ArticleItem"
 const ArticleSection: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
-  const { publicationId } = useParams<{ publicationId: string }>()
-  const { data, refetch } = usePublication(publicationId ?? "")
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
+  const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
   const articles = data && data.articles
   const permissions = data && data.permissions
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false

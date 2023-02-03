@@ -13,21 +13,45 @@ export const PUBLICATION_ENTITY_TYPE = "Publication"
 export const ARTICLE_ENTITY_TYPE = "Article"
 export const PERMISSION_ENTITY_TYPE = "Permission"
 
+// when adding new networks, it must be added here
+const networkToChainId = (theGraphNetworkName: string): i32 => {
+  if (theGraphNetworkName == "arbitrum-one") {
+    return 42161
+  } else if (theGraphNetworkName == "fantom") {
+    return 250
+  } else if (theGraphNetworkName == "xdai") {
+    return 100
+  } else if (theGraphNetworkName == "goerli") {
+    return 5
+  } else if (theGraphNetworkName == "mainnet") {
+    return 1
+  } else if (theGraphNetworkName == "optimism on gnosis chain") {
+    return 300
+  } else if (theGraphNetworkName == "optimism") {
+    return 10
+  } else if (theGraphNetworkName == "polygon") {
+    return 137
+  }
+  log.error("Utils: unknown chain (the `networkToChainId` function is missing the network name)", [theGraphNetworkName])
+  return 0
+}
+const chainId = networkToChainId(dataSource.network()).toString()
+
 export const getPublicationId = (event: NewPost): string =>
-  dataSource.network() + "-P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  chainId + "-P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getArticleId = (event: NewPost): string =>
-  dataSource.network() + "-A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  chainId + "-A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getPermissionId = (publicationId: string, user: Address): string =>
-  dataSource.network() + "-X-" + publicationId + "-" + user.toHex()
+  chainId + "-X-" + publicationId + "-" + user.toHex()
 
 // this will also update the id if it's in an old format
 
 // converts old IDs to new IDs (this function can be expanded later if we want to upgrade to another form of IDs later)
 const cleanId = (id: string): string => {
   if (id.startsWith("P-") || id.startsWith("A-") || id.startsWith("X-")) {
-    return dataSource.network() + "-" + id
+    return chainId + "-" + id
   } else {
     return id
   }

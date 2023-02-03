@@ -2,7 +2,6 @@ import { Avatar, Box, CircularProgress, Grid, Stack, Typography } from "@mui/mat
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { chainNameToChainId } from "../../../constants/chain"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import { palette, typography } from "../../../theme"
@@ -20,10 +19,18 @@ interface PublicationViewProps {
 }
 
 export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId }) => {
-  const { publicationId, network } = useParams<{ publicationId: string; network: string }>()
+  console.log("PublicationView")
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
-  const { data: publication, loading, executeQuery, imageSrc } = usePublication(publicationId || "")
+  const {
+    data: publication,
+    loading,
+    executeQuery,
+    imageSrc,
+    publicationId,
+    chainId,
+  } = usePublication(publicationSlug || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
@@ -35,11 +42,13 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
     : false
 
   useEffect(() => {
-    updateChainId(chainNameToChainId(network))
-  }, [network, updateChainId])
+    if (chainId != null) {
+      updateChainId(chainId)
+    }
+  }, [chainId, updateChainId])
 
   useEffect(() => {
-    if (publicationId) {
+    if (publicationId != null) {
       executeQuery()
     }
   }, [publicationId, executeQuery])
