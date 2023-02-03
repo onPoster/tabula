@@ -19,7 +19,6 @@ interface PublicationViewProps {
 }
 
 export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId }) => {
-  console.log("PublicationView")
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account } = useWeb3React()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
