@@ -18,6 +18,7 @@ import SetupIpfsView from "./components/views/pinning/SetupIpfsView"
 import { useWeb3React } from "@web3-react/core"
 import { PosterProvider } from "./services/poster/context"
 import { WalletProvider } from "./connectors/WalletProvider"
+import { RedirectOldRoute } from "./components/commons/RedicrectOldRoute"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
@@ -54,6 +55,14 @@ const App: React.FC = () => {
                 <Route path="/pinning" element={<SetupIpfsView />} />
                 <Route path="/publications" element={<PublicationsView updateChainId={updateChainId} />} />
                 <Route path=":publicationSlug" element={<PublicationView updateChainId={updateChainId} />} />
+                {/* Redirect old routes to new routes */}
+                <Route path="/goerli/*" element={<RedirectOldRoute />} />
+                <Route path="/mainnet/*" element={<RedirectOldRoute />} />
+                <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
+                <Route path="/polygon/*" element={<RedirectOldRoute />} />
+                <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
+                <Route path="/optimism/*" element={<RedirectOldRoute />} />
+                {/* New routes */}
                 <Route path=":publicationSlug">
                   <Route path="permissions/:type" element={<PermissionView />} />
 
