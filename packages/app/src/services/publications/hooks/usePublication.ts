@@ -35,10 +35,8 @@ const usePublication = (publicationSlug: string) => {
 
   useEffect(() => {
     const getTabulaEnsRecord = async () => {
-      if (signer?.provider != null) {
-        const publicationId = await getTextRecordContent(signer?.provider, publicationSlug, "tabula")
-        setPublicationId(publicationId)
-      }
+      const publicationId = await getTextRecordContent(publicationSlug, "tabula", signer?.provider)
+      setPublicationId(publicationId)
     }
 
     if (publicationSlug.endsWith(".eth")) {

@@ -13,18 +13,30 @@ const abiRegistry = [
 
 const abiImplementation = ["function ownerOf(uint256 tokenId) public view returns (address owner)"]
 
+const getTextRecordContentInfura = async (ensName: string, textRecordKey: string) => {
+  const provider = new ethers.providers.InfuraProvider("mainnet", INFURA_KEY)
+  const resolver = await provider.getResolver(ensName)
+  return resolver?.getText(textRecordKey)
+}
+
 export const getTextRecordContent = async (
-  provider: ethers.providers.BaseProvider,
   ensName: string,
   textRecordKey: string,
+  provider?: ethers.providers.BaseProvider,
 ) => {
+  // no connected wallet
+  if (provider == null) {
+    return getTextRecordContentInfura(ensName, textRecordKey)
+  }
+
   try {
+    // try to use connected provider
     const resolver = await provider.getResolver(ensName)
     return resolver?.getText(textRecordKey)
   } catch (e) {
-    const provider = new ethers.providers.InfuraProvider("mainnet", INFURA_KEY)
-    const resolver = await provider.getResolver(ensName)
-    return resolver?.getText(textRecordKey)
+    // fallback to infura
+    // we are here if ENS is not supported on the current selected network
+    return getTextRecordContentInfura(ensName, textRecordKey)
   }
 }
 
