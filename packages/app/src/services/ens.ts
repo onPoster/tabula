@@ -1,4 +1,5 @@
 import { ethers } from "ethers"
+import { INFURA_KEY } from "../connectors"
 
 const ensRegistry = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" // ENS: Registry with Fallback (singleton same address on different chains)
 const ensImplementation = "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85" // ENS: Base Registrar Implementation (singleton same address on different chains)
@@ -12,8 +13,29 @@ const abiRegistry = [
 
 const abiImplementation = ["function ownerOf(uint256 tokenId) public view returns (address owner)"]
 
-export const getTextRecordContent = (provider: ethers.providers.BaseProvider, ensName: string, textRecordKey: string) =>
-  provider.getResolver(ensName).then((resolver) => resolver?.getText(textRecordKey))
+export const getTextRecordContent = async (
+  provider: ethers.providers.BaseProvider,
+  ensName: string,
+  textRecordKey: string,
+) => {
+  try {
+    const resolver = await provider.getResolver(ensName)
+    return resolver?.getText(textRecordKey)
+  } catch (e) {
+    const provider = new ethers.providers.InfuraProvider("mainnet", INFURA_KEY)
+    const resolver = await provider.getResolver(ensName)
+    return resolver?.getText(textRecordKey)
+  }
+}
+
+export const lookupAddress = async (provider: any, address: string) => {
+  try {
+    const web3Provider = new ethers.providers.Web3Provider(provider)
+    return await web3Provider.lookupAddress(address)
+  } catch (e) {
+    console.log("ENS is not supported on this network")
+  }
+}
 
 /**
  * This only works for ENS names using a resolver that conforms to the `abiPublicResolver` (like the PublicResolver).
