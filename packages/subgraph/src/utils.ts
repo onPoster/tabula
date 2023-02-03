@@ -1,4 +1,4 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap, dataSource } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
 export const ACTION__ARTICLE = "article"
@@ -14,16 +14,31 @@ export const ARTICLE_ENTITY_TYPE = "Article"
 export const PERMISSION_ENTITY_TYPE = "Permission"
 
 export const getPublicationId = (event: NewPost): string =>
-  "P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  dataSource.network() + "-P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getArticleId = (event: NewPost): string =>
-  "A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  dataSource.network() + "-A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getPermissionId = (publicationId: string, user: Address): string =>
-  "X-" + publicationId + "-" + user.toHex()
+  dataSource.network() + "-X-" + publicationId + "-" + user.toHex()
+
+// this will also update the id if it's in an old format
+
+// converts old IDs to new IDs (this function can be expanded later if we want to upgrade to another form of IDs later)
+const cleanId = (id: string): string => {
+  if (id.startsWith("P-") || id.startsWith("A-") || id.startsWith("X-")) {
+    return dataSource.network() + "-" + id
+  } else {
+    return id
+  }
+}
+export const getIdFromContent = (content: TypedMap<string, JSONValue>, idKey: string): string => {
+  const id = jsonToString(content.get(idKey))
+  return cleanId(id)
+}
 
 export const hasPermission = (actionType: String[], content: TypedMap<string, JSONValue>, event: NewPost): bool => {
-  const publicationId = jsonToString(content.get("publicationId"))
+  const publicationId = getIdFromContent(content, "publicationId")
 
   if (actionType[0] == ACTION__PUBLICATION && actionType[1] == SUB_ACTION__CREATE) {
     // every account is allowed to create publications
@@ -63,7 +78,7 @@ export const hasPermission = (actionType: String[], content: TypedMap<string, JS
       actionType[1] == SUB_ACTION__DELETE ||
       actionType[1] == SUB_ACTION__PERMISSIONS)
   ) {
-    const publicationId = jsonToString(content.get("id"))
+    const publicationId = getIdFromContent(content, "id")
     return hasPublicationPermission(publicationId, event.params.user, actionType)
   }
 

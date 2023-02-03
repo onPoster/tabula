@@ -4,6 +4,7 @@ import { Permission, Publication } from "../generated/schema"
 import {
   ACTION__ARTICLE,
   ACTION__PUBLICATION,
+  getIdFromContent,
   getPermissionId,
   getPublicationId,
   jsonToArrayString,
@@ -44,7 +45,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     publication.save()
   }
   if (subAction == SUB_ACTION__UPDATE) {
-    const publicationId = jsonToString(content.get("id"))
+    const publicationId = getIdFromContent(content, "id")
     const publication = Publication.load(publicationId)
 
     if (!publication) {
@@ -80,7 +81,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     }
   }
   if (subAction == SUB_ACTION__DELETE) {
-    const publicationId = jsonToString(content.get("id"))
+    const publicationId = getIdFromContent(content, "id")
     const publication = Publication.load(publicationId)
     if (publication == null) {
       log.error("Publication: Publication does not exist.", [publicationId])
@@ -103,7 +104,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     return
   }
   if (subAction == SUB_ACTION__PERMISSIONS) {
-    const publicationId = jsonToString(content.get("id"))
+    const publicationId = getIdFromContent(content, "id")
     const publication = Publication.load(publicationId)
     const account = Address.fromString(jsonToString(content.get("account")))
     const newPermissions = content.get("permissions")
