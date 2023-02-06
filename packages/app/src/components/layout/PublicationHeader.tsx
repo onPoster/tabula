@@ -5,7 +5,7 @@ import { WalletBadge } from "../commons/WalletBadge"
 import { Publications } from "../../models/publication"
 import AddIcon from "@mui/icons-material/Add"
 import theme, { palette, typography } from "../../theme"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
 import { usePublicationContext } from "../../services/publications/contexts"
@@ -26,11 +26,12 @@ const ItemContainer = styled(Grid)({
   },
 })
 const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => {
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
   const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
-  const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
+  const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
   const { imageSrc } = usePublication(publication?.id || "")
@@ -53,7 +54,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
     refetch()
     saveDraftArticle(undefined)
     saveArticle(undefined)
-    navigate(`../${publication?.id}`)
+    navigate(`/${publicationSlug}`)
   }
 
   return (
@@ -126,7 +127,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   variant="contained"
                   size={"large"}
                   onClick={() => {
-                    navigate(`../${publication?.id}/new-article/new`)
+                    navigate(`./new`)
                   }}
                 >
                   <AddIcon style={{ marginRight: 13 }} />

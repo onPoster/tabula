@@ -55,15 +55,14 @@ export const WalletView: React.FC = () => {
     if (active) {
       const doNavigation = async () => {
         if (connector != null) {
-          const { name: networkName } = await getNetwork(connector)
           if (currentPath && !pinning) {
-            navigate(`/${networkName}/pinning`)
+            navigate(`/pinning`)
           }
           if (!currentPath && !pinning) {
-            navigate(`/${networkName}/pinning`)
+            navigate(`/pinning`)
           }
           if (!currentPath && pinning) {
-            navigate(`/${networkName}/publications`)
+            navigate(`/publications`)
           }
         }
       }

@@ -18,6 +18,7 @@ import SetupIpfsView from "./components/views/pinning/SetupIpfsView"
 import { useWeb3React } from "@web3-react/core"
 import { PosterProvider } from "./services/poster/context"
 import { WalletProvider } from "./connectors/WalletProvider"
+import { RedirectOldRoute } from "./components/commons/RedicrectOldRoute"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
@@ -48,16 +49,30 @@ const App: React.FC = () => {
             <PosterProvider>
               <ScrollToTop />
               <Routes>
+                {" "}
                 <Route path="/" element={<LandingView />} />
                 <Route path="/wallet" element={<WalletView />} />
-                <Route path="/:network">
-                  <Route path="pinning" element={<SetupIpfsView />} />
-                  <Route path="publications" element={<PublicationsView updateChainId={updateChainId} />} />
-                  <Route path=":publicationId" element={<PublicationView updateChainId={updateChainId} />} />
-                  <Route path=":publicationId/:postId/:type" element={<CreateArticleView />} />
-                  <Route path=":publicationId/:postId/preview/:type" element={<CreateArticleView2 />} />
-                  <Route path=":publicationId/:articleId" element={<ArticleView updateChainId={updateChainId} />} />
-                  <Route path=":publicationId/permissions/:type" element={<PermissionView />} />
+                <Route path="/pinning" element={<SetupIpfsView />} />
+                <Route path="/publications" element={<PublicationsView updateChainId={updateChainId} />} />
+                <Route path=":publicationSlug" element={<PublicationView updateChainId={updateChainId} />} />
+                {/* Redirect old routes to new routes */}
+                <Route path="/goerli/*" element={<RedirectOldRoute />} />
+                <Route path="/mainnet/*" element={<RedirectOldRoute />} />
+                <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
+                <Route path="/polygon/*" element={<RedirectOldRoute />} />
+                <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
+                <Route path="/optimism/*" element={<RedirectOldRoute />} />
+                {/* New routes */}
+                <Route path=":publicationSlug">
+                  <Route path="permissions/:type" element={<PermissionView />} />
+
+                  <Route path="new" element={<CreateArticleView type="new" />} />
+                  <Route path="new/2" element={<CreateArticleView2 type="new" />} />
+
+                  <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
+
+                  <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} />
+                  <Route path=":articleId/edit/2" element={<CreateArticleView2 type="edit" />} />
                 </Route>
               </Routes>
             </PosterProvider>

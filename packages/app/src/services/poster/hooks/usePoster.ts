@@ -1,7 +1,6 @@
 import { TransactionReceipt } from "@ethersproject/providers"
 import { useWeb3React } from "@web3-react/core"
-import { useState } from "react"
-import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
@@ -17,12 +16,15 @@ import {
   Publication,
 } from "../type"
 import { chainParameters, SupportedChainId } from "../../../constants/chain"
+import usePublication from "../../publications/hooks/usePublication"
+import { useParams } from "react-router-dom"
 
 const PUBLICATION_TAG = "PUBLICATION" // PUBLICATION
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
 
 const usePoster = () => {
-  const { network } = useParams<{ network: string }>()
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
+  const { chainId: publicationChainId } = usePublication(publicationSlug ?? "")
   const openNotification = useNotification()
   const { setTransactionUrl } = usePosterContext()
   const { chainId } = useWeb3React()
@@ -30,10 +32,16 @@ const usePoster = () => {
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useIpfs()
-  const isValidChain = chainId && checkIsValidChain(chainId, network).isValid
+  const [isValidChain, setIsValidChain] = useState<boolean>(false)
   const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
   const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
-  const properlyNetwork = chainId && checkIsValidChain(chainId, network).network
+  const properlyNetwork = chainId && checkIsValidChain(chainId, publicationChainId).network
+
+  useEffect(() => {
+    if (chainId != null) {
+      setIsValidChain(checkIsValidChain(chainId, publicationChainId).isValid)
+    }
+  }, [isValidChain, publicationChainId, chainId])
 
   const showChainError = () => {
     return openNotification({
