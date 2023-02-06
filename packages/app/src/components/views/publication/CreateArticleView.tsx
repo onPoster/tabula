@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, FormHelperText, Grid, styled, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, FormHelperText, Grid, styled, TextField } from "@mui/material"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -16,7 +16,6 @@ import { useWeb3React } from "@web3-react/core"
 import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import isIPFS from "is-ipfs"
 import RichText from "../../commons/RichText"
 
@@ -124,12 +123,15 @@ export const CreateArticleView: React.FC = () => {
     const article = watch("article")
     setValue("article", `${article ?? ""}\n${text}`)
   }
-
   return (
     <CreateArticlePage publication={publication}>
-      <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}
+        sx={{ position: "relative", overflowY: "auto", overflowX: "hidden", width: "100%", height: "100vh" }}
+      >
         <ViewContainer maxWidth="sm">
-          <Grid container gap={4} flexDirection="column" mt={12.5}>
+          <Grid container gap={4} flexDirection="column" my={12.5}>
             <Grid item xs={12}>
               <Controller
                 control={control}
@@ -163,6 +165,7 @@ export const CreateArticleView: React.FC = () => {
                         width: "100%",
                         "& .MuiInputBase-root": {
                           borderTopLeftRadius: 0,
+                          height: 2000,
                         },
                       }}
                     />
@@ -223,7 +226,7 @@ export const CreateArticleView: React.FC = () => {
             )}
           </Grid>
         </ViewContainer>
-      </form>
+      </Box>
     </CreateArticlePage>
   )
 }
