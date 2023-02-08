@@ -6,7 +6,6 @@ import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
 import { Permission, Publications } from "../../../models/publication"
-import { getTextRecordContent } from "../../ens"
 import { usePosterContext } from "../../poster/context"
 import { usePublicationContext } from "../contexts"
 import { GET_PUBLICATION_QUERY } from "../queries"
@@ -19,7 +18,7 @@ const usePublication = (publicationSlug: string) => {
   const [publicationId, setPublicationId] = useState<string>()
   const openNotification = useNotification()
   const { transactionUrl } = usePosterContext()
-  const { publication, permission, savePublication } = usePublicationContext()
+  const { publication, permission, savePublication, getPublicationId } = usePublicationContext()
   const [showToast, setShowToast] = useState<boolean>(true)
   const [data, setData] = useState<Publications | undefined>(undefined)
   const [indexing, setIndexing] = useState<boolean>(false)
@@ -32,19 +31,20 @@ const usePublication = (publicationSlug: string) => {
   const [imageSrc, setImageSrc] = useState<string>("")
   const ipfs = useIpfs()
   const { signer } = useWallet()
+  const [loadingTabulaTextRecord, setLoadingTabulaTextRecord] = useState<boolean>(false)
 
   useEffect(() => {
-    const getTabulaEnsRecord = async () => {
-      const publicationId = await getTextRecordContent(publicationSlug, "tabula", signer?.provider)
-      setPublicationId(publicationId)
+    const getPublicationIdFromContext = async (publicationSlug: string) => {
+      const publicationId = await getPublicationId(publicationSlug, signer?.provider)
+      if (publicationId) {
+        setPublicationId(publicationId)
+      }
     }
-
-    if (publicationSlug.endsWith(".eth")) {
-      getTabulaEnsRecord()
-    } else {
-      setPublicationId(publicationSlug)
+    if (publicationSlug && !publicationId && !loadingTabulaTextRecord) {
+      setLoadingTabulaTextRecord(true)
+      getPublicationIdFromContext(publicationSlug).finally(() => setLoadingTabulaTextRecord(false))
     }
-  }, [publicationSlug, signer?.provider])
+  }, [publicationSlug, signer?.provider, loadingTabulaTextRecord, publicationId, getPublicationId])
 
   useEffect(() => {
     if (publicationId != null) {

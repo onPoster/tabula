@@ -50,7 +50,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
     if (publicationId != null) {
       executeQuery()
     }
-  }, [publicationId, executeQuery])
+  }, [publicationId, executeQuery, publicationSlug])
 
   useEffect(() => {
     if (publication) {

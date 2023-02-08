@@ -9,7 +9,7 @@ import { UserBadge } from "./UserBadge"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { PermissionFormType } from "../views/publication/PermissionView"
 import usePoster from "../../services/poster/hooks/usePoster"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 const PermissionItemContainer = styled(Box)({
   alignItems: "center",
@@ -40,6 +40,7 @@ type PermissionItemProps = {
   onClick: (id: string) => void
 }
 const PermissionItem: React.FC<PermissionItemProps> = ({ publication, permission, canEdit, showRemove, onClick }) => {
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { address, id } = permission
   const navigate = useNavigate()
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
@@ -48,7 +49,7 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ publication, permission
     setExecutePollInterval: deleteInterval,
     transactionCompleted: deleteTransaction,
     setCurrentUserPermission,
-  } = usePublication(publication?.id || "")
+  } = usePublication(publicationSlug || "")
 
   const { givePermission } = usePoster()
   const handlePermission = async (data: PermissionFormType) => {
