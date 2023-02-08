@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
-import { Box, Grid, Portal, Typography } from "@mui/material"
-import React, { useEffect, useLayoutEffect, useState } from "react"
+import { Box, Divider, Grid, Portal, Typography } from "@mui/material"
+import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 
@@ -11,7 +11,8 @@ import { ReactComponent as UnorderedIcon } from "../../assets/images/unorderedIc
 import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
 import { ReactComponent as QuoteIcon } from "../../assets/images/quoteIcon.svg"
 import { ReactComponent as DividerIcon } from "../../assets/images/dividerIcon.svg"
-// import { ReactComponent as TrashIcon } from "../../assets/images/trashIcon.svg"
+import { ReactComponent as TrashIcon } from "../../assets/images/trashIcon.svg"
+import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -46,18 +47,18 @@ const RichTextItemContainer = styled(Box)({
 })
 
 export enum RICH_TEXT_ELEMENTS {
-  H1 = "# Example of h1",
-  H2 = "## Example of h2",
-  H3 = "### Example of h3",
-  H4 = "#### Example of h4",
-  H5 = "##### Example of h5",
-  H6 = "###### Example of h6",
-  PARAGRAPH = "Example of paragraph",
+  H1 = "h1",
+  H2 = "h2",
+  H3 = "h3",
+  H4 = "h4",
+  H5 = "h5",
+  H6 = "h6",
+  PARAGRAPH = "p",
   IMAGE = "![Minion](https://octodex.github.com/images/minion.png)",
-  ORDERED = "\n1. Example\n",
+  ORDERED = "li",
   UNORDERED = "\n+ Example\n",
-  CODE = "```Sample text here...```\n",
-  QUOTE = "> Blockquotes\n",
+  CODE = "pre",
+  QUOTE = "blockquote",
   DIVIDER = "\n---\n",
 }
 
@@ -66,8 +67,13 @@ type RichTextItemProps = {
   color?: string
   icon: React.ReactNode
 }
+
 type RichTextProps = {
+  showCommand: boolean
   onRichTextSelected?: (value: string) => void
+  onDelete: () => void
+  x: number
+  y: number
 }
 
 const HEADER_OPTIONS = [
@@ -182,17 +188,28 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
   )
 }
 
-const RichText: React.FC<RichTextProps> = ({ onRichTextSelected }) => {
+const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, x, y }) => {
+  // const positionAttributes = { top: y - 150, left: x }
+  const containerRef = useRef<Element | (() => Element | null) | null>(null)
+  const richTextRef = useRef<HTMLDivElement | null>(null)
+
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
 
-  const container = React.useRef(null)
-  const searchBarReference = React.useRef(null)
+  // useOnClickOutside(richTextRef, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
+
   useEffect(() => {
-    if (searchBarReference.current) {
-      //@ts-ignore
-      const result = searchBarReference.current.getBoundingClientRect()
+    setShow(showCommand)
+  }, [showCommand])
+
+  useEffect(() => {
+    if (richTextRef.current) {
+      const result = richTextRef.current.getBoundingClientRect()
       setTop(result.top + 32)
       setLeft(result.left - 115)
     }
@@ -200,9 +217,8 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected }) => {
 
   useLayoutEffect(() => {
     function updatePosition() {
-      if (searchBarReference.current) {
-        //@ts-ignore
-        const result = searchBarReference.current.getBoundingClientRect()
+      if (richTextRef.current) {
+        const result = richTextRef.current.getBoundingClientRect()
         setTop(result.top + 32)
         setLeft(result.left - 115)
       }
@@ -215,19 +231,23 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected }) => {
   const handleSelection = (value: RICH_TEXT_ELEMENTS) => {
     if (onRichTextSelected) {
       onRichTextSelected(value)
+      setShow(false)
     }
+  }
+  const handleDelete = () => {
+    onDelete()
   }
 
   return (
     <>
-      <div ref={searchBarReference} className="test">
+      <div ref={richTextRef}>
         <RichTextButton onClick={() => setShow(!show)}>
           <AddIcon sx={{ color: palette.grays[600] }} />
         </RichTextButton>
       </div>
 
       {show && (
-        <Portal container={container.current}>
+        <Portal container={containerRef.current}>
           <RichTextContainer sx={{ top, left }}>
             <Grid container spacing={1} flexDirection="column">
               <Grid item>
@@ -259,13 +279,13 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected }) => {
                 </Grid>
               ))}
 
-              {/* <Grid item>
+              <Grid item>
                 <Divider />
               </Grid>
 
-              <Grid item>
+              <Grid item onClick={handleDelete}>
                 <RichTextItem color="primary" label={"Delete block"} icon={<TrashIcon />} />
-              </Grid> */}
+              </Grid>
             </Grid>
           </RichTextContainer>
         </Portal>

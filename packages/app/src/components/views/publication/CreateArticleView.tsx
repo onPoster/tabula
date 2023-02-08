@@ -1,6 +1,17 @@
-import { Box, Button, CircularProgress, FormHelperText, Grid, styled, TextField, Typography } from "@mui/material"
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  Stack,
+  styled,
+  TextField,
+  Typography,
+} from "@mui/material"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import React, { ChangeEvent, useEffect, useState } from "react"
+import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import { palette } from "../../../theme"
@@ -18,8 +29,7 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import isIPFS from "is-ipfs"
-import RichText from "../../commons/RichText"
-
+import { ArticleContentSection } from "./components/ArticleContentSection"
 const articleSchema = yup.object().shape({
   title: yup.string().required(),
   article: yup.string().required(),
@@ -33,6 +43,10 @@ const DeleteArticleButton = styled(Button)({
     background: palette.whites[1000],
   },
 })
+
+// const uid = () => {
+//   return Date.now().toString(36) + Math.random().toString(36).substr(2)
+// }
 
 export const CreateArticleView: React.FC = () => {
   const navigate = useNavigate()
@@ -50,6 +64,9 @@ export const CreateArticleView: React.FC = () => {
   const havePermissionToDelete = haveActionPermission(permissions || [], "articleDelete", account || "")
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
   const isValidHash = article && isIPFS.multihash(article.article)
+
+  const [text, setText] = useState("")
+  const contentEditableRef = useRef()
 
   const {
     control,
@@ -122,8 +139,13 @@ export const CreateArticleView: React.FC = () => {
 
   const handleRichText = (text: string) => {
     const article = watch("article")
-    setValue("article", `${article ?? ""}\n${text}`)
+    if (article) {
+      return setValue("article", `${article}\n${text}`)
+    }
+    setValue("article", `${text}`)
   }
+
+
 
   return (
     <CreateArticlePage publication={publication}>
@@ -131,20 +153,69 @@ export const CreateArticleView: React.FC = () => {
         <ViewContainer maxWidth="sm">
           <Grid container gap={4} flexDirection="column" mt={12.5}>
             <Grid item xs={12}>
-              <Controller
-                control={control}
-                name="title"
-                render={({ field }) => <TextField {...field} placeholder="Your Title" sx={{ width: "100%" }} />}
-                rules={{ required: true }}
-              />
-              {errors && errors.title && (
-                <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                  {errors.title.message}
-                </FormHelperText>
-              )}
+              <Stack spacing={1}>
+                <InputLabel>
+                  title<span style={{ color: "#CA6303" }}>*</span>
+                </InputLabel>
+                <Controller
+                  control={control}
+                  name="title"
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      variant="standard"
+                      InputProps={{ disableUnderline: true }}
+                      sx={{ width: "100%", fontSize: 40 }}
+                      placeholder="Post title"
+                    />
+                  )}
+                  rules={{ required: true }}
+                />
+                {errors && errors.title && (
+                  <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
+                    {errors.title.message}
+                  </FormHelperText>
+                )}
+              </Stack>
             </Grid>
+
             <Grid item xs={12}>
-              <ArticleTabs onChange={setCurrentTab} />
+              <Stack spacing={1}>
+                <InputLabel>
+                  Article content<span style={{ color: "#CA6303" }}>*</span>
+                </InputLabel>
+                <ArticleContentSection />
+
+                {/* <Controller
+                  control={control}
+                  name="article"
+                  render={({ field }) => (
+                    <>
+                      <div style={{ position: "absolute", marginLeft: -30, marginTop: 28 }}>
+                        <RichText onRichTextSelected={handleRichText} />
+                      </div>
+                      <Markdown>{field.value ?? ""}</Markdown>
+                      <TextField
+                        {...field}
+                        variant="standard"
+                        InputProps={{ disableUnderline: true, inputComponent: "input" }}
+                        placeholder="Start your article..."
+                        multiline
+                        rows={14}
+                        onChange={handleChange}
+                        sx={{
+                          width: "100%",
+                          "& .MuiInputBase-root": {
+                            borderTopLeftRadius: 0,
+                          },
+                        }}
+                      />
+                    </>
+                  )}
+                  rules={{ required: true }}
+                /> */}
+              </Stack>
+              {/* <ArticleTabs onChange={setCurrentTab} />
               <Box sx={{ position: "absolute", zIndex: 9999 }}>
                 <RichText onRichTextSelected={handleRichText} />
               </Box>
@@ -177,7 +248,7 @@ export const CreateArticleView: React.FC = () => {
                   )
                 }}
                 rules={{ required: true }}
-              />
+              /> */}
 
               {errors && errors.article && (
                 <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
@@ -185,7 +256,7 @@ export const CreateArticleView: React.FC = () => {
                 </FormHelperText>
               )}
             </Grid>
-            {type === "new" && (
+            {/* {type === "new" && (
               <Grid item xs={12} mt={1}>
                 <Grid container justifyContent={"space-between"}>
                   <Button variant="outlined" size="large" onClick={goToPublication}>
@@ -220,7 +291,7 @@ export const CreateArticleView: React.FC = () => {
                   )}
                 </Grid>
               </Grid>
-            )}
+            )} */}
           </Grid>
         </ViewContainer>
       </form>

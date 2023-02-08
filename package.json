@@ -12,9 +12,12 @@
     "axios": "^0.26.1",
     "gh-pages": "^3.2.3",
     "markdown-to-jsx": "^7.1.7",
+    "match-sorter": "^6.3.1",
+    "react-contenteditable": "^3.3.6",
     "react-markdown": "^8.0.0",
     "react-router-dom": "6",
-    "tiny-invariant": "^1.2.0"
+    "tiny-invariant": "^1.2.0",
+    "uid": "^2.0.1"
   },
   "devDependencies": {
     "husky": "5.1.3",
