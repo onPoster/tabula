@@ -105,26 +105,26 @@ export const PermissionView: React.FC = () => {
   const navigate = useNavigate()
 
   const { givePermission } = usePoster()
-  const { type } = useParams<{ type: "edit" | "new" }>()
+  const { type, publicationSlug } = useParams<{ type: "edit" | "new"; publicationSlug: string }>()
   const { publication, permission } = usePublicationContext()
   const {
     indexing: deleteIndexing,
     setExecutePollInterval: deleteInterval,
     transactionCompleted: deleteTransaction,
     setCurrentUserPermission,
-  } = usePublication(publication?.id || "")
+  } = usePublication(publicationSlug || "")
   const {
     indexing: newPermissionIndexing,
     setExecutePollInterval: newPermissionInterval,
     transactionCompleted: permissionTransaction,
     setAccountPermission,
-  } = usePublication(publication?.id || "")
+  } = usePublication(publicationSlug || "")
   const {
     indexing: updateIndexing,
     setExecutePollInterval: updateInterval,
     transactionCompleted: updateTransaction,
     setCurrentUserPermission: updateCurrentUser,
-  } = usePublication(publication?.id || "")
+  } = usePublication(publicationSlug || "")
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {

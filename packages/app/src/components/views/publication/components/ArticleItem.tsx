@@ -47,16 +47,16 @@ type ArticleItemProps = {
   article: Article
   couldUpdate: boolean
   couldDelete: boolean
+  publicationSlug: string
 }
-const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDelete }) => {
+const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDelete, publicationSlug }) => {
   const navigate = useNavigate()
   const { saveArticle } = usePublicationContext()
   const { setLastPathWithChainName } = usePosterContext()
   const { deleteArticle } = usePoster()
-  const { description, image, title, tags, lastUpdated, id, publication } = article
-  const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } = usePublication(
-    publication?.id || "",
-  )
+  const { description, image, title, tags, lastUpdated, id } = article
+  const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } =
+    usePublication(publicationSlug)
   const { imageSrc } = useArticle(article.id || "")
   const articleTitle = shortTitle(title, 30)
   const articleDescription = description && shortTitle(description, 165)

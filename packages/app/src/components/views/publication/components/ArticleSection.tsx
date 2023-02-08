@@ -56,6 +56,7 @@ const ArticleSection: React.FC = () => {
                 article={article}
                 couldUpdate={havePermissionToUpdate}
                 couldDelete={havePermissionToDelete}
+                publicationSlug={publicationSlug || ""}
               />
             </Grid>
           ))}

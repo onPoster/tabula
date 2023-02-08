@@ -34,7 +34,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
-  const { imageSrc } = usePublication(publication?.id || "")
+  const { imageSrc } = usePublication(publicationSlug || "")
   const ref = useRef()
   useOnClickOutside(ref, () => {
     if (show) {

@@ -11,7 +11,7 @@ import { Markdown } from "../../commons/Markdown"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { Article } from "../../../models/publication"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useWeb3React } from "@web3-react/core"
 import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
@@ -39,12 +39,13 @@ interface CreateArticleViewProps {
 
 export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) => {
   const navigate = useNavigate()
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
   const { publication, article, draftArticle, getIpfsData, markdownArticle, saveDraftArticle, saveArticle } =
     usePublicationContext()
   const { indexing, setExecutePollInterval, transactionCompleted, setCurrentArticleId } = usePublication(
-    publication?.id || "",
+    publicationSlug || "",
   )
   const [loading, setLoading] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState<"write" | "preview">("write")
