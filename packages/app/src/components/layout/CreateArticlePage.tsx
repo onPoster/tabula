@@ -75,30 +75,32 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
             >
               <ArticleHeader publication={publication} />
               {children}
-              <Box
-                onClick={() => setShowSidebar(!showSidebar)}
-                sx={{
-                  cursor: "pointer",
-                  position: "absolute",
-                  bottom: theme.spacing(4),
-                  right: theme.spacing(3),
-                  p: 1,
-                  borderRadius: 999,
-                  transition: `all 0.25s ease-in-out`,
-                  border: `1px solid ${palette.grays[200]}`,
-                  boxShadow: shadows[4],
-                  "&:hover": {
-                    background: palette.whites[1000],
-                    boxShadow: shadows[8],
-                    transform: "scale(1.1)",
-                  },
-                  "&:hover .settingsIcon": {
-                    opacity: 1,
-                  },
-                }}
-              >
-                <SettingsIcon className="settingsIcon" sx={{ color: palette.primary[1000], opacity: 0.8 }} />
-              </Box>
+              {!showSidebar && (
+                <Box
+                  onClick={() => setShowSidebar(!showSidebar)}
+                  sx={{
+                    cursor: "pointer",
+                    position: "absolute",
+                    bottom: theme.spacing(4),
+                    right: theme.spacing(3),
+                    p: 1,
+                    borderRadius: 999,
+                    transition: `all 0.25s ease-in-out`,
+                    border: `1px solid ${palette.grays[200]}`,
+                    boxShadow: shadows[4],
+                    "&:hover": {
+                      background: palette.whites[1000],
+                      boxShadow: shadows[8],
+                      transform: "scale(1.1)",
+                    },
+                    "&:hover .settingsIcon": {
+                      opacity: 1,
+                    },
+                  }}
+                >
+                  <SettingsIcon className="settingsIcon" sx={{ color: palette.primary[1000], opacity: 0.8 }} />
+                </Box>
+              )}
             </Box>
             {showSidebar && <ArticleSidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />}
           </Stack>
