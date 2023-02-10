@@ -52,7 +52,7 @@ export enum RICH_TEXT_ELEMENTS {
   H5 = "h5",
   H6 = "h6",
   PARAGRAPH = "p",
-  IMAGE = "![Minion](https://octodex.github.com/images/minion.png)",
+  IMAGE = "image",
   ORDERED = "ol",
   UNORDERED = "li",
   CODE = "pre",

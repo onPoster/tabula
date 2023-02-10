@@ -101,6 +101,15 @@ export const EditableBlock: React.FC = () => {
     element.focus()
   }
 
+  const onImage = (uri: string, index: number) => {
+    const updatedBlocks = [...blocks]
+    updatedBlocks[index] = {
+      ...updatedBlocks[index],
+      imageUrl: uri ? uri : undefined,
+    }
+    setBlocks(updatedBlocks)
+  }
+
   const handleCommand = (tag: string, blockIndex: number) => {
     console.log("tag", tag)
     const currentBlocks = [...blocks]
@@ -135,6 +144,7 @@ export const EditableBlock: React.FC = () => {
               block={block}
               onChange={(event) => updatePageHandler(event, block.id)}
               onKeyDown={(e) => onKeyDownHandler(e, index)}
+              onImageSelected={(image) => onImage(image, index)}
             />
           </Box>
         )
