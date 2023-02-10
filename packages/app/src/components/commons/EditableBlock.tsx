@@ -1,220 +1,144 @@
-import { Box } from "@mui/system"
-import React, { Fragment, useEffect, useRef, useState } from "react"
-import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
-import useRefCallback from "../../hooks/useRefCallback"
+import React, { Fragment, useEffect, useState } from "react"
+import { uid } from "uid"
+
+import { findIndex } from "lodash"
+import { ContentEditableEvent } from "react-contenteditable"
+import { Box } from "@mui/material"
+import { Block, EditableItemBlock } from "./EditableItemBlock"
 import RichText from "./RichText"
 
-export interface EditableBlockProps {
-  block: Block
-  updatePage: (block: Block) => void
-  addBlock: (element: { id: string; ref: HTMLElement }) => void
-  deleteBlock: (element: { id: string; ref: HTMLElement }) => void
-}
+const INITIAL_BLOCK = { id: uid(), html: "", tag: "p" }
 
-export interface Block {
-  id: string
-  html: string
-  tag: string
-  previousKey?: string
-  htmlBackup?: null | string
-  imageUrl?: string
-  placeholder?: boolean
-  isTyping?: boolean
-  tagSelectorMenuOpen?: boolean
-  tagSelectorMenuPosition?: {
-    x: number
-    y: number
-  }
-  actionMenuOpen?: false
-  actionMenuPosition?: {
-    x: number
-    y: number
-  }
-}
-
-const CMD_KEY = "/"
-export const EditableBlock: React.FC<EditableBlockProps> = ({ block, updatePage, addBlock, deleteBlock }) => {
-  const contentEditableRef = useRef<null | HTMLElement>(null)
-  // const [currentBlock, setCurrentBlock] = useState<Block>(block)
-  // const { id, html, tag, imageUrl } = currentBlock
-  // const [showCommand, setShowCommand] = useState<boolean>(false)
-  const [html, setHtml] = useState<string>("")
-  const [tag, setTag] = useState<string>("p")
-  const [htmlBackup, setHtmlBackup] = useState<null | string>(null)
+export const EditableBlock: React.FC = () => {
+  const [blocks, setBlocks] = useState<Block[]>([INITIAL_BLOCK])
   const [previousKey, setPreviousKey] = useState<string>("")
-  const [selectMenuIsOpen, setSelectMenuIsOpen] = useState<boolean>(false)
-  const [selectMenuPosition, setSelectMenuPosition] = useState<{
-    x: number | undefined
-    y: number | undefined
-  }>({ x: 0, y: 0 })
 
-  const getCaretCoordinates = () => {
-    let x, y
-    const selection = window.getSelection()
-    if (selection && selection.rangeCount !== 0) {
-      const range = selection.getRangeAt(0).cloneRange()
-      range.collapse(false)
-      const rect = range.getClientRects()[0]
-      if (rect) {
-        x = rect.left
-        y = rect.top
+  const [newElementId, setNewElementId] = useState<string | null>(null)
+  const [showMenu, setShowMenu] = useState<boolean>(false)
+
+  /**
+   * Method to collect the new HTML Element by id
+   * and focus
+   */
+  useEffect(() => {
+    if (newElementId) {
+      const newElement = document.getElementById(newElementId)
+      if (newElement) {
+        newElement.focus()
+        setNewElementId(null)
       }
     }
-    return { x, y }
-  }
+  }, [newElementId])
 
-  const handleChange = (evt: ContentEditableEvent) => {
-    const value = evt.target.value
-    if (!value.includes("<div><br></div>")) {
-      setHtml(value)
-      updatePage({ id: block.id, html: value, tag })
+  const updatePageHandler = (event: ContentEditableEvent, blockId: string) => {
+    const value = event.target.value
+    if (!value.includes("/")) {
+      const index = findIndex(blocks, { id: blockId })
+      const updatedBlocks = [...blocks]
+      updatedBlocks[index] = {
+        ...updatedBlocks[index],
+        html: value,
+      }
+      setBlocks(updatedBlocks)
     }
   }
-
-  const onKeyUpHandler = useRefCallback(
-    (e: ContentEditableEvent) => {
-      if (e.key === CMD_KEY) {
-        const { x, y } = getCaretCoordinates()
-        setSelectMenuPosition({ x, y })
-        setHtmlBackup(html)
-      }
-      if (e.key === "Enter") {
-        if (previousKey !== "Shift") {
-          e.preventDefault()
-          if (contentEditableRef.current) {
-            addBlock({ id: block.id, ref: contentEditableRef.current })
-          }
-        }
-      }
-
-      if (e.key === "Backspace" && !html) {
+  const onKeyDownHandler = (e: React.KeyboardEvent<HTMLDivElement>, index: number) => {
+    const currentBlock = blocks[index]
+    if (e.key === "/") {
+      setShowMenu(true)
+    }
+    if (e.key === "Enter") {
+      if (previousKey !== "Shift") {
         e.preventDefault()
-        if (contentEditableRef.current) {
-          deleteBlock({ id: block.id, ref: contentEditableRef.current })
-        }
+        addBlockHandler({
+          id: currentBlock.id,
+        })
       }
-      setPreviousKey(e.key)
-    },
-    [html, previousKey],
-  )
-
-  const handleCommand = (tag: string) => {
-    updatePage({ id: block.id, html, tag })
-    setTag(tag)
-    setSelectMenuIsOpen(false)
-  }
-  const handleDeleteBlock = () => {
-    if (contentEditableRef.current) {
-      deleteBlock({ id: block.id, ref: contentEditableRef.current })
     }
+    if (e.key === "Backspace" && !currentBlock.html && currentBlock.html === "") {
+      e.preventDefault()
+      deleteBlock({
+        id: currentBlock.id,
+        index,
+      })
+    }
+    setPreviousKey(e.key)
+  }
+
+  const addBlockHandler = (block: { id: string }) => {
+    const newId = uid()
+    const newBlock = { id: newId, html: "", tag: "p" }
+    const currentBlocks = [...blocks]
+    const index = blocks.map((b) => b.id).indexOf(block.id)
+    currentBlocks.splice(index + 1, 0, newBlock)
+    setBlocks(currentBlocks)
+    setNewElementId(newId)
+  }
+
+  const deleteBlock = (block: { id: string; index: number }) => {
+    if (block.index) {
+      const previousBlockPosition = blocks[block.index - 1]
+      const previousBlock = document.getElementById(previousBlockPosition.id)
+      const currentBlocks = [...blocks]
+      currentBlocks.splice(block.index, 1)
+      setBlocks(currentBlocks)
+      if (previousBlock) {
+        setCaretToEnd(previousBlock)
+        previousBlock.focus()
+      }
+    }
+  }
+
+  const setCaretToEnd = (element: HTMLElement) => {
+    const range = document.createRange()
+    const selection = window.getSelection()
+    range.selectNodeContents(element)
+    range.collapse(false)
+    if (selection) {
+      selection.removeAllRanges()
+      selection.addRange(range)
+    }
+    element.focus()
+  }
+
+  const handleCommand = (tag: string, blockIndex: number) => {
+    console.log("tag", tag)
+    const currentBlocks = [...blocks]
+    currentBlocks[blockIndex] = {
+      ...currentBlocks[blockIndex],
+      tag,
+    }
+
+    setBlocks(currentBlocks)
+    setShowMenu(false)
   }
 
   return (
-    <Box sx={{ position: "relative" }}>
-      <Box sx={{ position: "absolute", left: -30, top: 3 }}>
-        <RichText
-          onRichTextSelected={handleCommand}
-          showCommand={selectMenuIsOpen}
-          onDelete={handleDeleteBlock}
-          x={selectMenuPosition.x ?? 0}
-          y={selectMenuPosition.y ?? 0}
-        />
-      </Box>
-      {/**@ts-ignore*/}
-      <ContentEditable
-        id={block.id}
-        className={tag}
-        innerRef={contentEditableRef}
-        html={html}
-        tagName={tag}
-        onChange={handleChange}
-        onKeyUp={onKeyUpHandler}
-      />
-    </Box>
+    <Fragment>
+      {blocks.map((block, index) => {
+        return (
+          <Box sx={{ position: "relative" }}>
+            <Box sx={{ position: "absolute", left: -30, top: 3 }}>
+              <RichText
+                onRichTextSelected={(tag) => handleCommand(tag, index)}
+                showCommand={showMenu}
+                onDelete={() =>
+                  deleteBlock({
+                    id: block.id,
+                    index,
+                  })
+                }
+              />
+            </Box>
+            <EditableItemBlock
+              key={block.id}
+              block={block}
+              onChange={(event) => updatePageHandler(event, block.id)}
+              onKeyDown={(e) => onKeyDownHandler(e, index)}
+            />
+          </Box>
+        )
+      })}
+    </Fragment>
   )
 }
-// const handleBlur = useRefCallback(() => {
-//   // console.log(text) // 👍 correct value
-//   // updatePage({ html: text, id, tag })
-// }, [text])
-
-//When the component loads
-// useEffect(() => {
-//   if (contentEditableRef && contentEditableRef.current) {
-//     const hasPlaceholder = addPlaceholder({
-//       block: contentEditableRef.current,
-//       position: 1,
-//       content: html || (imageUrl ?? ""),
-//     })
-//     console.log('hasPlaceholder', hasPlaceholder)
-//     if (!hasPlaceholder) {
-//       setCurrentBlock({
-//         ...currentBlock,
-//       })
-//     }
-//   }
-// }, [contentEditableRef])
-
-// const handleOnKeyDown = useRefCallback(
-//   (evt) => {
-//     switch (evt.key) {
-//       case "Enter":
-//         if (currentBlock.previousKey !== "Shift") {
-//           setShowCommand(false)
-//           return addBlock({ html: text, id, tag })
-//         }
-//         break
-
-//       case CMD_KEY:
-//         setCurrentBlock({ ...block, htmlBackup: text })
-//         return setShowCommand(true)
-
-//       case "Backspace":
-//         if (!currentBlock.html) {
-//           return deleteBlock({ html: text, id, tag })
-//         }
-//         break
-//     }
-//   },
-//   [text],
-// )
-
-// const handleCommand = (tag: string) => {
-//   let currentText = text
-//   if (currentText.includes(CMD_KEY)) {
-//     currentText = text.replace(CMD_KEY, "")
-//   }
-//   setText(currentText)
-//   setCurrentBlock({
-//     id,
-//     html: currentText,
-//     tag,
-//   })
-// }
-
-// const handleDeleteBlock = () => {
-//   setShowCommand(false)
-//   return deleteBlock({ html: text, id, tag })
-// }
-
-// Show a placeholder for blank pages
-// const addPlaceholder = ({ block, position, content }: { block: HTMLElement; position: number; content: string }) => {
-//   const isFirstBlockWithoutHtml = position === 1 && !content
-//   if (block.parentElement) {
-//     const isFirstBlockWithoutSibling = !block.parentElement.nextElementSibling
-//     if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
-//       setCurrentBlock({
-//         id,
-//         html: "Type a article title",
-//         tag: "h1",
-//         imageUrl: "",
-//         placeholder: true,
-//         isTyping: false,
-//       })
-//       return true
-//     } else {
-//       return false
-//     }
-//   }
-//   return false
-// }

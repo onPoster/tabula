@@ -3,7 +3,6 @@ import { Box, Divider, Grid, Portal, Typography } from "@mui/material"
 import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
-
 import { ReactComponent as ParagraphIcon } from "../../assets/images/paragraphIcon.svg"
 import { ReactComponent as ImageIcon } from "../../assets/images/imageIcon.svg"
 import { ReactComponent as OrderedIcon } from "../../assets/images/orderedIcon.svg"
@@ -12,7 +11,6 @@ import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
 import { ReactComponent as QuoteIcon } from "../../assets/images/quoteIcon.svg"
 import { ReactComponent as DividerIcon } from "../../assets/images/dividerIcon.svg"
 import { ReactComponent as TrashIcon } from "../../assets/images/trashIcon.svg"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -55,11 +53,11 @@ export enum RICH_TEXT_ELEMENTS {
   H6 = "h6",
   PARAGRAPH = "p",
   IMAGE = "![Minion](https://octodex.github.com/images/minion.png)",
-  ORDERED = "li",
-  UNORDERED = "\n+ Example\n",
+  ORDERED = "ol",
+  UNORDERED = "li",
   CODE = "pre",
   QUOTE = "blockquote",
-  DIVIDER = "\n---\n",
+  DIVIDER = "hr",
 }
 
 type RichTextItemProps = {
@@ -72,8 +70,6 @@ type RichTextProps = {
   showCommand: boolean
   onRichTextSelected?: (value: string) => void
   onDelete: () => void
-  x: number
-  y: number
 }
 
 const HEADER_OPTIONS = [
@@ -188,20 +184,13 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
   )
 }
 
-const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, x, y }) => {
-  // const positionAttributes = { top: y - 150, left: x }
+const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete }) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
 
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
-
-  // useOnClickOutside(richTextRef, () => {
-  //   if (show) {
-  //     setShow(!show)
-  //   }
-  // })
 
   useEffect(() => {
     setShow(showCommand)
@@ -235,6 +224,7 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
     }
   }
   const handleDelete = () => {
+    setShow(false)
     onDelete()
   }
 
