@@ -5,6 +5,7 @@ import { Publications } from "../../models/publication"
 import { Helmet } from "react-helmet"
 import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 import usePublication from "../../services/publications/hooks/usePublication"
+import { useParams } from "react-router-dom"
 
 type Props = {
   publication?: Publications
@@ -13,7 +14,8 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
-  const { imageSrc } = usePublication(publication?.id || "")
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
+  const { imageSrc } = usePublication(publicationSlug || "")
   useDynamicFavIcon(imageSrc)
   return (
     <>

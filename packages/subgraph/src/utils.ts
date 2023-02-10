@@ -1,4 +1,4 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap, dataSource } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
 export const ACTION__ARTICLE = "article"
@@ -13,17 +13,56 @@ export const PUBLICATION_ENTITY_TYPE = "Publication"
 export const ARTICLE_ENTITY_TYPE = "Article"
 export const PERMISSION_ENTITY_TYPE = "Permission"
 
+// when adding new networks, it must be added here
+const networkToChainId = (theGraphNetworkName: string): i32 => {
+  if (theGraphNetworkName == "arbitrum-one") {
+    return 42161
+  } else if (theGraphNetworkName == "fantom") {
+    return 250
+  } else if (theGraphNetworkName == "xdai") {
+    return 100
+  } else if (theGraphNetworkName == "goerli") {
+    return 5
+  } else if (theGraphNetworkName == "mainnet") {
+    return 1
+  } else if (theGraphNetworkName == "optimism on gnosis chain") {
+    return 300
+  } else if (theGraphNetworkName == "optimism") {
+    return 10
+  } else if (theGraphNetworkName == "polygon") {
+    return 137
+  }
+  log.error("Utils: unknown chain (the `networkToChainId` function is missing the network name)", [theGraphNetworkName])
+  return 0
+}
+const chainId = networkToChainId(dataSource.network()).toString()
+
 export const getPublicationId = (event: NewPost): string =>
-  "P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  chainId + "-P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getArticleId = (event: NewPost): string =>
-  "A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  chainId + "-A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
 export const getPermissionId = (publicationId: string, user: Address): string =>
-  "X-" + publicationId + "-" + user.toHex()
+  chainId + "-X-" + publicationId + "-" + user.toHex()
+
+// this will also update the id if it's in an old format
+
+// converts old IDs to new IDs (this function can be expanded later if we want to upgrade to another form of IDs later)
+const cleanId = (id: string): string => {
+  if (id.startsWith("P-") || id.startsWith("A-") || id.startsWith("X-")) {
+    return chainId + "-" + id
+  } else {
+    return id
+  }
+}
+export const getIdFromContent = (content: TypedMap<string, JSONValue>, idKey: string): string => {
+  const id = jsonToString(content.get(idKey))
+  return cleanId(id)
+}
 
 export const hasPermission = (actionType: String[], content: TypedMap<string, JSONValue>, event: NewPost): bool => {
-  const publicationId = jsonToString(content.get("publicationId"))
+  const publicationId = getIdFromContent(content, "publicationId")
 
   if (actionType[0] == ACTION__PUBLICATION && actionType[1] == SUB_ACTION__CREATE) {
     // every account is allowed to create publications
@@ -63,7 +102,7 @@ export const hasPermission = (actionType: String[], content: TypedMap<string, JS
       actionType[1] == SUB_ACTION__DELETE ||
       actionType[1] == SUB_ACTION__PERMISSIONS)
   ) {
-    const publicationId = jsonToString(content.get("id"))
+    const publicationId = getIdFromContent(content, "id")
     return hasPublicationPermission(publicationId, event.params.user, actionType)
   }
 

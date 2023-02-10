@@ -4,7 +4,7 @@ import { WalletConnectConnector } from "@web3-react/walletconnect-connector"
 import { WalletLinkConnector } from "@web3-react/walletlink-connector"
 import TABULA_LOGO_URL from "../assets/images/tabula-logo-wordmark.svg"
 
-const INFURA_KEY = process.env.REACT_APP_INFURA_KEY
+export const INFURA_KEY = process.env.REACT_APP_INFURA_KEY
 
 if (typeof INFURA_KEY === "undefined") {
   throw new Error(`REACT_APP_INFURA_KEY must be a defined environment variable`)

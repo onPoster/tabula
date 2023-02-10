@@ -33,16 +33,20 @@ const DeleteArticleButton = styled(Button)({
   },
 })
 
-export const CreateArticleView: React.FC = () => {
+interface CreateArticleViewProps {
+  type: "new" | "edit"
+}
+
+export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) => {
   const navigate = useNavigate()
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
   const { publication, article, draftArticle, getIpfsData, markdownArticle, saveDraftArticle, saveArticle } =
     usePublicationContext()
   const { indexing, setExecutePollInterval, transactionCompleted, setCurrentArticleId } = usePublication(
-    publication?.id || "",
+    publicationSlug || "",
   )
-  const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState<"write" | "preview">("write")
   const permissions = article && article.publication && article.publication.permissions
@@ -92,8 +96,7 @@ export const CreateArticleView: React.FC = () => {
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
-    const articleId = article?.id || "new"
-    navigate(`../${publication?.id}/${articleId}/preview/${type}`)
+    navigate(`./2`)
   }
 
   const handleDeleteArticle = async () => {

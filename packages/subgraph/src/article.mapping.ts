@@ -1,8 +1,9 @@
-import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, log, dataSource } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Publication } from "../generated/schema"
 import {
   getArticleId,
+  getIdFromContent,
   jsonToArrayString,
   jsonToString,
   SUB_ACTION__CREATE,
@@ -13,7 +14,7 @@ import { store } from "@graphprotocol/graph-ts"
 import { ARTICLE_ENTITY_TYPE } from "../tests/util"
 
 export function handleArticleAction(subAction: String, content: TypedMap<string, JSONValue>, event: NewPost): void {
-  let publicationId = jsonToString(content.get("publicationId"))
+  const publicationId = getIdFromContent(content, "publicationId")
 
   if (subAction == SUB_ACTION__CREATE) {
     let publication = Publication.load(publicationId)
@@ -48,7 +49,7 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
   }
 
   if (subAction == SUB_ACTION__UPDATE) {
-    const articleId = jsonToString(content.get("id"))
+    const articleId = getIdFromContent(content, "id")
     const article = Article.load(articleId)
 
     if (!article) {
@@ -111,7 +112,7 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
   }
 
   if (subAction == SUB_ACTION__DELETE) {
-    const articleId = jsonToString(content.get("id"))
+    const articleId = getIdFromContent(content, "id")
     const article = Article.load(articleId)
 
     if (!article) {
