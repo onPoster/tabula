@@ -11,7 +11,6 @@ import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
 import { WalletBadge } from "../../commons/WalletBadge"
-import { chainNameToChainId } from "../../../constants/chain"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import usePublication from "../../../services/publications/hooks/usePublication"
 
@@ -20,8 +19,7 @@ interface ArticleViewProps {
 }
 
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
-  const { articleId, network } = useParams<{ articleId: string; network: string }>()
-  const { publicationId } = useParams<{ publicationId: string }>()
+  const { articleId } = useParams<{ articleId: string }>()
   const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(article?.publication?.id || "")
@@ -30,10 +28,10 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
   useEffect(() => {
-    if (publicationId != null) {
-      updateChainId(chainNameToChainId(network))
+    if (publication.chainId != null) {
+      updateChainId(publication.chainId)
     }
-  }, [publicationId, updateChainId, network])
+  }, [publication, updateChainId])
 
   useEffect(() => {
     if (!article && articleId) {

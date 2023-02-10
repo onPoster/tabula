@@ -1,21 +1,24 @@
 import { find, isEqual } from "lodash"
 import { useCallback, useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
 import { useQuery } from "urql"
-import { chainNameToChainId } from "../../../constants/chain"
+import { SupportedChainId } from "../../../constants/chain"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
+import { useWallet } from "../../../hooks/useWallet"
 import { Permission, Publications } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
 import { usePublicationContext } from "../contexts"
 import { GET_PUBLICATION_QUERY } from "../queries"
 
-const usePublication = (id: string) => {
-  const { network } = useParams<{ network: string }>()
-  const chainId = chainNameToChainId(network)
+/**
+ * @param  {string} publicationSlug - publication id or ens name
+ **/
+const usePublication = (publicationSlug: string) => {
+  const [chainId, setChainId] = useState<SupportedChainId>()
+  const [publicationId, setPublicationId] = useState<string>()
   const openNotification = useNotification()
   const { transactionUrl } = usePosterContext()
-  const { publication, permission, savePublication } = usePublicationContext()
+  const { publication, permission, savePublication, getPublicationId } = usePublicationContext()
   const [showToast, setShowToast] = useState<boolean>(true)
   const [data, setData] = useState<Publications | undefined>(undefined)
   const [indexing, setIndexing] = useState<boolean>(false)
@@ -27,6 +30,28 @@ const usePublication = (id: string) => {
   const [currentArticleId, setCurrentArticleId] = useState<string>()
   const [imageSrc, setImageSrc] = useState<string>("")
   const ipfs = useIpfs()
+  const { signer } = useWallet()
+  const [loadingTabulaTextRecord, setLoadingTabulaTextRecord] = useState<boolean>(false)
+
+  useEffect(() => {
+    const getPublicationIdFromContext = async (publicationSlug: string) => {
+      const publicationId = await getPublicationId(publicationSlug, signer?.provider)
+      if (publicationId) {
+        setPublicationId(publicationId)
+      }
+    }
+    if (publicationSlug && !publicationId && !loadingTabulaTextRecord) {
+      setLoadingTabulaTextRecord(true)
+      getPublicationIdFromContext(publicationSlug).finally(() => setLoadingTabulaTextRecord(false))
+    }
+  }, [publicationSlug, signer?.provider, loadingTabulaTextRecord, publicationId, getPublicationId])
+
+  useEffect(() => {
+    if (publicationId != null) {
+      const chainId = getPublicationChainId(publicationId)
+      setChainId(chainId as SupportedChainId)
+    }
+  }, [publicationId])
 
   useEffect(() => {
     const getImageSrc = async () => {
@@ -42,7 +67,7 @@ const usePublication = (id: string) => {
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_PUBLICATION_QUERY,
-    variables: { id },
+    variables: { id: publicationId },
   })
 
   const refetch = useCallback(() => executeQuery({ requestPolicy: "network-only" }), [executeQuery])
@@ -198,6 +223,7 @@ const usePublication = (id: string) => {
     loading,
     data,
     chainId,
+    publicationId,
     indexing,
     transactionCompleted,
     refetch,
@@ -211,4 +237,5 @@ const usePublication = (id: string) => {
   }
 }
 
+const getPublicationChainId = (publicationId: string) => Number(publicationId.split("-")[0])
 export default usePublication

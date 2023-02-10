@@ -49,14 +49,14 @@ export const PermissionSection: React.FC = () => {
                 showRemove={usersPermissions.length > 1}
                 onClick={() => {
                   savePermission(permission)
-                  navigate(`../${publication?.id}/permissions/edit`)
+                  navigate(`./permissions/edit`)
                 }}
               />
             </Grid>
           ))}
         {havePermissionToEdit && (
           <Stack
-            onClick={() => navigate(`../${publication?.id}/permissions/new`)}
+            onClick={() => navigate(`./permissions/new`)}
             direction="row"
             sx={{
               alignItems: "center",

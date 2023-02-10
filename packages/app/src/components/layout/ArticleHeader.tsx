@@ -1,44 +1,32 @@
-import React, { useEffect, useState, SetStateAction } from "react"
-import { Avatar, Box, Button, Container, Grid, Stack, styled, Typography } from "@mui/material"
+import React, { useEffect, useState } from "react"
+import { Avatar, Button, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Publications } from "../../models/publication"
-import AddIcon from "@mui/icons-material/Add"
 import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
-import { haveActionPermission } from "../../utils/permission"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
-import SettingsIcon from "../../assets/images/icons/settings"
 
 type Props = {
   publication?: Publications
-  setShowSidebar: React.Dispatch<SetStateAction<boolean>>
-  showSidebar: boolean
 }
 
-const ArticleHeader: React.FC<Props> = ({ publication, setShowSidebar, showSidebar }) => {
+const ArticleHeader: React.FC<Props> = ({ publication }) => {
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
   const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
   const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
-  const permissions = publication && publication.permissions
   const { imageSrc } = usePublication(publication?.id || "")
-
-  const handleSidebarChange = () => {
-    setShowSidebar(!showSidebar)
-  }
 
   useEffect(() => {
     if (location.pathname) {
       setCurrentPath(location.pathname)
     }
   }, [location, setCurrentPath])
-
-  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
 
   const handleNavigation = async () => {
     refetch()
@@ -48,16 +36,20 @@ const ArticleHeader: React.FC<Props> = ({ publication, setShowSidebar, showSideb
   }
 
   return (
-    <Container
-      maxWidth="lg"
+    <Stack
       component="header"
-      disableGutters
+      spacing={2}
       sx={{
         alignItems: "center",
-        display: "flex",
         justifyContent: "space-between",
-        position: "relative",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        right: 0,
         zIndex: 2,
+        px: 3,
+        pt: 3,
+        height: 40,
       }}
     >
       <Grid container mt={1} alignItems={"center"} justifyContent={publication ? "space-between" : "flex-end"}>
@@ -92,7 +84,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, setShowSidebar, showSideb
             direction="row"
             sx={{
               alignItems: "center",
-              justifyContent: "spabe-between",
               [theme.breakpoints.down("md")]: {
                 margin: "15px 0px",
               },
@@ -127,18 +118,13 @@ const ArticleHeader: React.FC<Props> = ({ publication, setShowSidebar, showSideb
             </Button>
             <Button
               variant="contained"
-              size={"large"}
               onClick={() => {
                 navigate(`../${publication?.id}/new-article/new`)
               }}
+              sx={{ py: "2px", minWidth: "unset" }}
             >
               Publish
             </Button>
-            <Box onClick={handleSidebarChange}>
-              <SettingsIcon
-                sx={{ color: palette.primary[1000], cursor: "pointer", "&:hover": { color: palette.primary[600] } }}
-              />
-            </Box>
           </Stack>
         </Grid>
 
@@ -160,7 +146,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, setShowSidebar, showSideb
           </Button>
         )}
       </Grid>
-    </Container>
+    </Stack>
   )
 }
 

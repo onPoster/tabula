@@ -27,7 +27,6 @@ import { useWeb3React } from "@web3-react/core"
 import { haveActionPermission } from "../../../utils/permission"
 import usePoster from "../../../services/poster/hooks/usePoster"
 import usePublication from "../../../services/publications/hooks/usePublication"
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import isIPFS from "is-ipfs"
 import { ArticleContentSection } from "./components/ArticleContentSection"
 const articleSchema = yup.object().shape({
@@ -44,20 +43,20 @@ const DeleteArticleButton = styled(Button)({
   },
 })
 
-// const uid = () => {
-//   return Date.now().toString(36) + Math.random().toString(36).substr(2)
-// }
+interface CreateArticleViewProps {
+  type: "new" | "edit"
+}
 
-export const CreateArticleView: React.FC = () => {
+export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) => {
   const navigate = useNavigate()
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account } = useWeb3React()
   const { deleteArticle } = usePoster()
   const { publication, article, draftArticle, getIpfsData, markdownArticle, saveDraftArticle, saveArticle } =
     usePublicationContext()
   const { indexing, setExecutePollInterval, transactionCompleted, setCurrentArticleId } = usePublication(
-    publication?.id || "",
+    publicationSlug || "",
   )
-  const { type } = useParams<{ type: "new" | "edit" }>()
   const [loading, setLoading] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState<"write" | "preview">("write")
   const permissions = article && article.publication && article.publication.permissions
@@ -110,8 +109,7 @@ export const CreateArticleView: React.FC = () => {
 
   const onSubmitHandler = (data: Article) => {
     saveDraftArticle(data)
-    const articleId = article?.id || "new"
-    navigate(`../${publication?.id}/${articleId}/preview/${type}`)
+    navigate(`./2`)
   }
 
   const handleDeleteArticle = async () => {
@@ -144,14 +142,15 @@ export const CreateArticleView: React.FC = () => {
     }
     setValue("article", `${text}`)
   }
-
-
-
   return (
     <CreateArticlePage publication={publication}>
-      <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit((data) => onSubmitHandler(data as Article))}
+        sx={{ position: "relative", overflowY: "auto", overflowX: "hidden", width: "100%", height: "100vh" }}
+      >
         <ViewContainer maxWidth="sm">
-          <Grid container gap={4} flexDirection="column" mt={12.5}>
+          <Grid container gap={4} flexDirection="column" my={12.5}>
             <Grid item xs={12}>
               <Stack spacing={1}>
                 <InputLabel>
@@ -234,6 +233,7 @@ export const CreateArticleView: React.FC = () => {
                         width: "100%",
                         "& .MuiInputBase-root": {
                           borderTopLeftRadius: 0,
+                          height: 2000,
                         },
                       }}
                     />
@@ -294,7 +294,7 @@ export const CreateArticleView: React.FC = () => {
             )} */}
           </Grid>
         </ViewContainer>
-      </form>
+      </Box>
     </CreateArticlePage>
   )
 }
