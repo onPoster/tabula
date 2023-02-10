@@ -1,4 +1,4 @@
-//@ts-nocheck
+
 import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 
@@ -35,7 +35,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   const contentEditableRef = useRef<null | HTMLElement>(null)
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [file, setFile] = useState<File | null>(null)
-  const [uri, setUri] = useState<string | null>(null)
+  const [uri, setUri] = useState<string | null | undefined>(null)
 
   const openImagePicker = () => inputFile && inputFile.current?.click()
 
@@ -69,7 +69,9 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
       let reader = new FileReader()
       reader.onload = (e) => {
         setUri(e.target?.result as string)
-        onImageSelected(e.target?.result as string)
+        if (onImageSelected) {
+          onImageSelected(e.target?.result as string)
+        }
       }
       console.log("file", file)
       setFile(event.target.files[0])
@@ -86,7 +88,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
           innerRef={contentEditableRef}
           html={block.html}
           tagName={block.tag}
-          placeholder={placeholder}
+          // placeholder={placeholder}
           onChange={
             onChange
               ? (...args) => {
