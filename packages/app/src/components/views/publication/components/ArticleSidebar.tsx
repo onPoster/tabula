@@ -1,19 +1,19 @@
-import React, { useState, SetStateAction, useEffect } from "react"
+import React, { useState, SetStateAction } from "react"
 import { Box, InputLabel, InputAdornment, Stack, TextField, Typography, useTheme } from "@mui/material"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import { Close } from "@mui/icons-material"
-import SettingsIcon from "../../../../assets/images/icons/settings"
 import { palette, typography } from "../../../../theme"
 import { UploadFile } from "../../../commons/UploadFile"
 import LinkIcon from "../../../../assets/images/icons/link"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 
 export interface ArticleSidebarProps {
+  showSidebar: boolean
   setShowSidebar: React.Dispatch<SetStateAction<boolean>>
 }
 
-const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ setShowSidebar }) => {
-  const { publication, article, draftArticle, saveDraftArticle } = usePublicationContext()
+const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
+  const { article } = usePublicationContext()
 
   const [articleImg, setArticleImg] = useState<File | undefined>(undefined)
 
@@ -28,20 +28,19 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ setShowSidebar }) => {
   return (
     <Box
       sx={{
-        // "@keyframes slideIn": {
-        //   "0%": {
-        //     transform: "translateX(100%)",
-        //   },
-        //   "100%": {
-        //     transform: "translateX(0%)",
-        //   },
-        // },
-        // animation: "slideIn 1s ease-in-out forwards",
-        borderLeft: `1px solid ${palette.grays[400]}`,
-        minHeight: `calc(100vh - ${theme.spacing(4 * 2)})`,
-        pl: 4,
+        px: 3,
         transform: `translate(0%)`,
         width: 320,
+        position: "relative",
+        "&:before": {
+          content: `""`,
+          width: "1px",
+          bgcolor: palette.grays[200],
+          left: 0,
+          height: `calc(100vh - ${theme.spacing(4 * 2)})`,
+          mt: 4,
+          position: "absolute",
+        },
       }}
     >
       <Stack spacing={5}>
@@ -50,7 +49,8 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ setShowSidebar }) => {
           sx={{
             alignItems: "center",
             justifyContent: "space-between",
-            mt: 2,
+            mt: 4,
+            height: 40,
           }}
         >
           <Typography variant="h6" fontFamily={typography.fontFamilies.sans} lineHeight="1.5" mt={0}>

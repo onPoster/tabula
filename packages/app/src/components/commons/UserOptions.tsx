@@ -43,7 +43,7 @@ export const UserOptions: React.FC = () => {
         sx={{ cursor: "pointer" }}
         onClick={() => {
           setCurrentPath(location.pathname)
-          navigate("../pinning")
+          navigate("/pinning")
         }}
       >
         <Grid container gap={1} alignItems="center">
@@ -67,7 +67,7 @@ export const UserOptions: React.FC = () => {
         item
         sx={{ cursor: "pointer" }}
         onClick={() => {
-          navigate("../publications")
+          navigate(`/publications`)
         }}
       >
         <Grid container gap={1} alignItems="center">

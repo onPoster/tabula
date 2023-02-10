@@ -1,11 +1,14 @@
 import React, { useState } from "react"
-import { Box, Stack } from "@mui/material"
+import { Box, Stack, useTheme } from "@mui/material"
+import SettingsIcon from "../../assets/images/icons/settings"
 import ArticleHeader from "./ArticleHeader"
 import ArticleSidebar from "../views/publication/components/ArticleSidebar"
 import { Publications } from "../../models/publication"
 import { Helmet } from "react-helmet"
 import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 import usePublication from "../../services/publications/hooks/usePublication"
+import { palette } from "../../theme"
+import shadows from "@mui/material/styles/shadows"
 
 type Props = {
   publication?: Publications
@@ -17,6 +20,8 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
   const [showSidebar, setShowSidebar] = useState(true)
 
   const { imageSrc } = usePublication(publication?.id || "")
+
+  const theme = useTheme()
 
   useDynamicFavIcon(imageSrc)
   return (
@@ -31,16 +36,73 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
         <meta property="og:url" content={`https://tabula.gg/#/${publication?.id}`} />
       </Helmet>
 
-      <Box component="main" sx={{ p: 4 }}>
-        <Stack direction="row" spacing={4}>
-          <Box sx={{ display: "flex", flexGrow: 1 }}>
-            <Box width="100%">
-              <ArticleHeader publication={publication} setShowSidebar={setShowSidebar} showSidebar={showSidebar} />
+      <Box
+        sx={{
+          maxHeight: "100vh",
+          flexGrow: 1,
+          display: "flex",
+          overflow: "hidden",
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+          flexDirection: "column",
+        }}
+      >
+        <Box
+          component="main"
+          sx={{
+            position: "relative",
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto",
+            overflowX: "hidden",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <Stack direction="row" spacing={0}>
+            <Box
+              component="section"
+              sx={{
+                flexGrow: 1,
+                display: "flex",
+                flexDirection: "column",
+                maxWidth: `calc(100vw - var(--sidebar-width), 320px)`,
+                position: "relative",
+              }}
+            >
+              <ArticleHeader publication={publication} />
               {children}
+              <Box
+                onClick={() => setShowSidebar(!showSidebar)}
+                sx={{
+                  cursor: "pointer",
+                  position: "absolute",
+                  bottom: theme.spacing(4),
+                  right: theme.spacing(3),
+                  p: 1,
+                  borderRadius: 999,
+                  transition: `all 0.25s ease-in-out`,
+                  border: `1px solid ${palette.grays[200]}`,
+                  boxShadow: shadows[4],
+                  "&:hover": {
+                    background: palette.whites[1000],
+                    boxShadow: shadows[8],
+                    transform: "scale(1.1)",
+                  },
+                  "&:hover .settingsIcon": {
+                    opacity: 1,
+                  },
+                }}
+              >
+                <SettingsIcon className="settingsIcon" sx={{ color: palette.primary[1000], opacity: 0.8 }} />
+              </Box>
             </Box>
-          </Box>
-          {showSidebar && <ArticleSidebar setShowSidebar={setShowSidebar} />}
-        </Stack>
+            {showSidebar && <ArticleSidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />}
+          </Stack>
+        </Box>
       </Box>
     </>
   )
