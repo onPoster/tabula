@@ -1,6 +1,8 @@
-
+import { Add } from "@mui/icons-material"
+import { InputLabel } from "@mui/material"
 import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
+import { palette, typography } from "../../theme"
 
 export interface EditableItemBlockProps {
   block: Block
@@ -88,7 +90,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
           innerRef={contentEditableRef}
           html={block.html}
           tagName={block.tag}
-          // placeholder={placeholder}
+          placeholder={placeholder}
           onChange={
             onChange
               ? (...args) => {
@@ -146,9 +148,33 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
         >
           <input type="file" id={`${block.id}-img`} ref={inputFile} hidden accept="image/*" onChange={handleImage} />
           {!uri && (
-            <label htmlFor={`${block.id}_fileInput`} onClick={openImagePicker}>
+            <InputLabel
+              htmlFor={`${block.id}_fileInput`}
+              onClick={openImagePicker}
+              sx={{
+                alignItems: "center",
+                backdropFilter: "blur(2px)",
+                backgroundColor: palette.grays[50],
+                border: `1px solid ${palette.grays[200]}`,
+                borderRadius: 1,
+                cursor: "pointer",
+                color: palette.grays[600],
+                fontFamily: typography.fontFamilies.serif,
+                fontSize: 14,
+                textTransform: "unset",
+                letterSpacing: "unset",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                minHeight: 160,
+                "&:hover": {
+                  background: palette.grays[200],
+                },
+              }}
+            >
+              <Add sx={{ color: palette.grays[800], mb: 1 }} />
               No Image Selected. Click To Select.
-            </label>
+            </InputLabel>
           )}
           {uri && <img src={uri} alt="" />}
         </div>
