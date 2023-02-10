@@ -6,6 +6,7 @@ import { ContentEditableEvent } from "react-contenteditable"
 import { Box } from "@mui/material"
 import { Block, EditableItemBlock } from "./EditableItemBlock"
 import RichText from "./RichText"
+import { palette } from "../../theme"
 
 const INITIAL_BLOCK = { id: uid(), html: "", tag: "p" }
 
@@ -117,8 +118,23 @@ export const EditableBlock: React.FC = () => {
     <Fragment>
       {blocks.map((block, index) => {
         return (
-          <Box sx={{ position: "relative" }}>
-            <Box sx={{ position: "absolute", left: -30, top: 3 }}>
+          <Box
+            sx={{
+              position: "relative",
+              cursor: "text",
+              "&:hover .rich-text": {
+                opacity: 1,
+              },
+              "& [contenteditable='true']:focus-visible": {
+                outline: "none",
+              },
+              "& [contenteditable]:empty:after": {
+                content: "attr(placeholder)",
+                color: palette.grays[600],
+              },
+            }}
+          >
+            <Box className="rich-text" sx={{ opacity: 0, position: "absolute", left: -30, bottom: 3 }}>
               <RichText
                 onRichTextSelected={(tag) => handleCommand(tag, index)}
                 showCommand={showMenu}
@@ -135,6 +151,7 @@ export const EditableBlock: React.FC = () => {
               block={block}
               onChange={(event) => updatePageHandler(event, block.id)}
               onKeyDown={(e) => onKeyDownHandler(e, index)}
+              placeholder="Type '/' for commands..."
             />
           </Box>
         )

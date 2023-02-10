@@ -9,6 +9,7 @@ export interface EditableItemBlockProps {
   onInput?: (event: React.FormEvent<HTMLDivElement>) => void
   onKeyPress?: (event: React.KeyboardEvent<HTMLDivElement>) => void
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void
+  placeholder?: string
 }
 
 export interface Block {
@@ -18,7 +19,6 @@ export interface Block {
   previousKey?: string
   htmlBackup?: null | string
   imageUrl?: string
-  placeholder?: boolean
 }
 
 export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
@@ -28,6 +28,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   onBlur,
   onKeyPress,
   onKeyDown,
+  placeholder
 }) => {
   const contentEditableRef = useRef<null | HTMLElement>(null)
 
@@ -61,6 +62,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
         innerRef={contentEditableRef}
         html={block.html}
         tagName={block.tag}
+        placeholder={placeholder}
         onChange={
           onChange
             ? (...args) => {

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { Box, Divider, Grid, Portal, Typography } from "@mui/material"
+import { Box, Divider, Grid, Portal, Stack, Typography } from "@mui/material"
 import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
@@ -239,44 +239,43 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
       {show && (
         <Portal container={containerRef.current}>
           <RichTextContainer sx={{ top, left }}>
-            <Grid container spacing={1} flexDirection="column">
-              <Grid item>
-                <Grid container flexDirection="column" spacing={0.5}>
-                  <Grid item>
-                    <Typography variant="body2" fontWeight={600} fontFamily={typography.fontFamilies.sans}>
-                      Heading
-                    </Typography>
-                  </Grid>
-                  <Grid item>
-                    <Grid container spacing={0.25}>
-                      {HEADER_OPTIONS.map(({ icon, value }, index) => (
-                        <Grid item key={`-${index}`}>
-                          <div onClick={() => handleSelection(value)}>
-                            <RichTextItem icon={icon} />
-                          </div>
-                        </Grid>
-                      ))}
+            <Stack spacing={1}>
+              <Stack spacing={1} sx={{ maxHeight: 230, overflowY: "scroll" }}>
+                <Grid item>
+                  <Grid container flexDirection="column" spacing={0.5}>
+                    <Grid item>
+                      <Typography variant="body2" fontWeight={600} fontFamily={typography.fontFamilies.sans}>
+                        Heading
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Grid container spacing={0.25}>
+                        {HEADER_OPTIONS.map(({ icon, value }, index) => (
+                          <Grid item key={`-${index}`}>
+                            <div onClick={() => handleSelection(value)}>
+                              <RichTextItem icon={icon} />
+                            </div>
+                          </Grid>
+                        ))}
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
 
-              {OPTIONS.map(({ label, icon, value }, index) => (
-                <Grid item key={`${label}-${index}`}>
-                  <div onClick={() => value && handleSelection(value)}>
-                    <RichTextItem label={label} icon={icon} />
-                  </div>
-                </Grid>
-              ))}
+                {OPTIONS.map(({ label, icon, value }, index) => (
+                  <Grid item key={`${label}-${index}`}>
+                    <div onClick={() => value && handleSelection(value)}>
+                      <RichTextItem label={label} icon={icon} />
+                    </div>
+                  </Grid>
+                ))}
+              </Stack>
 
-              <Grid item>
+              <Stack spacing={1} onClick={handleDelete}>
                 <Divider />
-              </Grid>
-
-              <Grid item onClick={handleDelete}>
                 <RichTextItem color="primary" label={"Delete block"} icon={<TrashIcon />} />
-              </Grid>
-            </Grid>
+              </Stack>
+            </Stack>
           </RichTextContainer>
         </Portal>
       )}
