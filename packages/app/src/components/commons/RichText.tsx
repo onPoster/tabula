@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { Box, Divider, Grid, Portal, Stack, Typography } from "@mui/material"
+import { Box, Divider, Grid, Portal, Stack, Tooltip, Typography } from "@mui/material"
 import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
@@ -12,8 +12,7 @@ import { ReactComponent as QuoteIcon } from "../../assets/images/quoteIcon.svg"
 import { ReactComponent as DividerIcon } from "../../assets/images/dividerIcon.svg"
 import { ReactComponent as TrashIcon } from "../../assets/images/trashIcon.svg"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-
-
+import { DragIndicator } from "@mui/icons-material"
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -23,8 +22,10 @@ const RichTextButton = styled(Box)({
   justifyContent: "center",
   alignItems: "center",
   borderRadius: 4,
-  background: palette.grays[100],
   cursor: "pointer",
+  "&:hover": {
+    background: palette.grays[100],
+  },
 })
 
 const RichTextContainer = styled(Box)({
@@ -40,11 +41,15 @@ const RichTextContainer = styled(Box)({
 const RichTextItemContainer = styled(Box)({
   width: 40,
   height: 40,
-  background: "rgba(75, 74, 70, 0.05)",
+  cursor: "pointer",
+  background: palette.grays[50],
   borderRadius: 4,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  "&:hover": {
+    background: palette.grays[100],
+  },
 })
 
 export enum RICH_TEXT_ELEMENTS {
@@ -164,11 +169,49 @@ const OPTIONS = [
   },
 ]
 
+const DragTooltipContent = () => {
+  return (
+    <>
+      <Typography
+        gutterBottom={false}
+        sx={{
+          color: palette.whites[600],
+          fontFamily: typography.fontFamilies.sans,
+          lineHeight: 1.25,
+        }}
+      >
+        <span style={{ color: "white" }}>Click</span> to Edit
+      </Typography>
+      <Typography
+        gutterBottom={false}
+        sx={{
+          color: palette.whites[600],
+          fontFamily: typography.fontFamilies.sans,
+          lineHeight: 1.25,
+        }}
+      >
+        <span style={{ color: "white" }}>Drag</span> to move
+      </Typography>
+    </>
+  )
+}
+
 const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
   return (
-    <Grid container spacing={1} flexDirection="row" alignItems="center" sx={{ cursor: "pointer" }}>
+    <Grid
+      container
+      spacing={1}
+      flexDirection="row"
+      alignItems="center"
+      sx={{
+        cursor: "pointer",
+        "&:hover": {
+          "& .rich-text-icon": { backgroundColor: palette.grays[100] },
+        },
+      }}
+    >
       <Grid item>
-        <RichTextItemContainer>{icon}</RichTextItemContainer>
+        <RichTextItemContainer className="rich-text-icon">{icon}</RichTextItemContainer>
       </Grid>
       {label && (
         <Grid item>
@@ -240,11 +283,31 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
 
   return (
     <>
-      <div ref={richTextRef}>
-        <RichTextButton onClick={() => setShow(!show)}>
-          <AddIcon sx={{ color: palette.grays[600] }} />
-        </RichTextButton>
-      </div>
+      <Stack direction="row" spacing={0.5} ref={richTextRef}>
+        <Tooltip
+          title={
+            <Typography
+              gutterBottom={false}
+              sx={{
+                color: palette.whites[600],
+                fontFamily: typography.fontFamilies.sans,
+                lineHeight: 1.25,
+              }}
+            >
+              <span style={{ color: "white" }}>Click</span> to add a new block
+            </Typography>
+          }
+        >
+          <RichTextButton onClick={() => setShow(!show)}>
+            <AddIcon sx={{ color: palette.grays[600] }} />
+          </RichTextButton>
+        </Tooltip>
+        <Tooltip title={<DragTooltipContent />}>
+          <RichTextButton onClick={() => setShow(!show)}>
+            <DragIndicator sx={{ width: 20, color: palette.grays[600] }} />
+          </RichTextButton>
+        </Tooltip>
+      </Stack>
 
       <Portal container={containerRef.current}>
         {show && (
