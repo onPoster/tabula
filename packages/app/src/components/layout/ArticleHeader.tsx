@@ -38,97 +38,74 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
   return (
     <Stack
       component="header"
+      direction="row"
       spacing={2}
       sx={{
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: publication ? "space-between" : "flex-end",
         position: "absolute",
         left: 0,
         top: 0,
         right: 0,
         zIndex: 2,
         px: 3,
-        pt: 3,
         height: 40,
+        mt: 4,
       }}
     >
-      <Grid container mt={1} alignItems={"center"} justifyContent={publication ? "space-between" : "flex-end"}>
-        {publication && (
-          <Grid item>
-            <Grid
-              container
-              alignItems={"center"}
-              gap={0.5}
-              sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
-              onClick={handleNavigation}
-            >
-              <Avatar sx={{ width: 31, height: 31 }} src={imageSrc}>
-                {" "}
-              </Avatar>
+      {publication && (
+        <Stack
+          alignItems={"center"}
+          spacing={0.5}
+          sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
+          onClick={handleNavigation}
+        >
+          <Avatar sx={{ width: 31, height: 31 }} src={imageSrc}>
+            {" "}
+          </Avatar>
 
-              <Typography
-                color={palette.grays[1000]}
-                variant="h6"
-                fontFamily={typography.fontFamilies.sans}
-                sx={{ margin: 0 }}
-              >
-                {publication.title}
-              </Typography>
-            </Grid>
-          </Grid>
-        )}
+          <Typography
+            color={palette.grays[1000]}
+            variant="h6"
+            fontFamily={typography.fontFamilies.sans}
+            sx={{ margin: 0 }}
+          >
+            {publication.title}
+          </Typography>
+        </Stack>
+      )}
 
-        <Grid item>
-          <Stack
-            spacing={3}
-            direction="row"
+      <Stack
+        spacing={3}
+        direction="row"
+        sx={{
+          alignItems: "center",
+        }}
+      >
+        <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+          <Button
+            variant="text"
+            onClick={() => {
+              // Preview
+              // navigate(`../${publication?.id}/new-article/new`)
+            }}
             sx={{
-              alignItems: "center",
-              [theme.breakpoints.down("md")]: {
-                margin: "15px 0px",
-              },
+              fontSize: 14,
             }}
           >
-            {account && (
-              <Grid
-                container
-                flexDirection="column"
-                alignItems={"end"}
-                justifyContent={"flex-end"}
-                sx={{ position: "relative" }}
-              >
-                <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-                  <WalletBadge hover address={account} />
-                </Grid>
-                {show && (
-                  <Grid item sx={{ position: "absolute", top: 45 }}>
-                    <UserOptions />
-                  </Grid>
-                )}
-              </Grid>
-            )}
-            <Button
-              variant="text"
-              onClick={() => {
-                // Preview
-                // navigate(`../${publication?.id}/new-article/new`)
-              }}
-            >
-              Preview
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                navigate(`../${publication?.id}/new-article/new`)
-              }}
-              sx={{ py: "2px", minWidth: "unset" }}
-            >
-              Publish
-            </Button>
-          </Stack>
-        </Grid>
-
-        {!active && (
+            Preview
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              navigate(`../${publication?.id}/new-article/new`)
+            }}
+            sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
+          >
+            Publish
+          </Button>
+        </Stack>
+        {!active ? (
           <Button
             variant="outlined"
             sx={{
@@ -144,8 +121,27 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
           >
             Connect Wallet
           </Button>
+        ) : (
+          account && (
+            <Grid
+              container
+              flexDirection="column"
+              alignItems={"end"}
+              justifyContent={"flex-end"}
+              sx={{ position: "relative" }}
+            >
+              <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
+                <WalletBadge hover address={account} />
+              </Grid>
+              {show && (
+                <Grid item sx={{ position: "absolute", top: 45 }}>
+                  <UserOptions />
+                </Grid>
+              )}
+            </Grid>
+          )
         )}
-      </Grid>
+      </Stack>
     </Stack>
   )
 }
