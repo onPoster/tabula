@@ -11,6 +11,9 @@ import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
 import { ReactComponent as QuoteIcon } from "../../assets/images/quoteIcon.svg"
 import { ReactComponent as DividerIcon } from "../../assets/images/dividerIcon.svg"
 import { ReactComponent as TrashIcon } from "../../assets/images/trashIcon.svg"
+import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+
+
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -57,7 +60,7 @@ export enum RICH_TEXT_ELEMENTS {
   UNORDERED = "li",
   CODE = "pre",
   QUOTE = "blockquote",
-  DIVIDER = "hr",
+  DIVIDER = "divider",
 }
 
 type RichTextItemProps = {
@@ -187,10 +190,17 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
 const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete }) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
+
+  useOnClickOutside(ref, () => {
+    if (show) {
+      setShow(!show)
+    }
+  })
 
   useEffect(() => {
     setShow(showCommand)
@@ -236,9 +246,9 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
         </RichTextButton>
       </div>
 
-      {show && (
-        <Portal container={containerRef.current}>
-          <RichTextContainer sx={{ top, left }}>
+      <Portal container={containerRef.current}>
+        {show && (
+          <RichTextContainer sx={{ top, left }} ref={ref}>
             <Stack spacing={1}>
               <Stack spacing={1} sx={{ maxHeight: 230, overflowY: "scroll" }}>
                 <Grid item>
@@ -277,8 +287,8 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
               </Stack>
             </Stack>
           </RichTextContainer>
-        </Portal>
-      )}
+        )}
+      </Portal>
     </>
   )
 }

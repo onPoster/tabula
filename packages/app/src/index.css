@@ -113,7 +113,7 @@ body {
 }
 ol,
 ul {
-  list-style: none;
+  margin-left: 16px;
 }
 blockquote,
 q {
@@ -196,4 +196,9 @@ main {
   font-family: "Source Serif Pro", "Garamond", "cursive";
   font-size: 1em;
   line-height: 1.75;
+}
+.divider {
+  margin-top: 4;
+  margin-bottom: 4;
+  border-top: 3px solid #bbb;
 }

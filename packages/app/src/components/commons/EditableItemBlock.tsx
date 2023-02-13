@@ -3,6 +3,7 @@ import { InputLabel } from "@mui/material"
 import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { palette, typography } from "../../theme"
+import { RICH_TEXT_ELEMENTS } from "./RichText"
 
 export interface EditableItemBlockProps {
   block: Block
@@ -48,6 +49,14 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   const onKeyDownRef = useRef(onKeyDown)
 
   useEffect(() => {
+    if (block.tag === RICH_TEXT_ELEMENTS.DIVIDER) {
+      const dividerElement = document.getElementById(block.id)
+      if (dividerElement) {
+        dividerElement.contentEditable = "false"
+      }
+    }
+  }, [block.html, block.id, block.tag])
+  useEffect(() => {
     setUri(block.imageUrl)
   }, [block.imageUrl])
   useEffect(() => {
@@ -83,13 +92,13 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
 
   return (
     <>
-      {block.tag !== "image" && (
+      {block.tag !== RICH_TEXT_ELEMENTS.IMAGE && (
         <ContentEditable
           id={block.id}
           className={block.tag}
           innerRef={contentEditableRef}
           html={block.html}
-          tagName={block.tag}
+          tagName={block.tag === RICH_TEXT_ELEMENTS.DIVIDER ? "div" : block.tag}
           placeholder={placeholder}
           onChange={
             onChange
@@ -138,14 +147,8 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
           }
         />
       )}
-      {block.tag === "image" && (
-        <div
-
-        // className={[
-        //   styles.image,
-        //   this.state.actionMenuOpen || this.state.tagSelectorMenuOpen ? styles.blockSelected : null,
-        // ].join(" ")}
-        >
+      {block.tag === RICH_TEXT_ELEMENTS.IMAGE && (
+        <div>
           <input type="file" id={`${block.id}-img`} ref={inputFile} hidden accept="image/*" onChange={handleImage} />
           {!uri && (
             <InputLabel

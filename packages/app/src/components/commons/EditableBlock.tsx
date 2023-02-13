@@ -3,10 +3,10 @@ import { uid } from "uid"
 
 import { findIndex } from "lodash"
 import { ContentEditableEvent } from "react-contenteditable"
-import { Box } from "@mui/material"
 import { Block, EditableItemBlock } from "./EditableItemBlock"
-import RichText from "./RichText"
+import RichText, { RICH_TEXT_ELEMENTS } from "./RichText"
 import { palette } from "../../theme"
+import { Box } from "@mui/material"
 
 const INITIAL_BLOCK = { id: uid(), html: "", tag: "p" }
 
@@ -43,6 +43,7 @@ export const EditableBlock: React.FC = () => {
       setBlocks(updatedBlocks)
     }
   }
+
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLDivElement>, index: number) => {
     const currentBlock = blocks[index]
     if (e.key === "/") {
@@ -66,11 +67,11 @@ export const EditableBlock: React.FC = () => {
     setPreviousKey(e.key)
   }
 
-  const addBlockHandler = (block: { id: string }) => {
+  const addBlockHandler = (block: { id: string }, customBlocks?: Block[]) => {
     const newId = uid()
     const newBlock = { id: newId, html: "", tag: "p" }
-    const currentBlocks = [...blocks]
-    const index = blocks.map((b) => b.id).indexOf(block.id)
+    const currentBlocks = customBlocks ? customBlocks : [...blocks]
+    const index = currentBlocks.map((b) => b.id).indexOf(block.id)
     currentBlocks.splice(index + 1, 0, newBlock)
     setBlocks(currentBlocks)
     setNewElementId(newId)
@@ -112,60 +113,66 @@ export const EditableBlock: React.FC = () => {
   }
 
   const handleCommand = (tag: string, blockIndex: number) => {
-    console.log("tag", tag)
     const currentBlocks = [...blocks]
     currentBlocks[blockIndex] = {
       ...currentBlocks[blockIndex],
       tag,
     }
 
-    setBlocks(currentBlocks)
+    if (tag === RICH_TEXT_ELEMENTS.DIVIDER) {
+      setShowMenu(false)
+      return addBlockHandler(
+        {
+          id: currentBlocks[blockIndex].id,
+        },
+        currentBlocks,
+      )
+    }
     setShowMenu(false)
+    setBlocks(currentBlocks)
   }
 
   return (
     <Fragment>
-      {blocks.map((block, index) => {
-        return (
-          <Box
-            sx={{
-              position: "relative",
-              cursor: "text",
-              "&:hover .rich-text": {
-                opacity: 1,
-              },
-              "& [contenteditable='true']:focus-visible": {
-                outline: "none",
-              },
-              "& [contenteditable]:empty:after": {
-                content: "attr(placeholder)",
-                color: palette.grays[600],
-              },
-            }}
-          >
-            <Box className="rich-text" sx={{ opacity: 0, position: "absolute", left: -30, bottom: 3 }}>
-              <RichText
-                onRichTextSelected={(tag) => handleCommand(tag, index)}
-                showCommand={showMenu}
-                onDelete={() =>
-                  deleteBlock({
-                    id: block.id,
-                    index,
-                  })
-                }
-              />
-            </Box>
-            <EditableItemBlock
-              key={block.id}
-              block={block}
-              onChange={(event) => updatePageHandler(event, block.id)}
-              onKeyDown={(e) => onKeyDownHandler(e, index)}
-              onImageSelected={(image) => onImage(image, index)}
-              placeholder="Type '/' for commands..."
+      {blocks.map((block, index) => (
+        <Box
+          sx={{
+            position: "relative",
+            cursor: "text",
+            "&:hover .rich-text": {
+              opacity: 1,
+            },
+            "& [contenteditable='true']:focus-visible": {
+              outline: "none",
+            },
+            "& [contenteditable]:empty:after": {
+              content: "attr(placeholder)",
+              color: palette.grays[600],
+            },
+          }}
+        >
+          <Box className="rich-text" sx={{ opacity: 0, position: "absolute", left: -30, bottom: 3 }}>
+            <RichText
+              onRichTextSelected={(tag) => handleCommand(tag, index)}
+              showCommand={showMenu}
+              onDelete={() =>
+                deleteBlock({
+                  id: block.id,
+                  index,
+                })
+              }
             />
           </Box>
-        )
-      })}
+          <EditableItemBlock
+            key={block.id}
+            block={block}
+            onChange={(event) => updatePageHandler(event, block.id)}
+            onKeyDown={(e) => onKeyDownHandler(e, index)}
+            onImageSelected={(image) => onImage(image, index)}
+            placeholder={block.tag !== RICH_TEXT_ELEMENTS.DIVIDER ? `Type '/' for commands...` : undefined}
+          />
+        </Box>
+      ))}
     </Fragment>
   )
 }
