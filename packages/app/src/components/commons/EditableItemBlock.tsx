@@ -1,8 +1,9 @@
 import { Add } from "@mui/icons-material"
 import { InputLabel } from "@mui/material"
-import React, { ChangeEvent, useEffect, useRef, useState } from "react"
+import React, { ChangeEvent, createRef, useEffect, useRef, useState } from "react"
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { palette, typography } from "../../theme"
+import InlineRichText from "./InlineRichText"
 import { RICH_TEXT_ELEMENTS } from "./RichText"
 
 export interface EditableItemBlockProps {
@@ -37,6 +38,8 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
 }) => {
   const contentEditableRef = useRef<null | HTMLElement>(null)
   const inputFile = useRef<HTMLInputElement | null>(null)
+  const [inlineRichTextRef, setInlineRichTextRef] = useState<any>(null)
+  const [inlineOffset, setInlineOffset] = useState<number | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null | undefined>(null)
 
@@ -48,6 +51,24 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   const onKeyPressRef = useRef(onKeyPress)
   const onKeyDownRef = useRef(onKeyDown)
 
+  const onSelectionChange = (e: Event) => {
+    const selection = window.getSelection()
+    if (!selection?.isCollapsed) {
+      console.log(selection)
+      setInlineOffset(selection ? selection.anchorOffset : null)
+      setInlineRichTextRef(contentEditableRef)
+    } else {
+      setInlineOffset(null)
+      setInlineRichTextRef(null)
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("selectionchange", onSelectionChange)
+    return () => {
+      document.removeEventListener("selectionchange", onSelectionChange)
+    }
+  }, [])
   useEffect(() => {
     if (block.tag === RICH_TEXT_ELEMENTS.DIVIDER) {
       const dividerElement = document.getElementById(block.id)
@@ -182,6 +203,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
           {uri && <img src={uri} alt="" />}
         </div>
       )}
+      <InlineRichText showCommand={typeof inlineOffset === "number"} inlineRichTextRef={inlineRichTextRef} />
     </>
   )
 }

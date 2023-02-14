@@ -139,6 +139,7 @@ export const EditableBlock: React.FC = () => {
         const isHeader = block.tag.match(/h\d/)
         return (
           <Box
+            key={index}
             sx={{
               position: "relative",
               cursor: "text",
