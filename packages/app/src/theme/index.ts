@@ -68,31 +68,31 @@ export const typography: any = {
   },
   h2: {
     fontFamily: fontFamilies.serif,
-    fontSize: "2.5rem",
+    fontSize: "2rem",
     fontWeight: 500,
     marginBlockStart: "2.5rem",
     lineHeight: 1,
   },
   h3: {
-    fontSize: "2rem",
-    marginBlockStart: "2rem",
-    fontFamily: fontFamilies.serif,
-    fontWeight: 500,
-  },
-  h4: {
     fontSize: "1.75rem",
     marginBlockStart: "2rem",
     fontFamily: fontFamilies.serif,
     fontWeight: 500,
   },
-  h5: {
+  h4: {
     fontSize: "1.5rem",
     marginBlockStart: "2rem",
     fontFamily: fontFamilies.serif,
     fontWeight: 500,
   },
-  h6: {
+  h5: {
     fontSize: "1.25rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h6: {
+    fontSize: "1.125rem",
     marginBlockStart: "2rem",
     fontFamily: fontFamilies.serif,
     fontWeight: 500,
