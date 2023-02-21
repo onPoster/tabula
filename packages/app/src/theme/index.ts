@@ -49,14 +49,88 @@ export const palette = {
   },
 }
 
-export const typography = {
-  fontFamilies: {
-    sans: `'Averta', 'Avenir', sans-serif`,
-    serif: `'Source Serif Pro', 'Garamond', cursive;`,
-    monospace: `'Roboto Mono', monospace`,
+
+const fontFamilies = {
+  sans: `'Averta', 'Avenir', sans-serif`,
+  serif: `'Source Serif Pro', 'Garamond', cursive;`,
+  monospace: `'Roboto Mono', monospace`,
+}
+
+export const typography: any = {
+  fontFamilies: fontFamilies,
+  fontFamily: fontFamilies.serif,
+  h1: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "3rem",
+    fontWeight: 600,
+    marginBlockStart: "2.5rem",
+    lineHeight: 1,
+  },
+  h2: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "2rem",
+    fontWeight: 500,
+    marginBlockStart: "2.5rem",
+    lineHeight: 1,
+  },
+  h3: {
+    fontSize: "1.75rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h4: {
+    fontSize: "1.5rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h5: {
+    fontSize: "1.25rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h6: {
+    fontSize: "1.125rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  subtitle1: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "1.5em",
+  },
+  subtitle2: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "1.25em",
+  },
+  body1: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "1em",
+    lineHeight: 1.75,
+  },
+  body2: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "0.75em",
+    lineHeight: 1.75,
   },
 }
 
+const createArticleStyles = () => {
+  const styleOutput: string[] = [];
+  ["h1", "h2", "h3", "h4", "h5", "h6"].map((tag) => {
+    const headingStyles = `
+    .editor ${tag} {
+      font-family: ${typography[tag].fontFamily};
+      font-size: ${typography[tag].fontSize};
+      line-height: ${typography[tag].lineHeight};
+    }
+    `
+    styleOutput.push(headingStyles);
+  })
+  return styleOutput.join(" ")
+}
 
 let theme = createTheme({
   palette: {
@@ -69,63 +143,7 @@ let theme = createTheme({
   },
   typography: {
     // Base Typography
-    fontFamily: typography.fontFamilies.serif,
-    h1: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "3rem",
-      fontWeight: 600,
-      marginBlockStart: "2.5rem",
-      lineHeight: 1,
-    },
-    h2: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "2.5rem",
-      fontWeight: 500,
-      marginBlockStart: "2.5rem",
-      lineHeight: 1,
-    },
-    h3: {
-      fontSize: "2rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 500,
-    },
-    h4: {
-      fontSize: "1.75rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 500,
-    },
-    h5: {
-      fontSize: "1.5rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 500,
-    },
-    h6: {
-      fontSize: "1.25rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 500,
-    },
-    subtitle1: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "1.5em",
-    },
-    subtitle2: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "1.25em",
-    },
-    body1: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "1em",
-      lineHeight: 1.75,
-    },
-    body2: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "0.75em",
-      lineHeight: 1.75,
-    },
+    ...typography
   },
   components: {
     MuiCssBaseline: {
@@ -159,6 +177,23 @@ let theme = createTheme({
             z-index: -1;
           }
         }
+        ${createArticleStyles()}
+        p {
+          font-family: ${typography.body1.fontFamily};
+          font-size: ${typography.body1.fontSize};
+          line-height: ${typography.body1.lineHeight};
+        }
+        .divider {
+          height: 28px;
+          display: flex;
+          align-items: center;
+        }
+        .divider:before {
+          content: "";
+          height: 1px;
+          width: 100%;
+          background-color: ${palette.grays[600]};
+        }
         a {
           text-decoration: none;
           color: inherit;
@@ -166,7 +201,7 @@ let theme = createTheme({
         img {
           width: 100%;
         }
-        em {
+        em, i {
           font-style: italic;
         }
         blockquote {

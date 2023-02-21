@@ -5,7 +5,6 @@ import { findIndex } from "lodash"
 import { ContentEditableEvent } from "react-contenteditable"
 import { Block, EditableItemBlock } from "./EditableItemBlock"
 import RichText, { RICH_TEXT_ELEMENTS } from "./RichText"
-import { palette } from "../../theme"
 import { Box } from "@mui/material"
 import { usePublicationContext } from "../../services/publications/contexts"
 
@@ -134,6 +133,7 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
     }
 
     if (tag === RICH_TEXT_ELEMENTS.DIVIDER) {
+      currentBlocks[blockIndex].html = ""
       setShowMenu(false)
       return addBlockHandler(
         {
@@ -148,45 +148,46 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
 
   return (
     <Fragment>
-      {blocks.map((block, index) => (
-        <Box
-          sx={{
-            position: "relative",
-            cursor: "text",
-            "&:hover .rich-text": {
-              opacity: 1,
-            },
-            "& [contenteditable='true']:focus-visible": {
-              outline: "none",
-            },
-            "& [contenteditable]:empty:after": {
-              content: "attr(placeholder)",
-              color: palette.grays[600],
-            },
-          }}
-        >
-          <Box className="rich-text" sx={{ opacity: 0, position: "absolute", left: -30, bottom: 3 }}>
-            <RichText
-              onRichTextSelected={(tag) => handleCommand(tag, index)}
-              showCommand={showMenu}
-              onDelete={() =>
-                deleteBlock({
-                  id: block.id,
-                  index,
-                })
-              }
+      {blocks.map((block, index) => {
+        const isHeader = block.tag.match(/h\d/)
+        return (
+          <Box
+            key={index}
+            sx={{
+              position: "relative",
+              cursor: "text",
+              mt: isHeader ? 2 : 1,
+              "&:hover .rich-text": {
+                opacity: 1,
+              },
+            }}
+          >
+            <Box
+              className="rich-text"
+              sx={{ opacity: 0, position: "absolute", right: "100%", top: "50%", transform: "translateY(-50%)", pr: 1 }}
+            >
+              <RichText
+                onRichTextSelected={(tag) => handleCommand(tag, index)}
+                showCommand={showMenu}
+                onDelete={() =>
+                  deleteBlock({
+                    id: block.id,
+                    index,
+                  })
+                }
+              />
+            </Box>
+            <EditableItemBlock
+              key={block.id}
+              block={block}
+              onChange={(event) => updatePageHandler(event, block.id)}
+              onKeyDown={(e) => onKeyDownHandler(e, index)}
+              onImageSelected={(image, file) => onImage(image, file, index)}
+              placeholder={block.tag !== RICH_TEXT_ELEMENTS.DIVIDER ? `Type '/' for commands...` : undefined}
             />
           </Box>
-          <EditableItemBlock
-            key={block.id}
-            block={block}
-            onChange={(event) => updatePageHandler(event, block.id)}
-            onKeyDown={(e) => onKeyDownHandler(e, index)}
-            onImageSelected={(image, file) => onImage(image, file, index)}
-            placeholder={block.tag !== RICH_TEXT_ELEMENTS.DIVIDER ? `Type '/' for commands...` : undefined}
-          />
-        </Box>
-      ))}
+        )
+      })}
     </Fragment>
   )
 }
