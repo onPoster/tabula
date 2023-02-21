@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react"
-import { styled } from "@mui/styles"
-import { Avatar, Box, Stack, Typography } from "@mui/material"
+
+import { Avatar } from "@mui/material"
 import * as blockies from "blockies-ts"
-import { palette, typography } from "../../theme"
-import { shortAddress } from "../../utils/string"
+
 import { useNotification } from "../../hooks/useNotification"
 import { useWeb3React } from "@web3-react/core"
 import { lookupAddress } from "../../services/ens"

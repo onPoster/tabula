@@ -37,7 +37,6 @@ const MenuItem = styled(Grid)({
 export const UserOptions: React.FC = () => {
   const { account, chainId, deactivate } = useWeb3React()
   const { setCurrentPath } = usePublicationContext()
-  const [ensName, setEnsName] = useState<string>()
   const [showIPFSModal, setShowIPFSModal] = useState<boolean>(false)
   const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
   const location = useLocation()
@@ -99,7 +98,7 @@ export const UserOptions: React.FC = () => {
                   sx={{ fontFamily: typography.fontFamilies.monospace, whiteSpace: "nowrap" }}
                   variant="body2"
                 >
-                  {ensName ?? shortAddress(account).toLowerCase()}
+                  {shortAddress(account).toLowerCase()}
                 </Typography>
               </Tooltip>
             </Stack>

@@ -1,14 +1,12 @@
 import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-import { Box, BoxProps, Portal, Stack, SxProps } from "@mui/material"
+import { Portal, Stack, SxProps } from "@mui/material"
 import { ReactComponent as BoldIcon } from "../../assets/images/boldIcon.svg"
 import { ReactComponent as ItalicIcon } from "../../assets/images/italicIcon.svg"
 import { ReactComponent as UnderlineIcon } from "../../assets/images/underlineIcon.svg"
 import { ReactComponent as StrikethroughIcon } from "../../assets/images/strikethroughIcon.svg"
 import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
 import { palette } from "../../theme"
-import { DefaultComponentProps } from "@mui/material/OverridableComponent"
-import { BoxTypeMap } from "@mui/system"
 
 const inlineStyleOptions = [
   {

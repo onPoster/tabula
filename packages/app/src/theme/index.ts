@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import { createTheme } from "@mui/material/styles"
 import paperTextureDay from "../assets/images/paper-texture-800-day.jpg"
 import avertaFont from "../assets/fonts/averta-normal.woff2"
