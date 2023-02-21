@@ -31,6 +31,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
     chainId,
   } = usePublication(publicationSlug || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
+
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
   const havePermissionToUpdate = permissions

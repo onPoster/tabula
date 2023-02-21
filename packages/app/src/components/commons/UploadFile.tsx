@@ -37,15 +37,16 @@ const UploadEditButton = styled(Fab)({
 })
 
 type UploadFileProps = {
-  defaultImage?: string | undefined | null
+  defaultImage?: string | undefined | null | File
   onFileSelected: (file: File | undefined) => void
+  convertedFile?: (uri: string | undefined) => void
 }
 
-export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSelected }) => {
+export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSelected, convertedFile }) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null>(null)
-  const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage)
+  const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage as string)
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
   const ipfs = useIpfs()
 
@@ -56,7 +57,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
   useEffect(() => {
     const getDefaultImageSrc = async () => {
       if (defaultImage) {
-        const src = await ipfs.getImgSrc(defaultImage)
+        const src = await ipfs.getImgSrc(defaultImage as string)
         setDefaultImageSrc(src)
       }
     }
@@ -77,6 +78,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
       let reader = new FileReader()
       reader.onload = (e) => {
         setUri(e.target?.result as string)
+        convertedFile && convertedFile(e.target?.result as string)
       }
       setFile(event.target.files[0])
       reader.readAsDataURL(event.target.files[0])

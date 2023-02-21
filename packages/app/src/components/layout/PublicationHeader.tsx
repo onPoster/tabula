@@ -8,7 +8,7 @@ import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
-import { usePublicationContext } from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
@@ -30,7 +30,8 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
+  const { setCurrentPath, saveDraftArticle, saveArticle, setArticleContent, setMarkdownArticle } =
+    usePublicationContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -52,7 +53,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
 
   const handleNavigation = async () => {
     refetch()
-    saveDraftArticle(undefined)
+    saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
     navigate(`/${publicationSlug}`)
   }
@@ -128,6 +129,8 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   size={"large"}
                   onClick={() => {
                     navigate(`./new`)
+                    setArticleContent(undefined)
+                    setMarkdownArticle(undefined)
                   }}
                 >
                   <AddIcon style={{ marginRight: 13 }} />

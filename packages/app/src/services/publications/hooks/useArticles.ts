@@ -4,7 +4,7 @@ import { useQuery } from "urql"
 import { useNotification } from "../../../hooks/useNotification"
 import { Article } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
-import { usePublicationContext } from "../contexts"
+import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../contexts"
 import { GET_ARTICLES_QUERY } from "../queries"
 
 const useArticles = () => {
@@ -57,7 +57,7 @@ const useArticles = () => {
       })
       if (recentArticle && recentArticle.title === draftArticle.title) {
         setNewArticleId(recentArticle.id)
-        saveDraftArticle(undefined)
+        saveDraftArticle(INITIAL_ARTICLE_VALUE)
         saveArticle(recentArticle)
         setTransactionCompleted(true)
         setIndexing(false)
@@ -101,7 +101,7 @@ const useArticles = () => {
       ) {
         setNewArticleId(recentArticle.id)
         setMarkdownArticle(draftArticle.article)
-        saveDraftArticle(undefined)
+        saveDraftArticle(INITIAL_ARTICLE_VALUE)
         saveArticle(recentArticle)
         setTransactionCompleted(true)
         setIndexing(false)

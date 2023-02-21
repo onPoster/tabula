@@ -7,15 +7,22 @@ import { Block, EditableItemBlock } from "./EditableItemBlock"
 import RichText, { RICH_TEXT_ELEMENTS } from "./RichText"
 import { palette } from "../../theme"
 import { Box } from "@mui/material"
+import { usePublicationContext } from "../../services/publications/contexts"
 
 const INITIAL_BLOCK = { id: uid(), html: "", tag: "p" }
 
-export const EditableBlock: React.FC = () => {
+export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBlocks }) => {
+  const { setArticleContent } = usePublicationContext()
   const [blocks, setBlocks] = useState<Block[]>([INITIAL_BLOCK])
   const [previousKey, setPreviousKey] = useState<string>("")
-
   const [newElementId, setNewElementId] = useState<string | null>(null)
   const [showMenu, setShowMenu] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (articleBlocks.length) {
+      setBlocks(articleBlocks)
+    }
+  }, [articleBlocks])
 
   /**
    * Method to collect the new HTML Element by id
@@ -30,6 +37,12 @@ export const EditableBlock: React.FC = () => {
       }
     }
   }, [newElementId])
+
+  useEffect(() => {
+    if (blocks.length) {
+      setArticleContent(blocks)
+    }
+  }, [blocks, setArticleContent])
 
   const updatePageHandler = (event: ContentEditableEvent, blockId: string) => {
     const value = event.target.value
@@ -103,11 +116,12 @@ export const EditableBlock: React.FC = () => {
     element.focus()
   }
 
-  const onImage = (uri: string, index: number) => {
+  const onImage = (uri: string, file: File, index: number) => {
     const updatedBlocks = [...blocks]
     updatedBlocks[index] = {
       ...updatedBlocks[index],
       imageUrl: uri ? uri : undefined,
+      imageFile: file,
     }
     setBlocks(updatedBlocks)
   }
@@ -168,7 +182,7 @@ export const EditableBlock: React.FC = () => {
             block={block}
             onChange={(event) => updatePageHandler(event, block.id)}
             onKeyDown={(e) => onKeyDownHandler(e, index)}
-            onImageSelected={(image) => onImage(image, index)}
+            onImageSelected={(image, file) => onImage(image, file, index)}
             placeholder={block.tag !== RICH_TEXT_ELEMENTS.DIVIDER ? `Type '/' for commands...` : undefined}
           />
         </Box>

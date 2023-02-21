@@ -17,13 +17,12 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
-  const [showSidebar, setShowSidebar] = useState(true)
-
+  const [showSidebar, setShowSidebar] = useState<boolean>(true)
   const { imageSrc } = usePublication(publication?.id || "")
-
   const theme = useTheme()
-
   useDynamicFavIcon(imageSrc)
+
+
   return (
     <>
       <Helmet>

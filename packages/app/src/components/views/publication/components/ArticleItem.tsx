@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette, typography } from "../../../../theme"
@@ -14,6 +14,8 @@ import usePoster from "../../../../services/poster/hooks/usePoster"
 import usePublication from "../../../../services/publications/hooks/usePublication"
 import { usePosterContext } from "../../../../services/poster/context"
 import useArticle from "../../../../services/publications/hooks/useArticle"
+import isIPFS from "is-ipfs"
+import { useIpfs } from "../../../../hooks/useIpfs"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -50,8 +52,9 @@ type ArticleItemProps = {
   publicationSlug: string
 }
 const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDelete, publicationSlug }) => {
+  const ipfs = useIpfs()
   const navigate = useNavigate()
-  const { saveArticle } = usePublicationContext()
+  const { saveArticle, setMarkdownArticle } = usePublicationContext()
   const { setLastPathWithChainName } = usePosterContext()
   const { deleteArticle } = usePoster()
   const { description, image, title, tags, lastUpdated, id } = article
@@ -62,6 +65,31 @@ const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDe
   const articleDescription = description && shortTitle(description, 165)
   const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
   const [loading, setLoading] = useState<boolean>(false)
+
+  const [articleHtmlContent, setArticleHtmlContent] = useState<string | undefined>(undefined)
+
+  const decodeArticleContent = async () => {
+    if (article.article) {
+      const isValidHash = isIPFS.multihash(article.article)
+      if (isValidHash) {
+        const data = await ipfs.getText(article.article)
+        if (data) {
+          return data
+        }
+      }
+    }
+  }
+
+  const fetchArticleContent = useCallback(async () => {
+    const data = await decodeArticleContent()
+    if (data) {
+      setArticleHtmlContent(data)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchArticleContent()
+  }, [fetchArticleContent])
 
   useEffect(() => {
     if (transactionCompleted) {
@@ -161,12 +189,15 @@ const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDe
                           e.preventDefault()
                           e.stopPropagation()
                           navigate(`./${id}/edit`)
+                          if (articleHtmlContent) {
+                            setMarkdownArticle(articleHtmlContent)
+                          }
                           saveArticle(article)
                         }}
                         variant="contained"
                         size="small"
                         startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
-                        disabled={loading || indexing}
+                        disabled={loading || indexing || !articleHtmlContent}
                       >
                         Edit Article
                       </ArticleItemEditButton>

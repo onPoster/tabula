@@ -12,7 +12,8 @@ export interface EditableItemBlockProps {
   onInput?: (event: React.FormEvent<HTMLDivElement>) => void
   onKeyPress?: (event: React.KeyboardEvent<HTMLDivElement>) => void
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void
-  onImageSelected?: (uri: string) => void
+  onImageSelected?: (uri: string, file: File) => void
+
   placeholder?: string
 }
 
@@ -23,6 +24,7 @@ export interface Block {
   previousKey?: string
   htmlBackup?: null | string
   imageUrl?: string
+  imageFile?: File
 }
 
 export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
@@ -33,11 +35,11 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   onKeyPress,
   onKeyDown,
   onImageSelected,
+
   placeholder,
 }) => {
   const contentEditableRef = useRef<null | HTMLElement>(null)
   const inputFile = useRef<HTMLInputElement | null>(null)
-  const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null | undefined>(null)
 
   const openImagePicker = () => inputFile && inputFile.current?.click()
@@ -56,6 +58,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
       }
     }
   }, [block.html, block.id, block.tag])
+
   useEffect(() => {
     setUri(block.imageUrl)
   }, [block.imageUrl])
@@ -78,14 +81,16 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let reader = new FileReader()
+      let imgUri = ""
       reader.onload = (e) => {
         setUri(e.target?.result as string)
-        if (onImageSelected) {
-          onImageSelected(e.target?.result as string)
-        }
+        imgUri = e.target?.result as string
       }
-      console.log("file", file)
-      setFile(event.target.files[0])
+
+      if (onImageSelected) {
+        onImageSelected(imgUri, event.target.files[0])
+      }
+
       reader.readAsDataURL(event.target.files[0])
     }
   }

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react"
-import { Avatar, Button, Grid, Stack, Typography } from "@mui/material"
+import { Avatar, Button, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Publications } from "../../models/publication"
 import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
-import { usePublicationContext } from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 
 type Props = {
@@ -17,11 +17,20 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
+  const {
+    setCurrentPath,
+    saveDraftArticle,
+    saveArticle,
+    setArticleContent,
+    setMarkdownArticle,
+    setExecuteArticleTransaction,
+    loading: loadingTransaction,
+    ipfsLoading,
+  } = usePublicationContext()
   const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
   const { imageSrc } = usePublication(publication?.id || "")
-
+  const isPreview = location.pathname.includes("preview")
   useEffect(() => {
     if (location.pathname) {
       setCurrentPath(location.pathname)
@@ -30,11 +39,16 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
 
   const handleNavigation = async () => {
     refetch()
-    saveDraftArticle(undefined)
+    saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
-    navigate(`../${publication?.id}`)
+    setArticleContent(undefined)
+    setMarkdownArticle(undefined)
+    navigate(-1 ?? `../${publication?.id}`)
   }
 
+  const handlePreview = () => {
+    isPreview ? navigate(-1) : navigate("../preview")
+  }
   return (
     <Stack
       component="header"
@@ -107,22 +121,19 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
                 )}
               </Grid>
             )}
-            <Button
-              variant="text"
-              onClick={() => {
-                // Preview
-                // navigate(`../${publication?.id}/new-article/new`)
-              }}
-            >
-              Preview
+            <Button variant="text" onClick={handlePreview} disabled={loadingTransaction || ipfsLoading}>
+              {isPreview ? "Edit" : "Preview"}
             </Button>
             <Button
               variant="contained"
               onClick={() => {
-                navigate(`../${publication?.id}/new-article/new`)
+                setExecuteArticleTransaction(true)
+                // navigate(`../${publication?.id}/new-article/new`)
               }}
               sx={{ py: "2px", minWidth: "unset" }}
+              disabled={loadingTransaction || ipfsLoading}
             >
+              {loadingTransaction && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               Publish
             </Button>
           </Stack>

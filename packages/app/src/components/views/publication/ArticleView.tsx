@@ -13,12 +13,14 @@ import isIPFS from "is-ipfs"
 import { WalletBadge } from "../../commons/WalletBadge"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import usePublication from "../../../services/publications/hooks/usePublication"
+import TurndownService from "turndown"
 
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
 }
 
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
+  const turndownService = new TurndownService()
   const { articleId } = useParams<{ articleId: string }>()
   const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
@@ -52,14 +54,18 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
         return
       }
       if (!isValidHash && article) {
-        setArticleToShow(article.article)
+        const markdown = turndownService.turndown(article.article)
+        console.log("markdown", markdown)
+        setArticleToShow(markdown)
       }
     }
   }, [isValidHash, article, markdownArticle, getIpfsData])
 
   useEffect(() => {
     if (markdownArticle) {
-      setArticleToShow(markdownArticle)
+      const markdown = turndownService.turndown(markdownArticle)
+      console.log("markdownArticle", markdown)
+      setArticleToShow(markdown)
     }
   }, [markdownArticle])
 

@@ -1,4 +1,5 @@
-import React, { useState, SetStateAction } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, SetStateAction, useEffect } from "react"
 import { Box, InputLabel, InputAdornment, Stack, TextField, Typography, useTheme } from "@mui/material"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import { Close } from "@mui/icons-material"
@@ -6,6 +7,7 @@ import { palette, typography } from "../../../../theme"
 import { UploadFile } from "../../../commons/UploadFile"
 import LinkIcon from "../../../../assets/images/icons/link"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
+import { CreateSelectOption } from "../../../../models/dropdown"
 
 export interface ArticleSidebarProps {
   showSidebar: boolean
@@ -13,14 +15,46 @@ export interface ArticleSidebarProps {
 }
 
 const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
-  const { article } = usePublicationContext()
-
-  const [articleImg, setArticleImg] = useState<File | undefined>(undefined)
+  const { article, draftArticle, saveDraftArticle, setDraftArticleThumbnail } = usePublicationContext()
+  const [articleThumbnail, setArticleThumbnail] = useState<File>()
+  const [uriImage, setUriImage] = useState<string | undefined>(undefined)
+  const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
+  const [description, setDescription] = useState<string | undefined>(undefined)
+  const [tags, setTags] = useState<string[]>([])
 
   const theme = useTheme()
 
+  useEffect(() => {
+    if (article) {
+      if (article.description) setDescription(article.description)
+      if (article.tags && article.tags.length) setTags(article.tags)
+    }
+  }, [article])
+
+  useEffect(() => {
+    if (draftArticle) {
+      saveDraftArticle({ ...draftArticle, tags: tags ?? [] })
+    }
+  }, [tags])
+
+  useEffect(() => {
+    if (draftArticle && uriImage) {
+      setDraftArticleThumbnail(articleThumbnail)
+      saveDraftArticle({ ...draftArticle, image: uriImage })
+    }
+  }, [uriImage])
+
   const handleClose = () => {
     setShowSidebar(false)
+  }
+
+  const handleTags = (items: CreateSelectOption[]) => {
+    if (items.length) {
+      const newTags = items.map((item) => item.value)
+      setTags(newTags)
+    } else {
+      setTags([])
+    }
   }
 
   const edited = true
@@ -65,7 +99,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
         {/* Thumbnail */}
         <Stack spacing={1}>
           <InputLabel>Thumbnail</InputLabel>
-          <UploadFile defaultImage={article?.image} onFileSelected={setArticleImg} />
+          <UploadFile defaultImage={article?.image} onFileSelected={setArticleThumbnail} convertedFile={setUriImage} />
         </Stack>
 
         {/* Post URL */}
@@ -83,7 +117,8 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
                   color: edited ? palette.grays[1000] : palette.grays[600],
                 },
               }}
-              value="this-is-a-test"
+              value={postUrl}
+              onChange={(e) => setPostUrl(e.target.value)}
             />
             <Typography
               color={palette.grays[400]}
@@ -91,7 +126,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
               fontWeight={400}
               fontFamily={typography.fontFamilies.sans}
             >
-              gnosis-guild.tabula.gg/this-is-a-test
+              gnosis-guild.tabula.gg/{postUrl}
             </Typography>
           </Stack>
         </Stack>
@@ -99,7 +134,15 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
         {/* Description */}
         <Stack spacing={1}>
           <InputLabel>Description</InputLabel>
-          <TextField multiline minRows={4} />
+          <TextField
+            multiline
+            minRows={4}
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value)
+              draftArticle && saveDraftArticle({ ...draftArticle, description: e.target.value })
+            }}
+          />
         </Stack>
 
         {/* Tags */}
@@ -107,10 +150,9 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
           <InputLabel>Tags</InputLabel>
           <CreatableSelect
             placeholder="Add a tag..."
-            // onSelected={handleTags}
-            // value={tags}
-            value={article?.tags}
-            // errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
+            onSelected={handleTags}
+            value={tags}
+            errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
           />
         </Stack>
       </Stack>

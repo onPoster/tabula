@@ -19,6 +19,7 @@ import { useWeb3React } from "@web3-react/core"
 import { PosterProvider } from "./services/poster/context"
 import { WalletProvider } from "./connectors/WalletProvider"
 import { RedirectOldRoute } from "./components/commons/RedicrectOldRoute"
+import PreviewArticleView from "./components/views/publication/PreviewArticleView"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
@@ -68,6 +69,7 @@ const App: React.FC = () => {
 
                   <Route path="new" element={<CreateArticleView type="new" />} />
                   <Route path="new/2" element={<CreateArticleView2 type="new" />} />
+                  <Route path="preview" element={<PreviewArticleView />} />
 
                   <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
 
