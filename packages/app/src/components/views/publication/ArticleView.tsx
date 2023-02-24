@@ -11,7 +11,7 @@ import { Markdown } from "../../commons/Markdown"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
-import { WalletBadge } from "../../commons/WalletBadge"
+// import { WalletBadge } from "../../commons/WalletBadge"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import usePublication from "../../../services/publications/hooks/usePublication"
 import TurndownService from "turndown"
@@ -101,12 +101,10 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
               </Helmet>
               {article.image && <img src={imageSrc} alt={article.title} />}
               <Grid item>
-                <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
-                  {article.title}
-                </Typography>
+                <Typography variant="h1">{article.title}</Typography>
               </Grid>
 
-              {article.authors?.length && (
+              {/* {article.authors?.length && (
                 <Grid container alignItems="center" gap={2} my={1}>
                   {article.authors.map((author) => (
                     <Grid item key={author}>
@@ -114,7 +112,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                     </Grid>
                   ))}
                 </Grid>
-              )}
+              )} */}
               {article.publication && (
                 <Grid container spacing={1} sx={{ marginLeft: -0.5 }}>
                   {article.tags &&
