@@ -77,7 +77,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   }, [setMarkdownArticle])
 
   return (
-    <PublicationPage showCreatePost={false} publication={article?.publication}>
+    <PublicationPage showCreatePost={false} showEditButton={true} publication={article?.publication}>
       {loading ? (
         <Grid container justifyContent="center" alignItems="center" my={2}>
           <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />

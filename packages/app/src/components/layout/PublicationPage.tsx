@@ -10,10 +10,11 @@ import { useParams } from "react-router-dom"
 type Props = {
   publication?: Publications
   showCreatePost?: boolean
+  showEditButton?: boolean
   children: React.ReactNode
 }
 
-const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
+const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost, showEditButton }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { imageSrc } = usePublication(publicationSlug || "")
   useDynamicFavIcon(imageSrc)
@@ -28,7 +29,7 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
         ]}
         <meta property="og:url" content={`https://tabula.gg/#/${publication?.id}`} />
       </Helmet>
-      <PublicationHeader publication={publication} showCreatePost={showCreatePost} />
+      <PublicationHeader publication={publication} showCreatePost={showCreatePost} showEditButton={showEditButton} />
       <Box component="main" sx={{ pb: 12 }}>
         {children}
       </Box>
