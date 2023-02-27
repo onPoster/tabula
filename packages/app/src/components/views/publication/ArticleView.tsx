@@ -83,7 +83,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
           <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />
         </Grid>
       ) : (
-        <ViewContainer maxWidth="sm">
+        <ViewContainer maxWidth="sm" sx={{ "& *": { overflowWrap: "break-word" } }}>
           {article && (
             <Grid container mt={10} flexDirection="column">
               <Helmet>
