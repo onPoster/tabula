@@ -43,7 +43,7 @@ const ArticleItemEditButton = styled(Button)({
 
 const ThumbnailImage = styled("img")({
   borderRadius: 4,
-  height: "calc(100% - 2px)",
+  height: "100%",
   objectFit: "cover",
 })
 

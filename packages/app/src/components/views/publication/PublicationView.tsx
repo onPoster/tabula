@@ -99,25 +99,14 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                     >
                       {publication.title}
                     </Typography>
-
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{
-                        alignItems: "center",
-                        cursor: "pointer",
-                        "&:hover .copyIcon": { color: palette.grays[1000] },
-                      }}
+                    <Typography
+                      color={palette.grays[600]}
+                      fontFamily={typography.fontFamilies.monospace}
+                      fontSize={10}
+                      sx={{ wordBreak: "break-all" }}
                     >
-                      <Typography
-                        color={palette.grays[600]}
-                        fontFamily={typography.fontFamilies.monospace}
-                        fontSize={10}
-                        sx={{ wordBreak: "break-all" }}
-                      >
-                        {publication.id}
-                      </Typography>
-                    </Stack>
+                      {publication.id}
+                    </Typography>
                   </Stack>
                   {publication.description && (
                     <Typography color={palette.grays[1000]} sx={{ margin: 0 }}>

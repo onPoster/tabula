@@ -201,6 +201,8 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                       {...field}
                       value={field.value}
                       placeholder="Tagline"
+                      multiline
+                      minRows={4}
                       sx={{ width: "100%" }}
                       id="publication-description"
                     />
