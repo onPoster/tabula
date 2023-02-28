@@ -21,9 +21,9 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
     setCurrentPath,
     saveDraftArticle,
     saveArticle,
-    setArticleContent,
     setMarkdownArticle,
     setExecuteArticleTransaction,
+    setIsEditing,
     loading: loadingTransaction,
     ipfsLoading,
   } = usePublicationContext()
@@ -39,11 +39,13 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
   }, [location, setCurrentPath])
 
   const handleNavigation = async () => {
+    console.log("handle navigation enter")
     refetch()
     saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
-    setArticleContent(undefined)
+    // setArticleContent(undefined)
     setMarkdownArticle(undefined)
+    setIsEditing(false)
     navigate(-1 ?? `../${publication?.id}`)
   }
 

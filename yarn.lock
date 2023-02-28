@@ -215,10 +215,10 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@remix-run/router@1.3.2":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.3.2.tgz#58cd2bd25df2acc16c628e1b6f6150ea6c7455bc"
-  integrity sha512-t54ONhl/h75X94SWsHGQ4G/ZrCEguKSRQr7DrjTciJXW0YU1QhlwYeycvK5JgkzlxmvrK7wq1NB/PLtHxoiDcA==
+"@remix-run/router@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.3.3.tgz#d6d531d69c0fa3a44fda7dc00b20d49b44549164"
+  integrity sha512-YRHie1yQEj0kqqCTCJEfHqYSSNlZQ696QJG+MMiW4mxSl9I0ojz/eRhJS4fs88Z5i6D1SmoF9d3K99/QOhI8/w==
 
 "@types/debug@^4.0.0":
   version "4.1.7"
@@ -250,11 +250,6 @@
   version "15.7.5"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.5.tgz#5f19d2b85a98e9558036f6a3cacc8819420f05cf"
   integrity sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==
-
-"@types/turndown@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@types/turndown/-/turndown-5.0.1.tgz#fcda7b02cda4c9d445be1440036df20f335b9387"
-  integrity sha512-N8Ad4e3oJxh9n9BiZx9cbe/0M3kqDpOTm2wzj13wdDUxDPjfjloWIJaquZzWE1cYTAHpjOH3rcTnXQdpEfS/SQ==
 
 "@types/unist@*", "@types/unist@^2.0.0":
   version "2.0.6"
@@ -982,19 +977,19 @@ react-markdown@^8.0.0:
     vfile "^5.0.0"
 
 react-router-dom@6:
-  version "6.8.1"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.8.1.tgz#7e136b67d9866f55999e9a8482c7008e3c575ac9"
-  integrity sha512-67EXNfkQgf34P7+PSb6VlBuaacGhkKn3kpE51+P6zYSG2kiRoumXEL6e27zTa9+PGF2MNXbgIUHTVlleLbIcHQ==
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.8.2.tgz#a6654a3400be9aafd504d7125573568921b78b57"
+  integrity sha512-N/oAF1Shd7g4tWy+75IIufCGsHBqT74tnzHQhbiUTYILYF0Blk65cg+HPZqwC+6SqEyx033nKqU7by38v3lBZg==
   dependencies:
-    "@remix-run/router" "1.3.2"
-    react-router "6.8.1"
+    "@remix-run/router" "1.3.3"
+    react-router "6.8.2"
 
-react-router@6.8.1:
-  version "6.8.1"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.8.1.tgz#e362caf93958a747c649be1b47cd505cf28ca63e"
-  integrity sha512-Jgi8BzAJQ8MkPt8ipXnR73rnD7EmZ0HFFb7jdQU24TynGW1Ooqin2KVDN9voSC+7xhqbbCd2cjGUepb6RObnyg==
+react-router@6.8.2:
+  version "6.8.2"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.8.2.tgz#98f83582a73f316a3287118b440f0cee30ed6f33"
+  integrity sha512-lF7S0UmXI5Pd8bmHvMdPKI4u4S5McxmHnzJhrYi9ZQ6wE+DA8JN5BzVC5EEBuduWWDaiJ8u6YhVOCmThBli+rw==
   dependencies:
-    "@remix-run/router" "1.3.2"
+    "@remix-run/router" "1.3.3"
 
 remark-parse@^10.0.0:
   version "10.0.1"
@@ -1092,9 +1087,11 @@ unist-util-generated@^2.0.0:
   integrity sha512-qF72kLmPxAw0oN2fwpWIqbXAVyEqUzDHMsbtPvOudIlUzXYFIeQIuxXQCRCFh22B7cixvU0MG7m3MW8FTq/S+A==
 
 unist-util-is@^5.0.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/unist-util-is/-/unist-util-is-5.2.0.tgz#37eed0617b76c114fd34d44c201aa96fd928b309"
-  integrity sha512-Glt17jWwZeyqrFqOK0pF1Ded5U3yzJnFr8CG1GMjCWTp9zDo2p+cmD6pWbZU8AgM5WU3IzRv6+rBwhzsGh6hBQ==
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/unist-util-is/-/unist-util-is-5.2.1.tgz#b74960e145c18dcb6226bc57933597f5486deae9"
+  integrity sha512-u9njyyfEh43npf1M+yGKDGVPbY/JWEemg5nH05ncKPfi+kBbKBJoTdsogMu33uhytuLlv9y0O7GH7fEdwLdLQw==
+  dependencies:
+    "@types/unist" "^2.0.0"
 
 unist-util-position@^4.0.0:
   version "4.0.4"

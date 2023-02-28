@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Box, Stack, useTheme } from "@mui/material"
 import SettingsIcon from "../../assets/images/icons/settings"
 import ArticleHeader from "./ArticleHeader"
@@ -9,19 +9,25 @@ import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { palette } from "../../theme"
 import shadows from "@mui/material/styles/shadows"
+import { useLocation } from "react-router-dom"
 
 type Props = {
   publication?: Publications
-  showCreatePost?: boolean
   children: React.ReactNode
 }
 
-const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
+const PublicationPage: React.FC<Props> = ({ children, publication }) => {
+  const location = useLocation()
   const [showSidebar, setShowSidebar] = useState<boolean>(true)
   const { imageSrc } = usePublication(publication?.id || "")
   const theme = useTheme()
   useDynamicFavIcon(imageSrc)
 
+  useEffect(() => {
+    if (location.pathname.includes("preview")) {
+      setShowSidebar(false)
+    }
+  }, [location])
 
   return (
     <>

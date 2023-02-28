@@ -8,7 +8,7 @@ export type PublicationContextType = {
   publications: Publications[] | undefined
   draftArticle: Article | undefined
   article: Article | undefined
-  articleContent: Block[] | undefined
+  articleContent: Block[]
   permission: Permission | undefined
   editingPublication: boolean
   draftPublicationImage: File | undefined
@@ -17,7 +17,9 @@ export type PublicationContextType = {
   markdownArticle: string | undefined
   loading: boolean
   ipfsLoading: boolean
+  isEditing: boolean
   executeArticleTransaction: boolean
+  setIsEditing: (editing: boolean) => void
   setLoading: (loading: boolean) => void
   setIpfsLoading: (loading: boolean) => void
   setExecuteArticleTransaction: (execute: boolean) => void
@@ -33,7 +35,7 @@ export type PublicationContextType = {
   savePublication: (publication: Publications | undefined) => void
   savePublications: (publications: Publications[] | undefined) => void
   saveArticle: (article: Article | undefined) => void
-  setArticleContent: (content: Block[] | undefined) => void
+  setArticleContent: (content: Block[]) => void
 }
 
 export type PublicationProviderProps = {

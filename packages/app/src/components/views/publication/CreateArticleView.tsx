@@ -20,7 +20,9 @@ import { Block } from "../../commons/EditableItemBlock"
 import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning } from "../../../models/pinning"
 import { palette } from "../../../theme"
-import { convertToHtml } from "../../../utils/markdown"
+import { checkTag } from "../../../utils/string-handler"
+import useMarkdown from "../../../hooks/useMarkdown"
+import useArticles from "../../../services/publications/hooks/useArticles"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
@@ -42,34 +44,56 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
     draftArticleThumbnail,
     setLoading,
     article,
-    // getIpfsData,
-    // markdownArticle,
-    // saveArticle,
+    setArticleContent,
+    isEditing,
   } = usePublicationContext()
   const { transactionCompleted } = usePublication(publicationSlug || "")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const { createArticle } = usePoster()
+  const { createArticle, updateArticle } = usePoster()
+  const {
+    // indexing: createArticleIndexing,
+    setExecutePollInterval: createPoll,
+    transactionCompleted: newArticleTransaction,
+    newArticleId,
+  } = useArticles()
+  const {
+    // indexing: updateArticleIndexing,
+    setExecutePollInterval: updatePoll,
+    transactionCompleted: updateTransaction,
+    newArticleId: updateArticleId,
+    setArticleId,
+    setCurrentTimestamp,
+  } = useArticles()
+  const { convertToHtml } = useMarkdown()
   const [titleError, setTitleError] = useState<boolean>(false)
   const [articleContentError, setArticleContentError] = useState<boolean>(false)
 
   /**
    */
   useEffect(() => {
-    if (article) {
-      saveDraftArticle(article)
+    if (article && !isEditing) {
+      const fetchCurrentArticle = async () => {
+        const { image: thumbnailImg, article: articleContent } = article
+        let img
+        if (thumbnailImg) {
+          img = await ipfs.getImgSrc(thumbnailImg)
+        }
+        const content = await ipfs.getText(articleContent)
+
+        if (content) {
+          const block = checkTag(content)
+          console.log("block", block)
+          if (block.length) {
+            setArticleContent(block)
+          }
+        }
+        saveDraftArticle({ ...article, image: img })
+      }
+
+      // call the function
+      fetchCurrentArticle()
     }
   }, [article])
-
-  /**
-   */
-  useEffect(() => {
-    if (draftArticle && draftArticle.title !== "") {
-      setTitleError(false)
-    }
-    if (draftArticle && draftArticle.article !== "") {
-      setArticleContentError(false)
-    }
-  }, [draftArticle])
 
   /**
    * Execute transaction
@@ -99,6 +123,12 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
     }
   }, [navigate, saveDraftArticle, transactionCompleted])
 
+  useEffect(() => {
+    if ((newArticleTransaction || updateTransaction) && publicationSlug) {
+      navigate(`/${publicationSlug}/${newArticleId || updateArticleId}`)
+    }
+  }, [navigate, newArticleId, newArticleTransaction, publicationSlug, updateArticleId, updateTransaction])
+
   const prepareTransaction = async (articleContent: Block[]) => {
     if (draftArticle?.title === "") {
       return setTitleError(true)
@@ -109,6 +139,7 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
       if (block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile) {
         try {
           await ipfs.uploadContent(block.imageFile).then(async (img) => {
+            console.log("img", img)
             blocks.push({ ...block, imageUrl: img.path })
           })
         } catch {
@@ -128,7 +159,8 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
       }
     }
 
-    const content = convertToHtml(blocks)
+    const content = await convertToHtml(blocks, false)
+    console.log("prepare transaction content", content)
 
     if (draftArticle) {
       const newArticle = { ...draftArticle, article: content }
@@ -153,11 +185,13 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
         throw new Error("Publication id is null")
       }
       if (pinning && draftArticleText) {
+        console.log("draftArticleText", draftArticleText)
         hashArticle = await ipfs.uploadContent(draftArticleText)
       }
+
       if (title) {
         if (type === "new") {
-          await createArticle(
+          return await createArticle(
             {
               action: "article/create",
               publicationId: id,
@@ -169,8 +203,35 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
               authors: [account],
             },
             hashArticle ? true : false,
-          ).then(() => {
-            setLoading(false)
+          ).then((res) => {
+            if (res?.error) {
+              setLoading(false)
+            } else {
+              createPoll(true)
+            }
+          })
+        }
+        if (type === "edit" && article && article.id) {
+          await updateArticle(
+            {
+              action: "article/update",
+              id: article.id,
+              title,
+              article: hashArticle ? hashArticle.path : draftArticleText,
+              description,
+              tags,
+              image: articleThumbnail,
+              authors: [account],
+            },
+            hashArticle ? true : false,
+          ).then((res) => {
+            if (res && res.error) {
+              setLoading(false)
+            } else if (article && article.lastUpdated) {
+              setArticleId(article.id)
+              setCurrentTimestamp(parseInt(article.lastUpdated))
+              updatePoll(true)
+            }
           })
         }
       }

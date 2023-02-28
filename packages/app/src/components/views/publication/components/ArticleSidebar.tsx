@@ -15,7 +15,8 @@ export interface ArticleSidebarProps {
 }
 
 const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
-  const { article, draftArticle, saveDraftArticle, setDraftArticleThumbnail } = usePublicationContext()
+  const { article, draftArticle, saveDraftArticle, setDraftArticleThumbnail, draftArticleThumbnail } =
+    usePublicationContext()
   const [articleThumbnail, setArticleThumbnail] = useState<File>()
   const [uriImage, setUriImage] = useState<string | undefined>(undefined)
   const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
@@ -29,13 +30,18 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
       if (article.description) setDescription(article.description)
       if (article.tags && article.tags.length) setTags(article.tags)
     }
-  }, [article])
+    if (draftArticle && (description === "" || !tags.length)) {
+      if (draftArticle.description) setDescription(draftArticle.description)
+      if (draftArticle.tags && draftArticle.tags.length) setTags(draftArticle.tags)
+      if (draftArticle && draftArticle.image) setUriImage(draftArticle.image)
+    }
+  }, [article, draftArticle])
 
   useEffect(() => {
-    if (draftArticle) {
-      saveDraftArticle({ ...draftArticle, tags: tags ?? [] })
+    if (draftArticleThumbnail && !articleThumbnail) {
+      setArticleThumbnail(draftArticleThumbnail)
     }
-  }, [tags])
+  }, [draftArticleThumbnail])
 
   useEffect(() => {
     if (draftArticle && uriImage) {
@@ -49,11 +55,22 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
   }
 
   const handleTags = (items: CreateSelectOption[]) => {
-    if (items.length) {
+    if (items.length && draftArticle) {
       const newTags = items.map((item) => item.value)
       setTags(newTags)
+      saveDraftArticle({ ...draftArticle, tags: newTags })
     } else {
       setTags([])
+      if (draftArticle) saveDraftArticle({ ...draftArticle, tags: [] })
+    }
+  }
+
+  const handleOnFiles = (file: File | undefined) => {
+    setDraftArticleThumbnail(file)
+    setArticleThumbnail(file)
+    if (!file && draftArticle) {
+      setUriImage(undefined)
+      saveDraftArticle({ ...draftArticle, image: null })
     }
   }
 
@@ -112,7 +129,8 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
             <InputLabel>Thumbnail</InputLabel>
             <UploadFile
               defaultImage={article?.image}
-              onFileSelected={setArticleThumbnail}
+              defaultUri={draftArticle?.image ?? undefined}
+              onFileSelected={handleOnFiles}
               convertedFile={setUriImage}
             />
           </Stack>

@@ -1,5 +1,6 @@
 import { ethers } from "ethers"
 import { useState } from "react"
+import { uid } from "uid"
 import { Block } from "../../../components/commons/EditableItemBlock"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { Article, Permission, Publications } from "../../../models/publication"
@@ -9,6 +10,7 @@ import { getTextRecordContent } from "../../ens"
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
 
 export const INITIAL_ARTICLE_VALUE = { title: "", article: "" }
+export const INITIAL_ARTICLE_BLOCK = [{ id: uid(), html: "", tag: "p" }]
 const [usePublicationContext, PublicationContextProvider] = createGenericContext<PublicationContextType>()
 
 const PublicationProvider = ({ children }: PublicationProviderProps) => {
@@ -17,7 +19,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [publication, setPublication] = useState<Publications | undefined>(undefined)
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(INITIAL_ARTICLE_VALUE)
   const [article, setArticle] = useState<Article | undefined>(undefined)
-  const [articleContent, setArticleContent] = useState<Block[] | undefined>(undefined)
+  const [articleContent, setArticleContent] = useState<Block[] >(INITIAL_ARTICLE_BLOCK)
   const [permission, setPermission] = useState<Permission | undefined>(undefined)
   const [editingPublication, setEditingPublication] = useState<boolean>(false)
   const [executeArticleTransaction, setExecuteArticleTransaction] = useState<boolean>(false)
@@ -26,6 +28,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
   const [loading, setLoading] = useState<boolean>(false)
   const [ipfsLoading, setIpfsLoading] = useState<boolean>(false)
+  const [isEditing, setIsEditing] = useState<boolean>(false)
   const ipfs = useIpfs()
   const [slugToPublicationId, setSlugToPublicationId] = useState<{ [key: string]: string }>({})
 
@@ -55,7 +58,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const getIpfsData = async (hash: string): Promise<string> => {
     setIpfsLoading(true)
     const data = await ipfs.getText(hash)
-  
+    console.log('data', data)
     if (data != null) {
       setMarkdownArticle(data)
     }
@@ -87,6 +90,8 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         executeArticleTransaction,
         draftArticleThumbnail,
         ipfsLoading,
+        isEditing,
+        setIsEditing,
         setIpfsLoading,
         setLoading,
         setDraftArticleThumbnail,

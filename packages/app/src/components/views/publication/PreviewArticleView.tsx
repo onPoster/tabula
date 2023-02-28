@@ -1,26 +1,50 @@
-import { Box, Chip, Grid, Typography } from "@mui/material"
-import Markdown from "markdown-to-jsx"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Box, Chip, CircularProgress, Grid, Typography } from "@mui/material"
+
 import React, { Fragment, useEffect, useState } from "react"
 import TurndownService from "turndown"
 import { usePublicationContext } from "../../../services/publications/contexts"
-import { typography } from "../../../theme"
-import { convertToHtml } from "../../../utils/markdown"
+import { palette, typography } from "../../../theme"
+
+import { Markdown } from "../../commons/Markdown"
 
 import { ViewContainer } from "../../commons/ViewContainer"
 import CreateArticlePage from "../../layout/CreateArticlePage"
+import { useMarkdown } from "../../../hooks/useMarkdown"
+import { toBase64 } from "../../../utils/string-handler"
 
-const turndownService = new TurndownService()
+const turndownService = new TurndownService({ headingStyle: "atx" })
 const PreviewArticleView: React.FC = () => {
-  const [articleToShow, setArticleToShow] = useState<string>("")
-  const { publication, draftArticle, articleContent } = usePublicationContext()
+  const [articleHtml, setArticleHtml] = useState<string>("")
+  const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
+
+  const { convertToHtml, loading } = useMarkdown()
+  const { publication, draftArticle, articleContent, draftArticleThumbnail } = usePublicationContext()
+  const article = turndownService.turndown(articleHtml)
 
   useEffect(() => {
-    if (articleContent?.length) {
-      const content = convertToHtml(articleContent)
-      const article = turndownService.turndown(content)
-      setArticleToShow(article)
+    const articleToHtmlFlow = async () => {
+      if (articleContent?.length) {
+        const content = await convertToHtml(articleContent, true)
+        console.log("content preview page", content)
+        setArticleHtml(content)
+      }
     }
+
+    articleToHtmlFlow()
   }, [articleContent])
+
+  useEffect(() => {
+    const transformImg = async () => {
+      if (draftArticleThumbnail) {
+        const content = await toBase64(draftArticleThumbnail)
+        setThumbnailUri(content)
+      } else {
+        setThumbnailUri(undefined)
+      }
+    }
+    transformImg()
+  }, [draftArticleThumbnail])
 
   return (
     <CreateArticlePage publication={publication}>
@@ -30,6 +54,7 @@ const PreviewArticleView: React.FC = () => {
       >
         <ViewContainer maxWidth="sm">
           <Grid container mt={10} flexDirection="column">
+            {thumbnailUri && <Box component="img" sx={{ borderRadius: 1 }} alt="thumbnail image" src={thumbnailUri} />}
             {draftArticle && (
               <Fragment>
                 <Grid item>
@@ -49,7 +74,16 @@ const PreviewArticleView: React.FC = () => {
                   </Grid>
                 </Grid>
                 <Grid item my={5} width="100%">
-                  <Markdown>{articleToShow}</Markdown>
+                  {loading && (
+                    <Grid container justifyContent="center" alignItems="center" my={2}>
+                      <CircularProgress
+                        color="primary"
+                        size={50}
+                        sx={{ marginRight: 1, color: palette.primary[1000] }}
+                      />
+                    </Grid>
+                  )}
+                  {!loading && <Markdown>{article}</Markdown>}
                 </Grid>
               </Fragment>
             )}

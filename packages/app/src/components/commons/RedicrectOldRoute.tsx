@@ -8,7 +8,6 @@ export const RedirectOldRoute: React.FC = () => {
 
   const chainName = location.pathname.split("/")[1]
   const chainId = chainNameToChainId(chainName)
-  console.log(chainName, chainId)
   const newPath = location.pathname.replace(chainName + "/", chainId + "-")
 
   useEffect(() => {
