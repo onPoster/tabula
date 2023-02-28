@@ -91,6 +91,14 @@ export const checkTag = (html: string): Block[] => {
     const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.PARAGRAPH)
     newBlocks = [...newBlocks, ...content]
   }
+  if (html.includes(RICH_TEXT_ELEMENTS.QUOTE)) {
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.QUOTE)
+    newBlocks = [...newBlocks, ...content]
+  }
+  if (html.includes(RICH_TEXT_ELEMENTS.CODE)) {
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.CODE)
+    newBlocks = [...newBlocks, ...content]
+  }
   if (html.includes(RICH_TEXT_ELEMENTS.DIVIDER)) {
     const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.DIVIDER)
     newBlocks = [...newBlocks, ...content]

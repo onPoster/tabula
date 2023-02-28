@@ -58,7 +58,6 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const getIpfsData = async (hash: string): Promise<string> => {
     setIpfsLoading(true)
     const data = await ipfs.getText(hash)
-    console.log('data', data)
     if (data != null) {
       setMarkdownArticle(data)
     }

@@ -169,6 +169,11 @@ export const EditableBlock: React.FC = () => {
                     index,
                   })
                 }
+                onAdd={() =>
+                  addBlockHandler({
+                    id: block.id,
+                  })
+                }
               />
             </Box>
             <EditableItemBlock

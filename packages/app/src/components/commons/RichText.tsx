@@ -5,8 +5,8 @@ import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import { ReactComponent as ParagraphIcon } from "../../assets/images/paragraphIcon.svg"
 import { ReactComponent as ImageIcon } from "../../assets/images/imageIcon.svg"
-import { ReactComponent as OrderedIcon } from "../../assets/images/orderedIcon.svg"
-import { ReactComponent as UnorderedIcon } from "../../assets/images/unorderedIcon.svg"
+// import { ReactComponent as OrderedIcon } from "../../assets/images/orderedIcon.svg"
+// import { ReactComponent as UnorderedIcon } from "../../assets/images/unorderedIcon.svg"
 import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
 import { ReactComponent as QuoteIcon } from "../../assets/images/quoteIcon.svg"
 import { ReactComponent as DividerIcon } from "../../assets/images/dividerIcon.svg"
@@ -78,6 +78,7 @@ type RichTextProps = {
   showCommand: boolean
   onRichTextSelected?: (value: string) => void
   onDelete: () => void
+  onAdd: () => void
 }
 
 const HEADER_OPTIONS = [
@@ -142,16 +143,16 @@ const OPTIONS = [
     label: "Image",
     icon: <ImageIcon />,
   },
-  {
-    value: RICH_TEXT_ELEMENTS.ORDERED,
-    label: "Ordered List",
-    icon: <OrderedIcon />,
-  },
-  {
-    value: RICH_TEXT_ELEMENTS.UNORDERED,
-    label: "Unordered List",
-    icon: <UnorderedIcon />,
-  },
+  // {
+  //   value: RICH_TEXT_ELEMENTS.ORDERED,
+  //   label: "Ordered List",
+  //   icon: <OrderedIcon />,
+  // },
+  // {
+  //   value: RICH_TEXT_ELEMENTS.UNORDERED,
+  //   label: "Unordered List",
+  //   icon: <UnorderedIcon />,
+  // },
   {
     value: RICH_TEXT_ELEMENTS.CODE,
     label: "Code Snippet",
@@ -182,7 +183,7 @@ const DragTooltipContent = () => {
       >
         <span style={{ color: "white" }}>Click</span> to Edit
       </Typography>
-      <Typography
+      {/* <Typography
         gutterBottom={false}
         sx={{
           color: palette.whites[600],
@@ -191,7 +192,7 @@ const DragTooltipContent = () => {
         }}
       >
         <span style={{ color: "white" }}>Drag</span> to move
-      </Typography>
+      </Typography> */}
     </>
   )
 }
@@ -230,7 +231,7 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
   )
 }
 
-const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete }) => {
+const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, onAdd }) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -298,7 +299,7 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
             </Typography>
           }
         >
-          <RichTextButton onClick={() => setShow(!show)}>
+          <RichTextButton onClick={onAdd}>
             <AddIcon sx={{ color: palette.grays[600] }} />
           </RichTextButton>
         </Tooltip>
