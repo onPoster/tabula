@@ -125,6 +125,7 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
 
   useEffect(() => {
     if ((newArticleTransaction || updateTransaction) && publicationSlug) {
+      setLoading(false)
       navigate(`/${publicationSlug}/${newArticleId || updateArticleId}`)
     }
   }, [navigate, newArticleId, newArticleTransaction, publicationSlug, updateArticleId, updateTransaction])
@@ -139,7 +140,6 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
       if (block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile) {
         try {
           await ipfs.uploadContent(block.imageFile).then(async (img) => {
-            console.log("img", img)
             blocks.push({ ...block, imageUrl: img.path })
           })
         } catch {

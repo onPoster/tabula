@@ -5,6 +5,7 @@ import { RICH_TEXT_ELEMENTS } from "../components/commons/RichText"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 const turndownService = new TurndownService({ headingStyle: "atx" })
+
 if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")
 }
@@ -24,104 +25,79 @@ export const toBase64 = (file: File) =>
     reader.onload = () => resolve(reader.result as string)
   })
 
-export const convertToHtml = async (blocks: Block[]): Promise<string> => {
-  let html = ""
+const getBlocksByTag = (html: string, tag: RICH_TEXT_ELEMENTS): Block[] => {
+  let newBlock: Block[] = []
+  let firstTagElementIndex: number
+  let lastTagElementIndex: number
+  const htmlContentArray = html.split(" ")
 
-  await Promise.all(
-    blocks.map(async (block) => {
-      let tag = block.tag
-      let image: string = ""
-      if (block.imageFile) {
-        image = await toBase64(block.imageFile)
+  htmlContentArray.forEach((word, index) => {
+    if (word === `className=${tag}>` && tag !== RICH_TEXT_ELEMENTS.IMAGE && tag !== RICH_TEXT_ELEMENTS.DIVIDER) {
+      firstTagElementIndex = index
+    }
+    if (word === `</${tag}>` && tag !== RICH_TEXT_ELEMENTS.IMAGE && tag !== RICH_TEXT_ELEMENTS.DIVIDER) {
+      lastTagElementIndex = index
+    }
+    if (word === `<img` && tag === RICH_TEXT_ELEMENTS.IMAGE) {
+      const path = htmlContentArray[index + 2]
+      let imageSrc = path.substring(path.indexOf(`"`) + 1).replace(`"`, "")
+      if (!imageSrc.includes("https://")) {
+        imageSrc = `${IPFS_GATEWAY}/${imageSrc} `
       }
-      if (block.imageUrl) {
-        //Check if the img is a B64 or hash
-        const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/
-        if (base64regex.test(block.imageUrl)) {
-          image = block.imageUrl
-        } else {
-          image = `${IPFS_GATEWAY}/${block.imageUrl}`
-        }
-      }
-      if (block.tag === RICH_TEXT_ELEMENTS.DIVIDER) {
-        tag = "div"
-      }
-      if (block.tag === RICH_TEXT_ELEMENTS.IMAGE) {
-        tag = "img"
-      }
+      newBlock.push({ tag, id: uid(), html: "", imageUrl: imageSrc })
+    }
+    if (word === `<hr` && tag === RICH_TEXT_ELEMENTS.DIVIDER) {
+      newBlock.push({ tag, id: uid(), html: "" })
+    }
 
-      return (html = `${html}<${tag} id=${block.id} ${
-        block.tag === RICH_TEXT_ELEMENTS.IMAGE && image ? `src="${image}" alt="img-${block.id}"` : ""
-      } className=${block.tag}>${block.html}</${tag}> `)
-    }),
-  )
-
-  console.log("html", html)
-  return html
+    if (firstTagElementIndex && lastTagElementIndex) {
+      const articleWords = htmlContentArray.slice(firstTagElementIndex + 1, lastTagElementIndex)
+      newBlock.push({ tag, id: uid(), html: articleWords.join(" ") })
+      firstTagElementIndex = 0
+      lastTagElementIndex = 0
+    }
+  })
+  return newBlock
 }
 
 export const checkTag = (html: string): Block[] => {
   console.log("html", html)
-  const newBlocks: Block[] = []
+  let newBlocks: Block[] = []
   if (html.includes(RICH_TEXT_ELEMENTS.H1)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.H1}>`) + 3,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.H1}>`),
-    )
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.H1, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H1)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.H2)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.H2}>`) + 3,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.H2}>`),
-    )
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.H2, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H2)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.H3)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.H3}>`) + 3,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.H3}>`),
-    )
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.H3, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H3)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.H4)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.H4}>`) + 3,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.H4}>`),
-    )
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.H4, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H4)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.H5)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.H5}>`) + 3,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.H5}>`),
-    )
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.H5, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H5)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.H6)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.H6}>`) + 3,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.H6}>`),
-    )
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.H6, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H6)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.PARAGRAPH)) {
-    const content = html.substring(
-      html.indexOf(`${RICH_TEXT_ELEMENTS.PARAGRAPH}>`) + 2,
-      html.lastIndexOf(`</${RICH_TEXT_ELEMENTS.PARAGRAPH}>`),
-    )
-
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.PARAGRAPH, id: uid(), html: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.PARAGRAPH)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.DIVIDER)) {
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.DIVIDER, id: uid(), html: "" })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.DIVIDER)
+    newBlocks = [...newBlocks, ...content]
   }
   if (html.includes(RICH_TEXT_ELEMENTS.IMAGE)) {
-    let content = html.substring(html.indexOf(`src="`) + 5, html.lastIndexOf(`" alt="`))
-    if (!content.includes("https://")) {
-      content = `${IPFS_GATEWAY}/${content} `
-    }
-    newBlocks.push({ tag: RICH_TEXT_ELEMENTS.IMAGE, id: uid(), html: "", imageUrl: content })
+    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.IMAGE)
+    newBlocks = [...newBlocks, ...content]
   }
   return newBlocks
 }
