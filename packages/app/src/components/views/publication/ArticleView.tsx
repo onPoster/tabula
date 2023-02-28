@@ -84,7 +84,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   }, [setMarkdownArticle])
 
   return (
-    <PublicationPage showCreatePost={false} publication={article?.publication}>
+    <PublicationPage showCreatePost={false} showEditButton={true} publication={article?.publication}>
       {loading ? (
         <Grid container justifyContent="center" alignItems="center" my={2}>
           <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />
@@ -108,9 +108,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
               </Helmet>
               {article.image && <img src={imageSrc} alt={article.title} />}
               <Grid item>
-                <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
-                  {article.title}
-                </Typography>
+                <Typography variant="h1">{article.title}</Typography>
               </Grid>
 
               {/* {article.authors?.length && (

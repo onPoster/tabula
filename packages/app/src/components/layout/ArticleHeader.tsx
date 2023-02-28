@@ -31,7 +31,7 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
   const [show, setShow] = useState<boolean>(false)
   const { imageSrc } = usePublication(publication?.id || "")
   const isPreview = location.pathname.includes("preview")
-  
+
   useEffect(() => {
     if (location.pathname) {
       setCurrentPath(location.pathname)
@@ -75,12 +75,11 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
         <Stack
           alignItems={"center"}
           spacing={0.5}
+          direction="row"
           sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
           onClick={handleNavigation}
         >
-          <Avatar sx={{ width: 31, height: 31 }} src={imageSrc}>
-            {" "}
-          </Avatar>
+          <Avatar sx={{ width: 31, height: 31 }} src={imageSrc} />
 
           <Typography
             color={palette.grays[1000]}

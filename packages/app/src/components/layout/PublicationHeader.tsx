@@ -11,10 +11,12 @@ import { haveActionPermission } from "../../utils/permission"
 import { INITIAL_ARTICLE_BLOCK, INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+import { Edit } from "@mui/icons-material"
 
 type Props = {
   publication?: Publications
   showCreatePost?: boolean
+  showEditButton?: boolean
 }
 
 const ItemContainer = styled(Grid)({
@@ -25,7 +27,7 @@ const ItemContainer = styled(Grid)({
     margin: "15px 0px",
   },
 })
-const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => {
+const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showEditButton }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
@@ -135,6 +137,22 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                 >
                   <AddIcon style={{ marginRight: 13 }} />
                   New Article
+                </Button>
+              </Grid>
+            )}
+
+            {showEditButton && (
+              <Grid item>
+                <Button
+                  variant="contained"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    navigate(`./${publication?.id}/edit`)
+                  }}
+                >
+                  <Edit sx={{ mr: "13px", width: 16 }} />
+                  Edit
                 </Button>
               </Grid>
             )}
