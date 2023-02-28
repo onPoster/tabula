@@ -6,9 +6,9 @@ import { palette, typography } from "../../../../theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
 import { Article } from "../../../../models/publication"
 import EditIcon from "@mui/icons-material/Edit"
-import { shortTitle } from "../../../../utils/string"
+
 import moment from "moment"
-import { usePublicationContext } from "../../../../services/publications/contexts"
+import { INITIAL_ARTICLE_BLOCK, usePublicationContext } from "../../../../services/publications/contexts"
 import { useNavigate } from "react-router-dom"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import usePoster from "../../../../services/poster/hooks/usePoster"
@@ -17,6 +17,7 @@ import { usePosterContext } from "../../../../services/poster/context"
 import useArticle from "../../../../services/publications/hooks/useArticle"
 import isIPFS from "is-ipfs"
 import { useIpfs } from "../../../../hooks/useIpfs"
+import { shortTitle } from "../../../../utils/string-handler"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -55,7 +56,7 @@ type ArticleItemProps = {
 const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDelete, publicationSlug }) => {
   const ipfs = useIpfs()
   const navigate = useNavigate()
-  const { saveArticle, setMarkdownArticle } = usePublicationContext()
+  const { saveArticle, setMarkdownArticle, setArticleContent } = usePublicationContext()
   const { setLastPathWithChainName } = usePosterContext()
   const { deleteArticle } = usePoster()
   const { description, image, title, tags, lastUpdated, id } = article
@@ -191,6 +192,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({ article, couldUpdate, couldDe
                           e.stopPropagation()
                           navigate(`./${id}/edit`)
                           if (articleHtmlContent) {
+                            setArticleContent(INITIAL_ARTICLE_BLOCK)
                             setMarkdownArticle(articleHtmlContent)
                           }
                           saveArticle(article)

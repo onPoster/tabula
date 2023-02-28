@@ -34,6 +34,7 @@
     "lodash": "^4.17.21",
     "markdown-to-jsx": "^7.1.7",
     "moment": "^2.29.2",
+    "turndown": "^7.1.1",
     "notistack": "^2.0.8",
     "react": "^17.0.2",
     "react-contenteditable": "^3.3.6",
@@ -82,6 +83,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.180",
+    "@types/turndown": "^5.0.1",
     "prettier": "^2.5.1"
   }
 }

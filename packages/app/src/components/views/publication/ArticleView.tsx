@@ -11,23 +11,24 @@ import { Markdown } from "../../commons/Markdown"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
-import { WalletBadge } from "../../commons/WalletBadge"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import usePublication from "../../../services/publications/hooks/usePublication"
-import TurndownService from "turndown"
+import { convertToMarkdown } from "../../../utils/string-handler"
 
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
 }
-
+//Provisional solution to detect older articles and check the dif between markdown and html articles
+const VALIDATION_DATE = "2023-02-02T00:00:00Z"
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
-  const turndownService = new TurndownService()
   const { articleId } = useParams<{ articleId: string }>()
   const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(article?.publication?.id || "")
   useDynamicFavIcon(publication.imageSrc)
+  const dateCreation = article && article.postedOn && new Date(parseInt(article.postedOn) * 1000)
   const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
+  const isAfterHtmlImplementation = moment(dateCreation).isAfter(VALIDATION_DATE)
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
   useEffect(() => {
@@ -50,23 +51,29 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
 
   useEffect(() => {
     if (article) {
-      if (isValidHash && article && !markdownArticle) {
-        getIpfsData(article.article)
-        return
+      const fetchArticleContent = async () => {
+        if (isValidHash && article && !markdownArticle) {
+          await getIpfsData(article.article)
+          return
+        }
+        if (!isValidHash && article) {
+          if (!isAfterHtmlImplementation) {
+            return setArticleToShow(article.article)
+          }
+          const markdownContent = convertToMarkdown(article.article)
+          setArticleToShow(markdownContent)
+        }
       }
-      if (!isValidHash && article) {
-        const markdown = turndownService.turndown(article.article)
-        console.log("markdown", markdown)
-        setArticleToShow(markdown)
-      }
+
+      // call the function
+      fetchArticleContent()
     }
-  }, [isValidHash, article, markdownArticle, getIpfsData])
+  }, [isValidHash, article, markdownArticle, getIpfsData, isAfterHtmlImplementation])
 
   useEffect(() => {
     if (markdownArticle) {
-      const markdown = turndownService.turndown(markdownArticle)
-      console.log("markdownArticle", markdown)
-      setArticleToShow(markdown)
+      const markdownContent = convertToMarkdown(markdownArticle)
+      setArticleToShow(markdownContent)
     }
   }, [markdownArticle])
 
@@ -106,7 +113,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                 </Typography>
               </Grid>
 
-              {article.authors?.length && (
+              {/* {article.authors?.length && (
                 <Grid container alignItems="center" gap={2} my={1}>
                   {article.authors.map((author) => (
                     <Grid item key={author}>
@@ -114,7 +121,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                     </Grid>
                   ))}
                 </Grid>
-              )}
+              )} */}
               {article.publication && (
                 <Grid container spacing={1} sx={{ marginLeft: -0.5 }}>
                   {article.tags &&

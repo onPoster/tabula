@@ -8,7 +8,7 @@ import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
-import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_BLOCK, INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
@@ -129,7 +129,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   size={"large"}
                   onClick={() => {
                     navigate(`./new`)
-                    setArticleContent(undefined)
+                    setArticleContent(INITIAL_ARTICLE_BLOCK)
                     setMarkdownArticle(undefined)
                   }}
                 >

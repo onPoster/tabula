@@ -4,6 +4,8 @@ import Link from "@mui/material/Link"
 
 const options = {
   disableParsingRawHTML: true,
+  forceBlock: true,
+  forceWrapper: true,
   overrides: {
     h1: {
       component: Typography,
@@ -11,7 +13,6 @@ const options = {
         gutterBottom: true,
         fontWeight: 600,
         variant: "h1",
-        contentEditable: true,
       },
     },
     h2: {
@@ -21,7 +22,6 @@ const options = {
         fontWeight: 600,
         variant: "h3",
         component: "h2",
-        contentEditable: true,
       },
     },
     h3: {
@@ -31,7 +31,6 @@ const options = {
         fontWeight: 600,
         variant: "h4",
         component: "h3",
-        contentEditable: true,
       },
     },
 
@@ -42,20 +41,19 @@ const options = {
         fontWeight: 600,
         variant: "h5",
         component: "h4",
-        contentEditable: true,
       },
     },
     h5: {
       component: Typography,
-      props: { gutterBottom: true, fontWeight: 600, variant: "h5", contentEditable: true },
+      props: { gutterBottom: true, fontWeight: 600, variant: "h5" },
     },
     h6: {
       component: Typography,
-      props: { gutterBottom: true, fontWeight: 600, variant: "h6", contentEditable: true },
+      props: { gutterBottom: true, fontWeight: 600, variant: "h6" },
     },
     p: {
       component: Typography,
-      props: { gutterBottom: true, paragraph: true, fontSize: "1.175rem", contentEditable: true },
+      props: { gutterBottom: true, paragraph: true, fontSize: "1.175rem" },
     },
     code: {
       component: Box,
@@ -65,7 +63,6 @@ const options = {
         ml: "0.125rem",
         mr: "0.125rem",
         fontSize: 13,
-        contentEditable: true,
       },
     },
     a: { component: Link, props: { target: "_self" } },

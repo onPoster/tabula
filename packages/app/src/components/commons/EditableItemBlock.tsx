@@ -1,8 +1,9 @@
 import { Add } from "@mui/icons-material"
 import { InputLabel } from "@mui/material"
-import React, { ChangeEvent,  useEffect, useRef, useState } from "react"
+import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { palette, typography } from "../../theme"
+import { toBase64 } from "../../utils/string-handler"
 import InlineRichText from "./InlineRichText"
 import { RICH_TEXT_ELEMENTS } from "./RichText"
 
@@ -55,7 +56,6 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   const onSelectionChange = (e: Event) => {
     const selection = window.getSelection()
     if (!selection?.isCollapsed) {
-      console.log(selection)
       setInlineOffset(selection ? selection.anchorOffset : null)
       setInlineRichTextRef(contentEditableRef)
     } else {
@@ -79,6 +79,18 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
     }
   }, [block.html, block.id, block.tag])
 
+  useEffect(() => {
+    if (block.imageFile) {
+      const transformFile = async () => {
+        const result = await toBase64(block.imageFile as File)
+        if (result) {
+          setUri(result)
+        }
+      }
+
+      transformFile()
+    }
+  }, [block.imageFile])
   useEffect(() => {
     setUri(block.imageUrl)
   }, [block.imageUrl])
@@ -117,14 +129,15 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
 
   return (
     <>
-      {block.tag !== RICH_TEXT_ELEMENTS.IMAGE && (
+      {block.tag !== RICH_TEXT_ELEMENTS.IMAGE && block.tag !== RICH_TEXT_ELEMENTS.DIVIDER && (
         <ContentEditable
           id={block.id}
           className={block.tag}
           innerRef={contentEditableRef}
           html={block.html}
-          tagName={block.tag === RICH_TEXT_ELEMENTS.DIVIDER ? "div" : block.tag}
+          tagName={block.tag}
           placeholder={placeholder}
+          suppressContentEditableWarning={true}
           onChange={
             onChange
               ? (...args) => {
@@ -206,6 +219,10 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
           )}
           {uri && <img src={uri} alt="" />}
         </div>
+      )}
+      {block.tag === RICH_TEXT_ELEMENTS.DIVIDER && (
+        <hr id={`${block.id}-img`} />
+        // {/* <input type="file" id={`${block.id}-img`} ref={inputFile} hidden accept="image/*" onChange={handleImage} /> */}
       )}
       <InlineRichText showCommand={typeof inlineOffset === "number"} inlineRichTextRef={inlineRichTextRef} />
     </>

@@ -7,7 +7,7 @@ import LinkOffIcon from "@mui/icons-material/LinkOff"
 import ExitToAppIcon from "@mui/icons-material/ExitToApp"
 import NodeIcon from "../../assets/images/icons/node"
 
-import { shortAddress } from "../../utils/string"
+
 import { useWeb3React } from "@web3-react/core"
 import { useLocation, useNavigate } from "react-router-dom"
 import { usePublicationContext } from "../../services/publications/contexts"
@@ -15,6 +15,7 @@ import useLocalStorage from "../../hooks/useLocalStorage"
 import IPFSNodeModal from "./IPFSNodeModal"
 import { useNotification } from "../../hooks/useNotification"
 import { chainIdToChainName, SupportedChainIcon } from "../../constants/chain"
+import { shortAddress } from "../../utils/string-handler"
 
 const UserOptionsContainer = styled(Paper)({
   padding: 8,

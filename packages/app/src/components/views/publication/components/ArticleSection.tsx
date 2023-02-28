@@ -13,7 +13,7 @@ const ArticleSection: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { setArticleContent, setMarkdownArticle } = usePublicationContext()
+  const { setMarkdownArticle } = usePublicationContext()
   const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
   const articles = data && data.articles
   const permissions = data && data.permissions
@@ -47,7 +47,7 @@ const ArticleSection: React.FC = () => {
               size="medium"
               onClick={() => {
                 navigate(`new`)
-                setArticleContent(undefined)
+                // setArticleContent(undefined)
                 setMarkdownArticle(undefined)
               }}
             >

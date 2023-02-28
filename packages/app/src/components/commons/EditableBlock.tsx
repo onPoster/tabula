@@ -8,20 +8,12 @@ import RichText, { RICH_TEXT_ELEMENTS } from "./RichText"
 import { Box } from "@mui/material"
 import { usePublicationContext } from "../../services/publications/contexts"
 
-const INITIAL_BLOCK = { id: uid(), html: "", tag: "p" }
-
-export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBlocks }) => {
-  const { setArticleContent } = usePublicationContext()
-  const [blocks, setBlocks] = useState<Block[]>([INITIAL_BLOCK])
+export const EditableBlock: React.FC = () => {
+  const { setArticleContent, articleContent, setIsEditing } = usePublicationContext()
   const [previousKey, setPreviousKey] = useState<string>("")
   const [newElementId, setNewElementId] = useState<string | null>(null)
   const [showMenu, setShowMenu] = useState<boolean>(false)
-
-  useEffect(() => {
-    if (articleBlocks.length) {
-      setBlocks(articleBlocks)
-    }
-  }, [articleBlocks])
+  const [menuId, setMenuId] = useState<string | undefined>(undefined)
 
   /**
    * Method to collect the new HTML Element by id
@@ -37,29 +29,25 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
     }
   }, [newElementId])
 
-  useEffect(() => {
-    if (blocks.length) {
-      setArticleContent(blocks)
-    }
-  }, [blocks, setArticleContent])
-
   const updatePageHandler = (event: ContentEditableEvent, blockId: string) => {
     const value = event.target.value
     if (!value.includes("/")) {
-      const index = findIndex(blocks, { id: blockId })
-      const updatedBlocks = [...blocks]
+      const index = findIndex(articleContent, { id: blockId })
+      const updatedBlocks = [...articleContent]
       updatedBlocks[index] = {
         ...updatedBlocks[index],
         html: value,
       }
-      setBlocks(updatedBlocks)
+      setIsEditing(true)
+      setArticleContent(updatedBlocks)
     }
   }
 
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLDivElement>, index: number) => {
-    const currentBlock = blocks[index]
+    const currentBlock = articleContent[index]
     if (e.key === "/") {
       setShowMenu(true)
+      setMenuId(currentBlock.id)
     }
     if (e.key === "Enter") {
       if (previousKey !== "Shift") {
@@ -82,20 +70,22 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
   const addBlockHandler = (block: { id: string }, customBlocks?: Block[]) => {
     const newId = uid()
     const newBlock = { id: newId, html: "", tag: "p" }
-    const currentBlocks = customBlocks ? customBlocks : [...blocks]
+    const currentBlocks = customBlocks ? customBlocks : [...articleContent]
     const index = currentBlocks.map((b) => b.id).indexOf(block.id)
     currentBlocks.splice(index + 1, 0, newBlock)
-    setBlocks(currentBlocks)
+    setIsEditing(true)
+    setArticleContent(currentBlocks)
     setNewElementId(newId)
   }
 
   const deleteBlock = (block: { id: string; index: number }) => {
     if (block.index) {
-      const previousBlockPosition = blocks[block.index - 1]
+      const previousBlockPosition = articleContent[block.index - 1]
       const previousBlock = document.getElementById(previousBlockPosition.id)
-      const currentBlocks = [...blocks]
+      const currentBlocks = [...articleContent]
       currentBlocks.splice(block.index, 1)
-      setBlocks(currentBlocks)
+      setArticleContent(currentBlocks)
+      setIsEditing(true)
       if (previousBlock) {
         setCaretToEnd(previousBlock)
         previousBlock.focus()
@@ -116,25 +106,27 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
   }
 
   const onImage = (uri: string, file: File, index: number) => {
-    const updatedBlocks = [...blocks]
+    const updatedBlocks = [...articleContent]
     updatedBlocks[index] = {
       ...updatedBlocks[index],
       imageUrl: uri ? uri : undefined,
       imageFile: file,
     }
-    setBlocks(updatedBlocks)
+    setIsEditing(true)
+    setArticleContent(updatedBlocks)
   }
 
   const handleCommand = (tag: string, blockIndex: number) => {
-    const currentBlocks = [...blocks]
+    const currentBlocks = [...articleContent]
     currentBlocks[blockIndex] = {
       ...currentBlocks[blockIndex],
       tag,
     }
 
-    if (tag === RICH_TEXT_ELEMENTS.DIVIDER) {
+    if (tag === RICH_TEXT_ELEMENTS.DIVIDER || tag === RICH_TEXT_ELEMENTS.IMAGE) {
       currentBlocks[blockIndex].html = ""
       setShowMenu(false)
+      setMenuId(undefined)
       return addBlockHandler(
         {
           id: currentBlocks[blockIndex].id,
@@ -143,12 +135,13 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
       )
     }
     setShowMenu(false)
-    setBlocks(currentBlocks)
+    setMenuId(undefined)
+    setArticleContent(currentBlocks)
   }
 
   return (
     <Fragment>
-      {blocks.map((block, index) => {
+      {articleContent.map((block, index) => {
         const isHeader = block.tag.match(/h\d/)
         return (
           <Box
@@ -167,8 +160,9 @@ export const EditableBlock: React.FC<{ blocks: Block[] }> = ({ blocks: articleBl
               sx={{ opacity: 0, position: "absolute", right: "100%", top: "50%", transform: "translateY(-50%)", pr: 1 }}
             >
               <RichText
+                key={`rich-text-${block.id}`}
                 onRichTextSelected={(tag) => handleCommand(tag, index)}
-                showCommand={showMenu}
+                showCommand={showMenu && menuId === block.id}
                 onDelete={() =>
                   deleteBlock({
                     id: block.id,

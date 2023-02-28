@@ -38,17 +38,22 @@ const UploadEditButton = styled(Fab)({
 
 type UploadFileProps = {
   defaultImage?: string | undefined | null | File
+  defaultUri?: string | undefined
   onFileSelected: (file: File | undefined) => void
   convertedFile?: (uri: string | undefined) => void
 }
 
-export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSelected, convertedFile }) => {
+export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, defaultUri, onFileSelected, convertedFile }) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null>(null)
   const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage as string)
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
   const ipfs = useIpfs()
+
+  useEffect(() => {
+    if (defaultUri) setUri(defaultUri)
+  }, [defaultUri])
 
   useEffect(() => {
     if (file) onFileSelected(file)
@@ -72,6 +77,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
     setFile(null)
     setUri(null)
     setImageHash(null)
+    onFileSelected(undefined)
   }
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
