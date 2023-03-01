@@ -18,4 +18,8 @@ export const PINNING_OPTIONS: DropdownOption[] = [
     label: "NFT Storage",
     value: PinningService.NFT_STORAGE,
   },
+  {
+    label: "Custom",
+    value: PinningService.CUSTOM,
+  },
 ]
