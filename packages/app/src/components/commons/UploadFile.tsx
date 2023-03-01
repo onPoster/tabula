@@ -107,7 +107,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, defaultUri
             <Box component="img" sx={{ borderRadius: 1 }} alt="Article image" src={uri ? uri : defaultImageSrc} />
           </UploadContainer>
           {(imageHash || uri) && (
-            <UploadEditButton color="primary" aria-label="edit" onClick={removeImage}>
+            <UploadEditButton size="small" color="primary" aria-label="edit" onClick={removeImage}>
               <ClearIcon />
             </UploadEditButton>
           )}
