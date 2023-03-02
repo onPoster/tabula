@@ -1,4 +1,4 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap, dataSource } from "@graphprotocol/graph-ts"
+import { Address, JSONValue, JSONValueKind, log, TypedMap, dataSource, Bytes, crypto, ByteArray } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
 export const ACTION__ARTICLE = "article"
