@@ -40,6 +40,9 @@ const chainId = networkToChainId(dataSource.network()).toString()
 export const getPublicationId = (event: NewPost): string =>
   chainId + "-P-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 
+export const getPublicationHash = (publicationId: string): Bytes =>
+  Bytes.fromHexString(crypto.keccak256(ByteArray.fromUTF8(publicationId)).toHex())
+
 export const getArticleId = (event: NewPost): string =>
   chainId + "-A-" + event.transaction.hash.toHex() + "-" + event.logIndex.toString()
 

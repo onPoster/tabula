@@ -1,7 +1,7 @@
 import { Address } from "@graphprotocol/graph-ts"
 import { assert, clearStore, test } from "matchstick-as/assembly/index"
 import { handleNewPost } from "../src/mapping"
-import { getPermissionId, getPublicationId } from "../src/utils"
+import { getPermissionId, getPublicationHash, getPublicationId } from "../src/utils"
 import { createNewPostEvent, PUBLICATION_ENTITY_TYPE, PUBLICATION_TAG, PERMISSION_ENTITY_TYPE } from "./util"
 
 test("An account can can create a publication", () => {
@@ -20,13 +20,37 @@ test("An account can can create a publication", () => {
   }`
 
   const newPostEvent = createNewPostEvent(user, content, PUBLICATION_TAG)
-  const articleId = getPublicationId(newPostEvent)
+  const publicationId = getPublicationId(newPostEvent)
   handleNewPost(newPostEvent)
 
-  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, articleId, "title", title)
-  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, articleId, "description", description)
-  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, articleId, "image", image)
-  assert.notInStore(PUBLICATION_ENTITY_TYPE, articleId + "_fake")
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "title", title)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "description", description)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "image", image)
+  assert.notInStore(PUBLICATION_ENTITY_TYPE, publicationId + "_fake")
+  clearStore()
+})
+
+test("A new publication will get the expected hash attribute", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const action = "publication/create"
+  const title = "My First Publication"
+  const tags = ["test", "cool", "fun"]
+  const description = "This is a description"
+  const image = "QmaeaxgajiKcT9kiLKrxT6ss6uNg7fg4NkxVvX19utb9Gj"
+  const content = `{
+    "action": "${action}",
+    "title": "${title}",
+    "tags": "${tags}",
+    "description": "${description}",
+    "image": "${image}"
+  }`
+
+  const newPostEvent = createNewPostEvent(user, content, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPostEvent)
+  handleNewPost(newPostEvent)
+
+  const expectedPublicationHash = getPublicationHash(publicationId)
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "hash", expectedPublicationHash.toHex())
   clearStore()
 })
 
