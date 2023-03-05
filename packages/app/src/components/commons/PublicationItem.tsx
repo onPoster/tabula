@@ -3,9 +3,10 @@ import { Avatar, Chip, Grid, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette, typography } from "../../theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
-import { Publications } from "../../models/publication"
+import { Publication } from "../../models/publication"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { useParams } from "react-router-dom"
+import DeterministicAvatar from "./DeterministicAvatar"
 
 const PublicationItemContainer = styled(Grid)({
   minHeight: 105,
@@ -26,14 +27,15 @@ const PublicationIconGrid = styled(Grid)({
 })
 
 type PublicationItemProps = {
-  publication: Publications
+  publication: Publication
   onClick: () => void
 }
 
 const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { title, tags } = publication
-  const { imageSrc } = usePublication(publicationSlug || "")
+  const slug = publicationSlug || publication.id || ""
+  const { imageSrc } = usePublication(slug)
 
   return (
     <PublicationItemContainer container alignItems={"center"} onClick={onClick}>
@@ -41,9 +43,13 @@ const PublicationItem: React.FC<PublicationItemProps> = ({ publication, onClick 
         <Grid container flexDirection={"column"} gap={1}>
           <Grid item>
             <Grid container gap={1} alignItems="center">
-              <Avatar sx={{ width: 30, height: 30 }} src={imageSrc}>
-                {" "}
-              </Avatar>
+              {imageSrc ? (
+                <Avatar sx={{ width: 30, height: 30 }} src={imageSrc}>
+                  {" "}
+                </Avatar>
+              ) : (
+                <DeterministicAvatar hash={publication.hash} width={30} height={30} />
+              )}
               <Typography fontFamily={typography.fontFamilies.sans} variant="subtitle1" fontWeight={600}>
                 {title}
               </Typography>

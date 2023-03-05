@@ -2,7 +2,7 @@ import { findIndex, maxBy } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import { useQuery } from "urql"
 import { useNotification } from "../../../hooks/useNotification"
-import { Publications } from "../../../models/publication"
+import { Publication } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
 import { usePublicationContext } from "../contexts"
 import { GET_PUBLICATIONS_QUERY } from "../queries"
@@ -11,7 +11,7 @@ const usePublications = () => {
   const openNotification = useNotification()
   const { savePublications } = usePublicationContext()
   const { transactionUrl } = usePosterContext()
-  const [data, setData] = useState<Publications[] | undefined>(undefined)
+  const [data, setData] = useState<Publication[] | undefined>(undefined)
   const [indexing, setIndexing] = useState<boolean>(false)
   const [executePollInterval, setExecutePollInterval] = useState<boolean>(false)
   const [redirect, setRedirect] = useState<boolean>(false)

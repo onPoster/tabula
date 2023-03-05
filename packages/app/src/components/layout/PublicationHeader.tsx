@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { Avatar, Box, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
-import { Publications } from "../../models/publication"
+import { Publication } from "../../models/publication"
 import AddIcon from "@mui/icons-material/Add"
 import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
@@ -11,9 +11,11 @@ import { haveActionPermission } from "../../utils/permission"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+import DeterministicAvatar from "../commons/DeterministicAvatar"
+import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 
 type Props = {
-  publication?: Publications
+  publication?: Publication
   showCreatePost?: boolean
 }
 
@@ -35,6 +37,9 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
   const { imageSrc } = usePublication(publicationSlug || "")
+  const [avatar, setAvatar] = useState<string | undefined>(imageSrc)
+
+  useDynamicFavIcon(avatar)
   const ref = useRef()
   useOnClickOutside(ref, () => {
     if (show) {
@@ -80,10 +85,13 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
               sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
               onClick={handleNavigation}
             >
-              <Avatar sx={{ width: 47, height: 47 }} src={imageSrc}>
-                {" "}
-              </Avatar>
-
+              {imageSrc ? (
+                <Avatar sx={{ width: 47, height: 47 }} src={imageSrc}>
+                  {" "}
+                </Avatar>
+              ) : (
+                <DeterministicAvatar hash={publication.hash} width={47} height={47} onImageGenerated={setAvatar} />
+              )}
               <Typography
                 color={palette.grays[1000]}
                 variant="h5"

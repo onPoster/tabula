@@ -9,7 +9,7 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import * as yup from "yup"
-import { Publications } from "../../../models/publication"
+import { Publication } from "../../../models/publication"
 import { useWeb3React } from "@web3-react/core"
 import { useNavigate } from "react-router-dom"
 import { accessPublications } from "../../../utils/permission"
@@ -19,6 +19,7 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
+
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -87,7 +88,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setExecutePollInterval,
   } = usePublications()
   const [tags, setTags] = useState<string[]>([])
-  const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
+  const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
   const ipfs = useIpfs()
   const {
@@ -132,7 +133,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     handlePublication(data)
   }
 
-  const handlePublicationsToShow = (publications: Publications[], address: string) => {
+  const handlePublicationsToShow = (publications: Publication[], address: string) => {
     const show = accessPublications(publications, address)
     setPublicationsToShow(show)
   }
@@ -179,7 +180,6 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
               Welcome to Tabula!
             </Typography>
           </Grid>
-
           {publicationsToShow.length > 0 && (
             <Grid>
               <Grid container gap={2.5} my={3}>
