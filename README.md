@@ -35,9 +35,9 @@ Lets an account update a publication's information. The present properties will 
 | action* | String | "publication/update" |
 | id* | String | ID of publication to update (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the publication creation event) |
 | title | String | Content title |
-| tags | String Array | Relevant content tags |
+| tags | String Array | Relevant content tags. Providing an empty string (`""`) will set tags to `[]`. |
 | description | String | Content description |
-| image | String | IPFS hash for an image. Providing an empty string (`""`) will set image to `null` |
+| image | String | IPFS hash for an image. Providing an empty string (`""`) will set image to `null`. |
 
 #### Delete Publication
 
@@ -92,7 +92,7 @@ Lets an account update an article. The present properties will overwrite old pro
 | article | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
 | title | String | Content title |
 | authors | String Array | Author addresses or names |
-| tags | String Array | Relevant content tags |
+| tags | String Array | Relevant content tags. Providing an empty string (`""`) will set tags to `[]`. |
 | description | String | Content description. Providing an empty string (`""`) will set description to `null`. |
 | image | String | IPFS hash for an image string. Providing an empty string (`""`) will set image to `null`. |
 

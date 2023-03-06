@@ -95,8 +95,9 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       }
       hasChanges = true
     }
-    const tags = jsonToArrayString(content.get("tags"))
-    if (tags != []) {
+    const tagsData = content.get("tags")
+    const tags = jsonToArrayString(tagsData)
+    if (tagsData != null) {
       article.tags = tags
       hasChanges = true
     }

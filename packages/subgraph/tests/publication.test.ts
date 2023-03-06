@@ -259,3 +259,60 @@ test("An account can delete the publication image of a publication where the acc
 
   clearStore()
 })
+
+test("An account can delete all tags for a publication in a publication where the account has `publication/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "My First Publication",
+    "tags": ["tag1", "tag2"]
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "tags", "[tag1, tag2]")
+
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "New Title",
+    "tags": ""
+  }`
+
+  const newPublicationUpdatePostEvent = createNewPostEvent(user, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "tags", "[]")
+
+  clearStore()
+})
+
+test("An account can updating a publication with tags should not change the tags if no tags key is provided in the update object where the account has `publication/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "My First Publication",
+    "tags": ["tag1", "tag2"]
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "tags", "[tag1, tag2]")
+
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "New Title"
+  }`
+
+  const newPublicationUpdatePostEvent = createNewPostEvent(user, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "tags", "[tag1, tag2]")
+
+  clearStore()
+})
