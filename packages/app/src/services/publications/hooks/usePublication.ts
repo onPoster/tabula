@@ -64,14 +64,6 @@ const usePublication = (publicationSlug: string) => {
     if (data?.image != null && imageSrc === "") {
       getImageSrc()
     }
-    if (
-      publicationAvatar &&
-      publicationAvatar.uri &&
-      publicationAvatar.publicationId === publicationId &&
-      !data?.image
-    ) {
-      setImageSrc(publicationAvatar.uri)
-    }
   }, [data, ipfs, imageSrc, publicationAvatar, publicationId])
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({

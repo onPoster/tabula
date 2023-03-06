@@ -17,7 +17,8 @@ const Avatar: React.FC<AvatarProps> = ({ publicationSlug, height, width, storeIm
   const { imageSrc, data: publication } = usePublication(publicationSlug)
   const { setPublicationAvatar } = usePublicationContext()
   const [avatar, setAvatar] = useState<string | undefined>(imageSrc)
-  useDynamicFavIcon(dynamicFavIcon ? avatar : undefined)
+
+  useDynamicFavIcon(dynamicFavIcon ? (imageSrc ? imageSrc : avatar) : undefined)
   const handleImage = (uri: string) => {
     if (storeImage && publication && publication.id) {
       setAvatar(uri)

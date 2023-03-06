@@ -3,8 +3,10 @@ import { styled } from "@mui/styles"
 import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
-import EditIcon from "@mui/icons-material/Edit"
+import ClearIcon from "@mui/icons-material/Clear"
 import { useIpfs } from "../../hooks/useIpfs"
+import { usePublicationContext } from "../../services/publications/contexts"
+
 
 const SmallAvatar = styled(Avatar)({
   width: 40,
@@ -23,7 +25,10 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const inputFile = useRef<HTMLInputElement | null>(null)
   const openImagePicker = () => inputFile && inputFile.current?.click()
   const [uri, setUri] = useState<string | undefined>(undefined)
+  const [removeImage, setRemoveImage] = useState<boolean>(false)
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
+  const { publicationAvatar } = usePublicationContext()
+
   const ipfs = useIpfs()
 
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +43,10 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   }
 
   useEffect(() => {
-    if (file) onFileSelected(file)
+    if (file) {
+      onFileSelected(file)
+      setRemoveImage(false)
+    }
   }, [file, onFileSelected])
 
   useEffect(() => {
@@ -48,10 +56,33 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
         setDefaultImageSrc(src)
       }
     }
-    if (defaultImage != null && defaultImageSrc === "") {
+    if (defaultImage != null && defaultImageSrc === "" && !removeImage) {
+      if (defaultImage.includes("https://")) {
+        return setDefaultImageSrc(defaultImage)
+      }
       getDefaultImageSrc()
     }
-  }, [defaultImage, ipfs, defaultImageSrc])
+    if (!defaultImage && defaultImageSrc === "" && !removeImage && publicationAvatar) {
+      setUri(publicationAvatar.uri)
+      return setDefaultImageSrc(publicationAvatar.uri)
+    }
+  }, [defaultImage, ipfs, defaultImageSrc, removeImage, publicationAvatar])
+
+  const handlerImageAction = () => {
+    if (!uri && (!defaultImage || removeImage)) {
+      return openImagePicker()
+    }
+
+    if (uri || defaultImage) {
+      setUri(undefined)
+      setDefaultImageSrc("")
+      setRemoveImage(true)
+    }
+  }
+
+  console.log("uri", uri)
+  console.log("defaultImageSrc", defaultImageSrc)
+  console.log("removeImage", removeImage)
 
   return (
     <Stack direction="row" spacing={2}>
@@ -67,10 +98,10 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
                 bgcolor: "#B34A03",
               },
             }}
-            onClick={openImagePicker}
+            onClick={handlerImageAction}
           >
-            {!uri && !defaultImage && <AddIcon />}
-            {(uri || defaultImage) && <EditIcon />}
+            {!uri && (!defaultImage || removeImage) && <AddIcon />}
+            {(uri || defaultImage) && !removeImage && <ClearIcon />}
             <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
           </SmallAvatar>
         }
