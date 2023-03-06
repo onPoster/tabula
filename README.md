@@ -19,13 +19,13 @@ Any properties can be added to articles; this is just a representation of the pr
 
 Lets any account create a new publication. On creation, the message sender gets all permissions. This can be edited via the `publication/permissions` action.
 
-| Property    |     Type     | Value                                                            |
-| ----------- | :----------: | ---------------------------------------------------------------- |
-| action\*    |    String    | "publication/create"                                             |
-| title\*     |    String    | Publication title                                                |
-| tags        | String Array | Relevant publication tags                                        |
-| description |    String    | Publication description                                          |
-| image       |    String    | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+| Property    |     Type     | Value                     |
+| ----------- | :----------: | ------------------------- |
+| action\*    |    String    | "publication/create"      |
+| title\*     |    String    | Publication title         |
+| tags        | String Array | Relevant publication tags |
+| description |    String    | Publication description   |
+| image       |    String    | IPFS hash for an image    |
 
 #### Update Publication
 
@@ -37,7 +37,7 @@ Lets an account update a publication's information. The present properties will 
 | title | String | Content title |
 | tags | String Array | Relevant content tags |
 | description | String | Content description |
-| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+| image | String | IPFS hash for an image. Providing an empty string (`""`) will set image to `null` |
 
 #### Delete Publication
 
@@ -80,7 +80,7 @@ Lets an Account post a new article to a publication. The message sender needs `a
 | authors | String Array | Author addresses or names |
 | tags | String Array | Relevant content tags |
 | description | String | Content description |
-| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string |
+| image | String | IPFS hash for an image |
 
 #### Update Article
 
@@ -94,7 +94,7 @@ Lets an account update an article. The present properties will overwrite old pro
 | authors | String Array | Author addresses or names |
 | tags | String Array | Relevant content tags |
 | description | String | Content description. Providing an empty string (`""`) will set description to `null`. |
-| image | String | IPFS hash (pointing to a image) or a BASE64 encoded image string. Providing an empty string (`""`) will set image to `null`. |
+| image | String | IPFS hash for an image string. Providing an empty string (`""`) will set image to `null`. |
 
 #### Delete Article
 

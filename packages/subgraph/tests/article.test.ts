@@ -268,3 +268,52 @@ test("An account can NOT update an article in a publication where the account ha
 
   clearStore()
 })
+
+test("An account can remove the article image in a publication where the account has `article/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  const articleTitle = "My First Blog Post"
+  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+  const articleImage = "QmaAgvb4fHsP2HQmdiuWc6k5BBsmxzgdBibgQuGurhfL5m"
+  const articleContent = `{
+    "action": "article/create",
+    "publicationId": "${publicationId}",
+    "article": "${article}",
+    "title": "${articleTitle}",
+    "image": "${articleImage}"
+  }`
+
+  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(newArticlePostEvent)
+  handleNewPost(newArticlePostEvent)
+
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "image", articleImage)
+
+  const updatedTitle = "My First Edited Blog Post"
+  const updatedArticle = "fake_BCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
+
+  const updateArticleContent = `{
+    "action": "article/update",
+    "id": "${articleId}",
+    "article": "${updatedArticle}",
+    "title": "${updatedTitle}",
+    "image": ""
+  }`
+
+  const newUpdatePostEvent = createNewPostEvent(user, updateArticleContent, PUBLICATION_TAG)
+  handleNewPost(newUpdatePostEvent)
+
+  // check that the article is updated
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "image", "null")
+
+  clearStore()
+})

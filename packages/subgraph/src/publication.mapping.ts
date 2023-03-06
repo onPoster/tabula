@@ -67,9 +67,14 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       publication.description = description
       hasChanges = true
     }
-    const image = jsonToString(content.get("image"))
-    if (image != "") {
-      publication.image = image
+    const imageData = content.get("image")
+    const image = jsonToString(imageData)
+    if (imageData != null) {
+      if (image == "") {
+        publication.image = null
+      } else {
+        publication.image = image
+      }
       hasChanges = true
     }
     const tags = jsonToArrayString(content.get("tags"))

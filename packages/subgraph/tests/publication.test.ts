@@ -225,3 +225,37 @@ test("The account that created the publication can add new, update and delete a 
 
   clearStore()
 })
+
+test("An account can delete the publication image of a publication where the account has `publication/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationTitle = "My First Publication"
+  const publicationImage = "QmaAgvb4fHsP2HQmdiuWc6k5BBsmxzgdBibgQuGurhfL5m"
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "${publicationTitle}",
+    "image": "${publicationImage}"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "image", publicationImage)
+
+  const newPublicationTitle = "My First Edited Publication"
+  const newPublicationDescription = "This is actually the first description for this publication."
+  const publicationUpdate = `{
+    "action": "publication/update",
+    "id": "${publicationId}",
+    "title": "${newPublicationTitle}",
+    "description": "${newPublicationDescription}",
+    "image": ""
+  }`
+
+  const newPublicationUpdatePostEvent = createNewPostEvent(user, publicationUpdate, PUBLICATION_TAG)
+  handleNewPost(newPublicationUpdatePostEvent)
+
+  assert.fieldEquals(PUBLICATION_ENTITY_TYPE, publicationId, "image", "null")
+
+  clearStore()
+})
