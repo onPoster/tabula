@@ -353,7 +353,7 @@ test("An account can delete all tags for an article in a publication where the a
   clearStore()
 })
 
-test("An account can updating an article with tags should not change the tags if no tags key is provided in the update object where the account has `article/update` permissions", () => {
+test("An account can updating an article with should not change keys that are not provided in the update object where the account has `article/update` permissions", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
   const publicationContent = `{
     "action": "publication/create",
@@ -369,7 +369,8 @@ test("An account can updating an article with tags should not change the tags if
     "publicationId": "${publicationId}",
     "article": "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j",
     "title": "My First Blog Post",
-    "tags": ["tag1", "tag2"]
+    "tags": ["tag1", "tag2"],
+    "authors": ["author1", "author2"]
   }`
 
   const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
@@ -377,6 +378,7 @@ test("An account can updating an article with tags should not change the tags if
   handleNewPost(newArticlePostEvent)
 
   assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "tags", "[tag1, tag2]")
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "authors", "[author1, author2]")
 
   const updateArticleContent = `{
     "action": "article/update",
@@ -389,6 +391,47 @@ test("An account can updating an article with tags should not change the tags if
 
   // check that the article is updated
   assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "tags", "[tag1, tag2]")
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "authors", "[author1, author2]")
+
+  clearStore()
+})
+
+test("An account can delete all authors for an article in a publication where the account has `article/update` permissions", () => {
+  const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+  const publicationContent = `{
+    "action": "publication/create",
+    "title": "My First Publication"
+  }`
+
+  const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
+  const publicationId = getPublicationId(newPublicationPostEvent)
+  handleNewPost(newPublicationPostEvent)
+
+  const articleContent = `{
+    "action": "article/create",
+    "publicationId": "${publicationId}",
+    "article": "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j",
+    "title": "My First Blog Post",
+    "authors": ["author1", "author2"]
+  }`
+
+  const newArticlePostEvent = createNewPostEvent(user, articleContent, PUBLICATION_TAG)
+  const articleId = getArticleId(newArticlePostEvent)
+  handleNewPost(newArticlePostEvent)
+
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "authors", "[author1, author2]")
+
+  const updateArticleContent = `{
+    "action": "article/update",
+    "id": "${articleId}",
+    "authors": ""
+  }`
+
+  const newUpdatePostEvent = createNewPostEvent(user, updateArticleContent, PUBLICATION_TAG)
+  handleNewPost(newUpdatePostEvent)
+
+  // check that the article is updated
+  assert.fieldEquals(ARTICLE_ENTITY_TYPE, articleId, "authors", "[]")
 
   clearStore()
 })

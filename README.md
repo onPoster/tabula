@@ -91,7 +91,7 @@ Lets an account update an article. The present properties will overwrite old pro
 | id* | String | ID of article to update (available from the subgraph or created manually using the `event.transaction.hash + "-" + event.logIndex` from the article creation event) |
 | article | String | IPFS hash (pointing to a Markdown document) or a markdown formatted string |
 | title | String | Content title |
-| authors | String Array | Author addresses or names |
+| authors | String Array | Author addresses or names. Providing an empty string (`""`) will set authors to `[]`. |
 | tags | String Array | Relevant content tags. Providing an empty string (`""`) will set tags to `[]`. |
 | description | String | Content description. Providing an empty string (`""`) will set description to `null`. |
 | image | String | IPFS hash for an image string. Providing an empty string (`""`) will set image to `null`. |

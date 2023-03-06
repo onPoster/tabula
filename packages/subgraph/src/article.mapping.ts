@@ -70,8 +70,9 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       article.title = title
       hasChanges = true
     }
-    const authors = jsonToArrayString(content.get("authors"))
-    if (authors != []) {
+    const authorsData = content.get("authors")
+    const authors = jsonToArrayString(authorsData)
+    if (authorsData != null) {
       article.authors = authors
       hasChanges = true
     }
