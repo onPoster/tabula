@@ -20,7 +20,6 @@ import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 
-
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
   [`${theme.breakpoints.down("md")}`]: {
@@ -211,7 +210,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
           </Grid>
           <Grid container alignItems="center" mt={4}>
             <PublicationsAvatarContainer item xs={12} md={4} sx={{ display: "flex" }}>
-              <PublicationAvatar onFileSelected={setPublicationImg} />
+              <PublicationAvatar onFileSelected={setPublicationImg} newPublication />
             </PublicationsAvatarContainer>
             <Grid item xs={12} md={8}>
               <Grid container flexDirection="column" gap={2}>

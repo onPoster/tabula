@@ -46,7 +46,14 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
-  const { publication, saveIsEditing, saveDraftPublicationImage, draftPublicationImage } = usePublicationContext()
+  const {
+    publication,
+    saveIsEditing,
+    saveDraftPublicationImage,
+    draftPublicationImage,
+    removePublicationImage,
+    setRemovePublicationImage,
+  } = usePublicationContext()
   const { executePublication, deletePublication } = usePoster()
   const {
     indexing: updateIndexing,
@@ -106,9 +113,13 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     if (draftPublicationImage) {
       image = await ipfs.uploadContent(draftPublicationImage)
     }
-    if (!draftPublicationImage && publication?.image) {
+    if (!draftPublicationImage && publication?.image && !removePublicationImage) {
       image = { path: publication.image }
     }
+    if (!draftPublicationImage && publication?.image && removePublicationImage) {
+      image = undefined
+    }
+
     if (title && publication && publication.id) {
       await executePublication({
         id: publication.id,
@@ -127,6 +138,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     } else {
       setLoading(false)
     }
+    setRemovePublicationImage(false)
   }
 
   const handlePublicationDelete = async () => {

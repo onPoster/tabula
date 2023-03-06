@@ -78,6 +78,9 @@ const usePoster = () => {
     if (fields.image) {
       content.image = fields.image
     }
+    if (!fields.image) {
+      content.image = null
+    }
     if (isValidChain) {
       if (signer) {
         setLoading(true)

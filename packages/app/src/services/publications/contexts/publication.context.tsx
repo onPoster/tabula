@@ -25,6 +25,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [publicationAvatar, setPublicationAvatar] = useState<{ publicationId: string; uri: string } | undefined>(
     undefined,
   )
+  const [removePublicationImage, setRemovePublicationImage] = useState<boolean>(false)
 
   const getPublicationId = async (publicationSlug: string, provider?: ethers.providers.BaseProvider) => {
     if (slugToPublicationId[publicationSlug]) {
@@ -79,6 +80,8 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         markdownArticle,
         loading,
         publicationAvatar,
+        removePublicationImage,
+        setRemovePublicationImage,
         setPublicationAvatar,
         setMarkdownArticle,
         getIpfsData,

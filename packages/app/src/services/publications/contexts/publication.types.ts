@@ -15,6 +15,8 @@ export type PublicationContextType = {
   loading: boolean
   publicationAvatar: { publicationId: string; uri: string } | undefined
   setPublicationAvatar: (uri: { publicationId: string; uri: string } | undefined) => void
+  removePublicationImage: boolean
+  setRemovePublicationImage: (remove: boolean) => void
   getIpfsData: (hash: string) => void
   getPublicationId: (publicationSlug: string, provider?: ethers.providers.BaseProvider) => Promise<string | undefined>
   setMarkdownArticle: (markdown: string | undefined) => void
