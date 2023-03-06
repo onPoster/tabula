@@ -7,6 +7,7 @@ import {
   getIdFromContent,
   getPermissionId,
   getPublicationId,
+  getPublicationHash,
   jsonToArrayString,
   jsonToString,
   SUB_ACTION__CREATE,
@@ -21,6 +22,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
   if (subAction == SUB_ACTION__CREATE) {
     const publicationId = getPublicationId(event)
 
+    const publicationHash = getPublicationHash(publicationId)
     const permissionId = getPermissionId(publicationId, event.params.user)
     const permission = new Permission(permissionId)
     permission.address = event.params.user
@@ -34,6 +36,7 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
     permission.save()
 
     const publication = new Publication(publicationId)
+    publication.hash = publicationHash
     publication.title = jsonToString(content.get("title"))
     publication.description = jsonToString(content.get("description"))
     publication.image = jsonToString(content.get("image"))
@@ -64,13 +67,19 @@ export function handlePublicationAction(subAction: String, content: TypedMap<str
       publication.description = description
       hasChanges = true
     }
-    const image = jsonToString(content.get("image"))
-    if (image != "") {
-      publication.image = image
+    const imageData = content.get("image")
+    const image = jsonToString(imageData)
+    if (imageData != null) {
+      if (image == "") {
+        publication.image = null
+      } else {
+        publication.image = image
+      }
       hasChanges = true
     }
-    const tags = jsonToArrayString(content.get("tags"))
-    if (tags != []) {
+    const tagsData = content.get("tags")
+    const tags = jsonToArrayString(tagsData)
+    if (tagsData != null) {
       publication.tags = tags
       hasChanges = true
     }

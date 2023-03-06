@@ -82,5 +82,8 @@
   "devDependencies": {
     "@types/lodash": "^4.14.180",
     "prettier": "^2.5.1"
+  },
+  "resolutions": {
+    "@babel/runtime": "7.18.0"
   }
 }
