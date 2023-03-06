@@ -3,9 +3,6 @@ import { Box } from "@mui/material"
 import PublicationHeader from "./PublicationHeader"
 import { Publication } from "../../models/publication"
 import { Helmet } from "react-helmet"
-import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
-import usePublication from "../../services/publications/hooks/usePublication"
-import { useParams } from "react-router-dom"
 
 type Props = {
   publication?: Publication
@@ -14,9 +11,6 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
-  const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { imageSrc } = usePublication(publicationSlug || "")
-  useDynamicFavIcon(imageSrc)
   return (
     <>
       <Helmet>

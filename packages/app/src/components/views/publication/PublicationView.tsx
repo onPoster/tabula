@@ -1,4 +1,4 @@
-import { Avatar, Box, CircularProgress, Grid, Stack, Typography } from "@mui/material"
+import { Box, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
@@ -13,7 +13,7 @@ import { PermissionSection } from "./components/PermissionSection"
 import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
-import DeterministicAvatar from "../../commons/DeterministicAvatar"
+import Avatar from "../../commons/Avatar"
 
 interface PublicationViewProps {
   updateChainId: (chainId: number) => void
@@ -31,7 +31,6 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
     publicationId,
     chainId,
   } = usePublication(publicationSlug || "")
-  const { setPublicationAvatar } = usePublicationContext()
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
@@ -80,21 +79,15 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                 }}
               >
                 <Box width={160}>
-                  {!editingPublication &&
-                    (imageSrc ? (
-                      <Avatar sx={{ width: 160, height: 160 }} src={imageSrc}>
-                        {" "}
-                      </Avatar>
-                    ) : (
-                      <DeterministicAvatar
-                        hash={publication.hash}
-                        width={160}
-                        height={160}
-                        onImageGenerated={(uri) => {
-                          publicationId && setPublicationAvatar({ publicationId, uri })
-                        }}
-                      />
-                    ))}
+                  {!editingPublication && (
+                    <Avatar
+                      storeImage
+                      dynamicFavIcon
+                      publicationSlug={publicationSlug || ""}
+                      width={160}
+                      height={160}
+                    />
+                  )}
                   {editingPublication && (
                     <PublicationAvatar defaultImage={imageSrc} onFileSelected={saveDraftPublicationImage} />
                   )}
