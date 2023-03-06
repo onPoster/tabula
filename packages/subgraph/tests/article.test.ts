@@ -315,23 +315,20 @@ test("An account can remove the article image in a publication where the account
 
 test("An account can delete all tags for an article in a publication where the account has `article/update` permissions", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
-  const publicationTitle = "My First Publication"
   const publicationContent = `{
     "action": "publication/create",
-    "title": "${publicationTitle}"
+    "title": "My First Publication"
   }`
 
   const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
   const publicationId = getPublicationId(newPublicationPostEvent)
   handleNewPost(newPublicationPostEvent)
 
-  const articleTitle = "My First Blog Post"
-  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
   const articleContent = `{
     "action": "article/create",
     "publicationId": "${publicationId}",
-    "article": "${article}",
-    "title": "${articleTitle}",
+    "article": "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j",
+    "title": "My First Blog Post",
     "tags": ["tag1", "tag2"]
   }`
 
@@ -358,23 +355,20 @@ test("An account can delete all tags for an article in a publication where the a
 
 test("An account can updating an article with tags should not change the tags if no tags key is provided in the update object where the account has `article/update` permissions", () => {
   const user = Address.fromString("0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
-  const publicationTitle = "My First Publication"
   const publicationContent = `{
     "action": "publication/create",
-    "title": "${publicationTitle}"
+    "title": "My First Publication"
   }`
 
   const newPublicationPostEvent = createNewPostEvent(user, publicationContent, PUBLICATION_TAG)
   const publicationId = getPublicationId(newPublicationPostEvent)
   handleNewPost(newPublicationPostEvent)
 
-  const articleTitle = "My First Blog Post"
-  const article = "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j"
   const articleContent = `{
     "action": "article/create",
     "publicationId": "${publicationId}",
-    "article": "${article}",
-    "title": "${articleTitle}",
+    "article": "QmbtLeBCvT1FW1Kr1JdFCPAgsVsgowg3zMJQS8eFrwPP2j",
+    "title": "My First Blog Post",
     "tags": ["tag1", "tag2"]
   }`
 
