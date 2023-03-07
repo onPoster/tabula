@@ -3,7 +3,7 @@ import { Box, Stack, useTheme } from "@mui/material"
 import SettingsIcon from "../../assets/images/icons/settings"
 import ArticleHeader from "./ArticleHeader"
 import ArticleSidebar from "../views/publication/components/ArticleSidebar"
-import { Publications } from "../../models/publication"
+import { Publication } from "../../models/publication"
 import { Helmet } from "react-helmet"
 import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 import usePublication from "../../services/publications/hooks/usePublication"
@@ -12,7 +12,7 @@ import shadows from "@mui/material/styles/shadows"
 import { useLocation } from "react-router-dom"
 
 type Props = {
-  publication?: Publications
+  publication?: Publication
   children: React.ReactNode
 }
 

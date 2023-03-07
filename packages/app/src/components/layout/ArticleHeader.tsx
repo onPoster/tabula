@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Avatar, Button, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
-import { Publications } from "../../models/publication"
+import { Publication } from "../../models/publication"
 import { palette, typography } from "../../theme"
 import { useLocation, useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
@@ -10,7 +10,7 @@ import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/pub
 import { UserOptions } from "../commons/UserOptions"
 
 type Props = {
-  publication?: Publications
+  publication?: Publication
 }
 
 const ArticleHeader: React.FC<Props> = ({ publication }) => {
