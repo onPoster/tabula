@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Box, Grid, Stack } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette } from "../../theme"
-import { Permission, Publications } from "../../models/publication"
+import { Permission, Publication } from "../../models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 import CloseIcon from "@mui/icons-material/Close"
 import { UserBadge } from "./UserBadge"
@@ -33,7 +33,7 @@ const PermissionItemEditContainer = styled(Grid)({
 })
 
 type PermissionItemProps = {
-  publication: Publications | undefined
+  publication: Publication | undefined
   permission: Permission
   canEdit: boolean
   showRemove: boolean

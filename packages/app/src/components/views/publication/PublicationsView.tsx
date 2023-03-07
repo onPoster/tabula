@@ -9,7 +9,7 @@ import usePoster from "../../../services/poster/hooks/usePoster"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import * as yup from "yup"
-import { Publications } from "../../../models/publication"
+import { Publication } from "../../../models/publication"
 import { useWeb3React } from "@web3-react/core"
 import { useNavigate } from "react-router-dom"
 import { accessPublications } from "../../../utils/permission"
@@ -87,7 +87,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setExecutePollInterval,
   } = usePublications()
   const [tags, setTags] = useState<string[]>([])
-  const [publicationsToShow, setPublicationsToShow] = useState<Publications[]>([])
+  const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
   const ipfs = useIpfs()
   const {
@@ -132,7 +132,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     handlePublication(data)
   }
 
-  const handlePublicationsToShow = (publications: Publications[], address: string) => {
+  const handlePublicationsToShow = (publications: Publication[], address: string) => {
     const show = accessPublications(publications, address)
     setPublicationsToShow(show)
   }
@@ -179,7 +179,6 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
               Welcome to Tabula!
             </Typography>
           </Grid>
-
           {publicationsToShow.length > 0 && (
             <Grid>
               <Grid container gap={2.5} my={3}>
@@ -211,7 +210,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
           </Grid>
           <Grid container alignItems="center" mt={4}>
             <PublicationsAvatarContainer item xs={12} md={4} sx={{ display: "flex" }}>
-              <PublicationAvatar onFileSelected={setPublicationImg} />
+              <PublicationAvatar onFileSelected={setPublicationImg} newPublication />
             </PublicationsAvatarContainer>
             <Grid item xs={12} md={8}>
               <Grid container flexDirection="column" gap={2}>

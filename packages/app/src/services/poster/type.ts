@@ -1,7 +1,7 @@
-import { Article, PermissionAction, Publications } from "../../models/publication"
+import { Article, PermissionAction, Publication as Publications } from "../../models/publication"
 
 type ArticleAction = "article/create" | "article/update" | "article/delete" | "article/permissions"
-export interface Publication extends Omit<Publications, "id"> {
+export interface Publication extends Omit<Publications, "id" | "hash"> {
   action: "publication/create" | "publication/update" | "publication/delete" | "publication/permissions"
   id?: string
 }

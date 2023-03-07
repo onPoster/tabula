@@ -1,5 +1,5 @@
 import { filter } from "lodash"
-import { Permission, Publications } from "../models/publication"
+import { Permission, Publication } from "../models/publication"
 
 type Action =
   | "articleCreate"
@@ -9,10 +9,10 @@ type Action =
   | "publicationPermissions"
   | "publicationUpdate"
 
-export const accessPublications = (publications: Publications[], address: string): Publications[] => {
+export const accessPublications = (publications: Publication[], address: string): Publication[] => {
   const show = filter(publications, { permissions: [{ address: address.toLowerCase() }] })
   if (show.length) {
-    return show as Publications[]
+    return show as Publication[]
   } else {
     return []
   }

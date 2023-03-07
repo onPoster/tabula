@@ -15,6 +15,7 @@ const PERMISSIONS = `
 
 const PUBLICATION_CONTENT = `
   id
+  hash
   description
   image
   tags

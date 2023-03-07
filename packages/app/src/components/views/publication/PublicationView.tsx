@@ -1,4 +1,4 @@
-import { Avatar, Box, CircularProgress, Grid, Stack, Typography } from "@mui/material"
+import { Box, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
@@ -13,6 +13,7 @@ import { PermissionSection } from "./components/PermissionSection"
 import ArticleSection from "./components/ArticleSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
+import Avatar from "../../commons/Avatar"
 
 interface PublicationViewProps {
   updateChainId: (chainId: number) => void
@@ -79,12 +80,16 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
               >
                 <Box width={160}>
                   {!editingPublication && (
-                    <Avatar sx={{ width: 160, height: 160 }} src={imageSrc}>
-                      {" "}
-                    </Avatar>
+                    <Avatar
+                      storeImage
+                      dynamicFavIcon
+                      publicationSlug={publicationSlug || ""}
+                      width={160}
+                      height={160}
+                    />
                   )}
                   {editingPublication && (
-                    <PublicationAvatar defaultImage={publication.image} onFileSelected={saveDraftPublicationImage} />
+                    <PublicationAvatar defaultImage={imageSrc} onFileSelected={saveDraftPublicationImage} />
                   )}
                 </Box>
                 <Stack spacing={2}>
