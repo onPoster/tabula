@@ -5,7 +5,7 @@ import { SupportedChainId } from "../../../constants/chain"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { useWallet } from "../../../hooks/useWallet"
-import { Permission, Publications } from "../../../models/publication"
+import { Permission, Publication } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
 import { usePublicationContext } from "../contexts"
 import { GET_PUBLICATION_QUERY } from "../queries"
@@ -18,9 +18,10 @@ const usePublication = (publicationSlug: string) => {
   const [publicationId, setPublicationId] = useState<string>()
   const openNotification = useNotification()
   const { transactionUrl } = usePosterContext()
-  const { publication, permission, savePublication, getPublicationId } = usePublicationContext()
+  const { publication, permission, savePublication, getPublicationId, publicationAvatar } = usePublicationContext()
+
   const [showToast, setShowToast] = useState<boolean>(true)
-  const [data, setData] = useState<Publications | undefined>(undefined)
+  const [data, setData] = useState<Publication | undefined>(undefined)
   const [indexing, setIndexing] = useState<boolean>(false)
   const [executePollInterval, setExecutePollInterval] = useState<boolean>(false)
   const [currentTimestamp, setCurrentTimestamp] = useState<number | undefined>(undefined)
@@ -63,7 +64,10 @@ const usePublication = (publicationSlug: string) => {
     if (data?.image != null && imageSrc === "") {
       getImageSrc()
     }
-  }, [data, ipfs, imageSrc])
+    if (data?.image === null) {
+      setImageSrc("")
+    }
+  }, [data, ipfs, imageSrc, publicationAvatar, publicationId])
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_PUBLICATION_QUERY,
@@ -80,7 +84,7 @@ const usePublication = (publicationSlug: string) => {
     }
   }, [result])
 
-  //Execute poll interval to know the latest publications indexed
+  //Execute poll interval to know the latest publication indexed
   useEffect(() => {
     if (executePollInterval) {
       setIndexing(true)
@@ -227,6 +231,7 @@ const usePublication = (publicationSlug: string) => {
     indexing,
     transactionCompleted,
     refetch,
+    setImageSrc,
     imageSrc,
     executeQuery,
     setExecutePollInterval,

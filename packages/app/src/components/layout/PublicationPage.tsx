@@ -1,24 +1,18 @@
 import React from "react"
 import { Box } from "@mui/material"
 import PublicationHeader from "./PublicationHeader"
-import { Publications } from "../../models/publication"
+import { Publication } from "../../models/publication"
 import { Helmet } from "react-helmet"
-import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
-import usePublication from "../../services/publications/hooks/usePublication"
-import { useParams } from "react-router-dom"
 
 type Props = {
   articleId?: string
-  publication?: Publications
+  publication?: Publication
   showCreatePost?: boolean
   showEditButton?: boolean
   children: React.ReactNode
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost, showEditButton, articleId }) => {
-  const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { imageSrc } = usePublication(publicationSlug || "")
-  useDynamicFavIcon(imageSrc)
   return (
     <>
       <Helmet>

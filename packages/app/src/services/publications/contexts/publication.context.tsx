@@ -3,7 +3,7 @@ import { useState } from "react"
 import { uid } from "uid"
 import { Block } from "../../../components/commons/EditableItemBlock"
 import { useIpfs } from "../../../hooks/useIpfs"
-import { Article, Permission, Publications } from "../../../models/publication"
+import { Article, Permission, Publication } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
 import { getTextRecordContent } from "../../ens"
 
@@ -15,11 +15,11 @@ const [usePublicationContext, PublicationContextProvider] = createGenericContext
 
 const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
-  const [publications, setPublications] = useState<Publications[] | undefined>(undefined)
-  const [publication, setPublication] = useState<Publications | undefined>(undefined)
+  const [publications, setPublications] = useState<Publication[] | undefined>(undefined)
+  const [publication, setPublication] = useState<Publication | undefined>(undefined)
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(INITIAL_ARTICLE_VALUE)
   const [article, setArticle] = useState<Article | undefined>(undefined)
-  const [articleContent, setArticleContent] = useState<Block[] >(INITIAL_ARTICLE_BLOCK)
+  const [articleContent, setArticleContent] = useState<Block[]>(INITIAL_ARTICLE_BLOCK)
   const [permission, setPermission] = useState<Permission | undefined>(undefined)
   const [editingPublication, setEditingPublication] = useState<boolean>(false)
   const [executeArticleTransaction, setExecuteArticleTransaction] = useState<boolean>(false)
@@ -31,6 +31,10 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const ipfs = useIpfs()
   const [slugToPublicationId, setSlugToPublicationId] = useState<{ [key: string]: string }>({})
+  const [publicationAvatar, setPublicationAvatar] = useState<{ publicationId: string; uri: string } | undefined>(
+    undefined,
+  )
+  const [removePublicationImage, setRemovePublicationImage] = useState<boolean>(false)
 
   const getPublicationId = async (publicationSlug: string, provider?: ethers.providers.BaseProvider) => {
     if (slugToPublicationId[publicationSlug]) {
@@ -64,8 +68,8 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
     setIpfsLoading(false)
     return data
   }
-  const savePublication = (publication: Publications | undefined) => setPublication(publication)
-  const savePublications = (publications: Publications[] | undefined) => setPublications(publications)
+  const savePublication = (publication: Publication | undefined) => setPublication(publication)
+  const savePublications = (publications: Publication[] | undefined) => setPublications(publications)
   const saveDraftArticle = (article: Article | undefined) => setDraftArticle(article)
   const saveArticle = (article: Article | undefined) => setArticle(article)
   const savePermission = (permission: Permission) => setPermission(permission)
@@ -95,6 +99,10 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         setLoading,
         setDraftArticleThumbnail,
         setExecuteArticleTransaction,
+        publicationAvatar,
+        removePublicationImage,
+        setRemovePublicationImage,
+        setPublicationAvatar,
         setMarkdownArticle,
         getIpfsData,
         getPublicationId,

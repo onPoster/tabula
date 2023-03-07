@@ -70,8 +70,9 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       article.title = title
       hasChanges = true
     }
-    const authors = jsonToArrayString(content.get("authors"))
-    if (authors != []) {
+    const authorsData = content.get("authors")
+    const authors = jsonToArrayString(authorsData)
+    if (authorsData != null) {
       article.authors = authors
       hasChanges = true
     }
@@ -95,8 +96,9 @@ export function handleArticleAction(subAction: String, content: TypedMap<string,
       }
       hasChanges = true
     }
-    const tags = jsonToArrayString(content.get("tags"))
-    if (tags != []) {
+    const tagsData = content.get("tags")
+    const tags = jsonToArrayString(tagsData)
+    if (tagsData != null) {
       article.tags = tags
       hasChanges = true
     }

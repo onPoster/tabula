@@ -78,7 +78,11 @@ const SetupIpfsView: React.FC = () => {
   const handleSelected = (selected: PinningService) => {
     setCurrentSelection(selected)
     setValue("service", selected)
-    setValue("endpoint", PinningServiceEndpoint[selected])
+    if (selected === PinningService.CUSTOM) {
+      setValue("endpoint", pinning?.endpoint ?? "")
+    } else {
+      setValue("endpoint", PinningServiceEndpoint[selected])
+    }
   }
 
   const onSubmitHandler = async (data: Pinning) => {
@@ -191,33 +195,35 @@ const SetupIpfsView: React.FC = () => {
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item>
-                  <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
-                    <Grid item xs={12} md={6}>
-                      <Typography variant="body1" fontWeight="bold" fontFamily={typography.fontFamilies.sans}>
-                        API endpoint{" "}
-                        <Typography component="span" sx={{ color: palette.primary[1000] }}>
-                          *
+                {currentSelection === PinningService.CUSTOM && (
+                  <Grid item>
+                    <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="body1" fontWeight="bold" fontFamily={typography.fontFamilies.sans}>
+                          API endpoint{" "}
+                          <Typography component="span" sx={{ color: palette.primary[1000] }}>
+                            *
+                          </Typography>
                         </Typography>
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Controller
-                        control={control}
-                        name="endpoint"
-                        render={({ field }) => (
-                          <TextField {...field} sx={{ width: "100%" }} placeholder="https://api.pinata.cloud/psa" />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Controller
+                          control={control}
+                          name="endpoint"
+                          render={({ field }) => (
+                            <TextField {...field} sx={{ width: "100%" }} placeholder="https://api.pinata.cloud/psa" />
+                          )}
+                          rules={{ required: true }}
+                        />
+                        {errors && errors.endpoint && (
+                          <FormHelperText sx={{ textTransform: "capitalize" }}>
+                            API Endpoint Is A Required Field
+                          </FormHelperText>
                         )}
-                        rules={{ required: true }}
-                      />
-                      {errors && errors.endpoint && (
-                        <FormHelperText sx={{ textTransform: "capitalize" }}>
-                          API Endpoint Is A Required Field
-                        </FormHelperText>
-                      )}
+                      </Grid>
                     </Grid>
                   </Grid>
-                </Grid>
+                )}
                 <Grid item>
                   <Grid container flexDirection="row" justifyContent="space-between" alignItems="center">
                     <Grid item xs={12} md={6}>
