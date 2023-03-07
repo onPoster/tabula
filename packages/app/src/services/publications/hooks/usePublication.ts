@@ -64,6 +64,9 @@ const usePublication = (publicationSlug: string) => {
     if (data?.image != null && imageSrc === "") {
       getImageSrc()
     }
+    if (data?.image === null) {
+      setImageSrc("")
+    }
   }, [data, ipfs, imageSrc, publicationAvatar, publicationId])
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({

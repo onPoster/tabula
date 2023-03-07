@@ -6,6 +6,7 @@ import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
 import { useIpfs } from "../../hooks/useIpfs"
 import { usePublicationContext } from "../../services/publications/contexts"
+import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 
 const SmallAvatar = styled(Avatar)({
   width: 40,
@@ -25,11 +26,12 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const inputFile = useRef<HTMLInputElement | null>(null)
   const openImagePicker = () => inputFile && inputFile.current?.click()
   const [uri, setUri] = useState<string | undefined>(undefined)
-  const [removeImage, setRemoveImage] = useState<boolean>(false)
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
-  const { publicationAvatar, setRemovePublicationImage } = usePublicationContext()
+  const { publicationAvatar, setRemovePublicationImage, removePublicationImage } = usePublicationContext()
 
   const ipfs = useIpfs()
+
+  useDynamicFavIcon(uri)
 
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -45,7 +47,6 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   useEffect(() => {
     if (file) {
       onFileSelected(file)
-      setRemoveImage(false)
       setRemovePublicationImage(false)
     }
   }, [file, onFileSelected, setRemovePublicationImage])
@@ -57,29 +58,32 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
         setDefaultImageSrc(src)
       }
     }
-    if (defaultImage != null && defaultImageSrc === "" && !removeImage) {
+    if (defaultImage != null && defaultImageSrc === "" && !removePublicationImage) {
       if (defaultImage.includes("https://")) {
         return setDefaultImageSrc(defaultImage)
       }
       getDefaultImageSrc()
     }
-    if (!defaultImage && defaultImageSrc === "" && !removeImage && publicationAvatar && !newPublication) {
+    if (!defaultImage && defaultImageSrc === "" && !removePublicationImage && publicationAvatar && !newPublication) {
       setUri(publicationAvatar.uri)
       return setDefaultImageSrc(publicationAvatar.uri)
     }
-  }, [defaultImage, ipfs, defaultImageSrc, removeImage, publicationAvatar, newPublication])
+    if (!defaultImage && !uri && defaultImageSrc) {
+      return setDefaultImageSrc("")
+    }
+  }, [defaultImage, ipfs, defaultImageSrc, removePublicationImage, publicationAvatar, newPublication, uri])
 
   const handlerImageAction = () => {
-    if (!uri && (!defaultImage || removeImage)) {
+    if (!uri && (!defaultImage || removePublicationImage)) {
       return openImagePicker()
     }
+  }
 
-    if (uri || defaultImage) {
-      setUri(undefined)
-      setDefaultImageSrc("")
-      setRemoveImage(true)
-      setRemovePublicationImage(true)
-    }
+  const deleteImage = () => {
+    setFile(undefined)
+    setUri(undefined)
+    setDefaultImageSrc("")
+    setRemovePublicationImage(true)
   }
 
   return (
@@ -88,20 +92,37 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
         overlap="circular"
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         badgeContent={
-          <SmallAvatar
-            sx={{
-              bgcolor: palette.primary[1000],
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: "#B34A03",
-              },
-            }}
-            onClick={handlerImageAction}
-          >
-            {!uri && (!defaultImage || removeImage) && <AddIcon />}
-            {(uri || defaultImage) && !removeImage && <ClearIcon />}
-            <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
-          </SmallAvatar>
+          <>
+            {!uri && (!defaultImage || removePublicationImage) && (
+              <SmallAvatar
+                sx={{
+                  bgcolor: palette.primary[1000],
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "#B34A03",
+                  },
+                }}
+                onClick={handlerImageAction}
+              >
+                <AddIcon />
+                <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
+              </SmallAvatar>
+            )}
+            {(uri || defaultImage) && !removePublicationImage && (
+              <SmallAvatar
+                sx={{
+                  bgcolor: palette.primary[1000],
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "#B34A03",
+                  },
+                }}
+                onClick={deleteImage}
+              >
+                <ClearIcon />
+              </SmallAvatar>
+            )}
+          </>
         }
       >
         <Avatar

@@ -99,8 +99,9 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   useEffect(() => {
     if (transactionCompleted) {
       setLoading(false)
+      setRemovePublicationImage(false)
     }
-  }, [transactionCompleted])
+  }, [setRemovePublicationImage, transactionCompleted])
 
   const onSubmitHandler = (data: Post) => {
     handlePublicationUpdate(data)

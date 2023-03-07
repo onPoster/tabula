@@ -79,7 +79,7 @@ const usePoster = () => {
       content.image = fields.image
     }
     if (!fields.image) {
-      content.image = null
+      content.image = ""
     }
     if (isValidChain) {
       if (signer) {
