@@ -8,12 +8,17 @@ import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
-import { INITIAL_ARTICLE_BLOCK, INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
+import {
+  INITIAL_ARTICLE_BLOCK,
+  INITIAL_ARTICLE_VALUE,
+  usePublicationContext,
+} from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
 
 type Props = {
+  articleId?: string
   publication?: Publications
   showCreatePost?: boolean
   showEditButton?: boolean
@@ -27,7 +32,7 @@ const ItemContainer = styled(Grid)({
     margin: "15px 0px",
   },
 })
-const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showEditButton }) => {
+const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreatePost, showEditButton }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
@@ -52,6 +57,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showE
   }, [location, setCurrentPath])
 
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
+  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
 
   const handleNavigation = async () => {
     refetch()
@@ -141,14 +147,14 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showE
               </Grid>
             )}
 
-            {showEditButton && (
+            {showEditButton && havePermissionToUpdate && (
               <Grid item>
                 <Button
                   variant="contained"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    navigate(`./${publication?.id}/edit`)
+                    navigate(`/${publication?.id}/${articleId}/edit`)
                   }}
                 >
                   <Edit sx={{ mr: "13px", width: 16 }} />

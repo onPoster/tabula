@@ -8,13 +8,14 @@ import usePublication from "../../services/publications/hooks/usePublication"
 import { useParams } from "react-router-dom"
 
 type Props = {
+  articleId?: string
   publication?: Publications
   showCreatePost?: boolean
   showEditButton?: boolean
   children: React.ReactNode
 }
 
-const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost, showEditButton }) => {
+const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost, showEditButton, articleId }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { imageSrc } = usePublication(publicationSlug || "")
   useDynamicFavIcon(imageSrc)
@@ -29,7 +30,12 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
         ]}
         <meta property="og:url" content={`https://tabula.gg/#/${publication?.id}`} />
       </Helmet>
-      <PublicationHeader publication={publication} showCreatePost={showCreatePost} showEditButton={showEditButton} />
+      <PublicationHeader
+        publication={publication}
+        showCreatePost={showCreatePost}
+        showEditButton={showEditButton}
+        articleId={articleId}
+      />
       <Box component="main" sx={{ pb: 12 }}>
         {children}
       </Box>

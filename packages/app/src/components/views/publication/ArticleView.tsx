@@ -31,6 +31,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const isAfterHtmlImplementation = moment(dateCreation).isAfter(VALIDATION_DATE)
   const isValidHash = article && isIPFS.multihash(article.article)
   const [articleToShow, setArticleToShow] = useState<string>("")
+
   useEffect(() => {
     if (publication.chainId != null) {
       updateChainId(publication.chainId)
@@ -84,7 +85,12 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   }, [setMarkdownArticle])
 
   return (
-    <PublicationPage showCreatePost={false} showEditButton={true} publication={article?.publication}>
+    <PublicationPage
+      showCreatePost={false}
+      showEditButton={true}
+      publication={article?.publication}
+      articleId={article?.id}
+    >
       {loading ? (
         <Grid container justifyContent="center" alignItems="center" my={2}>
           <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />
