@@ -46,18 +46,19 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
     article,
     setArticleContent,
     isEditing,
+    setIsIndexing,
   } = usePublicationContext()
   const { transactionCompleted } = usePublication(publicationSlug || "")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { createArticle, updateArticle } = usePoster()
   const {
-    // indexing: createArticleIndexing,
+    indexing: createArticleIndexing,
     setExecutePollInterval: createPoll,
     transactionCompleted: newArticleTransaction,
     newArticleId,
   } = useArticles()
   const {
-    // indexing: updateArticleIndexing,
+    indexing: updateArticleIndexing,
     setExecutePollInterval: updatePoll,
     transactionCompleted: updateTransaction,
     newArticleId: updateArticleId,
@@ -68,8 +69,20 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
   const [titleError, setTitleError] = useState<boolean>(false)
   const [articleContentError, setArticleContentError] = useState<boolean>(false)
 
-  /**
+  /*
+   * Component will unmount
    */
+  useEffect(() => {
+    return () => {
+      setTitleError(false)
+      setArticleContentError(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    setIsIndexing(createArticleIndexing || updateArticleIndexing)
+  }, [createArticleIndexing, updateArticleIndexing])
+
   useEffect(() => {
     if (article && !isEditing) {
       const fetchCurrentArticle = async () => {
@@ -82,7 +95,7 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
 
         if (content) {
           const block = checkTag(content)
-          console.log("block", block)
+
           if (block.length) {
             setArticleContent(block)
           }
@@ -131,9 +144,25 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
   }, [navigate, newArticleId, newArticleTransaction, publicationSlug, updateArticleId, updateTransaction])
 
   const prepareTransaction = async (articleContent: Block[]) => {
+    let error = false
     if (draftArticle?.title === "") {
-      return setTitleError(true)
+      setTitleError(true)
+      error = true
     }
+    if (
+      articleContent.length === 1 &&
+      articleContent[0].html === "" &&
+      articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
+    ) {
+      setArticleContentError(true)
+      error = true
+    }
+    if (error) {
+      setExecuteArticleTransaction(false)
+      return
+    }
+    setTitleError(false)
+    setArticleContentError(false)
     setLoading(true)
     const blocks: Block[] = []
     for (const block of articleContent) {
@@ -151,16 +180,12 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
     }
 
     //Validate if the article content exist
-    if (blocks.length === 1) {
-      const block = blocks[0].html
-      if (block === "") {
-        setLoading(false)
-        return setArticleContentError(true)
-      }
+    if (blocks.length === 1 && blocks[0].html === "" && blocks[0].tag !== RICH_TEXT_ELEMENTS.IMAGE) {
+      setLoading(false)
+      return setArticleContentError(true)
     }
 
     const content = await convertToHtml(blocks, false)
-    console.log("prepare transaction content", content)
 
     if (draftArticle) {
       const newArticle = { ...draftArticle, article: content }
@@ -185,7 +210,6 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
         throw new Error("Publication id is null")
       }
       if (pinning && draftArticleText) {
-        console.log("draftArticleText", draftArticleText)
         hashArticle = await ipfs.uploadContent(draftArticleText)
       }
 
@@ -241,6 +265,9 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
   return (
     <CreateArticlePage publication={publication}>
       <Box
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
         component="form"
         sx={{ position: "relative", overflowY: "auto", overflowX: "hidden", width: "100%", height: "100vh" }}
       >
@@ -287,123 +314,3 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
     </CreateArticlePage>
   )
 }
-
-// const {
-//   control,
-//   handleSubmit,
-//   setValue,
-//   watch,
-//   formState: { errors },
-// } = useForm({
-//   resolver: yupResolver(articleSchema),
-//   defaultValues: draftArticle,
-// })
-
-// useEffect(() => {
-//   if (type === "edit" && isValidHash && article && !draftArticle) {
-//     const { title } = article
-//     setValue("title", title)
-//     if (!markdownArticle) {
-//       getIpfsData(article.article)
-//     }
-//     if (markdownArticle) {
-//       setValue("article", markdownArticle)
-//     }
-//   }
-//   if (type === "edit" && !isValidHash && article && !draftArticle) {
-//     const { title, article: articleDescription } = article
-//     setValue("title", title)
-//     setValue("article", articleDescription)
-//   }
-// }, [type, article, setValue, isValidHash, markdownArticle, getIpfsData, draftArticle])
-
-// {
-//   /* {type === "new" && (
-//               <Grid item xs={12} mt={1}>
-//                 <Grid container justifyContent={"space-between"}>
-//                   <Button variant="outlined" size="large" onClick={goToPublication}>
-//                     Cancel
-//                   </Button>
-//                   <Button variant="contained" size="large" type="submit">
-//                     Publish
-//                   </Button>
-//                 </Grid>
-//               </Grid>
-//             )}
-//             {type === "edit" && (
-//               <Grid item xs={12} mt={1}>
-//                 <Grid container justifyContent={"space-between"}>
-//                   {havePermissionToDelete && (
-//                     <DeleteArticleButton
-//                       variant="contained"
-//                       size="large"
-//                       onClick={handleDeleteArticle}
-//                       disabled={loading || indexing}
-//                       startIcon={<DeleteOutlineIcon />}
-//                       sx={{ whiteSpace: "nowrap" }}
-//                     >
-//                       {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-//                       {indexing ? "Indexing..." : "Delete Article"}
-//                     </DeleteArticleButton>
-//                   )}
-//                   {havePermissionToUpdate && (
-//                     <Button variant="contained" size="large" type="submit" disabled={loading || indexing}>
-//                       Update Article
-//                     </Button>
-//                   )}
-//                 </Grid>
-//               </Grid>
-//             )} */
-// }
-
-// const goToPublication = () => {
-//   saveDraftArticle(undefined)
-//   saveArticle(undefined)
-//   navigate(-1)
-// }
-
-// const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-//   // setValue("article", event.target.value)
-// }
-
-// const onSubmitHandler = (data: Article) => {
-//   saveDraftArticle(data)
-//   navigate(`./2`)
-// }
-
-// const handleDeleteArticle = async () => {
-//   if (article && article.id && havePermissionToDelete) {
-//     setLoading(true)
-//     setCurrentArticleId(article.id)
-//     await deleteArticle({
-//       action: "article/delete",
-//       id: article.id,
-//     }).then((res) => {
-//       if (res && res.error) {
-//         setLoading(false)
-//       } else {
-//         setExecutePollInterval(true)
-//       }
-//     })
-//   }
-// }
-
-// const [loading, setLoading] = useState<boolean>(false)
-// const { deleteArticle } = usePoster()
-// const [currentTab, setCurrentTab] = useState<"write" | "preview">("write")
-// const permissions = article && article.publication && article.publication.permissions
-// const havePermissionToDelete = haveActionPermission(permissions || [], "articleDelete", account || "")
-// const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")
-// const isValidHash = article && isIPFS.multihash(article.article)
-
-// const DeleteArticleButton = styled(Button)({
-//   border: `2px solid ${palette.grays[400]}`,
-//   background: palette.whites[400],
-//   color: palette.grays[800],
-//   "&:hover": {
-//     background: palette.whites[1000],
-//   },
-// })
-
-// import TurndownService from "turndown"
-// const turndownService = new TurndownService()

@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, SetStateAction, useEffect } from "react"
-import { Box, InputLabel, InputAdornment, Stack, TextField, Typography, useTheme } from "@mui/material"
+import { Box, InputLabel, Stack, TextField, Typography, useTheme } from "@mui/material"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import { Close } from "@mui/icons-material"
 import { palette, typography } from "../../../../theme"
 import { UploadFile } from "../../../commons/UploadFile"
-import LinkIcon from "../../../../assets/images/icons/link"
+// import LinkIcon from "../../../../assets/images/icons/link"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 
@@ -19,7 +19,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
     usePublicationContext()
   const [articleThumbnail, setArticleThumbnail] = useState<File>()
   const [uriImage, setUriImage] = useState<string | undefined>(undefined)
-  const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
+  // const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
   const [description, setDescription] = useState<string | undefined>(undefined)
   const [tags, setTags] = useState<string[]>([])
 
@@ -74,7 +74,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
     }
   }
 
-  const edited = true
+  // const edited = true
 
   return (
     <Box
@@ -136,7 +136,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
           </Stack>
 
           {/* Post URL */}
-          <Stack spacing={1}>
+          {/* <Stack spacing={1}>
             <InputLabel>Post URL</InputLabel>
             <Stack spacing={0.5}>
               <TextField
@@ -162,7 +162,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
                 gnosis-guild.tabula.gg/{postUrl}
               </Typography>
             </Stack>
-          </Stack>
+          </Stack> */}
 
           {/* Description */}
           <Stack spacing={1}>

@@ -28,6 +28,8 @@ export type PublicationContextType = {
   setPublicationAvatar: (uri: { publicationId: string; uri: string } | undefined) => void
   removePublicationImage: boolean
   setRemovePublicationImage: (remove: boolean) => void
+  isIndexing: boolean
+  setIsIndexing: (indexing: boolean) => void
   getPublicationId: (publicationSlug: string, provider?: ethers.providers.BaseProvider) => Promise<string | undefined>
   setMarkdownArticle: (markdown: string | undefined) => void
   saveIsEditing: (isEditing: boolean) => void

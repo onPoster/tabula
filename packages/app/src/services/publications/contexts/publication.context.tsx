@@ -35,7 +35,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
     undefined,
   )
   const [removePublicationImage, setRemovePublicationImage] = useState<boolean>(false)
-
+  const [isIndexing, setIsIndexing] = useState<boolean>(false)
   const getPublicationId = async (publicationSlug: string, provider?: ethers.providers.BaseProvider) => {
     if (slugToPublicationId[publicationSlug]) {
       return slugToPublicationId[publicationSlug]
@@ -101,6 +101,8 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
         setExecuteArticleTransaction,
         publicationAvatar,
         removePublicationImage,
+        isIndexing,
+        setIsIndexing,
         setRemovePublicationImage,
         setPublicationAvatar,
         setMarkdownArticle,

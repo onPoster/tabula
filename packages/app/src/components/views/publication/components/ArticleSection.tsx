@@ -7,13 +7,18 @@ import { haveActionPermission } from "../../../../utils/permission"
 import { useWeb3React } from "@web3-react/core"
 import usePublication from "../../../../services/publications/hooks/usePublication"
 import ArticleItem from "./ArticleItem"
-import { usePublicationContext } from "../../../../services/publications/contexts"
+import {
+  INITIAL_ARTICLE_BLOCK,
+  INITIAL_ARTICLE_VALUE,
+  usePublicationContext,
+} from "../../../../services/publications/contexts"
 
 const ArticleSection: React.FC = () => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { setMarkdownArticle } = usePublicationContext()
+  const { setMarkdownArticle, setArticleContent, saveDraftArticle, saveArticle, setDraftArticleThumbnail } =
+    usePublicationContext()
   const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
   const articles = data && data.articles
   const permissions = data && data.permissions
@@ -46,9 +51,12 @@ const ArticleSection: React.FC = () => {
               variant="contained"
               size="medium"
               onClick={() => {
-                navigate(`new`)
-                // setArticleContent(undefined)
+                navigate(`./new`)
+                setArticleContent(INITIAL_ARTICLE_BLOCK)
                 setMarkdownArticle(undefined)
+                saveDraftArticle(INITIAL_ARTICLE_VALUE)
+                saveArticle(undefined)
+                setDraftArticleThumbnail(undefined)
               }}
             >
               <AddIcon style={{ marginRight: 13 }} />

@@ -39,8 +39,14 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath, saveDraftArticle, saveArticle, setArticleContent, setMarkdownArticle } =
-    usePublicationContext()
+  const {
+    setCurrentPath,
+    saveDraftArticle,
+    saveArticle,
+    setArticleContent,
+    setMarkdownArticle,
+    setDraftArticleThumbnail,
+  } = usePublicationContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -139,6 +145,9 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                     navigate(`./new`)
                     setArticleContent(INITIAL_ARTICLE_BLOCK)
                     setMarkdownArticle(undefined)
+                    saveDraftArticle(INITIAL_ARTICLE_VALUE)
+                    saveArticle(undefined)
+                    setDraftArticleThumbnail(undefined)
                   }}
                 >
                   <AddIcon style={{ marginRight: 13 }} />

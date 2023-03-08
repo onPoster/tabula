@@ -26,7 +26,6 @@ const PreviewArticleView: React.FC = () => {
     const articleToHtmlFlow = async () => {
       if (articleContent?.length) {
         const content = await convertToHtml(articleContent, true)
-        console.log("content preview page", content)
         setArticleHtml(content)
       }
     }
@@ -75,12 +74,13 @@ const PreviewArticleView: React.FC = () => {
                 </Grid>
                 <Grid item my={5} width="100%">
                   {loading && (
-                    <Grid container justifyContent="center" alignItems="center" my={2}>
+                    <Grid container gap={2} justifyContent="center" alignItems="center" my={2} direction="column">
                       <CircularProgress
                         color="primary"
                         size={50}
                         sx={{ marginRight: 1, color: palette.primary[1000] }}
                       />
+                      <Typography>Decrypting data from IPFS...please wait a moment</Typography>
                     </Grid>
                   )}
                   {!loading && <Markdown>{article}</Markdown>}

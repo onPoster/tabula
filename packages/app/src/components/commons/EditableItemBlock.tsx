@@ -4,7 +4,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { palette, typography } from "../../theme"
 import { toBase64 } from "../../utils/string-handler"
-import InlineRichText from "./InlineRichText"
+// import InlineRichText from "./InlineRichText"
 import { RICH_TEXT_ELEMENTS } from "./RichText"
 
 export interface EditableItemBlockProps {
@@ -41,8 +41,8 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
 }) => {
   const contentEditableRef = useRef<null | HTMLElement>(null)
   const inputFile = useRef<HTMLInputElement | null>(null)
-  const [inlineRichTextRef, setInlineRichTextRef] = useState<any>(null)
-  const [inlineOffset, setInlineOffset] = useState<number | null>(null)
+  // const [inlineRichTextRef, setInlineRichTextRef] = useState<any>(null)
+  // const [inlineOffset, setInlineOffset] = useState<number | null>(null)
   const [uri, setUri] = useState<string | null | undefined>(null)
 
   const openImagePicker = () => inputFile && inputFile.current?.click()
@@ -53,23 +53,24 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
   const onKeyPressRef = useRef(onKeyPress)
   const onKeyDownRef = useRef(onKeyDown)
 
-  const onSelectionChange = (e: Event) => {
-    const selection = window.getSelection()
-    if (!selection?.isCollapsed) {
-      setInlineOffset(selection ? selection.anchorOffset : null)
-      setInlineRichTextRef(contentEditableRef)
-    } else {
-      setInlineOffset(null)
-      setInlineRichTextRef(null)
-    }
-  }
+  // const onSelectionChange = (e: Event) => {
+  //   const selection = window.getSelection()
+  //   if (!selection?.isCollapsed) {
+  //     setInlineOffset(selection ? selection.anchorOffset : null)
+  //     setInlineRichTextRef(contentEditableRef)
+  //   } else {
+  //     setInlineOffset(null)
+  //     setInlineRichTextRef(null)
+  //   }
+  // }
 
-  useEffect(() => {
-    document.addEventListener("selectionchange", onSelectionChange)
-    return () => {
-      document.removeEventListener("selectionchange", onSelectionChange)
-    }
-  }, [])
+  // useEffect(() => {
+  //   document.addEventListener("selectionchange", onSelectionChange)
+  //   return () => {
+  //     document.removeEventListener("selectionchange", onSelectionChange)
+  //   }
+  // }, [])
+  
   useEffect(() => {
     if (block.tag === RICH_TEXT_ELEMENTS.DIVIDER) {
       const dividerElement = document.getElementById(block.id)
@@ -220,11 +221,8 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = ({
           {uri && <img src={uri} alt="" />}
         </div>
       )}
-      {block.tag === RICH_TEXT_ELEMENTS.DIVIDER && (
-        <hr id={`${block.id}-img`} />
-        // {/* <input type="file" id={`${block.id}-img`} ref={inputFile} hidden accept="image/*" onChange={handleImage} /> */}
-      )}
-      <InlineRichText showCommand={typeof inlineOffset === "number"} inlineRichTextRef={inlineRichTextRef} />
+      {block.tag === RICH_TEXT_ELEMENTS.DIVIDER && <hr id={`${block.id}-img`} />}
+      {/* <InlineRichText showCommand={typeof inlineOffset === "number"} inlineRichTextRef={inlineRichTextRef} /> */}
     </>
   )
 }

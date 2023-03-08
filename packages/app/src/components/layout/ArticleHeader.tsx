@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import { Avatar, Button, CircularProgress, Grid, Stack, Typography } from "@mui/material"
+import React, { useEffect, useRef, useState } from "react"
+import { Button, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Publication } from "../../models/publication"
@@ -8,6 +8,8 @@ import { useLocation, useNavigate } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
+import Avatar from "../commons/Avatar"
+import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
 type Props = {
   publication?: Publication
@@ -25,12 +27,13 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
     setExecuteArticleTransaction,
     setIsEditing,
     loading: loadingTransaction,
+    isIndexing,
     ipfsLoading,
   } = usePublicationContext()
   const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
-  const { imageSrc } = usePublication(publication?.id || "")
   const isPreview = location.pathname.includes("preview")
+  const ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (location.pathname) {
@@ -39,7 +42,6 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
   }, [location, setCurrentPath])
 
   const handleNavigation = async () => {
-    console.log("handle navigation enter")
     refetch()
     saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
@@ -52,6 +54,12 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
   const handlePreview = () => {
     isPreview ? navigate(-1) : navigate("../preview")
   }
+
+  useOnClickOutside(ref, () => {
+    if (show) {
+      setShow(!show)
+    }
+  })
 
   return (
     <Stack
@@ -79,7 +87,7 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
           sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
           onClick={handleNavigation}
         >
-          <Avatar sx={{ width: 31, height: 31 }} src={imageSrc} />
+          <Avatar width={31} height={31} publicationSlug={publication?.id} />
 
           <Typography
             color={palette.grays[1000]}
@@ -103,17 +111,19 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
           <Button variant="text" onClick={handlePreview} disabled={loadingTransaction || ipfsLoading}>
             {isPreview ? "Edit" : "Preview"}
           </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setExecuteArticleTransaction(true)
-            }}
-            sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
-            disabled={loadingTransaction || ipfsLoading}
-          >
-            {loadingTransaction && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-            Publish
-          </Button>
+          {!isPreview && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                setExecuteArticleTransaction(true)
+              }}
+              sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
+              disabled={loadingTransaction || ipfsLoading}
+            >
+              {loadingTransaction && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+              {isIndexing ? "Indexing..." : "Publish"}
+            </Button>
+          )}
         </Stack>
         {!active ? (
           <Button
@@ -143,9 +153,12 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
               <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
                 <WalletBadge hover address={account} />
               </Grid>
+
               {show && (
                 <Grid item sx={{ position: "absolute", top: 45 }}>
-                  <UserOptions />
+                  <Stack ref={ref}>
+                    <UserOptions />
+                  </Stack>
                 </Grid>
               )}
             </Grid>

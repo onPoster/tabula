@@ -61,7 +61,6 @@ const getBlocksByTag = (html: string, tag: RICH_TEXT_ELEMENTS): Block[] => {
 }
 
 export const checkTag = (html: string): Block[] => {
-  console.log("html", html)
   let newBlocks: Block[] = []
   if (html.includes(RICH_TEXT_ELEMENTS.H1)) {
     const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H1)
