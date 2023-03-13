@@ -14,9 +14,10 @@ import { useLocation } from "react-router-dom"
 type Props = {
   publication?: Publication
   children: React.ReactNode
+  type: "edit" | "new"
 }
 
-const PublicationPage: React.FC<Props> = ({ children, publication }) => {
+const PublicationPage: React.FC<Props> = ({ children, publication, type }) => {
   const location = useLocation()
   const [showSidebar, setShowSidebar] = useState<boolean>(true)
   const { imageSrc } = usePublication(publication?.id || "")
@@ -78,7 +79,7 @@ const PublicationPage: React.FC<Props> = ({ children, publication }) => {
                 position: "relative",
               }}
             >
-              <ArticleHeader publication={publication} />
+              <ArticleHeader publication={publication} type={type} />
               {children}
               {!showSidebar && (
                 <Box

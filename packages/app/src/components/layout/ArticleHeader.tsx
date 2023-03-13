@@ -1,39 +1,102 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from "react"
 import { Button, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
-import { Publication } from "../../models/publication"
+import { Article, Publication } from "../../models/publication"
 import { palette, typography } from "../../theme"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import Avatar from "../commons/Avatar"
 import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+import { Block } from "../commons/EditableItemBlock"
+import { RICH_TEXT_ELEMENTS } from "../commons/RichText"
+import { useIpfs } from "../../hooks/useIpfs"
+import useMarkdown from "../../hooks/useMarkdown"
+import useLocalStorage from "../../hooks/useLocalStorage"
+import { Pinning } from "../../models/pinning"
+import useArticles from "../../services/publications/hooks/useArticles"
+import usePoster from "../../services/poster/hooks/usePoster"
 
 type Props = {
   publication?: Publication
+  type: "edit" | "new"
 }
 
-const ArticleHeader: React.FC<Props> = ({ publication }) => {
+const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
+  const ipfs = useIpfs()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const { convertToHtml } = useMarkdown()
+  const { createArticle, updateArticle } = usePoster()
   const {
     setCurrentPath,
     saveDraftArticle,
     saveArticle,
     setMarkdownArticle,
     setExecuteArticleTransaction,
-    setIsEditing,
     loading: loadingTransaction,
-    isIndexing,
+    articleContent,
     ipfsLoading,
+    draftArticle,
+    setLoading,
+    draftArticleThumbnail,
+    setArticleContentError,
+    setArticleTitleError,
   } = usePublicationContext()
-  const { refetch, chainId: publicationChainId } = usePublication(publication?.id || "")
+  const {
+    indexing: createArticleIndexing,
+    setExecutePollInterval: createPoll,
+    transactionCompleted: newArticleTransaction,
+    newArticleId,
+  } = useArticles()
+  const {
+    indexing: updateArticleIndexing,
+    setExecutePollInterval: updatePoll,
+    transactionCompleted: updateTransaction,
+    newArticleId: updateArticleId,
+    setArticleId,
+    setCurrentTimestamp,
+  } = useArticles()
+  const {
+    refetch,
+    chainId: publicationChainId,
+    transactionCompleted,
+  } = usePublication(publicationSlug || publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
+
+  useOnClickOutside(ref, () => {
+    if (show) {
+      setShow(!show)
+    }
+  })
+
+  /*
+   * Component will unmount
+   */
+  useEffect(() => {
+    return () => {
+      setArticleTitleError(false)
+      setArticleContentError(false)
+    }
+  }, [])
+
+  /**
+   * Logic after complete the transaction
+   */
+  useEffect(() => {
+    if (transactionCompleted) {
+      saveDraftArticle(INITIAL_ARTICLE_VALUE)
+      navigate(-1)
+    }
+  }, [navigate, saveDraftArticle, transactionCompleted])
 
   useEffect(() => {
     if (location.pathname) {
@@ -41,25 +104,153 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
     }
   }, [location, setCurrentPath])
 
+  useEffect(() => {
+    if ((newArticleTransaction || updateTransaction) && publicationSlug && publication) {
+      setLoading(false)
+      navigate(`/${publicationSlug ?? publication.id}/${newArticleId || updateArticleId}`)
+    }
+  }, [
+    navigate,
+    newArticleId,
+    newArticleTransaction,
+    publication,
+    publicationSlug,
+    setLoading,
+    updateArticleId,
+    updateTransaction,
+  ])
+
   const handleNavigation = async () => {
     refetch()
     saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
     // setArticleContent(undefined)
     setMarkdownArticle(undefined)
-    setIsEditing(false)
-    navigate(-1 ?? `../${publication?.id}`)
+    navigate(`/${publication?.id}`)
   }
 
   const handlePreview = () => {
-    isPreview ? navigate(-1) : navigate("../preview")
+    isPreview ? navigate(-1) : navigate(`../${type}/preview`)
   }
 
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
+  const prepareTransaction = async (articleContent: Block[]) => {
+    let error = false
+    if (draftArticle?.title === "") {
+      setArticleTitleError(true)
+      error = true
     }
-  })
+    if (
+      articleContent.length === 1 &&
+      articleContent[0].html === "" &&
+      articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
+    ) {
+      setArticleContentError(true)
+      error = true
+    }
+    if (error) {
+      setExecuteArticleTransaction(false)
+
+      return
+    }
+    setArticleTitleError(false)
+    setArticleContentError(false)
+    setLoading(true)
+    const blocks: Block[] = []
+    for (const block of articleContent) {
+      if (block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile) {
+        try {
+          await ipfs.uploadContent(block.imageFile).then(async (img) => {
+            blocks.push({ ...block, imageUrl: img.path })
+          })
+        } catch {
+          setLoading(false)
+        }
+      } else {
+        blocks.push(block)
+      }
+    }
+
+    //Validate if the article content exist
+    if (blocks.length === 1 && blocks[0].html === "" && blocks[0].tag !== RICH_TEXT_ELEMENTS.IMAGE) {
+      setLoading(false)
+      return setArticleContentError(true)
+    }
+
+    const content = await convertToHtml(blocks, false)
+
+    if (draftArticle) {
+      const newArticle = { ...draftArticle, article: content }
+      saveDraftArticle(newArticle)
+      await handleArticleAction(newArticle)
+    }
+    setExecuteArticleTransaction(false)
+  }
+
+  const handleArticleAction = async (article: Article) => {
+    let articleThumbnail = ""
+    let hashArticle
+    const { title, article: draftArticleText, description, tags } = article
+    if (draftArticleThumbnail) {
+      await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
+        articleThumbnail = img.path
+      })
+    }
+    if (publication && article && account) {
+      const id = publication.id
+      if (id == null) {
+        throw new Error("Publication id is null")
+      }
+      if (pinning && draftArticleText) {
+        hashArticle = await ipfs.uploadContent(draftArticleText)
+      }
+      if (title) {
+        if (type === "new") {
+          return await createArticle(
+            {
+              action: "article/create",
+              publicationId: id,
+              title,
+              article: hashArticle ? hashArticle.path : draftArticleText,
+              description,
+              tags,
+              image: articleThumbnail,
+              authors: [account],
+            },
+            hashArticle ? true : false,
+          ).then((res) => {
+            if (res?.error) {
+              setLoading(false)
+            } else {
+              createPoll(true)
+            }
+          })
+        }
+        if (type === "edit" && article && article.id) {
+          await updateArticle(
+            {
+              action: "article/update",
+              id: article.id,
+              title,
+              article: hashArticle ? hashArticle.path : draftArticleText,
+              description,
+              tags,
+              image: articleThumbnail,
+              authors: [account],
+            },
+            hashArticle ? true : false,
+          ).then((res) => {
+            if (res && res.error) {
+              setLoading(false)
+            } else if (article && article.lastUpdated) {
+              setArticleId(article.id)
+              setCurrentTimestamp(parseInt(article.lastUpdated))
+              updatePoll(true)
+            }
+          })
+        }
+      }
+    }
+  }
 
   return (
     <Stack
@@ -111,19 +302,19 @@ const ArticleHeader: React.FC<Props> = ({ publication }) => {
           <Button variant="text" onClick={handlePreview} disabled={loadingTransaction || ipfsLoading}>
             {isPreview ? "Edit" : "Preview"}
           </Button>
-          {!isPreview && (
-            <Button
-              variant="contained"
-              onClick={() => {
-                setExecuteArticleTransaction(true)
-              }}
-              sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
-              disabled={loadingTransaction || ipfsLoading}
-            >
-              {loadingTransaction && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-              {isIndexing ? "Indexing..." : "Publish"}
-            </Button>
-          )}
+
+          <Button
+            variant="contained"
+            onClick={() => {
+              setExecuteArticleTransaction(true)
+              prepareTransaction(articleContent)
+            }}
+            sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
+            disabled={loadingTransaction || ipfsLoading}
+          >
+            {loadingTransaction && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+            {createArticleIndexing || updateArticleIndexing ? "Indexing..." : "Publish"}
+          </Button>
         </Stack>
         {!active ? (
           <Button

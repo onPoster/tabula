@@ -12,15 +12,19 @@ import { ViewContainer } from "../../commons/ViewContainer"
 import CreateArticlePage from "../../layout/CreateArticlePage"
 import { useMarkdown } from "../../../hooks/useMarkdown"
 import { toBase64 } from "../../../utils/string-handler"
+import { useLocation } from "react-router-dom"
 
 const turndownService = new TurndownService({ headingStyle: "atx" })
 const PreviewArticleView: React.FC = () => {
-  const [articleHtml, setArticleHtml] = useState<string>("")
-  const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
-
+  const location = useLocation()
   const { convertToHtml, loading } = useMarkdown()
   const { publication, draftArticle, articleContent, draftArticleThumbnail } = usePublicationContext()
+  const [articleHtml, setArticleHtml] = useState<string>("")
+  const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
   const article = turndownService.turndown(articleHtml)
+
+  const isEdit = location.pathname.includes("edit") && "edit"
+  const isNew = location.pathname.includes("new") && "new"
 
   useEffect(() => {
     const articleToHtmlFlow = async () => {
@@ -46,7 +50,7 @@ const PreviewArticleView: React.FC = () => {
   }, [draftArticleThumbnail])
 
   return (
-    <CreateArticlePage publication={publication}>
+    <CreateArticlePage publication={publication} type={(isEdit || isNew) as "edit" | "new"}>
       <Box
         component="form"
         sx={{ position: "relative", overflowY: "auto", overflowX: "hidden", width: "100%", height: "100vh" }}

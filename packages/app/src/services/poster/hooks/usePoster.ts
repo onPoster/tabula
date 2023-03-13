@@ -182,6 +182,9 @@ const usePoster = () => {
     if (fields.tags?.length) {
       content.tags = fields.tags
     }
+    if (!fields.image) {
+      content.image = ""
+    }
     if (fields.image) {
       content.image = fields.image
     }

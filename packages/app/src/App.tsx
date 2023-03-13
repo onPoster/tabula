@@ -69,7 +69,7 @@ const App: React.FC = () => {
 
                   <Route path="new" element={<CreateArticleView type="new" />} />
                   <Route path="new/2" element={<CreateArticleView2 type="new" />} />
-                  <Route path="preview" element={<PreviewArticleView />} />
+                  <Route path=":type/preview" element={<PreviewArticleView />} />
 
                   <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
 
