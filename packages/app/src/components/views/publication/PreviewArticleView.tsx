@@ -4,7 +4,7 @@ import { Box, Chip, CircularProgress, Grid, Typography } from "@mui/material"
 import React, { Fragment, useEffect, useState } from "react"
 import TurndownService from "turndown"
 import { usePublicationContext } from "../../../services/publications/contexts"
-import { palette, typography } from "../../../theme"
+import { palette } from "../../../theme"
 
 import { Markdown } from "../../commons/Markdown"
 
