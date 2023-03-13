@@ -28,27 +28,29 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
   } = usePublicationContext()
 
   useEffect(() => {
-    if (article && !isEditing) {
-      const fetchCurrentArticle = async () => {
-        const { image: thumbnailImg, article: articleContent } = article
-        let img
-        if (thumbnailImg) {
-          img = await ipfs.getImgSrc(thumbnailImg)
-        }
-        const content = await ipfs.getText(articleContent)
-
-        if (content) {
-          const block = checkTag(content)
-
-          if (block.length) {
-            setArticleContent(block)
+    if (article) {
+      if (!isEditing) {
+        const fetchCurrentArticle = async () => {
+          const { image: thumbnailImg, article: articleContent } = article
+          let img
+          if (thumbnailImg) {
+            img = await ipfs.getImgSrc(thumbnailImg)
           }
-        }
-        saveDraftArticle({ ...article, image: img })
-      }
+          const content = await ipfs.getText(articleContent)
 
-      // call the function
-      fetchCurrentArticle()
+          if (content) {
+            const block = checkTag(content)
+
+            if (block.length) {
+              setArticleContent(block)
+            }
+          }
+          return saveDraftArticle({ ...article, title: article.title, image: img })
+        }
+
+        // call the function
+        fetchCurrentArticle()
+      }
     }
   }, [article])
 
@@ -70,7 +72,7 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = ({ type }) =>
                 </InputLabel>
                 <TextField
                   variant="standard"
-                  value={draftArticle?.title}
+                  value={draftArticle?.title ?? article?.title}
                   onChange={(event) => draftArticle && saveDraftArticle({ ...draftArticle, title: event.target.value })}
                   InputProps={{ disableUnderline: true }}
                   sx={{ width: "100%", fontSize: 40 }}

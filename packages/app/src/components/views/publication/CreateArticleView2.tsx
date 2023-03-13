@@ -19,6 +19,7 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import usePublication from "../../../services/publications/hooks/usePublication"
+import useArticle from "../../../services/publications/hooks/useArticle"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
@@ -51,7 +52,7 @@ export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) =
     newArticleId: updateArticleId,
     setArticleId,
     setCurrentTimestamp,
-  } = useArticles()
+  } = useArticle(article?.id ?? "")
   const [loading, setLoading] = useState<boolean>(false)
   const permissions = article && article.publication && article.publication.permissions
   const havePermissionToUpdate = haveActionPermission(permissions || [], "articleUpdate", account || "")

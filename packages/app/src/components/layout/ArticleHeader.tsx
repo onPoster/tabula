@@ -19,6 +19,7 @@ import useLocalStorage from "../../hooks/useLocalStorage"
 import { Pinning } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
 import usePoster from "../../services/poster/hooks/usePoster"
+import useArticle from "../../services/publications/hooks/useArticle"
 
 type Props = {
   publication?: Publication
@@ -31,6 +32,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const ipfs = useIpfs()
+  const [publicationId, setPublicationId] = useState<string>("")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { convertToHtml } = useMarkdown()
   const { createArticle, updateArticle } = usePoster()
@@ -62,7 +64,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     newArticleId: updateArticleId,
     setArticleId,
     setCurrentTimestamp,
-  } = useArticles()
+  } = useArticle(draftArticle?.id ?? "")
   const {
     refetch,
     chainId: publicationChainId,
@@ -105,9 +107,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }, [location, setCurrentPath])
 
   useEffect(() => {
-    if ((newArticleTransaction || updateTransaction) && publicationSlug && publication) {
+    if ((newArticleTransaction || updateTransaction) && publicationSlug) {
       setLoading(false)
-      navigate(`/${publicationSlug ?? publication.id}/${newArticleId || updateArticleId}`)
+      navigate(`/${publicationSlug ?? publication?.id ?? publicationId}/${newArticleId || updateArticleId}`)
     }
   }, [
     navigate,
@@ -187,6 +189,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }
 
   const handleArticleAction = async (article: Article) => {
+
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
@@ -195,14 +198,18 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         articleThumbnail = img.path
       })
     }
-    if (publication && article && account) {
-      const id = publication.id
+
+    if (article && (publication || article.publication) && account) {
+      setPublicationId(article.publication?.id ?? "")
+      const id = publication?.id || article.publication?.id
+
       if (id == null) {
         throw new Error("Publication id is null")
       }
       if (pinning && draftArticleText) {
         hashArticle = await ipfs.uploadContent(draftArticleText)
       }
+
       if (title) {
         if (type === "new") {
           return await createArticle(
@@ -225,7 +232,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             }
           })
         }
-        if (type === "edit" && article && article.id) {
+        if (type === "edit" && article && article.id && article.lastUpdated) {
+          setCurrentTimestamp(parseInt(article.lastUpdated))
           await updateArticle(
             {
               action: "article/update",
@@ -243,13 +251,14 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
               setLoading(false)
             } else if (article && article.lastUpdated) {
               setArticleId(article.id)
-              setCurrentTimestamp(parseInt(article.lastUpdated))
               updatePoll(true)
             }
           })
         }
       }
+      return
     }
+    setLoading(false)
   }
 
   return (
