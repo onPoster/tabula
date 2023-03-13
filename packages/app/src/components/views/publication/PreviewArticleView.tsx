@@ -61,7 +61,7 @@ const PreviewArticleView: React.FC = () => {
             {draftArticle && (
               <Fragment>
                 <Grid item>
-                  <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
+                  <Typography variant="h1">
                     {draftArticle.title}
                   </Typography>
                 </Grid>
