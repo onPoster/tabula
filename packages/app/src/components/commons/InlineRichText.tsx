@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Portal, Stack, SxProps } from "@mui/material"
 import { ReactComponent as BoldIcon } from "../../assets/images/boldIcon.svg"
 import { ReactComponent as ItalicIcon } from "../../assets/images/italicIcon.svg"
@@ -60,11 +60,11 @@ const InlineRichText: React.FC<InlineRichTextProps> = ({ inlineRichTextRef, show
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
 
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
-    }
-  })
+  // useOnClickOutside(ref, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
 
   useEffect(() => {
     setShow(showCommand)

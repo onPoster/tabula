@@ -128,7 +128,7 @@ export const UserOptions: React.FC = () => {
         </Stack>
       </MenuItem>
 
-      <MenuItem item sx={{ cursor: "pointer" }} onClick={() => setShowIPFSModal(!showIPFSModal)}>
+      <MenuItem item sx={{ cursor: "pointer" }} onClick={() => {setShowIPFSModal(!showIPFSModal)}}>
         <Stack direction="row" spacing={1} alignItems="center">
           <NodeIcon sx={{ color: palette.grays[800], width: 24 }} />
           <Typography sx={{ fontFamily: typography.fontFamilies.sans, whiteSpace: "nowrap" }} variant="body2">

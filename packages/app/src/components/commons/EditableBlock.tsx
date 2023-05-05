@@ -1,15 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react"
 import { uid } from "uid"
-
-import { findIndex } from "lodash"
 import { ContentEditableEvent } from "react-contenteditable"
 import { Block, EditableItemBlock } from "./EditableItemBlock"
 import RichText, { RICH_TEXT_ELEMENTS } from "./RichText"
 import { Box } from "@mui/material"
-import { usePublicationContext } from "../../services/publications/contexts"
+import { useArticleContext } from "../../services/publications/contexts"
 
 export const EditableBlock: React.FC = () => {
-  const { setArticleContent, articleContent, setIsEditing } = usePublicationContext()
+  const { setArticleContent, articleContent, updateArticleContent, addNewBlock, deleteBlock } = useArticleContext()
   const [previousKey, setPreviousKey] = useState<string>("")
   const [newElementId, setNewElementId] = useState<string | null>(null)
   const [showMenu, setShowMenu] = useState<boolean>(false)
@@ -32,14 +30,7 @@ export const EditableBlock: React.FC = () => {
   const updatePageHandler = (event: ContentEditableEvent, blockId: string) => {
     const value = event.target.value
     if (!value.includes("/")) {
-      const index = findIndex(articleContent, { id: blockId })
-      const updatedBlocks = [...articleContent]
-      updatedBlocks[index] = {
-        ...updatedBlocks[index],
-        html: value,
-      }
-      setIsEditing(true)
-      setArticleContent(updatedBlocks)
+      updateArticleContent(blockId, value)
     }
   }
 
@@ -59,7 +50,7 @@ export const EditableBlock: React.FC = () => {
     }
     if (e.key === "Backspace" && !currentBlock.html && currentBlock.html === "") {
       e.preventDefault()
-      deleteBlock({
+      handleDeleteBlock({
         id: currentBlock.id,
         index,
       })
@@ -69,40 +60,12 @@ export const EditableBlock: React.FC = () => {
 
   const addBlockHandler = (block: { id: string }, customBlocks?: Block[]) => {
     const newId = uid()
-    const newBlock = { id: newId, html: "", tag: "p" }
-    const currentBlocks = customBlocks ? customBlocks : [...articleContent]
-    const index = currentBlocks.map((b) => b.id).indexOf(block.id)
-    currentBlocks.splice(index + 1, 0, newBlock)
-    setIsEditing(true)
-    setArticleContent(currentBlocks)
+    addNewBlock(block, newId, customBlocks)
     setNewElementId(newId)
   }
 
-  const deleteBlock = (block: { id: string; index: number }) => {
-    if (block.index) {
-      const previousBlockPosition = articleContent[block.index - 1]
-      const previousBlock = document.getElementById(previousBlockPosition.id)
-      const currentBlocks = [...articleContent]
-      currentBlocks.splice(block.index, 1)
-      setArticleContent(currentBlocks)
-      setIsEditing(true)
-      if (previousBlock) {
-        setCaretToEnd(previousBlock)
-        previousBlock.focus()
-      }
-    }
-  }
-
-  const setCaretToEnd = (element: HTMLElement) => {
-    const range = document.createRange()
-    const selection = window.getSelection()
-    range.selectNodeContents(element)
-    range.collapse(false)
-    if (selection) {
-      selection.removeAllRanges()
-      selection.addRange(range)
-    }
-    element.focus()
+  const handleDeleteBlock = (block: { id: string; index: number }) => {
+    deleteBlock(block)
   }
 
   const onImage = (uri: string, file: File, index: number) => {
@@ -112,7 +75,6 @@ export const EditableBlock: React.FC = () => {
       imageUrl: uri ? uri : undefined,
       imageFile: file,
     }
-    setIsEditing(true)
     setArticleContent(updatedBlocks)
   }
 
@@ -145,7 +107,7 @@ export const EditableBlock: React.FC = () => {
         const isHeader = block.tag.match(/h\d/)
         return (
           <Box
-            key={index}
+            key={block.id}
             sx={{
               position: "relative",
               cursor: "text",
@@ -164,7 +126,7 @@ export const EditableBlock: React.FC = () => {
                 onRichTextSelected={(tag) => handleCommand(tag, index)}
                 showCommand={showMenu && menuId === block.id}
                 onDelete={() =>
-                  deleteBlock({
+                  handleDeleteBlock({
                     id: block.id,
                     index,
                   })
@@ -177,7 +139,7 @@ export const EditableBlock: React.FC = () => {
               />
             </Box>
             <EditableItemBlock
-              key={block.id}
+              key={`item-block-${block.id}`}
               block={block}
               onChange={(event) => updatePageHandler(event, block.id)}
               onKeyDown={(e) => onKeyDownHandler(e, index)}

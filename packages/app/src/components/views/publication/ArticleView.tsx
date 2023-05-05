@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Helmet } from "react-helmet"
 import { useParams } from "react-router-dom"
-import { usePublicationContext } from "../../../services/publications/contexts"
+import { useArticleContext } from "../../../services/publications/contexts"
 import useArticle from "../../../services/publications/hooks/useArticle"
 import { palette, typography } from "../../../theme"
 import { Markdown } from "../../commons/Markdown"
@@ -22,14 +22,22 @@ interface ArticleViewProps {
 const VALIDATION_DATE = "2023-02-02T00:00:00Z"
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const { articleId } = useParams<{ articleId: string }>()
-  const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
+  const { article, saveArticle, markdownArticle, setMarkdownArticle, loading, getIpfsData } = useArticleContext()
+
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(article?.publication?.id || "")
-  useDynamicFavIcon(publication.imageSrc)
-  const dateCreation = article && article.postedOn && new Date(parseInt(article.postedOn) * 1000)
-  const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
-  const isAfterHtmlImplementation = moment(dateCreation).isAfter(VALIDATION_DATE)
-  const isValidHash = article && isIPFS.multihash(article.article)
+  useDynamicFavIcon(publication?.imageSrc)
+  const dateCreation = useMemo(
+    () => article?.postedOn && new Date(parseInt(article.postedOn) * 1000),
+    [article?.postedOn],
+  )
+  const date = useMemo(
+    () => article?.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000),
+    [article?.lastUpdated],
+  )
+  const isAfterHtmlImplementation = useMemo(() => moment(dateCreation).isAfter(VALIDATION_DATE), [dateCreation])
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
+
   const [articleToShow, setArticleToShow] = useState<string>("")
 
   useEffect(() => {
@@ -50,26 +58,25 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
     }
   }, [data, article, saveArticle])
 
-  useEffect(() => {
-    if (article) {
-      const fetchArticleContent = async () => {
-        if (isValidHash && article && !markdownArticle) {
-          await getIpfsData(article.article)
-          return
-        }
-        if (!isValidHash && article) {
-          if (!isAfterHtmlImplementation) {
-            return setArticleToShow(article.article)
-          }
-          const markdownContent = convertToMarkdown(article.article)
-          setArticleToShow(markdownContent)
-        }
+  const fetchArticleContent = useCallback(async () => {
+    if (isValidHash && article && !markdownArticle) {
+      await getIpfsData(article.article)
+      return
+    }
+    if (!isValidHash && article) {
+      if (!isAfterHtmlImplementation) {
+        return setArticleToShow(article.article)
       }
-
-      // call the function
-      fetchArticleContent()
+      const markdownContent = convertToMarkdown(article.article)
+      setArticleToShow(markdownContent)
     }
   }, [isValidHash, article, markdownArticle, getIpfsData, isAfterHtmlImplementation])
+
+  useEffect(() => {
+    if (article) {
+      fetchArticleContent()
+    }
+  }, [article, fetchArticleContent])
 
   useEffect(() => {
     if (markdownArticle) {
@@ -117,15 +124,6 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                 <Typography variant="h1">{article.title}</Typography>
               </Grid>
 
-              {/* {article.authors?.length && (
-                <Grid container alignItems="center" gap={2} my={1}>
-                  {article.authors.map((author) => (
-                    <Grid item key={author}>
-                      <WalletBadge address={author} copyable />
-                    </Grid>
-                  ))}
-                </Grid>
-              )} */}
               {article.publication && (
                 <Grid container spacing={1} sx={{ marginLeft: -0.5 }}>
                   {article.tags &&

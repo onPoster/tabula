@@ -6,19 +6,19 @@ import { useNavigate, useParams } from "react-router-dom"
 import { haveActionPermission } from "../../../../utils/permission"
 import { useWeb3React } from "@web3-react/core"
 import usePublication from "../../../../services/publications/hooks/usePublication"
-import ArticleItem from "./ArticleItem"
+import { ArticleItem } from "./ArticleItem"
 import {
   INITIAL_ARTICLE_BLOCK,
   INITIAL_ARTICLE_VALUE,
-  usePublicationContext,
+  useArticleContext,
 } from "../../../../services/publications/contexts"
 
-const ArticleSection: React.FC = () => {
+export const ArticleSection: React.FC = React.memo(() => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { setMarkdownArticle, setArticleContent, saveDraftArticle, saveArticle, setDraftArticleThumbnail } =
-    usePublicationContext()
+    useArticleContext()
   const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
   const articles = data && data.articles
   const permissions = data && data.permissions
@@ -81,6 +81,4 @@ const ArticleSection: React.FC = () => {
       </Grid>
     </>
   )
-}
-
-export default ArticleSection
+})

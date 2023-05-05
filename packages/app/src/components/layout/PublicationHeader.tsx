@@ -11,13 +11,17 @@ import { haveActionPermission } from "../../utils/permission"
 import {
   INITIAL_ARTICLE_BLOCK,
   INITIAL_ARTICLE_VALUE,
+  useArticleContext,
   usePublicationContext,
 } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
 
 import Avatar from "../commons/Avatar"
+import { checkTag } from "../../utils/string-handler"
+import { useIpfs } from "../../hooks/useIpfs"
+
 
 type Props = {
   articleId?: string
@@ -35,28 +39,31 @@ const ItemContainer = styled(Grid)({
   },
 })
 const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreatePost, showEditButton }) => {
+  const ipfs = useIpfs()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
+  const { savePublication } = usePublicationContext()
   const {
+    article,
     setCurrentPath,
     saveDraftArticle,
     saveArticle,
     setArticleContent,
     setMarkdownArticle,
     setDraftArticleThumbnail,
-  } = usePublicationContext()
+  } = useArticleContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
 
   const ref = useRef()
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
-    }
-  })
+  // useOnClickOutside(ref, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
 
   useEffect(() => {
     if (location.pathname) {
@@ -67,11 +74,36 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
   const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
 
-  const handleNavigation = async () => {
+  const handleNavigation = () => {
     refetch()
     saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
     navigate(`/${publicationSlug}`)
+  }
+
+  const handleEditNavigation = () => {
+    if (article) {
+      const { image: thumbnailImg, article: articleContent } = article
+
+      const imgPromise: Promise<string | null> = thumbnailImg ? ipfs.getImgSrc(thumbnailImg) : Promise.resolve(null)
+      const contentPromise: Promise<void | null> = articleContent
+        ? ipfs.getText(articleContent).then((content) => {
+            if (content) {
+              const block = checkTag(content)
+              if (block.length) {
+                setArticleContent(block)
+              }
+            }
+          })
+        : Promise.resolve(null)
+
+      Promise.all([imgPromise, contentPromise]).then(([img]) => {
+        saveDraftArticle({ ...article, title: article.title, image: img })
+      })
+
+      savePublication(article.publication)
+      navigate(`/${publication?.id}/${articleId}/edit`)
+    }
   }
 
   return (
@@ -163,7 +195,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    navigate(`/${publication?.id}/${articleId}/edit`)
+                    handleEditNavigation()
                   }}
                 >
                   <Edit sx={{ mr: "13px", width: 16 }} />

@@ -1,13 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, SetStateAction, useEffect } from "react"
+import React, { useState, SetStateAction, useEffect, useCallback } from "react"
 import { Box, InputLabel, Stack, TextField, Typography, useTheme } from "@mui/material"
-import { usePublicationContext } from "../../../../services/publications/contexts"
+import { useArticleContext } from "../../../../services/publications/contexts"
 import { Close } from "@mui/icons-material"
 import { palette, typography } from "../../../../theme"
 import { UploadFile } from "../../../commons/UploadFile"
 // import LinkIcon from "../../../../assets/images/icons/link"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
+import useDebouncedState from "../../../../hooks/useDebouncedState"
 
 export interface ArticleSidebarProps {
   showSidebar: boolean
@@ -15,27 +16,35 @@ export interface ArticleSidebarProps {
 }
 
 const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
-  const { article, draftArticle, saveDraftArticle, setDraftArticleThumbnail, draftArticleThumbnail } =
-    usePublicationContext()
+  const { article } = useArticleContext()
+  const { draftArticle, saveDraftArticle, setDraftArticleThumbnail, draftArticleThumbnail, updateDraftArticle } =
+    useArticleContext()
   const [articleThumbnail, setArticleThumbnail] = useState<File>()
   const [uriImage, setUriImage] = useState<string | undefined>(undefined)
   // const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
-  const [description, setDescription] = useState<string | undefined>(undefined)
+  const [description, debouncedDescription, setDescription] = useDebouncedState<string>(draftArticle?.description ?? "")
   const [tags, setTags] = useState<string[]>([])
 
   const theme = useTheme()
 
   useEffect(() => {
-    if (article) {
-      if (article.description) setDescription(article.description)
-      if (article.tags && article.tags.length) setTags(article.tags)
+    updateDraftArticle("description", debouncedDescription)
+  }, [debouncedDescription])
+
+  useEffect(() => {
+    if (article?.tags?.length && !tags.length) {
+      setTags(article.tags)
     }
+
     if (draftArticle && (description === "" || !tags.length)) {
-      if (draftArticle.description) setDescription(draftArticle.description)
-      if (draftArticle.tags && draftArticle.tags.length) setTags(draftArticle.tags)
-      if (draftArticle && draftArticle.image) setUriImage(draftArticle.image)
+      if (draftArticle.tags && draftArticle.tags.length) {
+        setTags(draftArticle.tags)
+      }
+      if (draftArticle.image) {
+        setUriImage(draftArticle.image)
+      }
     }
-  }, [article, draftArticle])
+  }, [article, draftArticle, tags.length, description])
 
   useEffect(() => {
     if (draftArticleThumbnail && !articleThumbnail) {
@@ -54,23 +63,33 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
     setShowSidebar(false)
   }
 
-  const handleTags = (items: CreateSelectOption[]) => {
-    if (items.length && draftArticle) {
-      const newTags = items.map((item) => item.value)
-      setTags(newTags)
-      saveDraftArticle({ ...draftArticle, tags: newTags })
-    } else {
-      setTags([])
-      if (draftArticle) saveDraftArticle({ ...draftArticle, tags: [] })
-    }
-  }
+  const handleTags = useCallback(
+    (items: CreateSelectOption[]) => {
+      if (items.length && draftArticle) {
+        const newTags = items.map((item) => item.value)
+        setTags(newTags)
+        updateDraftArticle("tags", newTags)
+      } else {
+        setTags([])
+        if (draftArticle) updateDraftArticle("tags", [])
+      }
+    },
+    [draftArticle, updateDraftArticle],
+  )
+
+  const setHandleTags = useCallback(
+    (items: CreateSelectOption[]) => {
+      handleTags(items)
+    },
+    [handleTags],
+  )
 
   const handleOnFiles = (file: File | undefined) => {
     setDraftArticleThumbnail(file)
     setArticleThumbnail(file)
     if (!file && draftArticle) {
       setUriImage(undefined)
-      saveDraftArticle({ ...draftArticle, image: null })
+      updateDraftArticle("image", null)
     }
   }
 
@@ -167,15 +186,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
           {/* Description */}
           <Stack spacing={1}>
             <InputLabel>Description</InputLabel>
-            <TextField
-              multiline
-              minRows={4}
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value)
-                draftArticle && saveDraftArticle({ ...draftArticle, description: e.target.value })
-              }}
-            />
+            <TextField multiline minRows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
           </Stack>
 
           {/* Tags */}
@@ -183,7 +194,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
             <InputLabel>Tags</InputLabel>
             <CreatableSelect
               placeholder="Add a tag..."
-              onSelected={handleTags}
+              onSelected={setHandleTags}
               value={tags}
               errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
             />

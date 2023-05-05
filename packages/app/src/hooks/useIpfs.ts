@@ -4,7 +4,7 @@ import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
 
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+export const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")
 }

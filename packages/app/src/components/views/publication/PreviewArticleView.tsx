@@ -3,7 +3,7 @@ import { Box, Chip, CircularProgress, Grid, Typography } from "@mui/material"
 
 import React, { Fragment, useEffect, useState } from "react"
 import TurndownService from "turndown"
-import { usePublicationContext } from "../../../services/publications/contexts"
+import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
 import { palette } from "../../../theme"
 
 import { Markdown } from "../../commons/Markdown"
@@ -18,18 +18,19 @@ const turndownService = new TurndownService({ headingStyle: "atx" })
 const PreviewArticleView: React.FC = () => {
   const location = useLocation()
   const { convertToHtml, loading } = useMarkdown()
-  const { publication, draftArticle, articleContent, draftArticleThumbnail } = usePublicationContext()
+  const { publication } = usePublicationContext()
+  const { draftArticle, articleContent, draftArticleThumbnail } = useArticleContext()
   const [articleHtml, setArticleHtml] = useState<string>("")
   const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
   const article = turndownService.turndown(articleHtml)
 
   const isEdit = location.pathname.includes("edit") && "edit"
   const isNew = location.pathname.includes("new") && "new"
-
+ 
   useEffect(() => {
     const articleToHtmlFlow = async () => {
       if (articleContent?.length) {
-        const content = await convertToHtml(articleContent, true)
+        const content = await convertToHtml(articleContent, true, true, "read")
         setArticleHtml(content)
       }
     }
@@ -61,9 +62,7 @@ const PreviewArticleView: React.FC = () => {
             {draftArticle && (
               <Fragment>
                 <Grid item>
-                  <Typography variant="h1">
-                    {draftArticle.title}
-                  </Typography>
+                  <Typography variant="h1">{draftArticle.title}</Typography>
                 </Grid>
                 <Grid item>
                   <Grid container spacing={1} sx={{ marginLeft: -0.5 }}>

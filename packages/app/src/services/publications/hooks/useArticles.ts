@@ -4,13 +4,13 @@ import { useQuery } from "urql"
 import { useNotification } from "../../../hooks/useNotification"
 import { Article } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
-import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext } from "../contexts"
 import { GET_ARTICLES_QUERY } from "../queries"
 
 const useArticles = () => {
   const openNotification = useNotification()
   const { transactionUrl } = usePosterContext()
-  const { draftArticle, saveDraftArticle, saveArticle } = usePublicationContext()
+  const { draftArticle, saveDraftArticle, saveArticle } = useArticleContext()
   const [showToast, setShowToast] = useState<boolean>(true)
   const [data, setData] = useState<Article[] | undefined>(undefined)
   const [indexing, setIndexing] = useState<boolean>(false)

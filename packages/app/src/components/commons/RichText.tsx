@@ -11,7 +11,7 @@ import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
 import { ReactComponent as QuoteIcon } from "../../assets/images/quoteIcon.svg"
 import { ReactComponent as DividerIcon } from "../../assets/images/dividerIcon.svg"
 import { ReactComponent as TrashIcon } from "../../assets/images/trashIcon.svg"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { DragIndicator } from "@mui/icons-material"
 
 const RichTextButton = styled(Box)({
@@ -60,12 +60,12 @@ export enum RICH_TEXT_ELEMENTS {
   H5 = "h5",
   H6 = "h6",
   PARAGRAPH = "p",
-  IMAGE = "image",
+  IMAGE = "img",
   ORDERED = "ol",
   UNORDERED = "li",
   CODE = "pre",
   QUOTE = "blockquote",
-  DIVIDER = "divider",
+  DIVIDER = "hr",
 }
 
 type RichTextItemProps = {
@@ -183,16 +183,6 @@ const DragTooltipContent = () => {
       >
         <span style={{ color: "white" }}>Click</span> to Edit
       </Typography>
-      {/* <Typography
-        gutterBottom={false}
-        sx={{
-          color: palette.whites[600],
-          fontFamily: typography.fontFamilies.sans,
-          lineHeight: 1.25,
-        }}
-      >
-        <span style={{ color: "white" }}>Drag</span> to move
-      </Typography> */}
     </>
   )
 }
@@ -240,11 +230,11 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
 
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
-    }
-  })
+  // useOnClickOutside(ref, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
 
   useEffect(() => {
     setShow(showCommand)

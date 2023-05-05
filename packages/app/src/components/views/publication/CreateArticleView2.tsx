@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Box, Button, CircularProgress, Stack, TextField, Typography } from "@mui/material"
-import { usePublicationContext } from "../../../services/publications/contexts"
+import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
 import { palette, typography } from "../../../theme"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
@@ -30,7 +30,8 @@ export const CreateArticleView2: React.FC<CreateArticleViewProps> = ({ type }) =
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
 
   const { account } = useWeb3React()
-  const { publication: publicationFromContext, article, draftArticle, saveDraftArticle } = usePublicationContext()
+  const { publication: publicationFromContext } = usePublicationContext()
+  const { article, draftArticle, saveDraftArticle } = useArticleContext()
   const publication = usePublication(publicationSlug || "")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])

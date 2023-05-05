@@ -25,87 +25,39 @@ export const toBase64 = (file: File) =>
     reader.onload = () => resolve(reader.result as string)
   })
 
-const getBlocksByTag = (html: string, tag: RICH_TEXT_ELEMENTS): Block[] => {
-  let newBlock: Block[] = []
-  let firstTagElementIndex: number
-  let lastTagElementIndex: number
-  const htmlContentArray = html.split(" ")
+const createBlockFromElement = (element: Element, tag: RICH_TEXT_ELEMENTS): Block => {
+  let id = element.getAttribute("id") || uid()
+  let imageUrl = ""
+  let html = ""
 
-  htmlContentArray.forEach((word, index) => {
-    if (word === `className=${tag}>` && tag !== RICH_TEXT_ELEMENTS.IMAGE && tag !== RICH_TEXT_ELEMENTS.DIVIDER) {
-      firstTagElementIndex = index
+  if (tag === RICH_TEXT_ELEMENTS.IMAGE) {
+    const src = element.getAttribute("src")
+    if (src) {
+      imageUrl = src.includes("https://") ? src : `${IPFS_GATEWAY}/${src}`
     }
-    if (word === `</${tag}>` && tag !== RICH_TEXT_ELEMENTS.IMAGE && tag !== RICH_TEXT_ELEMENTS.DIVIDER) {
-      lastTagElementIndex = index
-    }
-    if (word === `<img` && tag === RICH_TEXT_ELEMENTS.IMAGE) {
-      const path = htmlContentArray[index + 2]
-      let imageSrc = path.substring(path.indexOf(`"`) + 1).replace(`"`, "")
-      if (!imageSrc.includes("https://")) {
-        imageSrc = `${IPFS_GATEWAY}/${imageSrc} `
-      }
-      newBlock.push({ tag, id: uid(), html: "", imageUrl: imageSrc })
-    }
-    if (word === `<hr` && tag === RICH_TEXT_ELEMENTS.DIVIDER) {
-      newBlock.push({ tag, id: uid(), html: "" })
-    }
+  } else {
+    html = element.innerHTML
+  }
 
-    if (firstTagElementIndex && lastTagElementIndex) {
-      const articleWords = htmlContentArray.slice(firstTagElementIndex + 1, lastTagElementIndex)
-      newBlock.push({ tag, id: uid(), html: articleWords.join(" ") })
-      firstTagElementIndex = 0
-      lastTagElementIndex = 0
-    }
-  })
-  return newBlock
+  return { tag, id, html, imageUrl }
 }
 
 export const checkTag = (html: string): Block[] => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, "text/html")
+  const elements = doc.body.children
+
   let newBlocks: Block[] = []
-  if (html.includes(RICH_TEXT_ELEMENTS.H1)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H1)
-    newBlocks = [...newBlocks, ...content]
+
+  const elementsArray = Array.from(elements)
+
+  for (const element of elementsArray) {
+    const tag = element.tagName.toLowerCase() as RICH_TEXT_ELEMENTS
+    if (Object.values(RICH_TEXT_ELEMENTS).includes(tag)) {
+      newBlocks.push(createBlockFromElement(element, tag))
+    }
   }
-  if (html.includes(RICH_TEXT_ELEMENTS.H2)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H2)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.H3)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H3)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.H4)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H4)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.H5)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H5)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.H6)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.H6)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.PARAGRAPH)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.PARAGRAPH)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.QUOTE)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.QUOTE)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.CODE)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.CODE)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.DIVIDER)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.DIVIDER)
-    newBlocks = [...newBlocks, ...content]
-  }
-  if (html.includes(RICH_TEXT_ELEMENTS.IMAGE)) {
-    const content = getBlocksByTag(html, RICH_TEXT_ELEMENTS.IMAGE)
-    newBlocks = [...newBlocks, ...content]
-  }
+
   return newBlocks
 }
 
@@ -117,7 +69,8 @@ export const convertToBlock = (html: string): Block[] => {
 export const convertToMarkdown = (html: string): string => {
   let htmlContent = html
   if (html.includes("img") && html.includes("src=")) {
-    htmlContent = html.replace(`src="`, `src="${IPFS_GATEWAY}/`)
+    const regex = /src="/g
+    htmlContent = html.replace(regex, `src="${IPFS_GATEWAY}/`)
   }
   const markdown = turndownService.turndown(htmlContent)
   return markdown

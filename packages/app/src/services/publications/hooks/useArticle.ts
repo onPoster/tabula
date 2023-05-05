@@ -4,7 +4,7 @@ import { useIpfs } from "../../../hooks/useIpfs"
 import { useNotification } from "../../../hooks/useNotification"
 import { Article } from "../../../models/publication"
 import { usePosterContext } from "../../poster/context"
-import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext } from "../contexts"
 import { GET_ARTICLE_QUERY } from "../queries"
 
 const useArticle = (id: string) => {
@@ -13,7 +13,7 @@ const useArticle = (id: string) => {
   const [data, setData] = useState<Article | undefined>(undefined)
   const [imageSrc, setImageSrc] = useState<string>("")
   const ipfs = useIpfs()
-  const { draftArticle, saveDraftArticle, saveArticle, setMarkdownArticle } = usePublicationContext()
+  const { draftArticle, saveDraftArticle, saveArticle, setMarkdownArticle } = useArticleContext()
   const [showToast, setShowToast] = useState<boolean>(true)
   const [indexing, setIndexing] = useState<boolean>(false)
   const [executePollInterval, setExecutePollInterval] = useState<boolean>(false)

@@ -48,7 +48,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {
     publication,
-    saveIsEditing,
+    saveIsEditingPublication,
     saveDraftPublicationImage,
     draftPublicationImage,
     removePublicationImage,
@@ -73,13 +73,13 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   })
 
   useEffect(() => {
-    saveIsEditing(true)
+    saveIsEditingPublication(true)
     // returned function will be called on component unmount
     return () => {
-      saveIsEditing(false)
+      saveIsEditingPublication(false)
       saveDraftPublicationImage(undefined)
     }
-  }, [saveDraftPublicationImage, saveIsEditing])
+  }, [saveDraftPublicationImage, saveIsEditingPublication])
 
   useEffect(() => {
     if (publication && !loading && publication.lastUpdated) {

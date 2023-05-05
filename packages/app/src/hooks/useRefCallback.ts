@@ -1,21 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 
-const useRefCallback = <T extends any[]>(
-  value: ((...args: T) => void) | undefined,
-  deps?: React.DependencyList,
-): ((...args: T) => void) => {
-  const ref = useRef(value)
-
+export const useUpdateCallbackRef = (callback: any) => {
+  const callbackRef = useRef(callback)
   useEffect(() => {
-    ref.current = value
-  }, deps ?? [value])
-
-  const result = useCallback((...args: T) => {
-    ref.current?.(...args)
-  }, [])
-
-  return result
+    callbackRef.current = callback
+  }, [callback])
+  return callbackRef
 }
-
-export default useRefCallback

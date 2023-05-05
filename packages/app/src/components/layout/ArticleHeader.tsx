@@ -7,10 +7,10 @@ import { Article, Publication } from "../../models/publication"
 import { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
-import { INITIAL_ARTICLE_VALUE, usePublicationContext } from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import Avatar from "../commons/Avatar"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Block } from "../commons/EditableItemBlock"
 import { RICH_TEXT_ELEMENTS } from "../commons/RichText"
 import { useIpfs } from "../../hooks/useIpfs"
@@ -36,21 +36,17 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { convertToHtml } = useMarkdown()
   const { createArticle, updateArticle } = usePoster()
+  const { setCurrentPath, loading: loadingTransaction, ipfsLoading, setLoading } = usePublicationContext()
+
   const {
-    setCurrentPath,
-    saveDraftArticle,
-    saveArticle,
-    setMarkdownArticle,
     setExecuteArticleTransaction,
-    loading: loadingTransaction,
-    articleContent,
-    ipfsLoading,
+    saveDraftArticle,
     draftArticle,
-    setLoading,
+    clearArticleState,
+    articleContent,
     draftArticleThumbnail,
-    setArticleContentError,
-    setArticleTitleError,
-  } = usePublicationContext()
+  } = useArticleContext()
+
   const {
     indexing: createArticleIndexing,
     setExecutePollInterval: createPoll,
@@ -74,21 +70,11 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
 
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
-    }
-  })
-
-  /*
-   * Component will unmount
-   */
-  useEffect(() => {
-    return () => {
-      setArticleTitleError(false)
-      setArticleContentError(false)
-    }
-  }, [])
+  // useOnClickOutside(ref, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
 
   /**
    * Logic after complete the transaction
@@ -124,10 +110,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
 
   const handleNavigation = async () => {
     refetch()
-    saveDraftArticle(INITIAL_ARTICLE_VALUE)
-    saveArticle(undefined)
-    // setArticleContent(undefined)
-    setMarkdownArticle(undefined)
+    clearArticleState()
     navigate(`/${publication?.id}`)
   }
 
@@ -135,61 +118,48 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     isPreview ? navigate(-1) : navigate(`../${type}/preview`)
   }
 
+  //V2
   const prepareTransaction = async (articleContent: Block[]) => {
-    let error = false
     if (draftArticle?.title === "") {
-      setArticleTitleError(true)
-      error = true
+      setExecuteArticleTransaction(false)
+      return
     }
     if (
       articleContent.length === 1 &&
       articleContent[0].html === "" &&
       articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
     ) {
-      setArticleContentError(true)
-      error = true
-    }
-    if (error) {
       setExecuteArticleTransaction(false)
-
       return
     }
-    setArticleTitleError(false)
-    setArticleContentError(false)
     setLoading(true)
-    const blocks: Block[] = []
-    for (const block of articleContent) {
-      if (block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile) {
-        try {
-          await ipfs.uploadContent(block.imageFile).then(async (img) => {
-            blocks.push({ ...block, imageUrl: img.path })
-          })
-        } catch {
-          setLoading(false)
-        }
+    const imageBlocks = articleContent.filter((block) => block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile)
+    const imageUploads = imageBlocks.map((block) => {
+      if (block.imageFile) {
+        return ipfs
+          .uploadContent(block.imageFile)
+          .then((img) => ({
+            ...block,
+            imageUrl: img.path,
+          }))
+          .catch(() => ({ ...block }))
       } else {
-        blocks.push(block)
+        return Promise.resolve(block)
       }
-    }
-
-    //Validate if the article content exist
-    if (blocks.length === 1 && blocks[0].html === "" && blocks[0].tag !== RICH_TEXT_ELEMENTS.IMAGE) {
-      setLoading(false)
-      return setArticleContentError(true)
-    }
-
-    const content = await convertToHtml(blocks, false)
-
+    })
+    const blocks = await Promise.all(imageUploads).then((results) =>
+      articleContent.map((block) => results.find((result) => result === block) ?? block),
+    )
+    const content = await convertToHtml(blocks, false, false, "publish")
     if (draftArticle) {
       const newArticle = { ...draftArticle, article: content }
-      saveDraftArticle(newArticle)
       await handleArticleAction(newArticle)
     }
+    setLoading(false)
     setExecuteArticleTransaction(false)
   }
 
   const handleArticleAction = async (article: Article) => {
-
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
@@ -212,6 +182,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
 
       if (title) {
         if (type === "new") {
+          console.log("before start")
           return await createArticle(
             {
               action: "article/create",
@@ -225,6 +196,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             },
             hashArticle ? true : false,
           ).then((res) => {
+            console.log("response of the create article", res)
             if (res?.error) {
               setLoading(false)
             } else {
@@ -319,9 +291,11 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
               prepareTransaction(articleContent)
             }}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
-            disabled={loadingTransaction || ipfsLoading}
+            disabled={loadingTransaction || ipfsLoading || createArticleIndexing || updateArticleIndexing}
           >
-            {loadingTransaction && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+            {(loadingTransaction || createArticleIndexing || updateArticleIndexing) && (
+              <CircularProgress size={20} sx={{ marginRight: 1 }} />
+            )}
             {createArticleIndexing || updateArticleIndexing ? "Indexing..." : "Publish"}
           </Button>
         </Stack>
@@ -370,3 +344,4 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
 }
 
 export default ArticleHeader
+

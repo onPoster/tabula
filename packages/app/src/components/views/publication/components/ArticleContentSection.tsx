@@ -3,7 +3,7 @@ import React from "react"
 import { palette } from "../../../../theme"
 import { EditableBlock } from "../../../commons/EditableBlock"
 
-export const ArticleContentSection: React.FC = () => {
+export const ArticleContentSection: React.FC = React.memo(() => {
   return (
     <Box
       sx={{
@@ -21,4 +21,4 @@ export const ArticleContentSection: React.FC = () => {
       </Box>
     </Box>
   )
-}
+})
