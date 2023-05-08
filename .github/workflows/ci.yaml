@@ -19,6 +19,9 @@ jobs:
       - name: Generate subgraph.yaml for Goerli
         working-directory: packages/subgraph
         run: yarn prepare:goerli
+      - name: Generate subgraph.yaml for Sepolia
+        working-directory: packages/subgraph
+        run: yarn prepare:sepolia
       - name: Run subgraph tests
         working-directory: packages/subgraph
         run: yarn test

@@ -13,6 +13,9 @@ if (!process.env.REACT_APP_SUBGRAPH_MAINNET) {
 if (!process.env.REACT_APP_SUBGRAPH_GOERLI) {
   throw new Error("REACT_APP_SUBGRAPH_GOERLI is not set")
 }
+if (!process.env.REACT_APP_SUBGRAPH_SEPOLIA) {
+  throw new Error("REACT_APP_SUBGRAPH_SEPOLIA is not set")
+}
 if (!process.env.REACT_APP_SUBGRAPH_POLYGON) {
   throw new Error("REACT_APP_SUBGRAPH_POLYGON is not set")
 }
@@ -30,6 +33,7 @@ const BASE_SUBGRAPH_URL = process.env.REACT_APP_SUBGRAPH_BASE_URL
 const SUBGRAPH_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_GNOSIS_CHAIN
 const SUBGRAPH_MAINNET = process.env.REACT_APP_SUBGRAPH_MAINNET
 const SUBGRAPH_GOERLI = process.env.REACT_APP_SUBGRAPH_GOERLI
+const SUBGRAPH_SEPOLIA = process.env.REACT_APP_SUBGRAPH_SEPOLIA
 const SUBGRAPH_POLYGON = process.env.REACT_APP_SUBGRAPH_POLYGON
 const SUBGRAPH_ARBITRUM = process.env.REACT_APP_SUBGRAPH_ARBITRUM
 const SUBGRAPH_OPTIMISM = process.env.REACT_APP_SUBGRAPH_OPTIMISM
@@ -43,6 +47,8 @@ const getUrl = (chainId?: number) => {
       return BASE_SUBGRAPH_URL + SUBGRAPH_GNOSIS_CHAIN
     case SupportedChainId.GOERLI:
       return BASE_SUBGRAPH_URL + SUBGRAPH_GOERLI
+    case SupportedChainId.SEPOLIA:
+      return BASE_SUBGRAPH_URL + SUBGRAPH_SEPOLIA
     case SupportedChainId.POLYGON:
       return BASE_SUBGRAPH_URL + SUBGRAPH_POLYGON
     case SupportedChainId.OPTIMISM:
