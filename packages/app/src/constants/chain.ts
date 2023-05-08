@@ -6,6 +6,7 @@ export enum SupportedChainId {
   MAINNET = 1,
   GNOSIS_CHAIN = 100,
   GOERLI = 5,
+  SEPOLIA = 11155111,
   POLYGON = 137,
   ARBITRUM = 42161,
   OPTIMISM = 10,
@@ -16,6 +17,7 @@ export enum SupportedChain {
   MAINNET = "mainnet",
   GNOSIS_CHAIN = "gnosis_chain",
   GOERLI = "goerli",
+  SEPOLIA = "sepolia",
   POLYGON = "polygon",
   ARBITRUM = "arbitrum",
   OPTIMISM = "optimism",
@@ -30,6 +32,8 @@ export const chainIdToChainName = (chainId: number) => {
       return SupportedChain.GNOSIS_CHAIN
     case SupportedChainId.GOERLI:
       return SupportedChain.GOERLI
+    case SupportedChainId.SEPOLIA:
+      return SupportedChain.SEPOLIA
     case SupportedChainId.POLYGON:
       return SupportedChain.POLYGON
     case SupportedChainId.ARBITRUM:
@@ -49,6 +53,8 @@ export const chainNameToChainId = (chainName?: string) => {
       return SupportedChainId.GNOSIS_CHAIN
     case SupportedChain.GOERLI:
       return SupportedChainId.GOERLI
+    case SupportedChain.SEPOLIA:
+      return SupportedChainId.SEPOLIA
     case SupportedChain.POLYGON:
       return SupportedChainId.POLYGON
     case SupportedChain.ARBITRUM:
@@ -66,6 +72,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
   SupportedChainId.GNOSIS_CHAIN,
   SupportedChainId.GOERLI,
+  SupportedChainId.SEPOLIA,
   SupportedChainId.POLYGON,
   SupportedChainId.ARBITRUM,
   SupportedChainId.OPTIMISM,
@@ -80,6 +87,8 @@ export const chainToString = (chainId: number) => {
       return `Gnosis Chain (ChainID: ${chainId})`
     case SupportedChainId.GOERLI:
       return `Goerli (ChainID: ${chainId})`
+    case SupportedChainId.SEPOLIA:
+      return `Sepolia (ChainID: ${chainId})`
     case SupportedChainId.POLYGON:
       return `Polygon (ChainID: ${chainId})`
     case SupportedChainId.ARBITRUM:
@@ -164,6 +173,22 @@ export const chainParameters = (chainId: number) => {
           decimals: 18,
         },
         blockExplorerUrls: ["https://goerli.etherscan.io/"],
+      }
+    case SupportedChainId.SEPOLIA:
+      return {
+        chainId: requiredChainIdHex,
+        chainName: "Sepolia",
+        rpcUrls: [
+          "https://rpc.sepolia.org",
+          "https://rpc2.sepolia.org",
+          "https://rpc-sepolia.rockx.com"
+        ],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        blockExplorerUrls: ["https://sepolia.etherscan.io/"],
       }
     case SupportedChainId.POLYGON:
       return {

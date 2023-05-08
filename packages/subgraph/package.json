@@ -12,6 +12,8 @@
     "prepare:gnosis-chain": "mustache network_configs/gnosis-chain.json subgraph.template.yaml > subgraph.yaml",
     "deploy:goerli": "yarn prepare:goerli && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__GOERLI'",
     "prepare:goerli": "mustache network_configs/goerli.json subgraph.template.yaml > subgraph.yaml",
+    "deploy:sepolia": "yarn prepare:sepolia && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__SEPOLIA'",
+    "prepare:sepolia": "mustache network_configs/sepolia.json subgraph.template.yaml > subgraph.yaml",
     "deploy:polygon": "yarn prepare:polygon && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__POLYGON'",
     "prepare:polygon": "mustache network_configs/polygon.json subgraph.template.yaml > subgraph.yaml",
     "deploy:optimism": "yarn prepare:optimism && bash -c 'source .env || true && graph deploy --node https://api.thegraph.com/deploy/ $HOSTED_SERVICE_SUBGRAPH__OPTIMISM'",

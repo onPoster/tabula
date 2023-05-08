@@ -14,6 +14,7 @@ if (typeof INFURA_KEY === "undefined") {
 const NETWORK_URLS: { [key in SupportedChainId]: string } = {
   [SupportedChainId.MAINNET]: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   [SupportedChainId.GOERLI]: `https://goerli.infura.io/v3/${INFURA_KEY}`,
+  [SupportedChainId.SEPOLIA]: `https://sepolia.infura.io/v3/${INFURA_KEY}`,
   [SupportedChainId.GNOSIS_CHAIN]: `https://rpc.gnosischain.com/`,
   [SupportedChainId.POLYGON]: `https://polygon-rpc.com/`,
   [SupportedChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc/`,
