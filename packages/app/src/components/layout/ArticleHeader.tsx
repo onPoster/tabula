@@ -45,6 +45,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     clearArticleState,
     articleContent,
     draftArticleThumbnail,
+    setArticleTitleError,
+    setArticleContentError,
   } = useArticleContext()
 
   const {
@@ -120,18 +122,26 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
 
   //V2
   const prepareTransaction = async (articleContent: Block[]) => {
+    let initialError = false
     if (draftArticle?.title === "") {
       setExecuteArticleTransaction(false)
-      return
+      setArticleTitleError(true)
+      initialError = true
     }
     if (
       articleContent.length === 1 &&
       articleContent[0].html === "" &&
       articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
     ) {
+      setArticleContentError(true)
       setExecuteArticleTransaction(false)
+      initialError = true
+    }
+    if (initialError) {
       return
     }
+    setArticleTitleError(false)
+    setArticleContentError(false)
     setLoading(true)
     const imageBlocks = articleContent.filter((block) => block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile)
     const imageUploads = imageBlocks.map((block) => {
@@ -344,4 +354,3 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
 }
 
 export default ArticleHeader
-

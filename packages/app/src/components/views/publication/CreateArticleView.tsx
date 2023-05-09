@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box, Grid, InputLabel, Stack, TextField, Typography } from "@mui/material"
+import { Box, FormHelperText, Grid, InputLabel, Stack, TextField, Typography } from "@mui/material"
 
 import React, { useEffect } from "react"
 import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
@@ -15,7 +15,7 @@ interface CreateArticleViewProps {
 
 export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({ type }) => {
   const { publication } = usePublicationContext()
-  const { draftArticle, updateDraftArticle } = useArticleContext()
+  const { draftArticle, updateDraftArticle, articleTitleError, articleContentError } = useArticleContext()
 
   const [title, debouncedTitle, setTitle] = useDebouncedState<string>(draftArticle?.title ?? "")
   useEffect(() => {
@@ -50,11 +50,11 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
                   placeholder="Post title"
                 />
 
-                {/* {articleTitleError && (
+                {articleTitleError && (
                   <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
                     Title is required
                   </FormHelperText>
-                )} */}
+                )}
               </Stack>
             </Grid>
 
@@ -67,11 +67,11 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
                   </Typography>
                 </InputLabel>
                 <ArticleContentSection />
-                {/* {articleContentError && (
+                {articleContentError && (
                   <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
                     Article content is required
                   </FormHelperText>
-                )} */}
+                )}
               </Stack>
             </Grid>
           </Grid>
