@@ -9,7 +9,7 @@ import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { palette } from "../../theme"
 import shadows from "@mui/material/styles/shadows"
-import { useLocation } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 
 type Props = {
   publication?: Publication
@@ -18,9 +18,10 @@ type Props = {
 }
 
 const PublicationPage: React.FC<Props> = ({ children, publication, type }) => {
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const location = useLocation()
   const [showSidebar, setShowSidebar] = useState<boolean>(true)
-  const { imageSrc } = usePublication(publication?.id || "")
+  const { imageSrc } = usePublication(publicationSlug || "")
   const theme = useTheme()
   useDynamicFavIcon(imageSrc)
 
@@ -39,7 +40,7 @@ const PublicationPage: React.FC<Props> = ({ children, publication, type }) => {
           <meta property="og:description" content={publication?.description} key="1" />,
           <meta name="description" content={publication?.description} key="2" />,
         ]}
-        <meta property="og:url" content={`https://tabula.gg/#/${publication?.id}`} />
+        <meta property="og:url" content={`https://tabula.gg/#/${publicationSlug}`} />
       </Helmet>
 
       <Box

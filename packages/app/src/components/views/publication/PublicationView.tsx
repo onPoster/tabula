@@ -110,7 +110,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                       fontSize={10}
                       sx={{ wordBreak: "break-all" }}
                     >
-                      {publication.id}
+                      {publicationSlug}
                     </Typography>
                   </Stack>
                   {publication.description && (

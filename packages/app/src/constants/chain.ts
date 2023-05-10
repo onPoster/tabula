@@ -3,7 +3,7 @@ import MainnetIcon from "../assets/images/networks/ethereum.png";
 import GoerliIcon from "../assets/images/networks/goerli.png";
 import GnosisChainIcon from "../assets/images/networks/gnosis-chain.png";
 import OptimismIcon from "../assets/images/networks/optimism.png";
-import ArbitrumtIcon from "../assets/images/networks/arbitrum.png";
+import ArbitrumIcon from "../assets/images/networks/arbitrum.png";
 import PolygonIcon from "../assets/images/networks/polygon.png";
 import OptimismOnGnosisChainIcon from "../assets/images/networks/optimism-on-gnosis-chain.png";
 
@@ -40,7 +40,7 @@ export const SupportedChainIcon = (chainId: number) => {
   case SupportedChainId.POLYGON: 
     return PolygonIcon
   case SupportedChainId.ARBITRUM: 
-    return ArbitrumtIcon
+    return ArbitrumIcon
   case SupportedChainId.OPTIMISM: 
     return OptimismIcon
   case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN: 

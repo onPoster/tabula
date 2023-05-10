@@ -102,7 +102,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
       })
 
       savePublication(article.publication)
-      navigate(`/${publication?.id}/${articleId}/edit`)
+      navigate(`/${publicationSlug}/${articleId}/edit`)
     }
   }
 

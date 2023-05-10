@@ -4,7 +4,7 @@ import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
 
-export const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")
 }
@@ -46,6 +46,23 @@ export const useIpfs = () => {
     // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
     // its set up as a promise on purus as this will be required for the real implementation
     return `${IPFS_GATEWAY}/${hash}`
+  }
+
+  const removePrefix = (url: string, prefix: string) => {
+    if (url.startsWith(prefix)) {
+      return url.slice(prefix.length)
+    }
+    return url
+  }
+
+  const getImgHash = (path: string, remove: boolean): string => {
+    if (path.includes(IPFS_GATEWAY)) {
+      if (remove) {
+        return removePrefix(path, IPFS_GATEWAY)
+      }
+      return path
+    }
+    return path
   }
 
   const getText = async (hash: string): Promise<string> => {
@@ -118,5 +135,6 @@ export const useIpfs = () => {
     isValidIpfsService,
     getText,
     getImgSrc,
+    getImgHash,
   }
 }

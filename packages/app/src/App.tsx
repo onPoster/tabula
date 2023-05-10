@@ -9,7 +9,6 @@ import { WalletView } from "./components/views/wallet/WalletView"
 import { PublicationsView } from "./components/views/publication/PublicationsView"
 import { ArticleProvider, PublicationProvider } from "./services/publications/contexts"
 import { CreateArticleView } from "./components/views/publication/CreateArticleView"
-import { CreateArticleView2 } from "./components/views/publication/CreateArticleView2"
 import { ArticleView } from "./components/views/publication/ArticleView"
 import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
@@ -69,13 +68,12 @@ const App: React.FC = () => {
                     <Route path="permissions/:type" element={<PermissionView />} />
 
                     <Route path="new" element={<CreateArticleView type="new" />} />
-                    <Route path="new/2" element={<CreateArticleView2 type="new" />} />
+
                     <Route path=":type/preview" element={<PreviewArticleView />} />
 
                     <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
 
                     <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} />
-                    <Route path=":articleId/edit/2" element={<CreateArticleView2 type="edit" />} />
                   </Route>
                 </Routes>
               </PosterProvider>

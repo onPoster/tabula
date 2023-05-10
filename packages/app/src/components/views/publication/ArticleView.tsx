@@ -21,11 +21,11 @@ interface ArticleViewProps {
 //Provisional solution to detect older articles and check the dif between markdown and html articles
 const VALIDATION_DATE = "2023-02-02T00:00:00Z"
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
   const { article, saveArticle, markdownArticle, setMarkdownArticle, loading, getIpfsData } = useArticleContext()
-
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
-  const publication = usePublication(article?.publication?.id || "")
+  const publication = usePublication(publicationSlug || "")
   useDynamicFavIcon(publication?.imageSrc)
   const dateCreation = useMemo(
     () => article?.postedOn && new Date(parseInt(article.postedOn) * 1000),
@@ -116,7 +116,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                   <meta property="og:description" content={article?.description} key="1" />,
                   <meta name="description" content={article?.description} key="2" />,
                 ]}
-                <meta property="og:url" content={`https://tabula.gg/#/${article.publication?.id}/${article.id}`} />
+                <meta property="og:url" content={`https://tabula.gg/#/${publicationSlug}/${article.id}`} />
                 {article.image != null && <meta property="og:image" content={imageSrc} />}
               </Helmet>
               {article.image && <img src={imageSrc} alt={article.title} />}

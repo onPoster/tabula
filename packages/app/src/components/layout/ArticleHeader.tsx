@@ -113,7 +113,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const handleNavigation = async () => {
     refetch()
     clearArticleState()
-    navigate(`/${publication?.id}`)
+    navigate(`/${publicationSlug}`)
   }
 
   const handlePreview = () => {
@@ -225,7 +225,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
               description,
               tags,
               image: articleThumbnail,
-              authors: [account],
             },
             hashArticle ? true : false,
           ).then((res) => {
@@ -269,7 +268,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
           sx={{ cursor: "pointer", transition: "opacity 0.25s ease-in-out", "&:hover": { opacity: 0.6 } }}
           onClick={handleNavigation}
         >
-          <Avatar width={31} height={31} publicationSlug={publication?.id} />
+          <Avatar width={31} height={31} publicationSlug={publicationSlug as string} />
 
           <Typography
             color={palette.grays[1000]}

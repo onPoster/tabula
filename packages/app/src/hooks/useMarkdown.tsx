@@ -1,18 +1,11 @@
 import { useState } from "react"
 import { Block } from "../components/commons/EditableItemBlock"
 import { RICH_TEXT_ELEMENTS } from "../components/commons/RichText"
-import { IPFS_GATEWAY, useIpfs } from "./useIpfs"
+import { useIpfs } from "./useIpfs"
 
 export const useMarkdown = () => {
-  const { uploadContent, getImgSrc } = useIpfs()
+  const { uploadContent, getImgSrc, getImgHash } = useIpfs()
   const [loading, setLoading] = useState<boolean>(false)
-
-  const removePrefix = (url: string, prefix: string) => {
-    if (url.startsWith(prefix)) {
-      return url.slice(prefix.length)
-    }
-    return url
-  }
 
   const convertToHtml = async (
     blocks: Block[],
@@ -43,18 +36,18 @@ export const useMarkdown = () => {
           image = URL.createObjectURL(block.imageFile)
         }
 
-        if (block.imageUrl && IPFS_GATEWAY) {
-          if (addUrlPrefix && !block.imageUrl.includes(IPFS_GATEWAY)) {
+        if (block.imageUrl) {
+          if (addUrlPrefix) {
             image = await getImgSrc(block.imageUrl)
           } else {
-            image = block.imageUrl
+            image = getImgHash(block.imageUrl, true)
           }
         }
-        if (block.imageUrl && isDraft && IPFS_GATEWAY && type === "read" && block.imageUrl.includes(IPFS_GATEWAY)) {
-          image = block.imageUrl
+        if (block.imageUrl && isDraft && type === "read") {
+          image = getImgHash(block.imageUrl, false)
         }
-        if (block.imageUrl && IPFS_GATEWAY && block.imageUrl.includes(IPFS_GATEWAY) && type === "publish") {
-          image = removePrefix(block.imageUrl, `${IPFS_GATEWAY}/`)
+        if (block.imageUrl && type === "publish") {
+          image = getImgHash(block.imageUrl, true)
         }
       }
 
