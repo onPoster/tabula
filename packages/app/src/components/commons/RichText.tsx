@@ -228,6 +228,7 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
 
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
+  const [topOffset, setTopOffset] = useState<number>(32)
   const [left, setLeft] = useState<number>()
 
   // useOnClickOutside(ref, () => {
@@ -243,16 +244,31 @@ const RichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, on
   useEffect(() => {
     if (richTextRef.current) {
       const result = richTextRef.current.getBoundingClientRect()
-      setTop(result.top + 32)
+      setTop(result.top + topOffset)
       setLeft(result.left - 115)
     }
   }, [])
+
+  useEffect(() => {
+    if (richTextRef.current) {
+      const result = richTextRef.current.getBoundingClientRect()
+      const menuHeight = 311 // richTextRef.current.clientHeight
+
+      if (menuHeight + 32 + result.top > window.innerHeight) {
+        setTopOffset(-menuHeight - 16)
+      } else {
+        setTopOffset(32)
+      }
+      setTop(result.top + topOffset)
+    }
+  }, [richTextRef.current])
 
   useLayoutEffect(() => {
     function updatePosition() {
       if (richTextRef.current) {
         const result = richTextRef.current.getBoundingClientRect()
-        setTop(result.top + 32)
+
+        setTop(result.top + topOffset)
         setLeft(result.left - 115)
       }
     }

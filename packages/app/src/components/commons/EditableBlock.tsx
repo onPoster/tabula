@@ -11,6 +11,7 @@ export const EditableBlock: React.FC = () => {
   const [previousKey, setPreviousKey] = useState<string>("")
   const [newElementId, setNewElementId] = useState<string | null>(null)
   const [showMenu, setShowMenu] = useState<boolean>(false)
+  const [placeholderFocused, setPlaceholderFocused] = useState<string | null>(null)
   const [menuId, setMenuId] = useState<string | undefined>(undefined)
 
   /**
@@ -26,6 +27,13 @@ export const EditableBlock: React.FC = () => {
       }
     }
   }, [newElementId])
+
+  const checkPlaceholderState = (block: Block) => {
+    const focusId = block.id
+
+    const showPlaceholder = block.tag !== RICH_TEXT_ELEMENTS.DIVIDER && placeholderFocused === focusId
+    return showPlaceholder ? `Type '/' for commands...` : undefined
+  }
 
   const updatePageHandler = (event: ContentEditableEvent, blockId: string) => {
     const value = event.target.value
@@ -143,8 +151,10 @@ export const EditableBlock: React.FC = () => {
               block={block}
               onChange={(event) => updatePageHandler(event, block.id)}
               onKeyDown={(e) => onKeyDownHandler(e, index)}
+              onBlur={() => setPlaceholderFocused(null)}
+              onFocus={() => setPlaceholderFocused(block.id)}
               onImageSelected={(image, file) => onImage(image, file, index)}
-              placeholder={block.tag !== RICH_TEXT_ELEMENTS.DIVIDER ? `Type '/' for commands...` : undefined}
+              placeholder={checkPlaceholderState(block)}
             />
           </Box>
         )

@@ -13,6 +13,7 @@ export interface EditableItemBlockProps {
   block: Block
   onChange?: (event: ContentEditableEvent) => void
   onBlur?: (event: React.FormEvent<HTMLDivElement>) => void
+  onFocus?: (event: React.FormEvent<HTMLDivElement>) => void
   onInput?: (event: React.FormEvent<HTMLDivElement>) => void
   onKeyPress?: (event: React.KeyboardEvent<HTMLDivElement>) => void
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void
@@ -32,7 +33,7 @@ export interface Block {
 }
 
 export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
-  ({ block, onChange, onInput, onBlur, onKeyPress, onKeyDown, onImageSelected, placeholder }) => {
+  ({ block, onChange, onInput, onBlur, onFocus, onKeyPress, onKeyDown, onImageSelected, placeholder }) => {
     const contentEditableRef = useRef<HTMLDivElement>(null)
     const inputFile = useRef<HTMLInputElement | null>(null)
     // const [inlineRichTextRef, setInlineRichTextRef] = useState<React.RefObject<HTMLElement> | null>(null)
@@ -44,6 +45,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
     const onChangeRef = useUpdateCallbackRef(onChange)
     const onInputRef = useUpdateCallbackRef(onInput)
     const onBlurRef = useUpdateCallbackRef(onBlur)
+    const onFocusRef = useUpdateCallbackRef(onFocus)
     const onKeyPressRef = useUpdateCallbackRef(onKeyPress)
     const onKeyDownRef = useUpdateCallbackRef(onKeyDown)
 
@@ -111,6 +113,10 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
     }, [onBlur, onBlurRef])
 
     useEffect(() => {
+      onFocusRef.current = onFocus
+    }, [onFocus, onFocusRef])
+
+    useEffect(() => {
       onKeyPressRef.current = onKeyPress
     }, [onKeyPress, onKeyPressRef])
 
@@ -143,30 +149,32 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
     }
 
     const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-      event.preventDefault();
-    
-      const clipboardText = event.clipboardData?.getData("text/plain");
-      if (!clipboardText) return;
-    
-      const selection = window.getSelection();
-      if (!selection) return;
-    
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-    
-      const textNode = document.createTextNode(clipboardText);
-      range.insertNode(textNode);
-    
-      range.setStartAfter(textNode);
-      range.setEndAfter(textNode);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    
+      event.preventDefault()
+
+      const clipboardText = event.clipboardData?.getData("text/plain")
+      if (!clipboardText) return
+
+      const selection = window.getSelection()
+      if (!selection) return
+
+      const range = selection.getRangeAt(0)
+      range.deleteContents()
+
+      const textNode = document.createTextNode(clipboardText)
+      range.insertNode(textNode)
+
+      range.setStartAfter(textNode)
+      range.setEndAfter(textNode)
+      selection.removeAllRanges()
+      selection.addRange(range)
+
       if (onChange) {
-        const value: ContentEditableEvent = { target: { value: contentEditableRef.current?.innerHTML ?? "" } } as ContentEditableEvent;
-        onChange(value);
+        const value: ContentEditableEvent = {
+          target: { value: contentEditableRef.current?.innerHTML ?? "" },
+        } as ContentEditableEvent
+        onChange(value)
       }
-    };
+    }
 
     return (
       <Box>
@@ -203,6 +211,15 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
                 ? (...args) => {
                     if (onBlurRef.current) {
                       onBlurRef.current(...args)
+                    }
+                  }
+                : undefined
+            }
+            onFocus={
+              onFocus
+                ? (...args) => {
+                    if (onFocusRef.current) {
+                      onFocusRef.current(...args)
                     }
                   }
                 : undefined
