@@ -12,6 +12,16 @@ export type ArticleContextType = {
   loading: boolean
   ipfsLoading: boolean
   executeArticleTransaction: boolean
+  articleEditorState: string | undefined
+  setArticleEditorState: (editor: string | undefined) => void
+  draftArticlePath: string | undefined
+  setDraftArticlePath: (editor: string | undefined) => void
+  storeArticleContent: boolean
+  setStoreArticleContent: (value: boolean) => void
+  showBlockTypePopup: boolean
+  setShowBlockTypePopup: (value: boolean) => void
+  publishArticle: boolean;
+  setPublishArticle: (execute: boolean) => void
   setLoading: (loading: boolean) => void
   setIpfsLoading: (loading: boolean) => void
   setExecuteArticleTransaction: (execute: boolean) => void

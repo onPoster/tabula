@@ -1,42 +1,44 @@
 import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Portal, Stack, SxProps } from "@mui/material"
-import { ReactComponent as BoldIcon } from "../../assets/images/boldIcon.svg"
-import { ReactComponent as ItalicIcon } from "../../assets/images/italicIcon.svg"
-import { ReactComponent as UnderlineIcon } from "../../assets/images/underlineIcon.svg"
-import { ReactComponent as StrikethroughIcon } from "../../assets/images/strikethroughIcon.svg"
-import { ReactComponent as CodeIcon } from "../../assets/images/codeIcon.svg"
-import { palette } from "../../theme"
-import { Block } from "./EditableItemBlock"
+import { ReactComponent as BoldIcon } from "../../../assets/images/boldIcon.svg"
+import { ReactComponent as ItalicIcon } from "../../../assets/images/italicIcon.svg"
+import { ReactComponent as UnderlineIcon } from "../../../assets/images/underlineIcon.svg"
+import { ReactComponent as StrikethroughIcon } from "../../../assets/images/strikethroughIcon.svg"
+import { ReactComponent as CodeIcon } from "../../../assets/images/codeIcon.svg"
+import { ReactComponent as LinkIcon } from "../../../assets/images/linkIcon.svg"
+import { palette } from "../../../theme"
 
 const inlineStyleOptions = [
   {
-    slug: "bold",
+    slug: "BOLD",
     tag: "b",
     icon: <BoldIcon />,
   },
   {
-    slug: "italic",
+    slug: "ITALIC",
     tag: "i",
     icon: <ItalicIcon />,
   },
   {
-    slug: "underline",
+    slug: "UNDERLINE",
     tag: "span",
     icon: <UnderlineIcon />,
-    sx: { textDecoration: "underline" },
   },
   {
-    slug: "strikethrough",
+    slug: "STRIKETHROUGH",
     tag: "span",
     icon: <StrikethroughIcon />,
-    sx: { textDecoration: "line-through" },
   },
   {
-    slug: "code",
+    slug: "CODE",
     tag: "code",
     icon: <CodeIcon />,
-    // sx: {textDecoration: "mono"},
+  },
+  {
+    slug: "LINK",
+    tag: "a",
+    icon: <LinkIcon />,
   },
 ]
 
@@ -50,37 +52,16 @@ type InlineStyleOptions = {
 type InlineRichTextProps = {
   showCommand: boolean
   inlineRichTextRef?: any
-  block: Block
   onClick: (slug: string) => void
 }
 
-const InlineRichText: React.FC<InlineRichTextProps> = ({ inlineRichTextRef, showCommand, block, onClick }) => {
+const EditorInlineText: React.FC<InlineRichTextProps> = ({ inlineRichTextRef, showCommand, onClick }) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
-
-  // const currentElement = document.getElementById(block.id)
-
-  // const applyInlineStyles = () => {
-  //   const sel = window.getSelection()
-  //   if (sel && sel.rangeCount > 0) {
-  //     const range = sel.getRangeAt(0).cloneRange()
-  //     const span = document.createElement("span")
-  //     span.className = "clase-estilo"
-  //     range.surroundContents(span)
-  //     sel.removeAllRanges()
-  //     sel.addRange(range)
-  //   }
-  // }
-
-  // useOnClickOutside(ref, () => {
-  //   if (show) {
-  //     setShow(!show)
-  //   }
-  // })
 
   useEffect(() => {
     setShow(showCommand)
@@ -126,10 +107,10 @@ const InlineRichText: React.FC<InlineRichTextProps> = ({ inlineRichTextRef, show
           direction="row"
           spacing={0.5}
         >
-          {inlineStyleOptions.map(({ slug, tag, icon, sx }: InlineStyleOptions, index) => {
+          {inlineStyleOptions.map(({ slug, icon }: InlineStyleOptions, index) => {
             return (
               <Stack
-                key={`inline-${block.id}-${index}`}
+                key={`inline-${index}`}
                 onClick={() => onClick(slug)}
                 sx={{
                   alignItems: "center",
@@ -156,4 +137,4 @@ const InlineRichText: React.FC<InlineRichTextProps> = ({ inlineRichTextRef, show
   )
 }
 
-export default InlineRichText
+export default EditorInlineText

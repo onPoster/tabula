@@ -1,10 +1,8 @@
-import TurndownService from "turndown"
 import { uid } from "uid"
 import { Block } from "../components/commons/EditableItemBlock"
 import { RICH_TEXT_ELEMENTS } from "../components/commons/RichText"
-
+import turndownService from "../services/turndown"
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-const turndownService = new TurndownService({ headingStyle: "atx" })
 
 if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")

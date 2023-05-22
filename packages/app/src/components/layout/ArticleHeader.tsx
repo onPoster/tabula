@@ -47,6 +47,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     draftArticleThumbnail,
     setArticleTitleError,
     setArticleContentError,
+    setStoreArticleContent,
+    setDraftArticlePath,
+    articleEditorState,
   } = useArticleContext()
 
   const {
@@ -117,7 +120,13 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }
 
   const handlePreview = () => {
-    isPreview ? navigate(-1) : navigate(`../${type}/preview`)
+    if (isPreview) {
+      navigate(-1)
+    } else {
+      setStoreArticleContent(true)
+      setDraftArticlePath(`../${type}/preview`)
+      // navigate(`../${type}/preview`)
+    }
   }
 
   //V2
@@ -128,41 +137,44 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       setArticleTitleError(true)
       initialError = true
     }
-    if (
-      articleContent.length === 1 &&
-      articleContent[0].html === "" &&
-      articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
-    ) {
-      setArticleContentError(true)
-      setExecuteArticleTransaction(false)
+    if (!articleEditorState) {
       initialError = true
     }
+    // if (
+    //   articleContent.length === 1 &&
+    //   articleContent[0].html === "" &&
+    //   articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
+    // ) {
+    //   setArticleContentError(true)
+    //   setExecuteArticleTransaction(false)
+    //   initialError = true
+    // }
     if (initialError) {
       return
     }
     setArticleTitleError(false)
     setArticleContentError(false)
     setLoading(true)
-    const imageBlocks = articleContent.filter((block) => block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile)
-    const imageUploads = imageBlocks.map((block) => {
-      if (block.imageFile) {
-        return ipfs
-          .uploadContent(block.imageFile)
-          .then((img) => ({
-            ...block,
-            imageUrl: img.path,
-          }))
-          .catch(() => ({ ...block }))
-      } else {
-        return Promise.resolve(block)
-      }
-    })
-    const blocks = await Promise.all(imageUploads).then((results) =>
-      articleContent.map((block) => results.find((result) => result === block) ?? block),
-    )
-    const content = await convertToHtml(blocks, false, false, "publish")
+    // const imageBlocks = articleContent.filter((block) => block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile)
+    // const imageUploads = imageBlocks.map((block) => {
+    //   if (block.imageFile) {
+    //     return ipfs
+    //       .uploadContent(block.imageFile)
+    //       .then((img) => ({
+    //         ...block,
+    //         imageUrl: img.path,
+    //       }))
+    //       .catch(() => ({ ...block }))
+    //   } else {
+    //     return Promise.resolve(block)
+    //   }
+    // })
+    // const blocks = await Promise.all(imageUploads).then((results) =>
+    //   articleContent.map((block) => results.find((result) => result === block) ?? block),
+    // )
+    // const content = await convertToHtml(blocks, false, false, "publish")
     if (draftArticle) {
-      const newArticle = { ...draftArticle, article: content }
+      const newArticle = { ...draftArticle, article: articleEditorState as string }
       await handleArticleAction(newArticle)
     }
     setLoading(false)

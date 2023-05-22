@@ -4,11 +4,25 @@ import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from "re
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable"
 import { palette, typography } from "../../theme"
 import { toBase64 } from "../../utils/string-handler"
-// import InlineRichText from "./InlineRichText"
+import InlineRichText from "./InlineRichText"
 import { RICH_TEXT_ELEMENTS } from "./RichText"
 import { useUpdateCallbackRef } from "../../hooks/useRefCallback"
 import { Box } from "@mui/material"
+import { useArticleContext } from "../../services/publications/contexts"
 
+export type BlockItemClassName =
+  | "code"
+  | "strikethrough"
+  | " underline"
+  | "bold"
+  | "italic"
+  | "divider"
+  | "p"
+  | "a"
+  | "img"
+  | "em"
+  | "blockquote"
+  | "pre"
 export interface EditableItemBlockProps {
   block: Block
   onChange?: (event: ContentEditableEvent) => void
@@ -23,6 +37,7 @@ export interface EditableItemBlockProps {
 export interface Block {
   id: string
   html: string
+  styles?: { start: number; end: number; style: string }[]
   tag: string
   className?: string
   previousKey?: string
@@ -35,9 +50,12 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
   ({ block, onChange, onInput, onBlur, onKeyPress, onKeyDown, onImageSelected, placeholder }) => {
     const contentEditableRef = useRef<HTMLDivElement>(null)
     const inputFile = useRef<HTMLInputElement | null>(null)
-    // const [inlineRichTextRef, setInlineRichTextRef] = useState<React.RefObject<HTMLElement> | null>(null)
-    // const [inlineOffset, setInlineOffset] = useState<number | null>(null)
+    const [inlineRichTextRef, setInlineRichTextRef] = useState<React.RefObject<HTMLElement> | null>(null)
+    const [inlineOffset, setInlineOffset] = useState<number | null>(null)
     const [uri, setUri] = useState<string | null | undefined>(null)
+    const [currentSelection, setCurrentSelection] = useState<Selection | null>()
+    const [currentRange, setCurrentRange] = useState<Range | null>()
+    const { articleContent, setArticleContent } = useArticleContext()
 
     const openImagePicker = useCallback(() => inputFile?.current?.click(), [inputFile])
 
@@ -47,31 +65,58 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
     const onKeyPressRef = useUpdateCallbackRef(onKeyPress)
     const onKeyDownRef = useUpdateCallbackRef(onKeyDown)
 
-    // const onSelectionChange = useCallback(() => {
-    //   const selection = window.getSelection()
-    //   if (selection?.isCollapsed) {
-    //     setInlineOffset(null)
-    //     setInlineRichTextRef(null)
-    //     return
-    //   }
-    //   const container = selection?.anchorNode?.parentElement
-    //   const element = container?.closest("[contenteditable=true]") as HTMLElement
-    //   if (element === contentEditableRef.current) {
-    //     setInlineOffset(selection?.anchorOffset ?? null)
-    //     setInlineRichTextRef(contentEditableRef)
-    //   } else {
-    //     setInlineOffset(null)
-    //     setInlineRichTextRef(null)
-    //   }
-    // }, [setInlineOffset, contentEditableRef])
+    const handleMouseUp = () => {
+      const selection = window.getSelection()
+      if (selection?.isCollapsed) {
+        setInlineOffset(null)
+        setInlineRichTextRef(null)
+        return
+      }
+      if (selection) {
+        const container = selection.anchorNode?.parentElement
+        const element = container?.closest("[contenteditable=true]") as HTMLElement
 
-    // useEffect(() => {
-    //   document.addEventListener("selectionchange", onSelectionChange)
-    //   return () => {
-    //     document.removeEventListener("selectionchange", onSelectionChange)
-    //   }
-    //   // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [])
+        if (element === contentEditableRef.current) {
+          setInlineOffset(selection?.anchorOffset ?? null)
+          setInlineRichTextRef(contentEditableRef)
+        }
+        if (selection && selection.rangeCount > 0) {
+          setCurrentSelection(selection)
+          const range = selection.getRangeAt(0).cloneRange()
+          console.log("range", range)
+          setCurrentRange(range)
+        }
+      }
+    }
+
+    const applyInlineStyles = (className: string) => {
+      if (currentSelection && currentRange) {
+        const start = currentRange.startOffset
+        const end = currentRange.endOffset
+        // Encuentra el bloque con el id dado
+        const item = articleContent.find((item) => item.id === block.id)
+        if (!item) return
+        const newStyle = { start, end, style: className }
+        const newStyles = item.styles ? [...item.styles, newStyle] : [newStyle]
+        const newBlocks = articleContent.map((item) => (item.id === block.id ? { ...item, styles: newStyles } : item))
+        setArticleContent(newBlocks)
+        setInlineOffset(null)
+        setInlineRichTextRef(null)
+        console.log("newBlocks", newBlocks)
+      }
+    }
+
+    useEffect(() => {
+      const currentElement = contentEditableRef.current
+      if (currentElement) {
+        currentElement.addEventListener("mouseup", handleMouseUp)
+      }
+      return () => {
+        if (currentElement) {
+          currentElement.removeEventListener("mouseup", handleMouseUp)
+        }
+      }
+    }, [])
 
     useEffect(() => {
       if (block.tag === RICH_TEXT_ELEMENTS.DIVIDER) {
@@ -143,30 +188,79 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
     }
 
     const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-      event.preventDefault();
-    
-      const clipboardText = event.clipboardData?.getData("text/plain");
-      if (!clipboardText) return;
-    
-      const selection = window.getSelection();
-      if (!selection) return;
-    
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-    
-      const textNode = document.createTextNode(clipboardText);
-      range.insertNode(textNode);
-    
-      range.setStartAfter(textNode);
-      range.setEndAfter(textNode);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    
+      event.preventDefault()
+
+      const clipboardText = event.clipboardData?.getData("text/plain")
+      if (!clipboardText) return
+
+      const selection = window.getSelection()
+      if (!selection) return
+
+      const range = selection.getRangeAt(0)
+      range.deleteContents()
+
+      const textNode = document.createTextNode(clipboardText)
+      range.insertNode(textNode)
+
+      range.setStartAfter(textNode)
+      range.setEndAfter(textNode)
+      selection.removeAllRanges()
+      selection.addRange(range)
+
       if (onChange) {
-        const value: ContentEditableEvent = { target: { value: contentEditableRef.current?.innerHTML ?? "" } } as ContentEditableEvent;
-        onChange(value);
+        const value: ContentEditableEvent = {
+          target: { value: contentEditableRef.current?.innerHTML ?? "" },
+        } as ContentEditableEvent
+        onChange(value)
       }
-    };
+    }
+
+    function blockContentToHTML(block: Block): string {
+      if (!block.styles || block.styles.length === 0) {
+        return block.html // si no hay estilos, devuelve el html original
+      }
+
+      // inicializa un array de estilos para cada carácter
+      const charStyles: string[][] = Array(block.html.length).fill([])
+
+      // aplica cada estilo a los caracteres correspondientes
+      for (const { start, end, style } of block.styles) {
+        for (let i = start; i < end; i++) {
+          charStyles[i] = [...charStyles[i], style]
+        }
+      }
+
+      // construye el HTML con los estilos anidados
+      let styledHTML = ""
+      let currentStyles: string[] = []
+      for (let i = 0; i < charStyles.length; i++) {
+        const styles = charStyles[i]
+
+        // cierra los estilos que ya no se aplican
+        for (let j = currentStyles.length - 1; j >= 0; j--) {
+          if (!styles.includes(currentStyles[j])) {
+            styledHTML += "</span>"
+            currentStyles.pop()
+          }
+        }
+
+        // abre nuevos estilos
+        for (let j = currentStyles.length; j < styles.length; j++) {
+          styledHTML += `<span class="${styles[j]}">`
+          currentStyles.push(styles[j])
+        }
+
+        // añade el carácter actual
+        styledHTML += block.html[i]
+      }
+
+      // cierra todos los estilos abiertos
+      for (let j = currentStyles.length - 1; j >= 0; j--) {
+        styledHTML += "</span>"
+      }
+
+      return styledHTML
+    }
 
     return (
       <Box>
@@ -175,7 +269,7 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
             id={block.id}
             className={block.tag}
             innerRef={contentEditableRef}
-            html={block.html}
+            html={blockContentToHTML(block)}
             tagName={block.tag}
             placeholder={placeholder}
             contentEditable={isContentEditableSupported() ? "true" : undefined}
@@ -263,10 +357,13 @@ export const EditableItemBlock: React.FC<EditableItemBlockProps> = React.memo(
           </div>
         )}
         {block.tag === RICH_TEXT_ELEMENTS.DIVIDER && <hr id={`${block.id}-img`} />}
-        {/* 
-        TODO: Implement inline rich text and improve the code in terms of performance
-        <InlineRichText showCommand={typeof inlineOffset === "number"} inlineRichTextRef={inlineRichTextRef} /> 
-        */}
+
+        <InlineRichText
+          showCommand={typeof inlineOffset === "number"}
+          inlineRichTextRef={inlineRichTextRef}
+          block={block}
+          onClick={applyInlineStyles}
+        />
       </Box>
     )
   },

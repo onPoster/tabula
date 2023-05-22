@@ -2,7 +2,6 @@
 import { Box, Chip, CircularProgress, Grid, Typography } from "@mui/material"
 
 import React, { Fragment, useEffect, useState } from "react"
-import TurndownService from "turndown"
 import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
 import { palette } from "../../../theme"
 
@@ -13,31 +12,28 @@ import CreateArticlePage from "../../layout/CreateArticlePage"
 import { useMarkdown } from "../../../hooks/useMarkdown"
 import { toBase64 } from "../../../utils/string-handler"
 import { useLocation } from "react-router-dom"
+import turndownService from "../../../services/turndown"
 
-const turndownService = new TurndownService({ headingStyle: "atx" })
 const PreviewArticleView: React.FC = () => {
   const location = useLocation()
-  const { convertToHtml, loading } = useMarkdown()
+  const { loading } = useMarkdown()
   const { publication } = usePublicationContext()
-  const { draftArticle, articleContent, draftArticleThumbnail } = useArticleContext()
+  const { draftArticle, draftArticleThumbnail, articleEditorState } = useArticleContext()
   const [articleHtml, setArticleHtml] = useState<string>("")
   const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
   const article = turndownService.turndown(articleHtml)
+  const test = turndownService.turndown("<figure>&nbsp;</figure>")
 
   const isEdit = location.pathname.includes("edit") && "edit"
   const isNew = location.pathname.includes("new") && "new"
- 
+
   useEffect(() => {
-    const articleToHtmlFlow = async () => {
-      if (articleContent?.length) {
-        const content = await convertToHtml(articleContent, true, true, "read")
-        setArticleHtml(content)
-      }
+    if (articleEditorState) {
+      console.log("articleEditorState", articleEditorState)
+      setArticleHtml(articleEditorState)
     }
-
-    articleToHtmlFlow()
-  }, [articleContent])
-
+  }, [articleEditorState])
+console.log('test', test)
   useEffect(() => {
     const transformImg = async () => {
       if (draftArticleThumbnail) {

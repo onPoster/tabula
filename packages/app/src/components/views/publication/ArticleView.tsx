@@ -23,7 +23,7 @@ const VALIDATION_DATE = "2023-02-02T00:00:00Z"
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
-  const { article, saveArticle, markdownArticle, setMarkdownArticle, loading, getIpfsData } = useArticleContext()
+  const { article, saveArticle, markdownArticle, setMarkdownArticle, loading, getIpfsData, setArticleEditorState, saveDraftArticle } = useArticleContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(publicationSlug || "")
   useDynamicFavIcon(publication?.imageSrc)
@@ -74,12 +74,14 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
 
   useEffect(() => {
     if (article) {
+      saveDraftArticle(article)
       fetchArticleContent()
     }
   }, [article, fetchArticleContent])
 
   useEffect(() => {
     if (markdownArticle) {
+      setArticleEditorState(markdownArticle)
       const markdownContent = convertToMarkdown(markdownArticle)
       setArticleToShow(markdownContent)
     }

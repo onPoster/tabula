@@ -27,6 +27,23 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
   const [articleTitleError, setArticleTitleError] = useState<boolean>(false)
   const [articleContentError, setArticleContentError] = useState<boolean>(false)
 
+  /** EditorBlock States V2 **/
+  const [storeArticleContent, setStoreArticleContent] = useState<boolean>(false)
+  const [draftArticlePath, setDraftArticlePath] = useState<string | undefined>(undefined)
+  const [articleEditorState, setArticleEditorState] = useState<string | undefined>()
+  const [showBlockTypePopup, setShowBlockTypePopup] = useState<boolean>(false)
+  const [publishArticle, setPublishArticle] = useState<boolean>(false)
+
+  // const logState = () => {
+  //   const content = editorState.getCurrentContent()
+  //   console.log(convertToRaw(content))
+  // }
+
+  // const convertFromHtml = (html: string) => {
+  //   const contentState = stateFromHTML(html)
+  //   setEditorState(EditorState.createWithContent(contentState))
+  // }
+
   const clearArticleState = () => {
     setCurrentPath(undefined)
     setDraftArticle(undefined)
@@ -39,6 +56,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     setIpfsLoading(false)
     setArticleTitleError(false)
     setArticleContentError(false)
+    setArticleEditorState(undefined)
   }
 
   const getIpfsData = async (hash: string): Promise<string> => {
@@ -125,6 +143,16 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         removePublicationImage,
         articleTitleError,
         articleContentError,
+        articleEditorState,
+        publishArticle,
+        setPublishArticle,
+        showBlockTypePopup,
+        storeArticleContent,
+        draftArticlePath,
+        setDraftArticlePath,
+        setStoreArticleContent,
+        setShowBlockTypePopup,
+        setArticleEditorState,
         updateArticleContent,
         setIpfsLoading,
         setLoading,
