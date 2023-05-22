@@ -52,6 +52,7 @@ const Editor: React.FC = () => {
   const [editorState, setEditorState] = useState(handleInitialValue)
   const [pendingEditorState, setPendingEditorState] = useState(null)
   const editor = useRef<DraftEditor>(null)
+  const [inlineEditorOffset, setInlineEditorOffset] = useState({ left: 0, top: 0 })
   const { addRow } = useAddRow(editorState, setEditorState)
   const { deleteRow } = useDeleteRow(editorState, setEditorState)
   const { showInlinePopup, toggleInlineStyle, setShowInlinePopup } = useToggleInlineStyle(editorState, setEditorState)
@@ -88,6 +89,23 @@ const Editor: React.FC = () => {
     const currentSelection = editorState.getSelection()
     const start = currentSelection.getStartOffset()
     const end = currentSelection.getEndOffset()
+
+    const editorRoot = editor.current
+    const anchorKey = currentSelection.getAnchorKey()
+
+    if (editorRoot) {
+      const selectedBlockNodeParent = document.querySelector(`[data-offset-key="${anchorKey}-0-0"]`)
+      const AVERAGE_CHAR_WIDTH = 7
+
+      if (selectedBlockNodeParent) {
+        const selectionWidth = (end - start) * AVERAGE_CHAR_WIDTH
+        const rect = selectedBlockNodeParent.getBoundingClientRect()
+        const posX = rect.left + start * AVERAGE_CHAR_WIDTH + selectionWidth / 2
+        const posY = rect.top - 64
+
+        setInlineEditorOffset({ left: posX, top: posY })
+      }
+    }
 
     if (start !== end) {
       setShowInlinePopup(true)
@@ -167,7 +185,12 @@ const Editor: React.FC = () => {
         handleReturn={handleReturn}
         placeholder="Type '/' for commands..."
       />
-      <EditorInlineText showCommand={showInlinePopup} onClick={(slug) => toggleInlineStyle(slug)} />
+      <EditorInlineText
+        editorState={editorState}
+        showCommand={showInlinePopup}
+        inlineEditorOffset={inlineEditorOffset}
+        onClick={(slug) => toggleInlineStyle(slug)}
+      />
     </Box>
   )
 }
