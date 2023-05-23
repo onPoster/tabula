@@ -22,18 +22,16 @@ const PreviewArticleView: React.FC = () => {
   const [articleHtml, setArticleHtml] = useState<string>("")
   const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
   const article = turndownService.turndown(articleHtml)
-  const test = turndownService.turndown("<figure>&nbsp;</figure>")
 
   const isEdit = location.pathname.includes("edit") && "edit"
   const isNew = location.pathname.includes("new") && "new"
 
   useEffect(() => {
     if (articleEditorState) {
-      console.log("articleEditorState", articleEditorState)
       setArticleHtml(articleEditorState)
     }
   }, [articleEditorState])
-console.log('test', test)
+  console.log("articleHtml", articleHtml)
   useEffect(() => {
     const transformImg = async () => {
       if (draftArticleThumbnail) {

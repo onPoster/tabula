@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Portal, Stack, SxProps, TextField } from "@mui/material"
 import { ReactComponent as BoldIcon } from "../../../assets/images/boldIcon.svg"
@@ -7,7 +7,7 @@ import { ReactComponent as UnderlineIcon } from "../../../assets/images/underlin
 import { ReactComponent as StrikethroughIcon } from "../../../assets/images/strikethroughIcon.svg"
 import { ReactComponent as CodeIcon } from "../../../assets/images/codeIcon.svg"
 import { ReactComponent as LinkIcon } from "../../../assets/images/linkIcon.svg"
-import { EditorState, SelectionState } from "draft-js"
+import { EditorState } from "draft-js"
 
 import { palette } from "../../../theme"
 
@@ -60,7 +60,6 @@ type InlineRichTextProps = {
 
 const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEditorOffset, showCommand, onClick }) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
-  const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
   const [showLinkInput, setShowLinkInput] = useState<boolean>(false) // todo: set when url icon is toggled
   const [show, setShow] = useState<boolean>(false)
@@ -72,25 +71,11 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
   }, [showCommand])
 
   useEffect(() => {
-    console.log(inlineEditorOffset)
     if (inlineEditorOffset) {
       setTop(inlineEditorOffset.top)
       setLeft(inlineEditorOffset.left)
     }
   }, [inlineEditorOffset])
-
-  // useLayoutEffect(() => {
-  //   function updatePosition() {
-  //     if (richTextRef.current) {
-  //       const result = richTextRef.current.getBoundingClientRect()
-  //       setTop(result.top + 32)
-  //       setLeft(result.left - 115)
-  //     }
-  //   }
-  //   window.addEventListener("resize", updatePosition)
-  //   updatePosition()
-  //   return () => window.removeEventListener("resize", updatePosition)
-  // }, [])
 
   return (
     <Portal container={containerRef.current}>

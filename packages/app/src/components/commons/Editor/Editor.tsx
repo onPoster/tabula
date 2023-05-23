@@ -3,22 +3,28 @@ import {
   EditorState,
   ContentBlock,
   KeyBindingUtil,
-  Modifier,
-  SelectionState,
-  Entity,
   CompositeDecorator,
+  Editor as DraftEditor,
+  ContentState,
+  DraftInlineStyleType,
+  RawDraftEntity,
+  DraftEntityMutability,
 } from "draft-js"
-import DraftEditor from "draft-js-plugins-editor"
 import "draft-js/dist/Draft.css"
 import { Box } from "@mui/material"
 import EditorBlockItem from "./EditorBlock"
 import EditorHr from "./EditorComponents/EditorHr"
 // import EditorImage from "./EditorComponents/EditorImage"
-import { stateToHTML } from "draft-js-export-html"
+import {
+  convertToHTML,
+  IConvertToHTMLConfig,
+  convertFromHTML,
+  IConvertFromHTMLConfig,
+  ExtendedHTMLElement,
+} from "draft-convert"
 import { useArticleContext } from "../../../services/publications/contexts"
 import EditorInlineText from "./EditorInlineText"
 import { useNavigate } from "react-router-dom"
-import { stateFromHTML } from "draft-js-import-html"
 import useLinkDecorator from "./hooks/useLinkDecorator"
 import useHandleKeyCommand from "./hooks/useHandleKeyCommand"
 import useKeyBindingFn from "./hooks/useKeyBindingFn"
@@ -27,24 +33,50 @@ import useToggleBlockType from "./hooks/useToggleBlockType"
 import useToggleInlineStyle from "./hooks/useToggleInlineStyle"
 import useAddRow from "./hooks/useAddRow"
 import useDeleteRow from "./hooks/useDeleteRow"
+import useHandleSlashCommand from "./hooks/useSlashCommand"
 
 const { hasCommandModifier } = KeyBindingUtil
+type Config = IConvertToHTMLConfig<DraftInlineStyleType, string, RawDraftEntity>
 
 const Editor: React.FC = () => {
-  const {
-    setShowBlockTypePopup,
-    setArticleEditorState,
-    setStoreArticleContent,
-    storeArticleContent,
-    articleEditorState,
-    draftArticlePath,
-  } = useArticleContext()
+  const { setArticleEditorState, setStoreArticleContent, storeArticleContent, articleEditorState, draftArticlePath } =
+    useArticleContext()
   const navigate = useNavigate()
   const linkDecorator = useLinkDecorator()
   const decorators = new CompositeDecorator(linkDecorator)
   const handleInitialValue = () => {
     if (articleEditorState) {
-      const contentState = stateFromHTML(articleEditorState)
+      const optionsFromHTML: IConvertFromHTMLConfig<DOMStringMap, string, RawDraftEntity<{ [key: string]: any }>> = {
+        htmlToEntity: (
+          nodeName: string,
+          node: HTMLElement,
+          createEntity: (type: string, mutability: DraftEntityMutability, data: object) => string,
+        ) => {
+          if (nodeName === "hr") {
+            return createEntity("HR", "IMMUTABLE", {})
+          }
+        },
+        htmlToBlock: (
+          nodeName: string,
+          node: ExtendedHTMLElement<DOMStringMap>,
+        ): string | false | { type: string; data: object } | undefined => {
+          if (nodeName === "hr") {
+            return {
+              type: "atomic",
+              data: {},
+            }
+          }
+          return undefined
+        },
+        htmlToStyle: (nodeName: string, node: HTMLElement, currentStyle: Set<string>): Set<string> => {
+          if (nodeName === "hr") {
+            return currentStyle.add("HR")
+          }
+          return currentStyle
+        },
+      }
+      const contentState = convertFromHTML(optionsFromHTML)(articleEditorState)
+      console.log("contentState", contentState)
       return EditorState.createWithContent(contentState, decorators)
     }
     return EditorState.createEmpty(decorators)
@@ -56,7 +88,7 @@ const Editor: React.FC = () => {
   const { addRow } = useAddRow(editorState, setEditorState)
   const { deleteRow } = useDeleteRow(editorState, setEditorState)
   const { showInlinePopup, toggleInlineStyle, setShowInlinePopup } = useToggleInlineStyle(editorState, setEditorState)
-
+  const { handleSlashCommand } = useHandleSlashCommand()
   const handleKeyCommand = useHandleKeyCommand(editorState, setEditorState)
   const keyBindingFn = useKeyBindingFn()
   const handleReturn = useHandleReturn(editorState, setEditorState, hasCommandModifier)
@@ -68,9 +100,16 @@ const Editor: React.FC = () => {
 
   useEffect(() => {
     if (storeArticleContent && draftArticlePath) {
-      let html = stateToHTML(editorState.getCurrentContent())
-      // Post-process HTML.
-      html = html.replace(/<figure>&nbsp;<\/figure>/g, "<hr/>")
+      const optionsToHTML: Partial<Config> = {
+        blockToHTML: (block) => {
+          if (block.type === "atomic") {
+            return { start: "<hr/>", end: "" }
+          }
+          return undefined
+        },
+      }
+
+      const html = convertToHTML(optionsToHTML)(editorState.getCurrentContent() as ContentState)
       setArticleEditorState(html)
       navigate(draftArticlePath)
       setStoreArticleContent(false)
@@ -114,71 +153,35 @@ const Editor: React.FC = () => {
     }
   }, [editorState, setShowInlinePopup])
 
-  const handleSlashCommand = (editorState: EditorState) => {
-    const selection = editorState.getSelection()
-    const blockKey = selection.getStartKey()
-    const block = editorState.getCurrentContent().getBlockForKey(blockKey)
-    const blockText = block.getText()
-    if (!blockText.endsWith("/")) {
-      return editorState
-    }
-
-    // Remove the "/" and open the popup
-    setShowBlockTypePopup(true)
-    const newText = blockText.slice(0, -1)
-    const contentState = Modifier.replaceText(
-      editorState.getCurrentContent(),
-      selection.merge({
-        anchorOffset: newText.length,
-        focusOffset: blockText.length,
-      }),
-      "",
-    )
-    const newEditorState = EditorState.push(editorState, contentState, "insert-characters")
-
-    const blockLength = newText.length
-    const focusSelection = new SelectionState({
-      anchorKey: blockKey,
-      anchorOffset: blockLength,
-      focusKey: blockKey,
-      focusOffset: blockLength,
-    })
-    return EditorState.forceSelection(newEditorState, focusSelection)
-  }
-
   const handleState = (editorState: EditorState) => {
     const finalEditorState = handleSlashCommand(editorState)
     setEditorState(finalEditorState)
   }
 
-  const atomicBlockPlugin = {
-    blockRendererFn: (block: ContentBlock) => {
-      if (block.getType() === "atomic") {
-        const entityKey = block.getEntityAt(0)
-        if (entityKey) {
-          const entity = Entity.get(entityKey)
-          if (entity.getType() === "HR") {
-            return {
-              component: EditorHr,
-              editable: false,
-            }
-          }
+  const blockRendererFn = (block: ContentBlock) => {
+    if (block.getType() === "atomic") {
+      const contentState = editorState.getCurrentContent()
+      const entityKey = block.getEntityAt(0)
+      const entity = contentState.getEntity(entityKey)
+      if (entity.getType() === "HR") {
+        return {
+          component: EditorHr,
+          editable: false,
         }
       }
-      return {
-        component: EditorBlockItem,
-        editable: true,
-        props: { toggleBlockType, editorState, onAdd: addRow, onDelete: deleteRow },
-      }
-    },
+    }
+    return {
+      component: EditorBlockItem,
+      editable: true,
+      props: { toggleBlockType, editorState, onAdd: addRow, onDelete: deleteRow },
+    }
   }
   return (
     <Box>
       <DraftEditor
         ref={editor}
         editorState={editorState}
-        // blockRendererFn={blockRendererFn}
-        plugins={[atomicBlockPlugin]}
+        blockRendererFn={blockRendererFn}
         onChange={handleState}
         handleKeyCommand={handleKeyCommand}
         keyBindingFn={keyBindingFn}
