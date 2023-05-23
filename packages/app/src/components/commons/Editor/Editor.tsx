@@ -34,6 +34,8 @@ import useToggleInlineStyle from "./hooks/useToggleInlineStyle"
 import useAddRow from "./hooks/useAddRow"
 import useDeleteRow from "./hooks/useDeleteRow"
 import useHandleSlashCommand from "./hooks/useSlashCommand"
+import EditorImage from "./EditorComponents/EditorImage"
+import EditorLink from "./EditorComponents/EditorLink"
 
 const { hasCommandModifier } = KeyBindingUtil
 type Config = IConvertToHTMLConfig<DraftInlineStyleType, string, RawDraftEntity>
@@ -54,6 +56,9 @@ const Editor: React.FC = () => {
         ) => {
           if (nodeName === "hr") {
             return createEntity("HR", "IMMUTABLE", {})
+          }
+          if (nodeName === "a") {
+            return createEntity("LINK", "MUTABLE", { url: (node as HTMLAnchorElement).href })
           }
         },
         htmlToBlock: (
@@ -76,7 +81,6 @@ const Editor: React.FC = () => {
         },
       }
       const contentState = convertFromHTML(optionsFromHTML)(articleEditorState)
-      console.log("contentState", contentState)
       return EditorState.createWithContent(contentState, decorators)
     }
     return EditorState.createEmpty(decorators)
@@ -92,7 +96,7 @@ const Editor: React.FC = () => {
   const handleKeyCommand = useHandleKeyCommand(editorState, setEditorState)
   const keyBindingFn = useKeyBindingFn()
   const handleReturn = useHandleReturn(editorState, setEditorState, hasCommandModifier)
-  const toggleBlockType = useToggleBlockType(editorState, setEditorState)
+  const { toggleBlockType, insertImage } = useToggleBlockType(editorState, setEditorState)
 
   useEffect(() => {
     editor.current?.focus()
@@ -106,6 +110,12 @@ const Editor: React.FC = () => {
             return { start: "<hr/>", end: "" }
           }
           return undefined
+        },
+        entityToHTML: (entity, originalText) => {
+          if (entity.type === "LINK") {
+            return <EditorLink url={entity.data.url}>{originalText}</EditorLink>
+          }
+          return originalText
         },
       }
 
@@ -162,11 +172,20 @@ const Editor: React.FC = () => {
     if (block.getType() === "atomic") {
       const contentState = editorState.getCurrentContent()
       const entityKey = block.getEntityAt(0)
-      const entity = contentState.getEntity(entityKey)
-      if (entity.getType() === "HR") {
-        return {
-          component: EditorHr,
-          editable: false,
+      if (entityKey) {
+        const entity = contentState.getEntity(entityKey)
+        if (entity.getType() === "HR") {
+          return {
+            component: EditorHr,
+            editable: false,
+          }
+        }
+        if (entity.getType() === "IMAGE") {
+          return {
+            component: EditorImage,
+            editable: false,
+            props: { src: entity.getData().src, insertImage: insertImage, editorState },
+          }
         }
       }
     }

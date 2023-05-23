@@ -1,24 +1,26 @@
 import Add from "@mui/icons-material/Add"
 import { Box, InputLabel } from "@mui/material"
-import React, { ChangeEvent, useCallback, useRef, useState } from "react"
+import React, { ChangeEvent, useRef, useState } from "react"
 import { palette, typography } from "../../../../theme"
-import { uid } from "uid"
+import { EditorState } from "draft-js"
 
 export interface EditorImageProps {
   blockProps: {
-    onImageSelected?: (uri: string, file: File) => void
+    editorState: EditorState
+    src: string
+    insertImage: (uri: string, file: File) => void
   }
-  onImageSelected?: (uri: string, file: File) => void
 }
 
 const EditorImage: React.FC<EditorImageProps> = (props) => {
-  const id = uid()
+  const selection = props.blockProps.editorState.getSelection()
+  const anchorKey = selection.getAnchorKey()
+  const id = `${anchorKey}_fileInput`
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [uri, setUri] = useState<string | null | undefined>(null)
 
-  const openImagePicker = useCallback(() => inputFile?.current?.click(), [inputFile])
-
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log("event", event)
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader()
       let imgUri = ""
@@ -27,21 +29,22 @@ const EditorImage: React.FC<EditorImageProps> = (props) => {
         imgUri = e.target?.result as string
       }
 
-      if (props.blockProps.onImageSelected) {
-        console.log("entre")
-        props.blockProps.onImageSelected(imgUri, event.target.files[0])
+      reader.onloadend = () => {
+        if (props.blockProps.insertImage && event.target.files?.length) {
+          props.blockProps.insertImage(imgUri, event.target.files[0])
+        }
       }
 
       reader.readAsDataURL(event.target.files[0])
     }
   }
+
   return (
     <Box>
-      <input type="file" id={`${id}-img`} ref={inputFile} hidden accept="image/*" onChange={handleImage} />
+      <input type="file" id={id} ref={inputFile} hidden accept="image/*" onChange={handleImage} />
       {!uri && (
         <InputLabel
-          htmlFor={`${id}_fileInput`}
-          onClick={openImagePicker}
+          htmlFor={id}
           sx={{
             alignItems: "center",
             backdropFilter: "blur(2px)",
