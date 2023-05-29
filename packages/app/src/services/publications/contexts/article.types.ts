@@ -20,7 +20,7 @@ export type ArticleContextType = {
   setStoreArticleContent: (value: boolean) => void
   showBlockTypePopup: boolean
   setShowBlockTypePopup: (value: boolean) => void
-  publishArticle: boolean;
+  publishArticle: boolean
   setPublishArticle: (execute: boolean) => void
   setLoading: (loading: boolean) => void
   setIpfsLoading: (loading: boolean) => void
@@ -42,6 +42,8 @@ export type ArticleContextType = {
   updateDraftArticle: (key: string, value: string | string[] | null) => void
   addNewBlock: (block: { id: string }, newId: string, customBlocks?: Block[]) => void
   deleteBlock: (block: { id: string; index: number }) => void
+  linkComponentUrl: string | undefined
+  setLinkComponentUrl: (url: string | undefined) => void
   clearArticleState: () => void
 }
 

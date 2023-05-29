@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-import { Portal, Stack, SxProps, TextField } from "@mui/material"
+import { Portal, Stack, SxProps, TextField, Theme } from "@mui/material"
 import { ReactComponent as BoldIcon } from "../../../assets/images/boldIcon.svg"
 import { ReactComponent as ItalicIcon } from "../../../assets/images/italicIcon.svg"
 import { ReactComponent as UnderlineIcon } from "../../../assets/images/underlineIcon.svg"
@@ -10,6 +10,7 @@ import { ReactComponent as LinkIcon } from "../../../assets/images/linkIcon.svg"
 import { EditorState } from "draft-js"
 
 import { palette } from "../../../theme"
+import { useArticleContext } from "../../../services/publications/contexts"
 
 const inlineStyleOptions = [
   {
@@ -61,10 +62,11 @@ type InlineRichTextProps = {
 const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEditorOffset, showCommand, onClick }) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
-  const [showLinkInput, setShowLinkInput] = useState<boolean>(false) // todo: set when url icon is toggled
+  const { linkComponentUrl, setLinkComponentUrl } = useArticleContext()
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
+  const validUrl = linkComponentUrl && linkComponentUrl.includes("https://")
 
   useEffect(() => {
     setShow(showCommand)
@@ -77,6 +79,44 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
     }
   }, [inlineEditorOffset])
 
+  const handleStyles = (slug: string): SxProps<Theme> => {
+    let styles = {
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      p: 1,
+      bgcolor: palette.grays[50],
+      borderRadius: 1,
+      "&:hover": {
+        bgcolor: palette.grays[100],
+      },
+      "&.is-active": {
+        bgcolor: palette.grays[400],
+      },
+    }
+    if (slug === "LINK" && !validUrl) {
+      styles = {
+        ...styles,
+        cursor: "default",
+        bgcolor: palette.grays[400],
+        "&:hover": {
+          bgcolor: palette.grays[400],
+        },
+        "&.is-active": {
+          bgcolor: palette.grays[400],
+        },
+      }
+    }
+    return styles
+  }
+
+  const handleClick = (slug: string) => {
+    if (slug === "LINK" && !validUrl) {
+      return
+    }
+    onClick(slug)
+  }
+
   return (
     <Portal container={containerRef.current}>
       {show && (
@@ -84,7 +124,7 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
           ref={ref}
           spacing={0.5}
           sx={{
-            top: (top || 0) - (showLinkInput ? 51 : 0),
+            top: (top || 0) - 51,
             left: left,
             position: "absolute",
             background: palette.whites[1000],
@@ -96,35 +136,19 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
             zIndex: 999,
           }}
         >
-          {showLinkInput && (
-            <TextField
-              placeholder="Enter URL"
-              InputProps={{
-                startAdornment: <LinkIcon style={{ opacity: 0.4, marginRight: "0.125rem" }} />,
-              }}
-            />
-          )}
+          <TextField
+            placeholder="Enter URL"
+            value={linkComponentUrl}
+            onChange={(e) => setLinkComponentUrl(e.target.value)}
+            InputProps={{
+              startAdornment: <LinkIcon style={{ opacity: 0.4, marginRight: "0.125rem" }} />,
+            }}
+          />
+
           <Stack direction="row" spacing={0.5}>
             {inlineStyleOptions.map(({ slug, icon }: InlineStyleOptions, index) => {
               return (
-                <Stack
-                  key={`inline-${index}`}
-                  onClick={() => onClick(slug)}
-                  sx={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    p: 1,
-                    bgcolor: palette.grays[50],
-                    borderRadius: 1,
-                    "&:hover": {
-                      bgcolor: palette.grays[100],
-                    },
-                    "&.is-active": {
-                      bgcolor: palette.grays[400],
-                    },
-                  }}
-                >
+                <Stack key={`inline-${index}`} onClick={() => handleClick(slug)} sx={handleStyles(slug)}>
                   {icon}
                 </Stack>
               )

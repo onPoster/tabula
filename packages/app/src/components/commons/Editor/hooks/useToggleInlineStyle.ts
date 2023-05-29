@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { EditorState, RichUtils } from "draft-js"
+import { useArticleContext } from "../../../../services/publications/contexts"
 
 const useToggleInlineStyle = (editorState: EditorState, setEditorState: (editorState: EditorState) => void) => {
   const [showInlinePopup, setShowInlinePopup] = useState(false)
+  const { linkComponentUrl, setLinkComponentUrl } = useArticleContext()
 
   const toggleInlineStyle = (inlineStyle: string) => {
     setShowInlinePopup(false)
@@ -14,11 +16,13 @@ const useToggleInlineStyle = (editorState: EditorState, setEditorState: (editorS
 
   const handleLink = () => {
     const contentState = editorState.getCurrentContent()
-    const contentStateWithEntity = contentState.createEntity("LINK", "MUTABLE", { url: "https://tabula.gg" })
+    const contentStateWithEntity = contentState.createEntity("LINK", "MUTABLE", { url: linkComponentUrl })
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
-    const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity })
-    // Applies the entity to the currently selected text.
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity,
+    })
     setEditorState(RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey))
+    setLinkComponentUrl(undefined)
   }
 
   return { showInlinePopup, setShowInlinePopup, toggleInlineStyle }

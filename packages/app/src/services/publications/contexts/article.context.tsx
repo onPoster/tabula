@@ -33,6 +33,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
   const [articleEditorState, setArticleEditorState] = useState<string | undefined>()
   const [showBlockTypePopup, setShowBlockTypePopup] = useState<boolean>(false)
   const [publishArticle, setPublishArticle] = useState<boolean>(false)
+  const [linkComponentUrl, setLinkComponentUrl] = useState<string | undefined>(undefined)
 
   // const logState = () => {
   //   const content = editorState.getCurrentContent()
@@ -57,6 +58,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     setArticleTitleError(false)
     setArticleContentError(false)
     setArticleEditorState(undefined)
+    setLinkComponentUrl(undefined)
   }
 
   const getIpfsData = async (hash: string): Promise<string> => {
@@ -149,6 +151,8 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         showBlockTypePopup,
         storeArticleContent,
         draftArticlePath,
+        linkComponentUrl,
+        setLinkComponentUrl,
         setDraftArticlePath,
         setStoreArticleContent,
         setShowBlockTypePopup,
