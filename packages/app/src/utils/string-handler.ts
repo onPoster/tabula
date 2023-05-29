@@ -1,5 +1,3 @@
-import { uid } from "uid"
-import { RICH_TEXT_ELEMENTS } from "../components/commons/RichText"
 import turndownService from "../services/turndown"
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 

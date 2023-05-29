@@ -1,5 +1,4 @@
 import { Link } from "@mui/material"
-import { ContentState } from "draft-js"
 import React from "react"
 
 const EditorLink: React.FC<{ children: React.ReactNode; url: string }> = (props) => {

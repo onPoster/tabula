@@ -8,7 +8,6 @@ import { useWeb3React } from "@web3-react/core"
 import usePublication from "../../../../services/publications/hooks/usePublication"
 import { ArticleItem } from "./ArticleItem"
 import {
-  INITIAL_ARTICLE_BLOCK,
   INITIAL_ARTICLE_VALUE,
   useArticleContext,
 } from "../../../../services/publications/contexts"
