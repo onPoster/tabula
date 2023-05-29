@@ -17,8 +17,7 @@ export const ArticleSection: React.FC = React.memo(() => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { setMarkdownArticle, setArticleContent, saveDraftArticle, saveArticle, setDraftArticleThumbnail } =
-    useArticleContext()
+  const { setMarkdownArticle, saveDraftArticle, saveArticle, setDraftArticleThumbnail } = useArticleContext()
   const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
   const articles = data && data.articles
   const permissions = data && data.permissions
@@ -52,7 +51,6 @@ export const ArticleSection: React.FC = React.memo(() => {
               size="medium"
               onClick={() => {
                 navigate(`./new`)
-                setArticleContent(INITIAL_ARTICLE_BLOCK)
                 setMarkdownArticle(undefined)
                 saveDraftArticle(INITIAL_ARTICLE_VALUE)
                 saveArticle(undefined)

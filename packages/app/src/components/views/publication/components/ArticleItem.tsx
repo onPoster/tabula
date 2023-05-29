@@ -17,7 +17,7 @@ import { usePosterContext } from "../../../../services/poster/context"
 import useArticle from "../../../../services/publications/hooks/useArticle"
 import isIPFS from "is-ipfs"
 import { useIpfs } from "../../../../hooks/useIpfs"
-import { checkTag, shortTitle } from "../../../../utils/string-handler"
+import { shortTitle } from "../../../../utils/string-handler"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -57,14 +57,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
   ({ article, couldUpdate, couldDelete, publicationSlug }) => {
     const ipfs = useIpfs()
     const navigate = useNavigate()
-    const {
-      saveArticle,
-      saveDraftArticle,
-      setArticleContent,
-      setArticleEditorState,
-      articleEditorState,
-      draftArticle,
-    } = useArticleContext()
+    const { saveArticle, saveDraftArticle, setArticleEditorState, articleEditorState } = useArticleContext()
     const { setLastPathWithChainName } = usePosterContext()
     const { deleteArticle } = usePoster()
     const { description, image, title, tags, lastUpdated, id } = article

@@ -8,20 +8,13 @@ import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
-import {
-  INITIAL_ARTICLE_BLOCK,
-  INITIAL_ARTICLE_VALUE,
-  useArticleContext,
-  usePublicationContext,
-} from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
 
 import Avatar from "../commons/Avatar"
-import { checkTag } from "../../utils/string-handler"
 import { useIpfs } from "../../hooks/useIpfs"
-
 
 type Props = {
   articleId?: string
@@ -45,15 +38,8 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
   const navigate = useNavigate()
   const location = useLocation()
   const { savePublication } = usePublicationContext()
-  const {
-    article,
-    setCurrentPath,
-    saveDraftArticle,
-    saveArticle,
-    setArticleContent,
-    setMarkdownArticle,
-    setDraftArticleThumbnail,
-  } = useArticleContext()
+  const { article, setCurrentPath, saveDraftArticle, saveArticle, setMarkdownArticle, setDraftArticleThumbnail } =
+    useArticleContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -89,10 +75,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
       const contentPromise: Promise<void | null> = articleContent
         ? ipfs.getText(articleContent).then((content) => {
             if (content) {
-              const block = checkTag(content)
-              if (block.length) {
-                setArticleContent(block)
-              }
+              console.log("content", content)
             }
           })
         : Promise.resolve(null)
@@ -175,7 +158,6 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                   size={"large"}
                   onClick={() => {
                     navigate(`./new`)
-                    setArticleContent(INITIAL_ARTICLE_BLOCK)
                     setMarkdownArticle(undefined)
                     saveDraftArticle(INITIAL_ARTICLE_VALUE)
                     saveArticle(undefined)

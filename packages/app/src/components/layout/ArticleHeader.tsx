@@ -11,10 +11,7 @@ import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from 
 import { UserOptions } from "../commons/UserOptions"
 import Avatar from "../commons/Avatar"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-import { Block } from "../commons/EditableItemBlock"
-import { RICH_TEXT_ELEMENTS } from "../commons/RichText"
 import { useIpfs } from "../../hooks/useIpfs"
-import useMarkdown from "../../hooks/useMarkdown"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import { Pinning } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
@@ -34,7 +31,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const ipfs = useIpfs()
   const [publicationId, setPublicationId] = useState<string>("")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const { convertToHtml } = useMarkdown()
   const { createArticle, updateArticle } = usePoster()
   const { setCurrentPath, loading: loadingTransaction, ipfsLoading, setLoading } = usePublicationContext()
 
@@ -43,7 +39,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     saveDraftArticle,
     draftArticle,
     clearArticleState,
-    articleContent,
+
     draftArticleThumbnail,
     setArticleTitleError,
     setArticleContentError,
@@ -130,7 +126,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }
 
   //V2
-  const prepareTransaction = async (articleContent: Block[]) => {
+  const prepareTransaction = async () => {
     let initialError = false
     if (draftArticle?.title === "") {
       setExecuteArticleTransaction(false)
@@ -309,7 +305,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             variant="contained"
             onClick={() => {
               setExecuteArticleTransaction(true)
-              prepareTransaction(articleContent)
+              prepareTransaction()
             }}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
             disabled={loadingTransaction || ipfsLoading || createArticleIndexing || updateArticleIndexing}

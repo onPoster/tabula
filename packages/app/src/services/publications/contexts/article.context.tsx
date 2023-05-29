@@ -1,11 +1,9 @@
 import { useCallback, useState } from "react"
-import { Block } from "../../../components/commons/EditableItemBlock"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { Article } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
 
 import { ArticleContextType, ArticleProviderProps } from "./article.types"
-import { findIndex } from "lodash"
 import { uid } from "uid"
 
 export const INITIAL_ARTICLE_VALUE = { title: "", article: "" }
@@ -17,7 +15,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(INITIAL_ARTICLE_VALUE)
   const [article, setArticle] = useState<Article | undefined>(undefined)
-  const [articleContent, setArticleContent] = useState<Block[]>(INITIAL_ARTICLE_BLOCK)
+
   const [executeArticleTransaction, setExecuteArticleTransaction] = useState<boolean>(false)
   const [draftArticleThumbnail, setDraftArticleThumbnail] = useState<File | undefined>(undefined)
   const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
@@ -49,7 +47,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     setCurrentPath(undefined)
     setDraftArticle(undefined)
     setArticle(INITIAL_ARTICLE_VALUE)
-    setArticleContent(INITIAL_ARTICLE_BLOCK)
+
     setExecuteArticleTransaction(false)
     setDraftArticleThumbnail(undefined)
     setMarkdownArticle(undefined)
@@ -80,53 +78,6 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     })
   }, [])
 
-  const updateArticleContent = useCallback((blockId: string, value: string) => {
-    setArticleContent((prevItems) => {
-      const itemIndex = findIndex(prevItems, { id: blockId })
-      const updatedItem = { ...prevItems[itemIndex], html: value }
-      return [...prevItems.slice(0, itemIndex), updatedItem, ...prevItems.slice(itemIndex + 1)]
-    })
-  }, [])
-
-  const addNewBlock = useCallback((block: { id: string }, newId: string, customBlocks?: Block[]) => {
-    setArticleContent((prevItems) => {
-      const newBlock = { id: newId, html: "", tag: "p" }
-      const currentBlocks = customBlocks ? customBlocks : [...prevItems]
-      const index = findIndex(currentBlocks, { id: block.id })
-      const updatedBlocks = [...currentBlocks.slice(0, index + 1), newBlock, ...currentBlocks.slice(index + 1)]
-      return updatedBlocks
-    })
-  }, [])
-
-  const setCaretToEnd = useCallback((element: HTMLElement) => {
-    const range = document.createRange()
-    const selection = window.getSelection()
-    range.selectNodeContents(element)
-    range.collapse(false)
-    if (selection) {
-      selection.removeAllRanges()
-      selection.addRange(range)
-    }
-    element.focus()
-  }, [])
-
-  const deleteBlock = useCallback(
-    (block: { id: string; index: number }) => {
-      if (block.index) {
-        const previousBlockPosition = articleContent[block.index - 1]
-        const previousBlock = document.getElementById(previousBlockPosition.id)
-        const currentBlocks = [...articleContent]
-        const newBlocks = currentBlocks.filter((b) => b.id !== block.id)
-        setArticleContent(newBlocks)
-        if (previousBlock) {
-          setCaretToEnd(previousBlock)
-          previousBlock.focus()
-        }
-      }
-    },
-    [articleContent, setArticleContent, setCaretToEnd],
-  )
-
   const saveDraftArticle = (article: Article | undefined) => setDraftArticle(article)
   const saveArticle = (article: Article | undefined) => setArticle(article)
 
@@ -135,7 +86,6 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
       value={{
         draftArticle,
         article,
-        articleContent,
         currentPath,
         markdownArticle,
         loading,
@@ -147,17 +97,16 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         articleContentError,
         articleEditorState,
         publishArticle,
-        setPublishArticle,
         showBlockTypePopup,
         storeArticleContent,
         draftArticlePath,
         linkComponentUrl,
+        setPublishArticle,
         setLinkComponentUrl,
         setDraftArticlePath,
         setStoreArticleContent,
         setShowBlockTypePopup,
         setArticleEditorState,
-        updateArticleContent,
         setIpfsLoading,
         setLoading,
         setDraftArticleThumbnail,
@@ -170,9 +119,6 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         setCurrentPath,
         saveArticle,
         saveDraftArticle,
-        setArticleContent,
-        addNewBlock,
-        deleteBlock,
         updateDraftArticle,
         clearArticleState,
       }}

@@ -1,11 +1,9 @@
 import { ReactNode } from "react"
-import { Block } from "../../../components/commons/EditableItemBlock"
 import { Article } from "../../../models/publication"
 
 export type ArticleContextType = {
   draftArticle: Article | undefined
   article: Article | undefined
-  articleContent: Block[]
   draftArticleThumbnail: File | undefined
   currentPath: string | undefined
   markdownArticle: string | undefined
@@ -37,11 +35,7 @@ export type ArticleContextType = {
   setCurrentPath: (path: string | undefined) => void
   saveDraftArticle: (article: Article | undefined) => void
   saveArticle: (article: Article | undefined) => void
-  setArticleContent: (content: Block[]) => void
-  updateArticleContent: (blockId: string, value: string) => void
   updateDraftArticle: (key: string, value: string | string[] | null) => void
-  addNewBlock: (block: { id: string }, newId: string, customBlocks?: Block[]) => void
-  deleteBlock: (block: { id: string; index: number }) => void
   linkComponentUrl: string | undefined
   setLinkComponentUrl: (url: string | undefined) => void
   clearArticleState: () => void
