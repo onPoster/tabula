@@ -115,10 +115,19 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     const execute = async () => {
       await prepareTransaction()
     }
-    if (prepareArticleTransaction && articleEditorState) {
+    if (prepareArticleTransaction && articleEditorState && type === "new") {
       execute()
     }
   }, [prepareArticleTransaction, articleEditorState])
+
+  useEffect(() => {
+    const execute = async () => {
+      await prepareTransaction()
+    }
+    if (prepareArticleTransaction && articleEditorState && type === "edit") {
+      execute()
+    }
+  }, [prepareArticleTransaction])
 
   const handleNavigation = async () => {
     refetch()
@@ -136,8 +145,14 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     }
   }
 
+  const clearTransactionStates = () => {
+    setExecuteArticleTransaction(false)
+    setPrepareArticleTransaction(false)
+    setLoading(false)
+  }
   //V2
   const prepareTransaction = async () => {
+    console.log("entre prepareTransaction")
     let initialError = false
     if (draftArticle?.title === "") {
       setExecuteArticleTransaction(false)
@@ -203,6 +218,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       const id = publication?.id || article.publication?.id
 
       if (id == null) {
+        clearTransactionStates()
         throw new Error("Publication id is null")
       }
       if (pinning && draftArticleText) {
@@ -227,7 +243,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
           ).then((res) => {
             console.log("response of the create article", res)
             if (res?.error) {
-              setLoading(false)
+              clearTransactionStates()
             } else {
               createPoll(true)
             }
@@ -248,7 +264,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             hashArticle ? true : false,
           ).then((res) => {
             if (res && res.error) {
-              setLoading(false)
+              clearTransactionStates()
             } else if (article && article.lastUpdated) {
               setArticleId(article.id)
               updatePoll(true)
@@ -258,7 +274,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       }
       return
     }
-    setLoading(false)
+    clearTransactionStates()
   }
 
   return (
