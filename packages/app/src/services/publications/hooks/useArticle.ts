@@ -21,6 +21,7 @@ const useArticle = (id: string) => {
   const [newArticleId, setNewArticleId] = useState<string>()
   const [currentTimestamp, setCurrentTimestamp] = useState<number | undefined>(undefined)
   const [articleId, setArticleId] = useState<string | undefined>(undefined)
+  const [oldArticleHash, setOldArticleHash] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     const getImageSrc = async () => {
@@ -62,14 +63,22 @@ const useArticle = (id: string) => {
       if (data && data.lastUpdated && currentTimestamp) {
         isNew = parseInt(data?.lastUpdated) > currentTimestamp
       }
-      if (data && articleId && data.lastUpdated && currentTimestamp && data.id === articleId && isNew) {
+      if (
+        data &&
+        articleId &&
+        data.lastUpdated &&
+        currentTimestamp &&
+        data.id === articleId &&
+        isNew &&
+        oldArticleHash !== data.article
+      ) {
         setNewArticleId(data.id)
-        setMarkdownArticle(draftArticle.article)
         saveDraftArticle(INITIAL_ARTICLE_VALUE)
         saveArticle(data)
         setTransactionCompleted(true)
         setIndexing(false)
         setExecutePollInterval(false)
+        setOldArticleHash(undefined)
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
@@ -92,6 +101,7 @@ const useArticle = (id: string) => {
     currentTimestamp,
     setMarkdownArticle,
     articleId,
+    oldArticleHash,
   ])
 
   //Show toast when transaction is indexing
@@ -128,6 +138,7 @@ const useArticle = (id: string) => {
     setCurrentTimestamp,
     setArticleId,
     imageSrc,
+    setOldArticleHash,
   }
 }
 

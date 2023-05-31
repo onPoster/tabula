@@ -50,7 +50,6 @@ export const palette = {
   },
 }
 
-
 const fontFamilies = {
   sans: `'Averta', 'Avenir', sans-serif`,
   serif: `'Source Serif Pro', 'Garamond', cursive;`,
@@ -119,8 +118,8 @@ export const typography: any = {
 }
 
 const createArticleStyles = () => {
-  const styleOutput: string[] = [];
-  ["h1", "h2", "h3", "h4", "h5", "h6"].map((tag) => {
+  const styleOutput: string[] = []
+  ;["h1", "h2", "h3", "h4", "h5", "h6"].map((tag) => {
     const headingStyles = `
     .editor ${tag} {
       font-family: ${typography[tag].fontFamily};
@@ -128,7 +127,7 @@ const createArticleStyles = () => {
       line-height: ${typography[tag].lineHeight};
     }
     `
-    styleOutput.push(headingStyles);
+    styleOutput.push(headingStyles)
   })
   return styleOutput.join(" ")
 }
@@ -144,7 +143,7 @@ let theme = createTheme({
   },
   typography: {
     // Base Typography
-    ...typography
+    ...typography,
   },
   components: {
     MuiCssBaseline: {
@@ -179,6 +178,23 @@ let theme = createTheme({
           }
         }
         ${createArticleStyles()}
+        .code {
+          font-family: "Courier New", Courier, monospace;
+          white-space: pre;
+          background-color: ${palette.grays[800]};
+          color: white;
+          padding-left: 0.2rem;
+          padding-right: 0.2rem;
+        }
+        .strikethrough {
+          text-decoration-line: line-through;
+        }
+        .bold {
+          font-weight: bold
+        }
+        .italic {
+          font-style: italic
+        }
         p {
           font-family: ${typography.body1.fontFamily};
           font-size: ${typography.body1.fontSize};
@@ -198,6 +214,9 @@ let theme = createTheme({
         a {
           text-decoration: none;
           color: inherit;
+        }
+        figure {
+          margin: 0;
         }
         img {
           width: 100%;
@@ -281,22 +300,22 @@ theme = createTheme(theme, {
       styleOverrides: {
         root: {
           color: palette.primary[1000],
-        }
-      }
+        },
+      },
     },
     MuiContainer: {
       styleOverrides: {
         maxWidthSm: {
-          '&.MuiContainer-maxWidthSm': {
+          "&.MuiContainer-maxWidthSm": {
             maxWidth: 650,
           },
         },
         maxWidthMd: {
-          '&.MuiContainer-maxWidthMd': {
+          "&.MuiContainer-maxWidthMd": {
             maxWidth: 900,
           },
-        }
-      }
+        },
+      },
     },
     MuiTab: {
       styleOverrides: {
@@ -324,8 +343,8 @@ theme = createTheme(theme, {
           letterSpacing: 2,
           lineHeight: 1,
           textTransform: "uppercase",
-        }
-      }
+        },
+      },
     },
     MuiOutlinedInput: {
       styleOverrides: {
@@ -337,7 +356,7 @@ theme = createTheme(theme, {
             height: "auto",
             paddingTop: 12,
             paddingBottom: 12,
-          }
+          },
         },
       },
     },

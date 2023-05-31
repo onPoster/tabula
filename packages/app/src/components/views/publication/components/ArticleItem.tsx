@@ -17,7 +17,8 @@ import { usePosterContext } from "../../../../services/poster/context"
 import useArticle from "../../../../services/publications/hooks/useArticle"
 import isIPFS from "is-ipfs"
 import { useIpfs } from "../../../../hooks/useIpfs"
-import { checkTag, shortTitle } from "../../../../utils/string-handler"
+import { shortTitle } from "../../../../utils/string-handler"
+import { processArticleContent } from "../../../../utils/modifyHTML"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -57,7 +58,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
   ({ article, couldUpdate, couldDelete, publicationSlug }) => {
     const ipfs = useIpfs()
     const navigate = useNavigate()
-    const { saveArticle, saveDraftArticle, setArticleContent } = useArticleContext()
+    const { saveArticle, saveDraftArticle, setArticleEditorState, articleEditorState } = useArticleContext()
     const { setLastPathWithChainName } = usePosterContext()
     const { deleteArticle } = usePoster()
     const { description, image, title, tags, lastUpdated, id } = article
@@ -68,9 +69,9 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     const articleDescription = description && shortTitle(description, 165)
     const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
     const [loading, setLoading] = useState<boolean>(false)
+    const [navigateEditArticle, setNavigateEditArticle] = useState<boolean>(false)
 
     const [articleHtmlContent, setArticleHtmlContent] = useState<string | undefined>(undefined)
-
     const decodeArticleContent = async () => {
       if (article.article) {
         const isValidHash = isIPFS.multihash(article.article)
@@ -101,6 +102,13 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     }, [navigate, transactionCompleted])
 
     useEffect(() => {
+      if (navigateEditArticle && articleEditorState) {
+        navigate(`./${id}/edit`)
+        setNavigateEditArticle(false)
+      }
+    }, [navigate, navigateEditArticle])
+
+    useEffect(() => {
       setLastPathWithChainName(window.location.hash)
     }, [setLastPathWithChainName])
 
@@ -123,25 +131,11 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
 
     const handleEditArticle = async () => {
       if (article) {
-        const { image: thumbnailImg, article: articleContent } = article
-
-        const imgPromise: Promise<string | null> = thumbnailImg ? ipfs.getImgSrc(thumbnailImg) : Promise.resolve(null)
-        const contentPromise: Promise<void | null> = articleContent
-          ? ipfs.getText(articleContent).then((content) => {
-              if (content) {
-                const block = checkTag(content)
-                if (block.length) {
-                  setArticleContent(block)
-                }
-              }
-            })
-          : Promise.resolve(null)
-
-        Promise.all([imgPromise, contentPromise]).then(([img]) => {
+        await processArticleContent(article, ipfs).then(({ img, content, modifiedHTMLString }) => {
           saveDraftArticle({ ...article, title: article.title, image: img })
+          setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
+          setNavigateEditArticle(true)
         })
-
-        navigate(`./${id}/edit`)
       }
     }
 

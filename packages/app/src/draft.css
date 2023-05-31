@@ -1,0 +1,42 @@
+/* Draft.css overwrites */
+
+/* OL, UL */
+.public-DraftStyleDefault-ol, .public-DraftStyleDefault-ul {
+  margin: 8px 0;
+}
+
+/* OL */
+
+/* LI */
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR {
+  margin-left: 0px;
+}
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR > .MuiBox-root {
+  padding-left: 32px;
+}
+
+/* LI Counter */
+.public-DraftStyleDefault-orderedListItem.public-DraftStyleDefault-listLTR:before {
+  left: 0px;
+  width: 24px;
+}
+
+/* UL */
+
+/* LI */
+.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-listLTR {
+  margin-left: 0px;
+  list-style-type: none;
+}
+.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-listLTR > .MuiBox-root {
+  padding-left: 32px;
+}
+
+/* LI Counter */
+.public-DraftStyleDefault-unorderedListItem.public-DraftStyleDefault-listLTR:before {
+  content: "•";
+  left: 0px;
+  width: 16px;
+  text-align: right;
+  position: absolute;
+}

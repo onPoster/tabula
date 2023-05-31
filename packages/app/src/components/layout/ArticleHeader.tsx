@@ -11,15 +11,13 @@ import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from 
 import { UserOptions } from "../commons/UserOptions"
 import Avatar from "../commons/Avatar"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-import { Block } from "../commons/EditableItemBlock"
-import { RICH_TEXT_ELEMENTS } from "../commons/RichText"
 import { useIpfs } from "../../hooks/useIpfs"
-import useMarkdown from "../../hooks/useMarkdown"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import { Pinning } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
 import usePoster from "../../services/poster/hooks/usePoster"
 import useArticle from "../../services/publications/hooks/useArticle"
+import { removeHashPrefixFromImages } from "../../utils/modifyHTML"
 
 type Props = {
   publication?: Publication
@@ -34,7 +32,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const ipfs = useIpfs()
   const [publicationId, setPublicationId] = useState<string>("")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const { convertToHtml } = useMarkdown()
   const { createArticle, updateArticle } = usePoster()
   const { setCurrentPath, loading: loadingTransaction, ipfsLoading, setLoading } = usePublicationContext()
 
@@ -43,10 +40,15 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     saveDraftArticle,
     draftArticle,
     clearArticleState,
-    articleContent,
     draftArticleThumbnail,
     setArticleTitleError,
     setArticleContentError,
+    setStoreArticleContent,
+    setDraftArticlePath,
+    articleEditorState,
+    contentImageFiles,
+    storeArticleContent,
+    setArticleEditorState,
   } = useArticleContext()
 
   const {
@@ -60,6 +62,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setExecutePollInterval: updatePoll,
     transactionCompleted: updateTransaction,
     newArticleId: updateArticleId,
+    setOldArticleHash,
     setArticleId,
     setCurrentTimestamp,
   } = useArticle(draftArticle?.id ?? "")
@@ -69,6 +72,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     transactionCompleted,
   } = usePublication(publicationSlug || publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
+  const [prepareArticleTransaction, setPrepareArticleTransaction] = useState<boolean>(false)
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
 
@@ -110,6 +114,24 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     updateTransaction,
   ])
 
+  useEffect(() => {
+    const execute = async () => {
+      await prepareTransaction()
+    }
+    if (prepareArticleTransaction && articleEditorState && type === "new") {
+      execute()
+    }
+  }, [prepareArticleTransaction, articleEditorState])
+
+  useEffect(() => {
+    const execute = async () => {
+      await prepareTransaction()
+    }
+    if (prepareArticleTransaction && articleEditorState && type === "edit" && !storeArticleContent) {
+      execute()
+    }
+  }, [prepareArticleTransaction, storeArticleContent])
+
   const handleNavigation = async () => {
     refetch()
     clearArticleState()
@@ -117,24 +139,29 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }
 
   const handlePreview = () => {
-    isPreview ? navigate(-1) : navigate(`../${type}/preview`)
+    if (isPreview) {
+      navigate(-1)
+      setDraftArticlePath(undefined)
+    } else {
+      setStoreArticleContent(true)
+      setDraftArticlePath(`../${type}/preview`)
+    }
   }
 
+  const clearTransactionStates = () => {
+    setExecuteArticleTransaction(false)
+    setPrepareArticleTransaction(false)
+    setLoading(false)
+  }
   //V2
-  const prepareTransaction = async (articleContent: Block[]) => {
+  const prepareTransaction = async () => {
     let initialError = false
     if (draftArticle?.title === "") {
       setExecuteArticleTransaction(false)
       setArticleTitleError(true)
       initialError = true
     }
-    if (
-      articleContent.length === 1 &&
-      articleContent[0].html === "" &&
-      articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
-    ) {
-      setArticleContentError(true)
-      setExecuteArticleTransaction(false)
+    if (!articleEditorState) {
       initialError = true
     }
     if (initialError) {
@@ -143,26 +170,38 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setArticleTitleError(false)
     setArticleContentError(false)
     setLoading(true)
-    const imageBlocks = articleContent.filter((block) => block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile)
-    const imageUploads = imageBlocks.map((block) => {
-      if (block.imageFile) {
-        return ipfs
-          .uploadContent(block.imageFile)
-          .then((img) => ({
-            ...block,
-            imageUrl: img.path,
-          }))
-          .catch(() => ({ ...block }))
-      } else {
-        return Promise.resolve(block)
+    let articleContent = ""
+    if (contentImageFiles) {
+      const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
+      const parser = new DOMParser()
+      let doc = parser.parseFromString(articleWithHash as string, "text/html")
+      let imgs = Array.from(doc.getElementsByTagName("img"))
+      for (const img of imgs) {
+        let altValue = img.alt
+        let file = contentImageFiles.find((file: File) => file.lastModified.toString() === altValue)
+        if (file) {
+          let hash = await ipfs.uploadContent(file).then((hash) => hash.path)
+          img.src = hash
+        }
       }
-    })
-    const blocks = await Promise.all(imageUploads).then((results) =>
-      articleContent.map((block) => results.find((result) => result === block) ?? block),
-    )
-    const content = await convertToHtml(blocks, false, false, "publish")
+
+      let newDoc = parser.parseFromString(doc.body.innerHTML, "text/html")
+      let modifiedHTMLString = newDoc.body.innerHTML
+      articleContent = modifiedHTMLString
+    }
+
+    if (!contentImageFiles && articleEditorState?.includes("img")) {
+      articleContent = removeHashPrefixFromImages(articleEditorState)
+    }
+    if (!contentImageFiles && articleEditorState && !articleEditorState.includes("img")) {
+      articleContent = articleEditorState
+    }
     if (draftArticle) {
-      const newArticle = { ...draftArticle, article: content }
+      const newArticle = {
+        ...draftArticle,
+        article: articleContent as string,
+      }
+
       await handleArticleAction(newArticle)
     }
     setLoading(false)
@@ -173,6 +212,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
+
     if (draftArticleThumbnail) {
       await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
         articleThumbnail = img.path
@@ -184,6 +224,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       const id = publication?.id || article.publication?.id
 
       if (id == null) {
+        clearTransactionStates()
         throw new Error("Publication id is null")
       }
       if (pinning && draftArticleText) {
@@ -208,7 +249,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
           ).then((res) => {
             console.log("response of the create article", res)
             if (res?.error) {
-              setLoading(false)
+              clearTransactionStates()
             } else {
               createPoll(true)
             }
@@ -229,8 +270,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             hashArticle ? true : false,
           ).then((res) => {
             if (res && res.error) {
-              setLoading(false)
+              clearTransactionStates()
             } else if (article && article.lastUpdated) {
+              setOldArticleHash(article.article)
               setArticleId(article.id)
               updatePoll(true)
             }
@@ -239,9 +281,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       }
       return
     }
-    setLoading(false)
-  }
 
+    clearTransactionStates()
+  }
   return (
     <Stack
       component="header"
@@ -296,8 +338,12 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
           <Button
             variant="contained"
             onClick={() => {
+              if (type === "edit") {
+                setArticleEditorState(undefined)
+              }
+              setStoreArticleContent(true)
               setExecuteArticleTransaction(true)
-              prepareTransaction(articleContent)
+              setPrepareArticleTransaction(true)
             }}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
             disabled={loadingTransaction || ipfsLoading || createArticleIndexing || updateArticleIndexing}

@@ -9,7 +9,16 @@ if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")
 }
 
-export const useIpfs = () => {
+export interface IpfsFunctions {
+  uploadContent: (file: File | string) => Promise<{ cid?: any; path: string }>
+  pinAction: (path: string, name: string, msg?: string) => Promise<void>
+  isValidIpfsService: (data: Pinning) => Promise<boolean>
+  getText: (hash: string) => Promise<string>
+  getImgSrc: (hash: string) => Promise<string>
+  getImgHash: (path: string, remove: boolean) => string
+}
+
+export const useIpfs = (): IpfsFunctions => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const openNotification = useNotification()

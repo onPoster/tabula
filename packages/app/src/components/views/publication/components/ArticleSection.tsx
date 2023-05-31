@@ -7,17 +7,13 @@ import { haveActionPermission } from "../../../../utils/permission"
 import { useWeb3React } from "@web3-react/core"
 import usePublication from "../../../../services/publications/hooks/usePublication"
 import { ArticleItem } from "./ArticleItem"
-import {
-  INITIAL_ARTICLE_BLOCK,
-  INITIAL_ARTICLE_VALUE,
-  useArticleContext,
-} from "../../../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext } from "../../../../services/publications/contexts"
 
 export const ArticleSection: React.FC = React.memo(() => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { setMarkdownArticle, setArticleContent, saveDraftArticle, saveArticle, setDraftArticleThumbnail } =
+  const { setMarkdownArticle, saveDraftArticle, saveArticle, setDraftArticleThumbnail, setArticleEditorState } =
     useArticleContext()
   const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
   const articles = data && data.articles
@@ -52,8 +48,8 @@ export const ArticleSection: React.FC = React.memo(() => {
               size="medium"
               onClick={() => {
                 navigate(`./new`)
-                setArticleContent(INITIAL_ARTICLE_BLOCK)
                 setMarkdownArticle(undefined)
+                setArticleEditorState(undefined)
                 saveDraftArticle(INITIAL_ARTICLE_VALUE)
                 saveArticle(undefined)
                 setDraftArticleThumbnail(undefined)

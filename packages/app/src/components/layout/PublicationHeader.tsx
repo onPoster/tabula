@@ -8,20 +8,14 @@ import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
-import {
-  INITIAL_ARTICLE_BLOCK,
-  INITIAL_ARTICLE_VALUE,
-  useArticleContext,
-  usePublicationContext,
-} from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
 
 import Avatar from "../commons/Avatar"
-import { checkTag } from "../../utils/string-handler"
 import { useIpfs } from "../../hooks/useIpfs"
-
+import { processArticleContent } from "../../utils/modifyHTML"
 
 type Props = {
   articleId?: string
@@ -50,9 +44,9 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
     setCurrentPath,
     saveDraftArticle,
     saveArticle,
-    setArticleContent,
     setMarkdownArticle,
     setDraftArticleThumbnail,
+    setArticleEditorState,
   } = useArticleContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
@@ -81,28 +75,14 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
     navigate(`/${publicationSlug}`)
   }
 
-  const handleEditNavigation = () => {
+  const handleEditNavigation = async () => {
     if (article) {
-      const { image: thumbnailImg, article: articleContent } = article
-
-      const imgPromise: Promise<string | null> = thumbnailImg ? ipfs.getImgSrc(thumbnailImg) : Promise.resolve(null)
-      const contentPromise: Promise<void | null> = articleContent
-        ? ipfs.getText(articleContent).then((content) => {
-            if (content) {
-              const block = checkTag(content)
-              if (block.length) {
-                setArticleContent(block)
-              }
-            }
-          })
-        : Promise.resolve(null)
-
-      Promise.all([imgPromise, contentPromise]).then(([img]) => {
+      await processArticleContent(article, ipfs).then(({ img, content, modifiedHTMLString }) => {
         saveDraftArticle({ ...article, title: article.title, image: img })
+        savePublication(article.publication)
+        setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
+        navigate(`/${publicationSlug}/${articleId}/edit`)
       })
-
-      savePublication(article.publication)
-      navigate(`/${publicationSlug}/${articleId}/edit`)
     }
   }
 
@@ -175,7 +155,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                   size={"large"}
                   onClick={() => {
                     navigate(`./new`)
-                    setArticleContent(INITIAL_ARTICLE_BLOCK)
+                    setArticleEditorState(undefined)
                     setMarkdownArticle(undefined)
                     saveDraftArticle(INITIAL_ARTICLE_VALUE)
                     saveArticle(undefined)

@@ -24,7 +24,6 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
   // const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
   const [description, debouncedDescription, setDescription] = useDebouncedState<string>(draftArticle?.description ?? "")
   const [tags, setTags] = useState<string[]>([])
-
   const theme = useTheme()
 
   useEffect(() => {
