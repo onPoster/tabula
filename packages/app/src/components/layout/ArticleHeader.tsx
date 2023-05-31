@@ -62,6 +62,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setExecutePollInterval: updatePoll,
     transactionCompleted: updateTransaction,
     newArticleId: updateArticleId,
+    setOldArticleHash,
     setArticleId,
     setCurrentTimestamp,
   } = useArticle(draftArticle?.id ?? "")
@@ -271,6 +272,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             if (res && res.error) {
               clearTransactionStates()
             } else if (article && article.lastUpdated) {
+              setOldArticleHash(article.article)
               setArticleId(article.id)
               updatePoll(true)
             }

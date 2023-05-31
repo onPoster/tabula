@@ -155,6 +155,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                   size={"large"}
                   onClick={() => {
                     navigate(`./new`)
+                    setArticleEditorState(undefined)
                     setMarkdownArticle(undefined)
                     saveDraftArticle(INITIAL_ARTICLE_VALUE)
                     saveArticle(undefined)
