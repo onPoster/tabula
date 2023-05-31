@@ -15,6 +15,7 @@ import { Edit } from "@mui/icons-material"
 
 import Avatar from "../commons/Avatar"
 import { useIpfs } from "../../hooks/useIpfs"
+import { processArticleContent } from "../../utils/modifyHTML"
 
 type Props = {
   articleId?: string
@@ -38,8 +39,15 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
   const navigate = useNavigate()
   const location = useLocation()
   const { savePublication } = usePublicationContext()
-  const { article, setCurrentPath, saveDraftArticle, saveArticle, setMarkdownArticle, setDraftArticleThumbnail } =
-    useArticleContext()
+  const {
+    article,
+    setCurrentPath,
+    saveDraftArticle,
+    saveArticle,
+    setMarkdownArticle,
+    setDraftArticleThumbnail,
+    setArticleEditorState,
+  } = useArticleContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -67,25 +75,14 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
     navigate(`/${publicationSlug}`)
   }
 
-  const handleEditNavigation = () => {
+  const handleEditNavigation = async () => {
     if (article) {
-      const { image: thumbnailImg, article: articleContent } = article
-
-      const imgPromise: Promise<string | null> = thumbnailImg ? ipfs.getImgSrc(thumbnailImg) : Promise.resolve(null)
-      const contentPromise: Promise<void | null> = articleContent
-        ? ipfs.getText(articleContent).then((content) => {
-            if (content) {
-              console.log("content", content)
-            }
-          })
-        : Promise.resolve(null)
-
-      Promise.all([imgPromise, contentPromise]).then(([img]) => {
+      await processArticleContent(article, ipfs).then(({ img, content, modifiedHTMLString }) => {
         saveDraftArticle({ ...article, title: article.title, image: img })
+        savePublication(article.publication)
+        setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
+        navigate(`/${publicationSlug}/${articleId}/edit`)
       })
-
-      savePublication(article.publication)
-      navigate(`/${publicationSlug}/${articleId}/edit`)
     }
   }
 

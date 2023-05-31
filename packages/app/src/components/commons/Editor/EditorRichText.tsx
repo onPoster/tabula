@@ -62,7 +62,7 @@ export enum RICH_TEXT_ELEMENTS {
   H5 = "header-five",
   H6 = "header-six",
   PARAGRAPH = "unstyled",
-  IMAGE = "image",
+  IMAGE = "image-picker",
   ORDERED = "ordered-list-item",
   UNORDERED = "unordered-list-item",
   CODE = "code-block",

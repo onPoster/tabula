@@ -39,6 +39,8 @@ export type ArticleContextType = {
   linkComponentUrl: string | undefined
   setLinkComponentUrl: (url: string | undefined) => void
   clearArticleState: () => void
+  contentImageFiles: File[] | undefined
+  setContentImageFiles: (files: File[] | undefined) => void
 }
 
 export type ArticleProviderProps = {

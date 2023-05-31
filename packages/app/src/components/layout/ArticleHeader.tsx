@@ -17,6 +17,7 @@ import { Pinning } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
 import usePoster from "../../services/poster/hooks/usePoster"
 import useArticle from "../../services/publications/hooks/useArticle"
+import { removeHashPrefixFromImages } from "../../utils/modifyHTML"
 
 type Props = {
   publication?: Publication
@@ -39,13 +40,13 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     saveDraftArticle,
     draftArticle,
     clearArticleState,
-
     draftArticleThumbnail,
     setArticleTitleError,
     setArticleContentError,
     setStoreArticleContent,
     setDraftArticlePath,
     articleEditorState,
+    contentImageFiles,
   } = useArticleContext()
 
   const {
@@ -68,6 +69,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     transactionCompleted,
   } = usePublication(publicationSlug || publication?.id || "")
   const [show, setShow] = useState<boolean>(false)
+  const [prepareArticleTransaction, setPrepareArticleTransaction] = useState<boolean>(false)
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
 
@@ -109,6 +111,15 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     updateTransaction,
   ])
 
+  useEffect(() => {
+    const execute = async () => {
+      await prepareTransaction()
+    }
+    if (prepareArticleTransaction && articleEditorState) {
+      execute()
+    }
+  }, [prepareArticleTransaction, articleEditorState])
+
   const handleNavigation = async () => {
     refetch()
     clearArticleState()
@@ -118,10 +129,10 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const handlePreview = () => {
     if (isPreview) {
       navigate(-1)
+      setDraftArticlePath(undefined)
     } else {
       setStoreArticleContent(true)
       setDraftArticlePath(`../${type}/preview`)
-      // navigate(`../${type}/preview`)
     }
   }
 
@@ -136,41 +147,41 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     if (!articleEditorState) {
       initialError = true
     }
-    // if (
-    //   articleContent.length === 1 &&
-    //   articleContent[0].html === "" &&
-    //   articleContent[0].tag !== RICH_TEXT_ELEMENTS.IMAGE
-    // ) {
-    //   setArticleContentError(true)
-    //   setExecuteArticleTransaction(false)
-    //   initialError = true
-    // }
     if (initialError) {
       return
     }
     setArticleTitleError(false)
     setArticleContentError(false)
     setLoading(true)
-    // const imageBlocks = articleContent.filter((block) => block.tag === RICH_TEXT_ELEMENTS.IMAGE && block.imageFile)
-    // const imageUploads = imageBlocks.map((block) => {
-    //   if (block.imageFile) {
-    //     return ipfs
-    //       .uploadContent(block.imageFile)
-    //       .then((img) => ({
-    //         ...block,
-    //         imageUrl: img.path,
-    //       }))
-    //       .catch(() => ({ ...block }))
-    //   } else {
-    //     return Promise.resolve(block)
-    //   }
-    // })
-    // const blocks = await Promise.all(imageUploads).then((results) =>
-    //   articleContent.map((block) => results.find((result) => result === block) ?? block),
-    // )
-    // const content = await convertToHtml(blocks, false, false, "publish")
+    let articleContent = ""
+    if (contentImageFiles) {
+      const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
+      const parser = new DOMParser()
+      let doc = parser.parseFromString(articleWithHash as string, "text/html")
+      let imgs = Array.from(doc.getElementsByTagName("img"))
+      for (const img of imgs) {
+        let altValue = img.alt
+        let file = contentImageFiles.find((file: File) => file.lastModified.toString() === altValue)
+        if (file) {
+          let hash = await ipfs.uploadContent(file).then((hash) => hash.path)
+          img.src = hash
+        }
+      }
+
+      let newDoc = parser.parseFromString(doc.body.innerHTML, "text/html")
+      let modifiedHTMLString = newDoc.body.innerHTML
+      articleContent = modifiedHTMLString
+    }
+
+    if (!contentImageFiles && articleEditorState?.includes("img")) {
+      articleContent = removeHashPrefixFromImages(articleEditorState)
+    }
     if (draftArticle) {
-      const newArticle = { ...draftArticle, article: articleEditorState as string }
+      const newArticle = {
+        ...draftArticle,
+        article: articleContent as string,
+      }
+
       await handleArticleAction(newArticle)
     }
     setLoading(false)
@@ -305,7 +316,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             variant="contained"
             onClick={() => {
               setExecuteArticleTransaction(true)
-              prepareTransaction()
+              setStoreArticleContent(true)
+              setPrepareArticleTransaction(true)
             }}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
             disabled={loadingTransaction || ipfsLoading || createArticleIndexing || updateArticleIndexing}

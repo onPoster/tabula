@@ -30,7 +30,7 @@ const PreviewArticleView: React.FC = () => {
       setArticleHtml(articleEditorState)
     }
   }, [articleEditorState])
-  console.log("articleHtml", articleHtml)
+
   useEffect(() => {
     const transformImg = async () => {
       if (draftArticleThumbnail) {

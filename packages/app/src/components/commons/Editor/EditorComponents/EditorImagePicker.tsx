@@ -4,23 +4,19 @@ import React, { ChangeEvent, useRef, useState } from "react"
 import { palette, typography } from "../../../../theme"
 import { EditorState } from "draft-js"
 
-export interface EditorImageProps {
-  blockProps: {
-    editorState: EditorState
-    src: string
-    insertImage: (uri: string, file: File) => void
-  }
+export interface EditorImagePickerProps {
+  editorState: EditorState
+  onImageSelected: (uri: string, file: File) => void
 }
 
-const EditorImage: React.FC<EditorImageProps> = (props) => {
-  const selection = props.blockProps.editorState.getSelection()
+const EditorImagePicker: React.FC<EditorImagePickerProps> = (props) => {
+  const selection = props.editorState.getSelection()
   const anchorKey = selection.getAnchorKey()
   const id = `${anchorKey}_fileInput`
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [uri, setUri] = useState<string | null | undefined>(null)
 
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log("event", event)
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader()
       let imgUri = ""
@@ -30,8 +26,8 @@ const EditorImage: React.FC<EditorImageProps> = (props) => {
       }
 
       reader.onloadend = () => {
-        if (props.blockProps.insertImage && event.target.files?.length) {
-          props.blockProps.insertImage(imgUri, event.target.files[0])
+        if (event.target.files?.length) {
+          props.onImageSelected(imgUri, event.target.files[0])
         }
       }
 
@@ -70,9 +66,8 @@ const EditorImage: React.FC<EditorImageProps> = (props) => {
           No Image Selected. Click To Select.
         </InputLabel>
       )}
-      {uri && <img src={uri} alt="" />}
     </Box>
   )
 }
 
-export default EditorImage
+export default EditorImagePicker

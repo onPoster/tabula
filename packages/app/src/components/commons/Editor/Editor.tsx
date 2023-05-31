@@ -4,24 +4,18 @@ import {
   ContentBlock,
   KeyBindingUtil,
   CompositeDecorator,
-  Editor as DraftEditor,
   ContentState,
   DraftInlineStyleType,
   RawDraftEntity,
   DraftEntityMutability,
+  Editor as DraftEditor,
+  AtomicBlockUtils,
 } from "draft-js"
 import "draft-js/dist/Draft.css"
 import { Box } from "@mui/material"
 import EditorBlockItem from "./EditorBlock"
 import EditorHr from "./EditorComponents/EditorHr"
-// import EditorImage from "./EditorComponents/EditorImage"
-import {
-  convertToHTML,
-  IConvertToHTMLConfig,
-  convertFromHTML,
-  IConvertFromHTMLConfig,
-  ExtendedHTMLElement,
-} from "draft-convert"
+import { convertToHTML, IConvertToHTMLConfig, convertFromHTML, IConvertFromHTMLConfig } from "draft-convert"
 import { useArticleContext } from "../../../services/publications/contexts"
 import EditorInlineText from "./EditorInlineText"
 import { useNavigate } from "react-router-dom"
@@ -34,15 +28,23 @@ import useToggleInlineStyle from "./hooks/useToggleInlineStyle"
 import useAddRow from "./hooks/useAddRow"
 import useDeleteRow from "./hooks/useDeleteRow"
 import useHandleSlashCommand from "./hooks/useSlashCommand"
-import EditorImage from "./EditorComponents/EditorImage"
+import EditorImagePicker from "./EditorComponents/EditorImagePicker"
 import EditorLink from "./EditorComponents/EditorLink"
+import EditorShowImage from "./EditorComponents/EditoShowImage"
 
 const { hasCommandModifier } = KeyBindingUtil
 type Config = IConvertToHTMLConfig<DraftInlineStyleType, string, RawDraftEntity>
 
 const Editor: React.FC = () => {
-  const { setArticleEditorState, setStoreArticleContent, storeArticleContent, articleEditorState, draftArticlePath } =
-    useArticleContext()
+  const {
+    setArticleEditorState,
+    setStoreArticleContent,
+    storeArticleContent,
+    articleEditorState,
+    draftArticlePath,
+    contentImageFiles,
+    setContentImageFiles,
+  } = useArticleContext()
   const navigate = useNavigate()
   const linkDecorator = useLinkDecorator()
   const decorators = new CompositeDecorator(linkDecorator)
@@ -54,6 +56,15 @@ const Editor: React.FC = () => {
           node: HTMLElement,
           createEntity: (type: string, mutability: DraftEntityMutability, data: object) => string,
         ) => {
+          if (nodeName === "img" && contentImageFiles) {
+            const element = node as HTMLImageElement
+            const file = contentImageFiles.find((file) => file.lastModified === parseInt(element.alt))
+            return createEntity("IMAGE", "IMMUTABLE", { src: element.src, file })
+          }
+          if (nodeName === "img" && !contentImageFiles) {
+            const element = node as HTMLImageElement
+            return createEntity("IMAGE", "IMMUTABLE", { src: element.src, file: undefined })
+          }
           if (nodeName === "hr") {
             return createEntity("HR", "IMMUTABLE", {})
           }
@@ -63,12 +74,33 @@ const Editor: React.FC = () => {
         },
         htmlToBlock: (
           nodeName: string,
-          node: ExtendedHTMLElement<DOMStringMap>,
+          node: HTMLElement,
         ): string | false | { type: string; data: object } | undefined => {
           if (nodeName === "hr") {
             return {
               type: "atomic",
               data: {},
+            }
+          }
+          if (nodeName === "img" && contentImageFiles) {
+            const element = node as HTMLImageElement
+            const file = contentImageFiles.find((file) => file.lastModified === parseInt(element.alt))
+            return {
+              type: "atomic",
+              data: {
+                src: element.src,
+                file,
+              },
+            }
+          }
+          if (nodeName === "img" && !contentImageFiles) {
+            const element = node as HTMLImageElement
+            return {
+              type: "atomic",
+              data: {
+                src: element.src,
+                file: undefined,
+              },
             }
           }
           return undefined
@@ -81,6 +113,7 @@ const Editor: React.FC = () => {
         },
       }
       const contentState = convertFromHTML(optionsFromHTML)(articleEditorState)
+
       return EditorState.createWithContent(contentState, decorators)
     }
     return EditorState.createEmpty(decorators)
@@ -96,34 +129,42 @@ const Editor: React.FC = () => {
   const handleKeyCommand = useHandleKeyCommand(editorState, setEditorState)
   const keyBindingFn = useKeyBindingFn()
   const handleReturn = useHandleReturn(editorState, setEditorState, hasCommandModifier)
-  const { toggleBlockType, insertImage } = useToggleBlockType(editorState, setEditorState)
+  const { toggleBlockType, showImagePicker, changeImagePickerState } = useToggleBlockType(editorState, setEditorState)
 
   useEffect(() => {
     editor.current?.focus()
   }, [])
 
   useEffect(() => {
-    if (storeArticleContent && draftArticlePath) {
+    if (storeArticleContent) {
       const optionsToHTML: Partial<Config> = {
-        blockToHTML: (block) => {
-          if (block.type === "atomic") {
-            return { start: "<hr/>", end: "" }
-          }
-          return undefined
-        },
         entityToHTML: (entity, originalText) => {
+          if (entity.type === "HR") {
+            return `<hr />`
+          }
           if (entity.type === "LINK") {
             return <EditorLink url={entity.data.url}>{originalText}</EditorLink>
+          }
+          if (entity.type === "IMAGE") {
+            const { file, src } = entity.data
+            let uri
+            if (src.includes("https")) {
+              uri = src
+            }
+            if (file) {
+              uri = URL.createObjectURL(file)
+            }
+            return `<img src="${uri}" alt="${file?.lastModified}" />`
           }
           return originalText
         },
       }
-
       const html = convertToHTML(optionsToHTML)(editorState.getCurrentContent() as ContentState)
       setArticleEditorState(html)
-      navigate(draftArticlePath)
       setStoreArticleContent(false)
-      setArticleEditorState(html)
+    }
+    if (draftArticlePath) {
+      navigate(draftArticlePath)
     }
   }, [storeArticleContent, draftArticlePath, editorState, navigate, setStoreArticleContent, setArticleEditorState])
 
@@ -168,6 +209,29 @@ const Editor: React.FC = () => {
     setEditorState(finalEditorState)
   }
 
+  const onImageSelected = (uri: any, file: any) => {
+    const currentFiles = contentImageFiles ? [...contentImageFiles] : []
+    setContentImageFiles([...currentFiles, file])
+    const contentState = editorState.getCurrentContent()
+    const contentStateWithEntity = contentState.createEntity("IMAGE", "IMMUTABLE", { src: uri, file: file })
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
+    const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity })
+
+    // move the cursor to the end
+    const lastBlock = contentState.getLastBlock()
+    const lengthOfLastBlock = lastBlock.getLength()
+    const selection = editorState.getSelection()
+    const newSelection = selection.merge({
+      anchorOffset: lengthOfLastBlock,
+      focusOffset: lengthOfLastBlock,
+      anchorKey: lastBlock.getKey(),
+      focusKey: lastBlock.getKey(),
+    })
+    const newStateWithCursorAtEnd = EditorState.forceSelection(newEditorState, newSelection)
+    const editorStateWithImage = AtomicBlockUtils.insertAtomicBlock(newStateWithCursorAtEnd, entityKey, " ")
+    setEditorState(editorStateWithImage)
+  }
+
   const blockRendererFn = (block: ContentBlock) => {
     if (block.getType() === "atomic") {
       const contentState = editorState.getCurrentContent()
@@ -182,9 +246,13 @@ const Editor: React.FC = () => {
         }
         if (entity.getType() === "IMAGE") {
           return {
-            component: EditorImage,
+            component: EditorShowImage,
             editable: false,
-            props: { src: entity.getData().src, insertImage: insertImage, editorState },
+            props: {
+              file: entity.getData().file,
+              src: entity.getData().src,
+              editorState,
+            },
           }
         }
       }
@@ -195,6 +263,7 @@ const Editor: React.FC = () => {
       props: { toggleBlockType, editorState, onAdd: addRow, onDelete: deleteRow },
     }
   }
+
   return (
     <Box>
       <DraftEditor
@@ -213,6 +282,15 @@ const Editor: React.FC = () => {
         inlineEditorOffset={inlineEditorOffset}
         onClick={(slug) => toggleInlineStyle(slug)}
       />
+      {showImagePicker && (
+        <EditorImagePicker
+          editorState={editorState}
+          onImageSelected={(uri, file) => {
+            onImageSelected(uri, file)
+            changeImagePickerState(false)
+          }}
+        />
+      )}
     </Box>
   )
 }

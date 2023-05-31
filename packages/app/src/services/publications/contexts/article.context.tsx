@@ -32,22 +32,14 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
   const [showBlockTypePopup, setShowBlockTypePopup] = useState<boolean>(false)
   const [publishArticle, setPublishArticle] = useState<boolean>(false)
   const [linkComponentUrl, setLinkComponentUrl] = useState<string | undefined>(undefined)
+  const [contentImageFiles, setContentImageFiles] = useState<File[] | undefined>(undefined)
 
-  // const logState = () => {
-  //   const content = editorState.getCurrentContent()
-  //   console.log(convertToRaw(content))
-  // }
 
-  // const convertFromHtml = (html: string) => {
-  //   const contentState = stateFromHTML(html)
-  //   setEditorState(EditorState.createWithContent(contentState))
-  // }
 
   const clearArticleState = () => {
     setCurrentPath(undefined)
     setDraftArticle(undefined)
     setArticle(INITIAL_ARTICLE_VALUE)
-
     setExecuteArticleTransaction(false)
     setDraftArticleThumbnail(undefined)
     setMarkdownArticle(undefined)
@@ -57,6 +49,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     setArticleContentError(false)
     setArticleEditorState(undefined)
     setLinkComponentUrl(undefined)
+    setContentImageFiles(undefined)
   }
 
   const getIpfsData = async (hash: string): Promise<string> => {
@@ -121,6 +114,8 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         saveDraftArticle,
         updateDraftArticle,
         clearArticleState,
+        contentImageFiles,
+        setContentImageFiles,
       }}
     >
       {children}

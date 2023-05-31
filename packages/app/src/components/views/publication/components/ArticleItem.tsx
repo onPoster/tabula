@@ -18,6 +18,7 @@ import useArticle from "../../../../services/publications/hooks/useArticle"
 import isIPFS from "is-ipfs"
 import { useIpfs } from "../../../../hooks/useIpfs"
 import { shortTitle } from "../../../../utils/string-handler"
+import { processArticleContent } from "../../../../utils/modifyHTML"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -130,32 +131,9 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
 
     const handleEditArticle = async () => {
       if (article) {
-        const { image: thumbnailImg, article: articleContent } = article
-        // let html
-        const imgPromise: Promise<string | null> = thumbnailImg ? ipfs.getImgSrc(thumbnailImg) : Promise.resolve(null)
-        const contentPromise: Promise<string | null | undefined> = articleContent
-          ? ipfs.getText(articleContent).then((content) => {
-              if (content) {
-                return content
-              }
-            })
-          : Promise.resolve(null)
-        // const contentPromise: Promise<void | null> = articleContent
-        //   ? ipfs.getText(articleContent).then((content) => {
-        //       if (content) {
-        //         setArticleEditorState(content)
-        //         html = content
-        //         // const block = checkTag(content)
-        //         // if (block.length) {
-        //         //   setArticleContent(block)
-        //         // }
-        //       }
-        //     })
-        //   : Promise.resolve(null)
-
-        Promise.all([imgPromise, contentPromise]).then(([img, content]) => {
+        await processArticleContent(article, ipfs).then(({ img, content, modifiedHTMLString }) => {
           saveDraftArticle({ ...article, title: article.title, image: img })
-          setArticleEditorState(content ?? undefined)
+          setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
           setNavigateEditArticle(true)
         })
       }
