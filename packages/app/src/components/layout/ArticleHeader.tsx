@@ -47,6 +47,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setDraftArticlePath,
     articleEditorState,
     contentImageFiles,
+    storeArticleContent,
+    setArticleEditorState,
   } = useArticleContext()
 
   const {
@@ -124,10 +126,10 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     const execute = async () => {
       await prepareTransaction()
     }
-    if (prepareArticleTransaction && articleEditorState && type === "edit") {
+    if (prepareArticleTransaction && articleEditorState && type === "edit" && !storeArticleContent) {
       execute()
     }
-  }, [prepareArticleTransaction])
+  }, [prepareArticleTransaction, storeArticleContent])
 
   const handleNavigation = async () => {
     refetch()
@@ -152,7 +154,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }
   //V2
   const prepareTransaction = async () => {
-    console.log("entre prepareTransaction")
     let initialError = false
     if (draftArticle?.title === "") {
       setExecuteArticleTransaction(false)
@@ -191,6 +192,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     if (!contentImageFiles && articleEditorState?.includes("img")) {
       articleContent = removeHashPrefixFromImages(articleEditorState)
     }
+    if (!contentImageFiles && articleEditorState && !articleEditorState.includes("img")) {
+      articleContent = articleEditorState
+    }
     if (draftArticle) {
       const newArticle = {
         ...draftArticle,
@@ -207,6 +211,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
+
     if (draftArticleThumbnail) {
       await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
         articleThumbnail = img.path
@@ -274,9 +279,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       }
       return
     }
+
     clearTransactionStates()
   }
-
   return (
     <Stack
       component="header"
@@ -331,8 +336,11 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
           <Button
             variant="contained"
             onClick={() => {
-              setExecuteArticleTransaction(true)
+              if (type === "edit") {
+                setArticleEditorState(undefined)
+              }
               setStoreArticleContent(true)
+              setExecuteArticleTransaction(true)
               setPrepareArticleTransaction(true)
             }}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
