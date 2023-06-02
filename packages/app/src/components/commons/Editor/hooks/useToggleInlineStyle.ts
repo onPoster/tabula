@@ -7,21 +7,36 @@ const useToggleInlineStyle = (editorState: EditorState, setEditorState: (editorS
   const { linkComponentUrl, setLinkComponentUrl } = useArticleContext()
 
   const toggleInlineStyle = (inlineStyle: string) => {
-    setShowInlinePopup(false)
     if (inlineStyle === "LINK") {
       return handleLink()
     }
-    setEditorState(RichUtils.toggleInlineStyle(editorState, inlineStyle))
+    let newState = RichUtils.toggleInlineStyle(editorState, inlineStyle)
+    const newSelection = newState.getSelection().merge({
+      anchorOffset: newState.getSelection().getEndOffset(),
+      focusOffset: newState.getSelection().getEndOffset(),
+    })
+    newState = EditorState.acceptSelection(newState, newSelection)
+    setEditorState(newState)
+    setShowInlinePopup(false)
   }
 
   const handleLink = () => {
     const contentState = editorState.getCurrentContent()
     const contentStateWithEntity = contentState.createEntity("LINK", "MUTABLE", { url: linkComponentUrl })
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey()
-    const newEditorState = EditorState.set(editorState, {
+    let newState = EditorState.set(editorState, {
       currentContent: contentStateWithEntity,
     })
-    setEditorState(RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey))
+    newState = RichUtils.toggleLink(newState, newState.getSelection(), entityKey)
+
+    // Deselect the text
+    const newSelection = newState.getSelection().merge({
+      anchorOffset: newState.getSelection().getEndOffset(),
+      focusOffset: newState.getSelection().getEndOffset(),
+    })
+
+    newState = EditorState.acceptSelection(newState, newSelection)
+    setEditorState(newState)
     setLinkComponentUrl(undefined)
   }
 
