@@ -145,6 +145,11 @@ const Editor: React.FC = () => {
   useEffect(() => {
     if (storeArticleContent) {
       const optionsToHTML: Partial<Config> = {
+        styleToHTML: (style) => {
+          if (style === "STRIKETHROUGH") {
+            return <del />
+          }
+        },
         entityToHTML: (entity, originalText) => {
           if (entity.type === "HR") {
             return `<hr />`
