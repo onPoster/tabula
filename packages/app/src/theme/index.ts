@@ -238,6 +238,15 @@ let theme = createTheme({
           overflow: auto;
           padding: 1rem;
         }
+        .public-DraftStyleDefault-pre {
+          background-color: initial;
+          border-radius: initial;
+          color: initial;
+          font-family: initial;
+          margin-bottom: initial;
+          overflow: initial;
+          padding: initial;
+        }
       `,
     },
   },

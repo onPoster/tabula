@@ -14,6 +14,13 @@ turndownService.addRule("strikethrough", {
     return "~~" + content + "~~"
   },
 })
+turndownService.addRule("pre", {
+  filter: "pre",
+  replacement: function (content) {
+    content = "\n" + content + "\n"
+    return "```" + content + "```"
+  },
+})
 turndownService.addRule("figure", {
   filter: function (node) {
     const isMatch = node.nodeName === "FIGURE" && node.innerHTML.trim() === "&nbsp;"
