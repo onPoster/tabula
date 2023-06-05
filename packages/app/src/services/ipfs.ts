@@ -11,7 +11,7 @@ export const getClient = async (ipfsNodeEndpoint?: string): Promise<IPFS> => {
     ipfsNodeEndpointCached = ipfsNodeEndpoint
     try {
       //We try with the ipfs node provided by the user, if now available we try using the default url for a locale IPFS node
-      const ipfsHttpClient = create({ url: ipfsNodeEndpoint ?? "http://localhost:5001/api/v0" })
+      const ipfsHttpClient = create({ url: ipfsNodeEndpoint ?? "https://ipfs.io" ?? "http://localhost:5001/api/v0" })
       if (await ipfsHttpClient.version()) {
         console.log("IPFS getClient: using ipfsHttpClient")
         client = ipfsHttpClient
