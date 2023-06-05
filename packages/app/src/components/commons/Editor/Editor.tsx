@@ -44,6 +44,7 @@ const Editor: React.FC = () => {
     draftArticlePath,
     contentImageFiles,
     setContentImageFiles,
+    setLinkComponentUrl,
   } = useArticleContext()
   const navigate = useNavigate()
   const linkDecorator = useLinkDecorator()
@@ -134,6 +135,12 @@ const Editor: React.FC = () => {
   useEffect(() => {
     editor.current?.focus()
   }, [])
+
+  useEffect(() => {
+    if (!showInlinePopup) {
+      setLinkComponentUrl(undefined)
+    }
+  }, [setLinkComponentUrl, showInlinePopup])
 
   useEffect(() => {
     if (storeArticleContent) {

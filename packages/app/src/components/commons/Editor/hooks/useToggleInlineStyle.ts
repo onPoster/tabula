@@ -18,6 +18,7 @@ const useToggleInlineStyle = (editorState: EditorState, setEditorState: (editorS
     newState = EditorState.acceptSelection(newState, newSelection)
     setEditorState(newState)
     setShowInlinePopup(false)
+    setLinkComponentUrl(undefined)
   }
 
   const handleLink = () => {
