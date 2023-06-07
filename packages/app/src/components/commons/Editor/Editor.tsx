@@ -31,6 +31,7 @@ import useHandleSlashCommand from "./hooks/useSlashCommand"
 import EditorImagePicker from "./EditorComponents/EditorImagePicker"
 import EditorLink from "./EditorComponents/EditorLink"
 import EditorShowImage from "./EditorComponents/EditoShowImage"
+import { palette, typography } from "../../../theme"
 
 const { hasCommandModifier } = KeyBindingUtil
 type Config = IConvertToHTMLConfig<DraftInlineStyleType, string, RawDraftEntity>
@@ -276,6 +277,19 @@ const Editor: React.FC = () => {
     }
   }
 
+  const styleMap = {
+    CODE: {
+      backgroundColor: palette.grays[800],
+      borderRadius: 4,
+      color: palette.whites[1000],
+      fontFamily: typography.fontFamilies.monospace,
+      marginBottom: "1rem",
+      overflow: "auto",
+      padding: "0.2rem",
+      fontSize: 13,
+    },
+  }
+
   return (
     <Box>
       <DraftEditor
@@ -286,6 +300,7 @@ const Editor: React.FC = () => {
         handleKeyCommand={handleKeyCommand}
         keyBindingFn={keyBindingFn}
         handleReturn={handleReturn}
+        customStyleMap={styleMap}
         placeholder="Type '/' for commands..."
       />
       <EditorInlineText
