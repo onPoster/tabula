@@ -161,7 +161,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       setArticleTitleError(true)
       initialError = true
     }
-    if (!articleEditorState) {
+    if (!articleEditorState || articleEditorState === "<p></p>") {
+      setArticleContentError(true)
       initialError = true
     }
     if (initialError) {
