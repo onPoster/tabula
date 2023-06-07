@@ -138,12 +138,13 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
         })
       }
     }
-
     return (
       <ArticleItemContainer
         onClick={() => {
-          navigate(`./${id}`)
-          saveArticle(article)
+          if (articleHtmlContent) {
+            navigate(`./${id}`)
+            saveArticle(article)
+          }
         }}
       >
         <Grid container spacing={2}>
@@ -198,7 +199,6 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                   </Typography>
                 )}
               </Box>
-
               {/* Action Buttons */}
               <Box alignItems="center" display="flex" justifyContent="space-between">
                 <Box>
@@ -246,7 +246,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                   color="primary"
                   size="small"
                   endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
-                  disabled={loading || indexing}
+                  disabled={loading || indexing || !articleHtmlContent}
                   onClick={() => {
                     navigate(`./${id}`)
                     saveArticle(article)
