@@ -24,6 +24,9 @@ export const getClient = async (ipfsNodeEndpoint?: string): Promise<IPFS> => {
   if (ipfsNodeEndpointCached !== ipfsNodeEndpoint || client == null) {
     ipfsNodeEndpointCached = ipfsNodeEndpoint
     for (const endpoint of ipfsEndpoints) {
+      if (endpoint == null) {
+        continue
+      }
       try {
         const ipfsHttpClient = create({ url: endpoint })
         if (await ipfsHttpClient.version()) {
@@ -53,21 +56,22 @@ export const getClient = async (ipfsNodeEndpoint?: string): Promise<IPFS> => {
       if (ipfsBrowserError instanceof Error && ipfsBrowserError.name === "LockExistsError") {
         console.log("IPFS setupClient: ipfsBrowser is already running")
       } else {
-        throw Error("Unable to connect to a running IPFS node.")
-      }
-    }
-    for (const endpoint of publicIpfsEndpoints) {
-      try {
-        const ipfsHttpClient = create({ url: endpoint })
-        if (await ipfsHttpClient.version()) {
-          console.log(`IPFS getClient: using ipfsHttpClient at ${endpoint}`)
-          client = ipfsHttpClient
-          return client
-        } else {
-          console.log(`Unable to connect to IPFS node at ${endpoint}`)
+        console.log("Unable to connect to a running IPFS node.")
+        console.log("Will try to connect to a public IPFS node.")
+        for (const endpoint of publicIpfsEndpoints) {
+          try {
+            const ipfsHttpClient = create({ url: endpoint })
+            if (await ipfsHttpClient.version()) {
+              console.log(`IPFS getClient: using ipfsHttpClient at ${endpoint}`)
+              client = ipfsHttpClient
+              return client
+            } else {
+              console.log(`Unable to connect to IPFS node at ${endpoint}`)
+            }
+          } catch (ipfsHttpClientError) {
+            console.log(`Failed to connect to IPFS node at ${endpoint}`)
+          }
         }
-      } catch (ipfsHttpClientError) {
-        console.log(`Failed to connect to IPFS node at ${endpoint}`)
       }
     }
   }
