@@ -9,7 +9,7 @@ import usePublication from "../../../../services/publications/hooks/usePublicati
 import { ArticleItem } from "./ArticleItem"
 import { INITIAL_ARTICLE_VALUE, useArticleContext } from "../../../../services/publications/contexts"
 
-export const ArticleSection: React.FC = React.memo(() => {
+export const ArticlesSection: React.FC = React.memo(() => {
   const navigate = useNavigate()
   const { account } = useWeb3React()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()

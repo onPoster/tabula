@@ -10,7 +10,7 @@ import PublicationAvatar from "../../commons/PublicationAvatar"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import { PermissionSection } from "./components/PermissionSection"
-import { ArticleSection } from "./components/ArticleSection"
+import { ArticlesSection } from "./components/ArticlesSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
 import Avatar from "../../commons/Avatar"
@@ -128,7 +128,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                   couldEdit={havePermissionToUpdate}
                   couldDelete={havePermissionToDelete}
                 />
-                {currentTab === "articles" && <ArticleSection />}
+                {currentTab === "articles" && <ArticlesSection />}
                 {currentTab === "permissions" && <PermissionSection />}
                 {currentTab === "settings" && (
                   <SettingSection couldEdit={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
@@ -138,7 +138,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
             {!havePermission && (
               <Grid item>
                 <PublicationTabs onChange={setCurrentTab} couldEdit={false} couldDelete={false} />
-                {currentTab === "articles" && <ArticleSection />}
+                {currentTab === "articles" && <ArticlesSection />}
                 {currentTab === "permissions" && <PermissionSection />}
               </Grid>
             )}
