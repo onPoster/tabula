@@ -34,7 +34,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { createArticle, updateArticle } = usePoster()
   const { setCurrentPath, loading: loadingTransaction, ipfsLoading, setLoading } = usePublicationContext()
-
   const {
     setExecuteArticleTransaction,
     saveDraftArticle,
@@ -75,6 +74,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const [prepareArticleTransaction, setPrepareArticleTransaction] = useState<boolean>(false)
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
+  const newTransaction = useRef<boolean>(false)
+  const editTransaction = useRef<boolean>(false)
 
   // useOnClickOutside(ref, () => {
   //   if (show) {
@@ -117,8 +118,10 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   useEffect(() => {
     const execute = async () => {
       await prepareTransaction()
+      newTransaction.current = false
     }
-    if (prepareArticleTransaction && articleEditorState && type === "new") {
+    if (!newTransaction.current && prepareArticleTransaction && articleEditorState && type === "new") {
+      newTransaction.current = true
       execute()
     }
   }, [prepareArticleTransaction, articleEditorState])
@@ -126,8 +129,16 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   useEffect(() => {
     const execute = async () => {
       await prepareTransaction()
+      editTransaction.current = false
     }
-    if (prepareArticleTransaction && articleEditorState && type === "edit" && !storeArticleContent) {
+    if (
+      !editTransaction.current &&
+      prepareArticleTransaction &&
+      articleEditorState &&
+      type === "edit" &&
+      !storeArticleContent
+    ) {
+      editTransaction.current = true
       execute()
     }
   }, [prepareArticleTransaction, storeArticleContent])
@@ -282,7 +293,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       }
       return
     }
-
     clearTransactionStates()
   }
   return (
