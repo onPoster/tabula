@@ -5,7 +5,7 @@ let turndownService = new TurndownService({ headingStyle: "atx" })
 turndownService.addRule("underline", {
   filter: "u",
   replacement: function (content) {
-    return "__" + content + "__"
+    return "<u>" + content + "</u>"
   },
 })
 turndownService.addRule("strikethrough", {
