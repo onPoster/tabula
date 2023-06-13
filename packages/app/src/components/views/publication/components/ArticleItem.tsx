@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
 import { palette, typography } from "../../../../theme"
@@ -70,16 +70,20 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
     const [loading, setLoading] = useState<boolean>(false)
     const [navigateEditArticle, setNavigateEditArticle] = useState<boolean>(false)
-
     const [articleHtmlContent, setArticleHtmlContent] = useState<string | undefined>(undefined)
+    const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
+
+
     const decodeArticleContent = async () => {
       if (article.article) {
-        const isValidHash = isIPFS.multihash(article.article)
         if (isValidHash) {
           const data = await ipfs.getText(article.article)
           if (data) {
             return data
           }
+        } else {
+          //the article content without hash
+          return article.article
         }
       }
     }
