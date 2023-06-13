@@ -65,7 +65,7 @@ const options = {
         fontSize: 13,
       },
     },
-    a: { component: Link, props: { target: "_self" } },
+    a: { component: Link, props: { target: "_blank" } },
     ol: {
       component: List,
       dense: true,
