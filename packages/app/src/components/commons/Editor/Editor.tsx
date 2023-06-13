@@ -246,6 +246,8 @@ const Editor: React.FC = () => {
   }
 
   const blockRendererFn = (block: ContentBlock) => {
+    const focusedBlockKey = editorState.getSelection().getStartKey()
+    const isFocused = block.getKey() === focusedBlockKey
     if (block.getType() === "atomic") {
       const contentState = editorState.getCurrentContent()
       const entityKey = block.getEntityAt(0)
@@ -273,7 +275,7 @@ const Editor: React.FC = () => {
     return {
       component: EditorBlockItem,
       editable: true,
-      props: { toggleBlockType, editorState, onAdd: addRow, onDelete: deleteRow },
+      props: { toggleBlockType, editorState, onAdd: addRow, onDelete: deleteRow, isFocused },
     }
   }
 
@@ -301,7 +303,6 @@ const Editor: React.FC = () => {
         keyBindingFn={keyBindingFn}
         handleReturn={handleReturn}
         customStyleMap={styleMap}
-        placeholder="Type '/' for commands..."
       />
       <EditorInlineText
         editorState={editorState}

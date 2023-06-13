@@ -1,8 +1,9 @@
 import { ContentBlock, EditorBlock, EditorState, SelectionState } from "draft-js"
 import EditorRichText from "./EditorRichText"
-import { Box } from "@mui/material"
+import { Box, Typography } from "@mui/material"
 import { useArticleContext } from "../../../services/publications/contexts"
 import React from "react"
+import { palette } from "../../../theme"
 
 interface EditorBlockItemProps {
   block: ContentBlock
@@ -11,6 +12,7 @@ interface EditorBlockItemProps {
     onDelete: () => void
     onAdd: () => void
     toggleBlockType: (blockType: string) => void
+    isFocused: boolean
   }
   selection: SelectionState
 }
@@ -19,6 +21,9 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
   const { showBlockTypePopup } = useArticleContext()
   const selectedBlockKey = props.selection.getAnchorKey()
   const isBlockFocused = props.block.getKey() === selectedBlockKey
+  const isEmpty = props.block.getText().length === 0
+  const isFocused = props.blockProps.isFocused
+  const type = props.block.getType()
 
   return (
     <Box
@@ -31,6 +36,18 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
         },
       }}
     >
+      {isBlockFocused && isEmpty && isFocused && (
+        <Typography
+          variant="body1"
+          sx={{
+            position: "absolute",
+            left: type.includes("ordered-list-item" || "unordered-list-item") ? 30 : 0,
+            color: palette.grays[600],
+          }}
+        >
+          Type '/' for commands...
+        </Typography>
+      )}
       {isBlockFocused && (
         <Box
           className="rich-text"
