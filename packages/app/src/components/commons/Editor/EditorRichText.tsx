@@ -248,7 +248,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
     if (richTextRef.current) {
       const result = richTextRef.current.getBoundingClientRect()
       setTop(result.top + 32)
-      setLeft(result.left - 115)
+      setLeft(Math.max(result.left - 115, 64))
     }
   }, [])
 
@@ -257,7 +257,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
       if (richTextRef.current) {
         const result = richTextRef.current.getBoundingClientRect()
         setTop(result.top + 32)
-        setLeft(result.left - 115)
+        setLeft(Math.max(result.left - 115, 64))
       }
     }
     window.addEventListener("resize", updatePosition)

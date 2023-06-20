@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box, FormHelperText, Grid, InputLabel, Stack, TextField, Typography } from "@mui/material"
+import { Box, Container, FormHelperText, Grid, InputLabel, Stack, TextField, Typography } from "@mui/material"
 
 import React, { useEffect } from "react"
 import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
-import { ViewContainer } from "../../commons/ViewContainer"
 import CreateArticlePage from "../../layout/CreateArticlePage"
 import { ArticleContentSection } from "./components/ArticleContentSection"
 import { palette } from "../../../theme"
@@ -31,7 +30,7 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
         component="form"
         sx={{ position: "relative", overflowY: "auto", overflowX: "hidden", width: "100%", height: "100vh" }}
       >
-        <ViewContainer maxWidth="sm">
+        <Container maxWidth="md" sx={{ px: [8] }}>
           <Grid container gap={4} flexDirection="column" my={12.5}>
             <Grid item xs={12}>
               <Stack spacing={1}>
@@ -75,7 +74,7 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
               </Stack>
             </Grid>
           </Grid>
-        </ViewContainer>
+        </Container>
       </Box>
     </CreateArticlePage>
   )
