@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useRef } from "react"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-import { Portal, Stack, SxProps, TextField, Theme } from "@mui/material"
+import { Box, FormHelperText, Portal, Stack, SxProps, TextField, Theme } from "@mui/material"
 import { ReactComponent as BoldIcon } from "../../../assets/images/boldIcon.svg"
 import { ReactComponent as ItalicIcon } from "../../../assets/images/italicIcon.svg"
 import { ReactComponent as UnderlineIcon } from "../../../assets/images/underlineIcon.svg"
 import { ReactComponent as StrikethroughIcon } from "../../../assets/images/strikethroughIcon.svg"
 import { ReactComponent as CodeIcon } from "../../../assets/images/codeIcon.svg"
 import { ReactComponent as LinkIcon } from "../../../assets/images/linkIcon.svg"
-import { EditorState } from "draft-js"
-
 import { palette } from "../../../theme"
 import { useArticleContext } from "../../../services/publications/contexts"
 
@@ -53,21 +51,28 @@ type InlineStyleOptions = {
 }
 
 type InlineRichTextProps = {
-  editorState: EditorState
   showCommand: boolean
   inlineEditorOffset?: any
   onClick: (slug: string) => void
+  getActiveInlineStyles: () => { style: string; data?: any }[]
 }
 
-const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEditorOffset, showCommand, onClick }) => {
+const EditorInlineText: React.FC<InlineRichTextProps> = ({
+  inlineEditorOffset,
+  showCommand,
+  onClick,
+  getActiveInlineStyles,
+}) => {
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
   const { linkComponentUrl, setLinkComponentUrl } = useArticleContext()
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
   const [left, setLeft] = useState<number>()
+  const [showUrlInput, setShowUrlInput] = useState<boolean>(false)
+  const [showInvalidUrl, setShowInvalidUrl] = useState<boolean>(false)
   const validUrl = linkComponentUrl && linkComponentUrl.includes("https://")
-
+  const activeStyles: { style: string; data?: any }[] = getActiveInlineStyles()
   useEffect(() => {
     setShow(showCommand)
   }, [showCommand])
@@ -79,7 +84,21 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
     }
   }, [inlineEditorOffset])
 
+  useEffect(() => {
+    if (activeStyles.length && !linkComponentUrl && linkComponentUrl !== "") {
+      let linkData
+      const linkStyle = activeStyles.find((styleObj) => styleObj.style === "LINK")
+
+      if (linkStyle) {
+        linkData = linkStyle.data.url
+      }
+      setLinkComponentUrl(linkData)
+    }
+  }, [activeStyles, showUrlInput, linkComponentUrl, setLinkComponentUrl])
+
   const handleStyles = (slug: string): SxProps<Theme> => {
+    const isActiveSlug = activeStyles.some((styleObj) => styleObj.style === slug)
+
     let styles = {
       alignItems: "center",
       justifyContent: "center",
@@ -94,7 +113,8 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
         bgcolor: palette.grays[400],
       },
     }
-    if (slug === "LINK" && !validUrl) {
+
+    if (isActiveSlug) {
       styles = {
         ...styles,
         cursor: "default",
@@ -107,14 +127,31 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
         },
       }
     }
+
     return styles
   }
 
   const handleClick = (slug: string) => {
-    if (slug === "LINK" && !validUrl) {
+    if (slug === "LINK") {
+      if (validUrl) {
+        onClick("LINK")
+        setShowInvalidUrl(false)
+        return
+      }
+      setShowUrlInput(!showUrlInput)
       return
     }
     onClick(slug)
+  }
+
+  const handleLink = () => {
+    if (validUrl) {
+      onClick("LINK")
+      setShowInvalidUrl(false)
+      return
+    }
+    setShowInvalidUrl(true)
+    console.log("The user press enter")
   }
 
   return (
@@ -136,14 +173,20 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({ editorState, inlineEd
             zIndex: 999,
           }}
         >
-          <TextField
-            placeholder="Enter URL"
-            value={linkComponentUrl}
-            onChange={(e) => setLinkComponentUrl(e.target.value)}
-            InputProps={{
-              startAdornment: <LinkIcon style={{ opacity: 0.4, marginRight: "0.125rem" }} />,
-            }}
-          />
+          {showUrlInput && (
+            <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
+              <TextField
+                placeholder="Enter URL"
+                value={linkComponentUrl}
+                onChange={(e) => setLinkComponentUrl(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLink()}
+                InputProps={{
+                  startAdornment: <LinkIcon style={{ opacity: 0.4, marginRight: "0.125rem" }} />,
+                }}
+              />
+              {showInvalidUrl && <FormHelperText>Invalid url</FormHelperText>}
+            </Box>
+          )}
 
           <Stack direction="row" spacing={0.5}>
             {inlineStyleOptions.map(({ slug, icon }: InlineStyleOptions, index) => {

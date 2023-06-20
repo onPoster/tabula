@@ -279,6 +279,35 @@ const Editor: React.FC = () => {
     }
   }
 
+  const getActiveInlineStyles = () => {
+    const selection = editorState.getSelection()
+    const anchorKey = selection.getAnchorKey()
+    const currentContent = editorState.getCurrentContent()
+    const currentContentBlock = currentContent.getBlockForKey(anchorKey)
+    const start = selection.getStartOffset()
+    const end = selection.getEndOffset()
+
+    let styles: { style: string; data?: any }[] = []
+
+    for (let i = start; i < end; i++) {
+      const newStyles = currentContentBlock.getInlineStyleAt(i).toArray()
+      styles = [...styles, ...newStyles.map((style) => ({ style }))]
+
+      const entityKey = currentContentBlock.getEntityAt(i)
+      if (entityKey) {
+        const entity = currentContent.getEntity(entityKey)
+        if (entity.getType() === "LINK") {
+          styles.push({ style: "LINK", data: entity.getData() })
+        }
+      }
+    }
+
+    // remove duplicated
+    styles = Array.from(new Set(styles.map((s) => JSON.stringify(s)))).map((s) => JSON.parse(s))
+
+    return styles // return selection styles
+  }
+
   const styleMap = {
     CODE: {
       backgroundColor: palette.grays[800],
@@ -305,10 +334,10 @@ const Editor: React.FC = () => {
         customStyleMap={styleMap}
       />
       <EditorInlineText
-        editorState={editorState}
         showCommand={showInlinePopup}
         inlineEditorOffset={inlineEditorOffset}
         onClick={(slug) => toggleInlineStyle(slug)}
+        getActiveInlineStyles={getActiveInlineStyles}
       />
       {showImagePicker && (
         <EditorImagePicker
