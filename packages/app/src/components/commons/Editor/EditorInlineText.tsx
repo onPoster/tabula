@@ -80,7 +80,7 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({
   useEffect(() => {
     if (inlineEditorOffset) {
       setTop(inlineEditorOffset.top)
-      setLeft(inlineEditorOffset.left)
+      setLeft(Math.max(inlineEditorOffset.left, 172))
     }
   }, [inlineEditorOffset])
 
@@ -161,7 +161,7 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({
           ref={ref}
           spacing={0.5}
           sx={{
-            top: (top || 0) - 51,
+            top: (top || 0) - (showUrlInput ? 51 : 0),
             left: left,
             position: "absolute",
             background: palette.whites[1000],
