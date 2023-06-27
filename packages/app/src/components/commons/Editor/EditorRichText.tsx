@@ -258,7 +258,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
       setTop(result.top + topOffset)
       setLeft(Math.max(result.left - 115, 64))
     }
-  }, [richTextRef.current])
+  }, [topOffset])
 
   useLayoutEffect(() => {
     function updatePosition() {
@@ -278,7 +278,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
     window.addEventListener("resize", updatePosition)
     updatePosition()
     return () => window.removeEventListener("resize", updatePosition)
-  }, [])
+  }, [topOffset])
 
   const handleSelection = (value: RICH_TEXT_ELEMENTS) => {
     if (onRichTextSelected) {
