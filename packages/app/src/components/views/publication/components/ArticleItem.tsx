@@ -73,7 +73,6 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     const [articleHtmlContent, setArticleHtmlContent] = useState<string | undefined>(undefined)
     const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
 
-
     const decodeArticleContent = async () => {
       if (article.article) {
         if (isValidHash) {
@@ -89,9 +88,19 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     }
 
     const fetchArticleContent = useCallback(async () => {
-      const data = await decodeArticleContent()
-      if (data) {
-        setArticleHtmlContent(data)
+      try {
+        const data = await decodeArticleContent()
+        if (data) {
+          setArticleHtmlContent(data)
+        }
+      } catch (error: any) {
+        if (error.message.includes("504")) {
+          // Handle specific 504 error
+          console.error("There was an issue fetching the hash content. Please try again later.")
+        } else {
+          // Handle other general errors
+          console.error("An error occurred: ", error)
+        }
       }
     }, [article])
 

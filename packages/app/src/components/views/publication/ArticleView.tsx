@@ -69,16 +69,26 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   }, [data, article, saveArticle])
 
   const fetchArticleContent = useCallback(async () => {
-    if (isValidHash && article && !markdownArticle) {
-      await getIpfsData(article.article)
-      return
-    }
-    if (!isValidHash && article) {
-      if (!isAfterHtmlImplementation) {
-        return setArticleToShow(article.article)
+    try {
+      if (isValidHash && article && !markdownArticle) {
+        await getIpfsData(article.article)
+        return
       }
-      const markdownContent = convertToMarkdown(article.article)
-      setArticleToShow(markdownContent)
+      if (!isValidHash && article) {
+        if (!isAfterHtmlImplementation) {
+          return setArticleToShow(article.article)
+        }
+        const markdownContent = convertToMarkdown(article.article)
+        setArticleToShow(markdownContent)
+      }
+    } catch (error: any) {
+      if (error.message.includes("504")) {
+        // Handle specific 504 error
+        console.error("There was an issue fetching the hash content. Please try again later.")
+      } else {
+        // Handle other general errors
+        console.error("An error occurred: ", error)
+      }
     }
   }, [isValidHash, article, markdownArticle, getIpfsData, isAfterHtmlImplementation])
 
