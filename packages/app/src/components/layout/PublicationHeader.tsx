@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
@@ -12,7 +12,7 @@ import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from 
 import { UserOptions } from "../commons/UserOptions"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
-
+import isIPFS from "is-ipfs"
 import Avatar from "../commons/Avatar"
 import { useIpfs } from "../../hooks/useIpfs"
 import { processArticleContent } from "../../utils/modifyHTML"
@@ -51,6 +51,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const ref = useRef()
   // useOnClickOutside(ref, () => {
@@ -77,7 +78,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
 
   const handleEditNavigation = async () => {
     if (article) {
-      await processArticleContent(article, ipfs).then(({ img, content, modifiedHTMLString }) => {
+      await processArticleContent(article, ipfs, isValidHash ?? false).then(({ img, content, modifiedHTMLString }) => {
         saveDraftArticle({ ...article, title: article.title, image: img })
         savePublication(article.publication)
         setArticleEditorState(modifiedHTMLString ?? content ?? undefined)

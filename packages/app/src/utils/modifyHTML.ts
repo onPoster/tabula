@@ -25,16 +25,19 @@ export function removeHashPrefixFromImages(articleHTML: string): string {
 export const processArticleContent = (
   article: Article,
   ipfs: IpfsFunctions,
+  validHash: boolean,
 ): Promise<{ img: string | null; content: string | null | undefined; modifiedHTMLString: string | undefined }> => {
   const { image: thumbnailImg, article: articleContent } = article
   let modifiedHTMLString: string | undefined = undefined
   const imgPromise: Promise<string | null> = thumbnailImg ? ipfs.getImgSrc(thumbnailImg) : Promise.resolve(null)
   const contentPromise: Promise<string | null | undefined> = articleContent
-    ? ipfs.getText(articleContent).then((content) => {
-        if (content) {
-          return content
-        }
-      })
+    ? validHash
+      ? ipfs.getText(articleContent).then((content) => {
+          if (content) {
+            return content
+          }
+        })
+      : Promise.resolve(articleContent)
     : Promise.resolve(null)
 
   return Promise.all([imgPromise, contentPromise]).then(async ([img, content]) => {

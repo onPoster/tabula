@@ -144,7 +144,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
 
     const handleEditArticle = async () => {
       if (article) {
-        await processArticleContent(article, ipfs).then(({ img, content, modifiedHTMLString }) => {
+        return await processArticleContent(article, ipfs, isValidHash).then(({ img, content, modifiedHTMLString }) => {
           saveDraftArticle({ ...article, title: article.title, image: img })
           setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
           setNavigateEditArticle(true)
