@@ -13,9 +13,9 @@ if (!process.env.REACT_APP_SUBGRAPH_MAINNET) {
 if (!process.env.REACT_APP_SUBGRAPH_GOERLI) {
   throw new Error("REACT_APP_SUBGRAPH_GOERLI is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_SEPOLIA) {
-  throw new Error("REACT_APP_SUBGRAPH_SEPOLIA is not set")
-}
+// if (!process.env.REACT_APP_SUBGRAPH_SEPOLIA) {
+//   throw new Error("REACT_APP_SUBGRAPH_SEPOLIA is not set")
+// }
 if (!process.env.REACT_APP_SUBGRAPH_POLYGON) {
   throw new Error("REACT_APP_SUBGRAPH_POLYGON is not set")
 }
