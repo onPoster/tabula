@@ -5,12 +5,14 @@ import { Publication } from "../../models/publication"
 import { Helmet } from "react-helmet"
 
 type Props = {
+  articleId?: string
   publication?: Publication
   showCreatePost?: boolean
+  showEditButton?: boolean
   children: React.ReactNode
 }
 
-const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost }) => {
+const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePost, showEditButton, articleId }) => {
   return (
     <>
       <Helmet>
@@ -22,7 +24,12 @@ const PublicationPage: React.FC<Props> = ({ children, publication, showCreatePos
         ]}
         <meta property="og:url" content={`https://tabula.gg/#/${publication?.id}`} />
       </Helmet>
-      <PublicationHeader publication={publication} showCreatePost={showCreatePost} />
+      <PublicationHeader
+        publication={publication}
+        showCreatePost={showCreatePost}
+        showEditButton={showEditButton}
+        articleId={articleId}
+      />
       <Box component="main" sx={{ pb: 12 }}>
         {children}
       </Box>

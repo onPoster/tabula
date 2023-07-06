@@ -45,7 +45,6 @@ const customStyles = {
     ...base,
     color: palette.whites[1000],
     background: palette.secondary[600],
-    maxWidth: "calc(28% - 4px)",
     "&:hover": {
       background: palette.secondary[800],
     },

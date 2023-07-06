@@ -5,11 +5,23 @@ import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY
+const INFURA_API_KEY_SECRET = process.env.REACT_APP_INFURA_API_KEY_SECRET
+
 if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")
 }
 
-export const useIpfs = () => {
+export interface IpfsFunctions {
+  uploadContent: (file: File | string) => Promise<{ cid?: any; path: string }>
+  pinAction: (path: string, name: string, msg?: string) => Promise<void>
+  isValidIpfsService: (data: Pinning) => Promise<boolean>
+  getText: (hash: string) => Promise<string>
+  getImgSrc: (hash: string) => Promise<string>
+  getImgHash: (path: string, remove: boolean) => string
+}
+
+export const useIpfs = (): IpfsFunctions => {
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const openNotification = useNotification()
@@ -30,14 +42,63 @@ export const useIpfs = () => {
     return client
   }
 
+  /**
+   * Uploads a file to IPFS and pins it via the Infura API
+   * @param {File | string} file - The file or string content to be uploaded to IPFS
+   * @returns {Promise<{ cid?: any; path: string } | undefined>} The CID and path of the file in IPFS, or undefined if an error occurs
+   */
+  const uploadToInfura = async (file: File | string): Promise<{ cid?: any; path: string } | undefined> => {
+    const formData = new FormData()
+
+    // Check if 'file' is a string or an instance of File/Blob
+    if (typeof file === "string") {
+      const blob = new Blob([file], { type: "text/plain" }) // Convert string to Blob
+      formData.append("file", blob)
+    } else {
+      formData.append("file", file)
+    }
+
+    const response = await axios.post("https://ipfs.infura.io:5001/api/v0/add?pin=false", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: "Basic " + Buffer.from(`${INFURA_API_KEY}:${INFURA_API_KEY_SECRET}`).toString("base64"),
+      },
+    })
+    // The returned data contains the CID of the file in IPFS, which is extracted and returned along with the path
+    let cid = response.data.Hash
+    return {
+      cid: cid,
+      path: cid,
+    }
+  }
+
+  /**
+   * Uploads a file or string content to IPFS
+   * @param {File | string} file - The file or string content to be uploaded to IPFS
+   * @returns {Promise<{ cid?: any; path: string }>} The CID and path of the file in IPFS
+   */
   const uploadContent = async (file: File | string): Promise<{ cid?: any; path: string }> => {
     console.log("uploading content")
-    const client = await getClientHack(ipfsNodeEndpoint)
+    let result
 
-    const result = await client.add(file)
+    try {
+      // First attempts to upload the content using the IPFS HTTP client
+      const client = await getClientHack(ipfsNodeEndpoint)
+      result = await client.add(file)
+    } catch (error) {
+      console.log("Failed to upload content using IPFS HTTP client:", error)
+      // If the upload fails, it attempts to upload the file using the Infura API.
+      // This is typically used when the user is using a public IPFS gateway, which does not support generating a CID.
+      try {
+        result = await uploadToInfura(file)
+      } catch (infuraError) {
+        console.error("Failed to upload file using Infura API:", infuraError)
+      }
+    }
+
     return {
-      cid: result.cid,
-      path: result.path,
+      cid: result?.cid ?? "",
+      path: result?.path ?? "",
     }
   }
 
@@ -46,6 +107,23 @@ export const useIpfs = () => {
     // its contained here for now so it can be changed over to the ipfs http client when we find a good solution for this
     // its set up as a promise on purus as this will be required for the real implementation
     return `${IPFS_GATEWAY}/${hash}`
+  }
+
+  const removePrefix = (url: string, prefix: string) => {
+    if (url.startsWith(prefix)) {
+      return url.slice(prefix.length)
+    }
+    return url
+  }
+
+  const getImgHash = (path: string, remove: boolean): string => {
+    if (path.includes(IPFS_GATEWAY)) {
+      if (remove) {
+        return removePrefix(path, IPFS_GATEWAY)
+      }
+      return path
+    }
+    return path
   }
 
   const getText = async (hash: string): Promise<string> => {
@@ -118,5 +196,6 @@ export const useIpfs = () => {
     isValidIpfsService,
     getText,
     getImgSrc,
+    getImgHash,
   }
 }
