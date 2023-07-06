@@ -19,9 +19,7 @@ type ArticleTabsProps = {
 }
 
 const ArticleTabs: React.FC<ArticleTabsProps> = ({ onChange }) => {
-  const [currentTab, setCurrentTab] = useState<"write" | "preview">(
-    ARTICLE_TABS[0].value as "write" | "preview",
-  )
+  const [currentTab, setCurrentTab] = useState<"write" | "preview">(ARTICLE_TABS[0].value as "write" | "preview")
 
   const handleChange = (_event: React.SyntheticEvent, newValue: "write" | "preview") => {
     setCurrentTab(newValue)
@@ -34,16 +32,9 @@ const ArticleTabs: React.FC<ArticleTabsProps> = ({ onChange }) => {
   }, [onChange, currentTab])
 
   return (
-    <Tabs
-      value={currentTab}
-      onChange={handleChange}
-      textColor="secondary"
-      indicatorColor="secondary"
-    >
+    <Tabs value={currentTab} onChange={handleChange} textColor="secondary" indicatorColor="secondary">
       {ARTICLE_TABS.map(({ label, value }, index) => {
-        return (
-          <ArticleTab label={label} value={value} key={index} />
-        )
+        return <ArticleTab label={label} value={value} key={index} />
       })}
     </Tabs>
   )

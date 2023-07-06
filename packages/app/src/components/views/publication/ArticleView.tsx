@@ -1,32 +1,55 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Helmet } from "react-helmet"
 import { useParams } from "react-router-dom"
-import { usePublicationContext } from "../../../services/publications/contexts"
+import { useArticleContext } from "../../../services/publications/contexts"
 import useArticle from "../../../services/publications/hooks/useArticle"
 import { palette, typography } from "../../../theme"
 import { Markdown } from "../../commons/Markdown"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import isIPFS from "is-ipfs"
-import { WalletBadge } from "../../commons/WalletBadge"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import usePublication from "../../../services/publications/hooks/usePublication"
+import { convertToMarkdown } from "../../../utils/string-handler"
 
 interface ArticleViewProps {
   updateChainId: (chainId: number) => void
 }
-
+//Provisional solution to detect older articles and check the dif between markdown and html articles
+const VALIDATION_DATE = "2023-02-02T00:00:00Z"
 export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
-  const { article, saveArticle, getIpfsData, markdownArticle, setMarkdownArticle, loading } = usePublicationContext()
+  const {
+    article,
+    saveArticle,
+    markdownArticle,
+    setMarkdownArticle,
+    loading,
+    getIpfsData,
+    setArticleEditorState,
+    saveDraftArticle,
+    draftArticle,
+  } = useArticleContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
-  const publication = usePublication(article?.publication?.id || "")
-  useDynamicFavIcon(publication.imageSrc)
-  const date = article && article.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000)
-  const isValidHash = article && isIPFS.multihash(article.article)
+  const publication = usePublication(publicationSlug || "")
+  useDynamicFavIcon(publication?.imageSrc)
+  const dateCreation = useMemo(
+    () => article?.postedOn && new Date(parseInt(article.postedOn) * 1000),
+    [article?.postedOn],
+  )
+  const date = useMemo(
+    () => article?.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000),
+    [article?.lastUpdated],
+  )
+  const isAfterHtmlImplementation = useMemo(() => moment(dateCreation).isAfter(VALIDATION_DATE), [dateCreation])
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
+
   const [articleToShow, setArticleToShow] = useState<string>("")
+
   useEffect(() => {
     if (publication.chainId != null) {
       updateChainId(publication.chainId)
@@ -45,21 +68,42 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
     }
   }, [data, article, saveArticle])
 
-  useEffect(() => {
-    if (article) {
+  const fetchArticleContent = useCallback(async () => {
+    try {
       if (isValidHash && article && !markdownArticle) {
-        getIpfsData(article.article)
+        await getIpfsData(article.article)
         return
       }
       if (!isValidHash && article) {
-        setArticleToShow(article.article)
+        if (!isAfterHtmlImplementation) {
+          return setArticleToShow(article.article)
+        }
+        const markdownContent = convertToMarkdown(article.article)
+        setArticleToShow(markdownContent)
+      }
+    } catch (error: any) {
+      if (error.message.includes("504")) {
+        // Handle specific 504 error
+        console.error("There was an issue fetching the hash content. Please try again later.")
+      } else {
+        // Handle other general errors
+        console.error("An error occurred: ", error)
       }
     }
-  }, [isValidHash, article, markdownArticle, getIpfsData])
+  }, [isValidHash, article, markdownArticle, getIpfsData, isAfterHtmlImplementation])
+
+  useEffect(() => {
+    if (article && !draftArticle?.title) {
+      saveDraftArticle(article)
+      fetchArticleContent()
+    }
+  }, [article, fetchArticleContent])
 
   useEffect(() => {
     if (markdownArticle) {
-      setArticleToShow(markdownArticle)
+      setArticleEditorState(markdownArticle)
+      const markdownContent = convertToMarkdown(markdownArticle)
+      setArticleToShow(markdownContent)
     }
   }, [markdownArticle])
 
@@ -70,13 +114,18 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
   }, [setMarkdownArticle])
 
   return (
-    <PublicationPage showCreatePost={false} publication={article?.publication}>
+    <PublicationPage
+      showCreatePost={false}
+      showEditButton={true}
+      publication={article?.publication}
+      articleId={article?.id}
+    >
       {loading ? (
         <Grid container justifyContent="center" alignItems="center" my={2}>
           <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />
         </Grid>
       ) : (
-        <ViewContainer maxWidth="sm">
+        <ViewContainer maxWidth="sm" sx={{ "& *": { overflowWrap: "break-word" } }}>
           {article && (
             <Grid container mt={10} flexDirection="column">
               <Helmet>
@@ -89,25 +138,14 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                   <meta property="og:description" content={article?.description} key="1" />,
                   <meta name="description" content={article?.description} key="2" />,
                 ]}
-                <meta property="og:url" content={`https://tabula.gg/#/${article.publication?.id}/${article.id}`} />
+                <meta property="og:url" content={`https://tabula.gg/#/${publicationSlug}/${article.id}`} />
                 {article.image != null && <meta property="og:image" content={imageSrc} />}
               </Helmet>
               {article.image && <img src={imageSrc} alt={article.title} />}
               <Grid item>
-                <Typography variant="h1" fontFamily={typography.fontFamilies.sans}>
-                  {article.title}
-                </Typography>
+                <Typography variant="h1">{article.title}</Typography>
               </Grid>
 
-              {article.authors?.length && (
-                <Grid container alignItems="center" gap={2} my={1}>
-                  {article.authors.map((author) => (
-                    <Grid item key={author}>
-                      <WalletBadge address={author} copyable />
-                    </Grid>
-                  ))}
-                </Grid>
-              )}
               {article.publication && (
                 <Grid container spacing={1} sx={{ marginLeft: -0.5 }}>
                   {article.tags &&

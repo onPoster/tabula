@@ -1,6 +1,8 @@
+/* eslint-disable array-callback-return */
 import { createTheme } from "@mui/material/styles"
 import paperTextureDay from "../assets/images/paper-texture-800-day.jpg"
 import avertaFont from "../assets/fonts/averta-normal.woff2"
+import avertaSemiBoldFont from "../assets/fonts/averta-semibold.woff2"
 import avertaBoldFont from "../assets/fonts/averta-bold.woff2"
 
 declare module "*.woff2"
@@ -48,12 +50,86 @@ export const palette = {
   },
 }
 
-export const typography = {
-  fontFamilies: {
-    sans: `'Averta', 'Avenir', sans-serif`,
-    serif: `'Source Serif Pro', 'Garamond', cursive;`,
-    monospace: `'Roboto Mono', monospace`,
+const fontFamilies = {
+  sans: `'Averta', 'Avenir', sans-serif`,
+  serif: `'Source Serif Pro', 'Garamond', cursive;`,
+  monospace: `'Roboto Mono', monospace`,
+}
+
+export const typography: any = {
+  fontFamilies: fontFamilies,
+  fontFamily: fontFamilies.serif,
+  h1: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "3rem",
+    fontWeight: 600,
+    marginBlockStart: "2.5rem",
+    lineHeight: 1,
   },
+  h2: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "2rem",
+    fontWeight: 500,
+    marginBlockStart: "2.5rem",
+    lineHeight: 1,
+  },
+  h3: {
+    fontSize: "1.75rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h4: {
+    fontSize: "1.5rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h5: {
+    fontSize: "1.25rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  h6: {
+    fontSize: "1.125rem",
+    marginBlockStart: "2rem",
+    fontFamily: fontFamilies.serif,
+    fontWeight: 500,
+  },
+  subtitle1: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "1.5em",
+  },
+  subtitle2: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "1.25em",
+  },
+  body1: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "1em",
+    lineHeight: 1.75,
+  },
+  body2: {
+    fontFamily: fontFamilies.serif,
+    fontSize: "0.75em",
+    lineHeight: 1.75,
+  },
+}
+
+const createArticleStyles = () => {
+  const styleOutput: string[] = []
+  ;["h1", "h2", "h3", "h4", "h5", "h6"].map((tag) => {
+    const headingStyles = `
+    .editor ${tag} {
+      font-family: ${typography[tag].fontFamily};
+      font-size: ${typography[tag].fontSize};
+      line-height: ${typography[tag].lineHeight};
+    }
+    `
+    styleOutput.push(headingStyles)
+  })
+  return styleOutput.join(" ")
 }
 
 let theme = createTheme({
@@ -67,71 +143,20 @@ let theme = createTheme({
   },
   typography: {
     // Base Typography
-    fontFamily: typography.fontFamilies.serif,
-    h1: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "3rem",
-      fontWeight: 600,
-      marginBlockStart: "2.5rem",
-      lineHeight: 1,
-    },
-    h2: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "2.5rem",
-      fontWeight: 600,
-      marginBlockStart: "2.5rem",
-      lineHeight: 1,
-    },
-    h3: {
-      fontSize: "2rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
-    },
-    h4: {
-      fontSize: "1.75rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
-    },
-    h5: {
-      fontSize: "1.5rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
-    },
-    h6: {
-      fontSize: "1.25rem",
-      marginBlockStart: "2rem",
-      fontFamily: typography.fontFamilies.serif,
-      fontWeight: 600,
-    },
-    subtitle1: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "1.5em",
-    },
-    subtitle2: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "1.25em",
-    },
-    body1: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "1em",
-      lineHeight: 1.75,
-    },
-    body2: {
-      fontFamily: typography.fontFamilies.serif,
-      fontSize: "0.75em",
-      lineHeight: 1.75,
-    },
+    ...typography,
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: `
         @font-face {
           font-family: 'Averta';
-          font-weight: 500;
+          font-weight: 300;
           src: local('Averta'), local('Averta-Regular'), url(${avertaFont}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Averta';
+          font-weight: 500;
+          src: local('Averta'), local('Averta-SemiBold'), url(${avertaSemiBoldFont}) format('woff2');
         }
         @font-face {
           font-family: 'Averta';
@@ -152,14 +177,51 @@ let theme = createTheme({
             z-index: -1;
           }
         }
+        ${createArticleStyles()}
+        .code {
+          font-family: "Courier New", Courier, monospace;
+          white-space: pre;
+          background-color: ${palette.grays[800]};
+          color: white;
+          padding-left: 0.2rem;
+          padding-right: 0.2rem;
+        }
+        .strikethrough {
+          text-decoration-line: line-through;
+        }
+        .bold {
+          font-weight: bold
+        }
+        .italic {
+          font-style: italic
+        }
+        p {
+          font-family: ${typography.body1.fontFamily};
+          font-size: ${typography.body1.fontSize};
+          line-height: ${typography.body1.lineHeight};
+        }
+        .divider {
+          height: 28px;
+          display: flex;
+          align-items: center;
+        }
+        .divider:before {
+          content: "";
+          height: 1px;
+          width: 100%;
+          background-color: ${palette.grays[600]};
+        }
         a {
           text-decoration: none;
           color: inherit;
         }
+        figure {
+          margin: 0;
+        }
         img {
           width: 100%;
         }
-        em {
+        em, i {
           font-style: italic;
         }
         blockquote {
@@ -175,6 +237,15 @@ let theme = createTheme({
           margin-bottom: 1rem;
           overflow: auto;
           padding: 1rem;
+        }
+        .public-DraftStyleDefault-pre {
+          background-color: initial;
+          border-radius: initial;
+          color: initial;
+          font-family: initial;
+          margin-bottom: initial;
+          overflow: initial;
+          padding: initial;
         }
       `,
     },
@@ -224,7 +295,7 @@ theme = createTheme(theme, {
         root: {
           fontFamily: typography.fontFamilies.sans,
           fontSize: "1rem",
-          fontWeight: 700,
+          fontWeight: 500,
           position: "relative",
           textTransform: "none",
         },
@@ -238,22 +309,22 @@ theme = createTheme(theme, {
       styleOverrides: {
         root: {
           color: palette.primary[1000],
-        }
-      }
+        },
+      },
     },
     MuiContainer: {
       styleOverrides: {
         maxWidthSm: {
-          '&.MuiContainer-maxWidthSm': {
+          "&.MuiContainer-maxWidthSm": {
             maxWidth: 650,
           },
         },
         maxWidthMd: {
-          '&.MuiContainer-maxWidthMd': {
+          "&.MuiContainer-maxWidthMd": {
             maxWidth: 900,
           },
-        }
-      }
+        },
+      },
     },
     MuiTab: {
       styleOverrides: {
@@ -277,12 +348,12 @@ theme = createTheme(theme, {
         root: {
           color: palette.secondary[800],
           fontFamily: typography.fontFamilies.sans,
-          fontSize: "1.125rem",
+          fontSize: "1rem",
           letterSpacing: 2,
           lineHeight: 1,
           textTransform: "uppercase",
-        }
-      }
+        },
+      },
     },
     MuiOutlinedInput: {
       styleOverrides: {
@@ -290,11 +361,11 @@ theme = createTheme(theme, {
           backgroundColor: palette.grays[50],
           backdropFilter: "blur(2px)",
           fontFamily: typography.fontFamilies.sans,
-          "& .MuiOutlinedInput-input": {
+          "& .MuiOutlinedInput-input:not(textarea)": {
             height: "auto",
             paddingTop: 12,
             paddingBottom: 12,
-          }
+          },
         },
       },
     },

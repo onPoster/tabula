@@ -1,11 +1,10 @@
 import { ethers } from "ethers"
 import { useState } from "react"
-import { useIpfs } from "../../../hooks/useIpfs"
-import { Article, Permission, Publication } from "../../../models/publication"
+import { Permission, Publication } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
 import { getTextRecordContent } from "../../ens"
-
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
+
 
 const [usePublicationContext, PublicationContextProvider] = createGenericContext<PublicationContextType>()
 
@@ -13,14 +12,12 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
   const [publications, setPublications] = useState<Publication[] | undefined>(undefined)
   const [publication, setPublication] = useState<Publication | undefined>(undefined)
-  const [draftArticle, setDraftArticle] = useState<Article | undefined>(undefined)
-  const [article, setArticle] = useState<Article | undefined>(undefined)
   const [permission, setPermission] = useState<Permission | undefined>(undefined)
   const [editingPublication, setEditingPublication] = useState<boolean>(false)
   const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
-  const [markdownArticle, setMarkdownArticle] = useState<string | undefined>(undefined)
   const [loading, setLoading] = useState<boolean>(false)
-  const ipfs = useIpfs()
+  const [ipfsLoading, setIpfsLoading] = useState<boolean>(false)
+
   const [slugToPublicationId, setSlugToPublicationId] = useState<{ [key: string]: string }>({})
   const [publicationAvatar, setPublicationAvatar] = useState<{ publicationId: string; uri: string } | undefined>(
     undefined,
@@ -50,20 +47,10 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
     }
   }
 
-  const getIpfsData = async (hash: string) => {
-    setLoading(true)
-    const data = await ipfs.getText(hash)
-    if (data != null) {
-      setMarkdownArticle(data)
-    }
-    setLoading(false)
-  }
   const savePublication = (publication: Publication | undefined) => setPublication(publication)
   const savePublications = (publications: Publication[] | undefined) => setPublications(publications)
-  const saveDraftArticle = (article: Article | undefined) => setDraftArticle(article)
-  const saveArticle = (article: Article | undefined) => setArticle(article)
   const savePermission = (permission: Permission) => setPermission(permission)
-  const saveIsEditing = (isEditing: boolean) => setEditingPublication(isEditing)
+  const saveIsEditingPublication = (isEditing: boolean) => setEditingPublication(isEditing)
   const saveDraftPublicationImage = (file: File | undefined) => setDraftPublicationImage(file)
 
   return (
@@ -71,29 +58,25 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
       value={{
         publication,
         publications,
-        draftArticle,
-        article,
         permission,
         editingPublication,
         draftPublicationImage,
         currentPath,
-        markdownArticle,
         loading,
+        ipfsLoading,
         publicationAvatar,
         removePublicationImage,
+        setIpfsLoading,
+        setLoading,
         setRemovePublicationImage,
         setPublicationAvatar,
-        setMarkdownArticle,
-        getIpfsData,
         getPublicationId,
         setCurrentPath,
-        saveIsEditing,
+        saveIsEditingPublication,
         saveDraftPublicationImage,
         savePermission,
         savePublication,
         savePublications,
-        saveArticle,
-        saveDraftArticle,
       }}
     >
       {children}

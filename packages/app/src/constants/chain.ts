@@ -1,4 +1,11 @@
 import { AbstractConnector } from "@web3-react/abstract-connector"
+import MainnetIcon from "../assets/images/networks/ethereum.png";
+import GoerliIcon from "../assets/images/networks/goerli.png";
+import GnosisChainIcon from "../assets/images/networks/gnosis-chain.png";
+import OptimismIcon from "../assets/images/networks/optimism.png";
+import ArbitrumIcon from "../assets/images/networks/arbitrum.png";
+import PolygonIcon from "../assets/images/networks/polygon.png";
+import OptimismOnGnosisChainIcon from "../assets/images/networks/optimism-on-gnosis-chain.png";
 
 // This is the place to add support for new networks
 
@@ -22,6 +29,25 @@ export enum SupportedChain {
   ARBITRUM = "arbitrum",
   OPTIMISM = "optimism",
   OPTIMISM_ON_GNOSIS_CHAIN = "optimism_on_gnosis_chain",
+}
+
+export const SupportedChainIcon = (chainId: number) => {
+  switch (chainId) {
+  case SupportedChainId.MAINNET: 
+    return MainnetIcon
+  case SupportedChainId.GNOSIS_CHAIN: 
+  return GnosisChainIcon
+  case SupportedChainId.GOERLI: 
+  return GoerliIcon
+  case SupportedChainId.POLYGON: 
+    return PolygonIcon
+  case SupportedChainId.ARBITRUM: 
+    return ArbitrumIcon
+  case SupportedChainId.OPTIMISM: 
+    return OptimismIcon
+  case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN: 
+    return OptimismOnGnosisChainIcon
+  }
 }
 
 export const chainIdToChainName = (chainId: number) => {

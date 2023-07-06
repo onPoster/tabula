@@ -7,7 +7,7 @@ import { WalletBadge } from "../commons/WalletBadge"
 
 import { useRef, useState } from "react"
 import { UserOptions } from "../commons/UserOptions"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -35,11 +35,12 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
   const classes = useStyles()
   const [show, setShow] = useState<boolean>(false)
   const ref = useRef<React.Ref<unknown> | undefined>()
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
-    }
-  })
+
+  // useOnClickOutside(ref, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
 
   return (
     <Container

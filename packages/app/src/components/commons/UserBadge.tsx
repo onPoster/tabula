@@ -2,7 +2,8 @@ import React from "react"
 import { Avatar, Stack, Typography } from "@mui/material"
 import * as blockies from "blockies-ts"
 import { palette, typography } from "../../theme"
-import { shortAddress } from "../../utils/string"
+import { shortAddress } from "../../utils/string-handler"
+
 
 export const UserBadge: React.FC<{ address: string; hover?: boolean }> = ({ address, hover }) => {
   const avatarSrc = blockies.create({ seed: address.toLowerCase() }).toDataURL()

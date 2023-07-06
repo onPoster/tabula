@@ -10,7 +10,7 @@ import PublicationAvatar from "../../commons/PublicationAvatar"
 import { ViewContainer } from "../../commons/ViewContainer"
 import PublicationPage from "../../layout/PublicationPage"
 import { PermissionSection } from "./components/PermissionSection"
-import ArticleSection from "./components/ArticleSection"
+import { ArticlesSection } from "./components/ArticlesSection"
 import PublicationTabs from "./components/PublicationTabs"
 import { SettingSection } from "./components/SettingSection"
 import Avatar from "../../commons/Avatar"
@@ -32,6 +32,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
     chainId,
   } = usePublication(publicationSlug || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
+
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, account || "") : false
   const havePermissionToUpdate = permissions
@@ -103,25 +104,14 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                     >
                       {publication.title}
                     </Typography>
-
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{
-                        alignItems: "center",
-                        cursor: "pointer",
-                        "&:hover .copyIcon": { color: palette.grays[1000] },
-                      }}
+                    <Typography
+                      color={palette.grays[600]}
+                      fontFamily={typography.fontFamilies.monospace}
+                      fontSize={10}
+                      sx={{ wordBreak: "break-all" }}
                     >
-                      <Typography
-                        color={palette.grays[600]}
-                        fontFamily={typography.fontFamilies.monospace}
-                        fontSize={10}
-                        sx={{ wordBreak: "break-all" }}
-                      >
-                        {publication.id}
-                      </Typography>
-                    </Stack>
+                      {publicationSlug}
+                    </Typography>
                   </Stack>
                   {publication.description && (
                     <Typography color={palette.grays[1000]} sx={{ margin: 0 }}>
@@ -138,7 +128,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                   couldEdit={havePermissionToUpdate}
                   couldDelete={havePermissionToDelete}
                 />
-                {currentTab === "articles" && <ArticleSection />}
+                {currentTab === "articles" && <ArticlesSection />}
                 {currentTab === "permissions" && <PermissionSection />}
                 {currentTab === "settings" && (
                   <SettingSection couldEdit={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
@@ -148,7 +138,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
             {!havePermission && (
               <Grid item>
                 <PublicationTabs onChange={setCurrentTab} couldEdit={false} couldDelete={false} />
-                {currentTab === "articles" && <ArticleSection />}
+                {currentTab === "articles" && <ArticlesSection />}
                 {currentTab === "permissions" && <PermissionSection />}
               </Grid>
             )}
