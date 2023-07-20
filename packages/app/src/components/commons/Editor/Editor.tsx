@@ -350,6 +350,7 @@ const Editor: React.FC = () => {
         keyBindingFn={keyBindingFn}
         handleReturn={handleReturn}
         customStyleMap={styleMap}
+        spellCheck={true} 
       />
       <EditorInlineText
         showCommand={showInlinePopup}
