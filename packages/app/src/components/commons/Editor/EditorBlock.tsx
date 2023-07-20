@@ -25,6 +25,24 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
   const isFocused = props.blockProps.isFocused
   const type = props.block.getType()
 
+  const handleTop = (): number => {
+    switch (type) {
+      case "header-one":
+        return 12
+      case "header-two":
+        return 2
+      case "header-three":
+        return 10
+      case "header-four":
+        return 6
+      case "header-five":
+        return 4
+      case "header-six":
+        return 2
+      default:
+        return 0
+    }
+  }
   return (
     <Box
       sx={{
@@ -39,8 +57,10 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
       {isBlockFocused && isEmpty && isFocused && (
         <Typography
           variant="body1"
+          className="rich-editor-placeholder"
           sx={{
             position: "absolute",
+            top: handleTop,
             left: type.includes("ordered-list-item" || "unordered-list-item") ? 30 : 0,
             color: palette.grays[600],
           }}
