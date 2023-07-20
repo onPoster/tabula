@@ -4,6 +4,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
+import EditIcon from "@mui/icons-material/Edit"
 import { useIpfs } from "../../hooks/useIpfs"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
@@ -26,6 +27,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const inputFile = useRef<HTMLInputElement | null>(null)
   const openImagePicker = () => inputFile && inputFile.current?.click()
   const [uri, setUri] = useState<string | undefined>(undefined)
+  const [deterministicUri, setDeterministicUri] = useState<string>("")
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
   const { publicationAvatar, setRemovePublicationImage, removePublicationImage } = usePublicationContext()
 
@@ -65,6 +67,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
       getDefaultImageSrc()
     }
     if (!defaultImage && defaultImageSrc === "" && !removePublicationImage && publicationAvatar && !newPublication) {
+      setDeterministicUri(publicationAvatar.uri)
       setUri(publicationAvatar.uri)
       return setDefaultImageSrc(publicationAvatar.uri)
     }
@@ -119,7 +122,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
                 }}
                 onClick={deleteImage}
               >
-                <ClearIcon />
+                {deterministicUri === uri ? <EditIcon /> : <ClearIcon />}
               </SmallAvatar>
             )}
           </>
