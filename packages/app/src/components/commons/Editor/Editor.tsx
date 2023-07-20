@@ -47,6 +47,7 @@ const Editor: React.FC = () => {
     setContentImageFiles,
     setLinkComponentUrl,
   } = useArticleContext()
+  const editorContainer = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const linkDecorator = useLinkDecorator()
   const decorators = new CompositeDecorator(linkDecorator)
@@ -217,6 +218,23 @@ const Editor: React.FC = () => {
     }
   }, [editorState, setShowInlinePopup])
 
+  useEffect(() => {
+    scrollToBottom()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorState])
+
+  // go to the end of the text editor
+  const scrollToBottom = () => {
+    const currentSelection = editorState.getSelection()
+    const anchorKey = currentSelection.getAnchorKey()
+    const currentContent = editorState.getCurrentContent()
+    const currentBlock = currentContent.getBlockForKey(anchorKey)
+
+    //check if the current blocks is the last
+    if (currentBlock === currentContent.getLastBlock()) {
+      editorContainer.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+    }
+  }
   const handleState = (editorState: EditorState) => {
     const finalEditorState = handleSlashCommand(editorState)
     setEditorState(finalEditorState)
@@ -322,7 +340,7 @@ const Editor: React.FC = () => {
   }
 
   return (
-    <Box>
+    <Box ref={editorContainer}>
       <DraftEditor
         ref={editor}
         editorState={editorState}
