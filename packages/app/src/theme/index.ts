@@ -238,6 +238,11 @@ let theme = createTheme({
           overflow: auto;
           padding: 1rem;
         }
+        .rich-editor-placeholder{
+          font-family: ${fontFamilies.serif} !important;
+          font-size: 16px !important;
+          line-height: 1.75 !important;
+        }
         .public-DraftStyleDefault-pre {
           background-color: initial;
           border-radius: initial;
