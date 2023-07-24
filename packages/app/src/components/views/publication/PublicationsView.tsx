@@ -19,6 +19,7 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
+import { usePublicationContext } from "../../../services/publications/contexts"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -86,6 +87,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setLastPublicationTitle,
     setExecutePollInterval,
   } = usePublications()
+  const { setPublicationAvatar } = usePublicationContext()
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
@@ -119,6 +121,10 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
       handlePublicationsToShow(publications, account)
     }
   }, [publications, account])
+
+  useEffect(() => {
+    setPublicationAvatar(undefined)
+  }, [setPublicationAvatar])
 
   useEffect(() => {
     if (redirect && lastPublicationId) {
