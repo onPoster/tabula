@@ -48,8 +48,8 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
       sx={{
         position: "relative",
         cursor: "text",
-        mt: 1,
-        mb: isBlockFocused && isEmpty && isFocused ? 1 : 0,
+        mt: type.includes("code-block") ? 0 : 1,
+
         "&:hover .rich-text": {
           opacity: 1,
         },
