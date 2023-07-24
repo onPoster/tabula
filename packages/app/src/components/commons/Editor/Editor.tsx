@@ -32,6 +32,7 @@ import EditorImagePicker from "./EditorComponents/EditorImagePicker"
 import EditorLink from "./EditorComponents/EditorLink"
 import EditorShowImage from "./EditorComponents/EditoShowImage"
 import { palette, typography } from "../../../theme"
+import useHandlePastedText from "./hooks/useHandlePasteText"
 
 const { hasCommandModifier } = KeyBindingUtil
 type Config = IConvertToHTMLConfig<DraftInlineStyleType, string, RawDraftEntity>
@@ -351,6 +352,7 @@ const Editor: React.FC = () => {
         handleReturn={handleReturn}
         customStyleMap={styleMap}
         spellCheck={true} 
+        handlePastedText={useHandlePastedText(editorState, setEditorState)}
       />
       <EditorInlineText
         showCommand={showInlinePopup}
