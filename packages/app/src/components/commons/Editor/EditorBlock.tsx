@@ -48,7 +48,8 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
       sx={{
         position: "relative",
         cursor: "text",
-        mt: 1,
+        mt: type.includes("code-block") ? 0 : 1,
+
         "&:hover .rich-text": {
           opacity: 1,
         },
@@ -62,7 +63,7 @@ const EditorBlockItem: React.FC<EditorBlockItemProps> = (props) => {
             position: "absolute",
             top: handleTop,
             left: type.includes("ordered-list-item" || "unordered-list-item") ? 30 : 0,
-            color: palette.grays[600],
+            color: type.includes("code-block") ? palette.whites[600] : palette.grays[600],
           }}
         >
           Type '/' for commands...
