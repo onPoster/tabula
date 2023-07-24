@@ -15,7 +15,8 @@ const useHandleReturn = (
       const contentState = editorState.getCurrentContent()
       const selectionState = editorState.getSelection()
 
-      const newContentState = Modifier.splitBlock(contentState, selectionState)
+      let newContentState = Modifier.splitBlock(contentState, selectionState)
+      newContentState = Modifier.setBlockType(newContentState, newContentState.getSelectionAfter(), "unstyled")
       const newEditorState = EditorState.push(editorState, newContentState, "split-block")
 
       setEditorState(newEditorState)

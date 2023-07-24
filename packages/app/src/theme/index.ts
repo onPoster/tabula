@@ -236,7 +236,8 @@ let theme = createTheme({
           font-family: ${typography.fontFamilies.monospace};
           margin-bottom: 1rem;
           overflow: auto;
-          padding: 1rem;
+          padding: 0.5rem;
+          font-size: 13px;
         }
         .rich-editor-placeholder{
           font-family: ${fontFamilies.serif} !important;
