@@ -11,9 +11,17 @@ interface AvatarProps {
   width: number
   storeImage?: boolean
   dynamicFavIcon?: boolean
+  forceGeneration?: boolean
 }
 
-const Avatar: React.FC<AvatarProps> = ({ publicationSlug, height, width, storeImage, dynamicFavIcon }) => {
+const Avatar: React.FC<AvatarProps> = ({
+  publicationSlug,
+  height,
+  width,
+  storeImage,
+  dynamicFavIcon,
+  forceGeneration,
+}) => {
   const { imageSrc, data: publication } = usePublication(publicationSlug)
   const { setPublicationAvatar } = usePublicationContext()
   const [avatar, setAvatar] = useState<string | undefined>(imageSrc)
@@ -27,7 +35,7 @@ const Avatar: React.FC<AvatarProps> = ({ publicationSlug, height, width, storeIm
   }
   return (
     <Fragment>
-      {imageSrc ? (
+      {imageSrc && !forceGeneration ? (
         <MaterialAvatar sx={{ width, height }} src={imageSrc}>
           {" "}
         </MaterialAvatar>
