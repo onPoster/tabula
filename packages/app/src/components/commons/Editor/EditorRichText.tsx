@@ -306,6 +306,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show])
 
   useEffect(() => {
@@ -363,7 +364,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
     if (show && headerOptionRefs[0].current) {
       headerOptionRefs[0].current.focus()
     }
-  }, [show])
+  }, [headerOptionRefs, show])
 
   return (
     <>
