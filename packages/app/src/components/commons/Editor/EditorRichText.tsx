@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { Box, Divider, Grid, Portal, Stack, Tooltip, Typography } from "@mui/material"
-import React, { useEffect, useLayoutEffect, useState, useRef } from "react"
+import React, { useEffect, useLayoutEffect, useState, useRef, createRef } from "react"
 
 import AddIcon from "@mui/icons-material/Add"
 import { ReactComponent as ParagraphIcon } from "../../../assets/images/paragraphIcon.svg"
@@ -74,6 +74,7 @@ type RichTextItemProps = {
   label?: string
   color?: string
   icon: React.ReactNode
+  selected?: boolean
 }
 
 type RichTextProps = {
@@ -189,7 +190,7 @@ const DragTooltipContent = () => {
   )
 }
 
-const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
+const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selected }) => {
   return (
     <Grid
       container
@@ -198,6 +199,7 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
       alignItems="center"
       sx={{
         cursor: "pointer",
+        "& .rich-text-icon": { backgroundColor: selected ? palette.grays[100] : palette.grays[50] },
         "&:hover": {
           "& .rich-text-icon": { backgroundColor: palette.grays[100] },
         },
@@ -225,9 +227,13 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color }) => {
 
 const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, onAdd }) => {
   const { setShowBlockTypePopup } = useArticleContext()
+
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
+  const headerOptionRefs = HEADER_OPTIONS.map(() => createRef<HTMLDivElement>())
+  const optionRefs = OPTIONS.map(() => createRef<HTMLDivElement>())
+  const [selectedIndex, setSelectedIndex] = useState<number>(0)
 
   const [show, setShow] = useState<boolean>(false)
   const [top, setTop] = useState<number>()
@@ -259,6 +265,66 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
       setLeft(Math.max(result.left - 115, 64))
     }
   }, [topOffset])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const richTextOption = HEADER_OPTIONS.concat(OPTIONS)
+      switch (event.key) {
+        case "ArrowUp":
+          event.preventDefault()
+          setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0))
+          break
+
+        case "ArrowDown":
+          event.preventDefault()
+          setSelectedIndex((prevIndex) => Math.min(prevIndex + 1, richTextOption.length - 1))
+          break
+
+        case "Enter":
+          event.preventDefault()
+          setSelectedIndex((currentIndex) => {
+            console.log("currentIndex", currentIndex)
+            const selectedOption = richTextOption[currentIndex]
+            if (selectedOption) {
+              handleSelection(selectedOption.value)
+            }
+            return currentIndex
+          })
+          break
+
+        default:
+          break
+      }
+    }
+
+    if (show) {
+      window.addEventListener("keydown", handleKeyDown)
+    } else {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [show])
+
+  useEffect(() => {
+    const selectedOptionRef = selectedIndex < 6 ? headerOptionRefs[selectedIndex] : optionRefs[selectedIndex - 6]
+
+    setTimeout(() => {
+      if (selectedOptionRef && selectedOptionRef.current && richTextRef.current) {
+        const selectedOptionRect = selectedOptionRef.current.getBoundingClientRect()
+        const optionsContainerRect = richTextRef.current.getBoundingClientRect()
+
+        if (
+          selectedOptionRect.bottom > optionsContainerRect.bottom ||
+          selectedOptionRect.top < optionsContainerRect.top
+        ) {
+          richTextRef.current.scrollTop = selectedOptionRef.current.offsetTop - 10
+        }
+      }
+    }, 0)
+  }, [headerOptionRefs, optionRefs, selectedIndex])
 
   useLayoutEffect(() => {
     function updatePosition() {
@@ -292,6 +358,12 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
     setShowBlockTypePopup(false)
     onDelete()
   }
+
+  useEffect(() => {
+    if (show && headerOptionRefs[0].current) {
+      headerOptionRefs[0].current.focus()
+    }
+  }, [show])
 
   return (
     <>
@@ -336,9 +408,9 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
                     <Grid item>
                       <Grid container spacing={0.25}>
                         {HEADER_OPTIONS.map(({ icon, value }, index) => (
-                          <Grid item key={`-${index}`}>
-                            <div onClick={() => handleSelection(value)}>
-                              <RichTextItem icon={icon} />
+                          <Grid item key={`-${index}`} ref={headerOptionRefs[index]}>
+                            <div onClick={() => value && handleSelection(value)} tabIndex={0}>
+                              <RichTextItem icon={icon} selected={index === selectedIndex} />
                             </div>
                           </Grid>
                         ))}
@@ -348,9 +420,9 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
                 </Grid>
 
                 {OPTIONS.map(({ label, icon, value }, index) => (
-                  <Grid item key={`${label}-${index}`}>
-                    <div onClick={() => value && handleSelection(value)}>
-                      <RichTextItem label={label} icon={icon} />
+                  <Grid item key={`${label}-${index}`} ref={optionRefs[index]}>
+                    <div onClick={() => value && handleSelection(value)} tabIndex={0}>
+                      <RichTextItem label={label} icon={icon} selected={index + 6 === selectedIndex} />
                     </div>
                   </Grid>
                 ))}
