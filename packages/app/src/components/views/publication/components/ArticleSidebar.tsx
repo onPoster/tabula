@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, SetStateAction, useEffect, useCallback } from "react"
-import { Box, InputLabel, Stack, TextField, Typography, useTheme } from "@mui/material"
+import { Box, InputLabel, Stack, TextField, Tooltip, Typography, useTheme } from "@mui/material"
 import { useArticleContext } from "../../../../services/publications/contexts"
 import { Close } from "@mui/icons-material"
 import { palette, typography } from "../../../../theme"
@@ -9,6 +9,7 @@ import { UploadFile } from "../../../commons/UploadFile"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 import useDebouncedState from "../../../../hooks/useDebouncedState"
+import useLocalStorage from "../../../../hooks/useLocalStorage"
 
 export interface ArticleSidebarProps {
   showSidebar: boolean
@@ -16,6 +17,7 @@ export interface ArticleSidebarProps {
 }
 
 const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
+  const [pinning] = useLocalStorage("pinning", undefined)
   const { article } = useArticleContext()
   const { draftArticle, saveDraftArticle, setDraftArticleThumbnail, draftArticleThumbnail, updateDraftArticle } =
     useArticleContext()
@@ -143,15 +145,18 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
           }}
         >
           {/* Thumbnail */}
-          <Stack spacing={1}>
-            <InputLabel>Thumbnail</InputLabel>
-            <UploadFile
-              defaultImage={article?.image}
-              defaultUri={draftArticle?.image ?? undefined}
-              onFileSelected={handleOnFiles}
-              convertedFile={setUriImage}
-            />
-          </Stack>
+          <Tooltip title={!pinning ? "If you'd like to include images, you need to configure a pinning service." : ""}>
+            <Stack spacing={1}>
+              <InputLabel>Thumbnail</InputLabel>
+              <UploadFile
+                defaultImage={article?.image}
+                defaultUri={draftArticle?.image ?? undefined}
+                onFileSelected={handleOnFiles}
+                convertedFile={setUriImage}
+                disabled={!pinning}
+              />
+            </Stack>
+          </Tooltip>
 
           {/* Post URL */}
           {/* <Stack spacing={1}>

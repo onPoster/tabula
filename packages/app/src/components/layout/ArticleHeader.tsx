@@ -225,7 +225,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
 
-    if (draftArticleThumbnail) {
+    if (pinning && draftArticleThumbnail) {
       await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
         articleThumbnail = img.path
       })
@@ -246,6 +246,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       if (title) {
         if (type === "new") {
           console.log("before start")
+
           return await createArticle(
             {
               action: "article/create",

@@ -22,7 +22,11 @@ const StyledButton = styled(Button)({
   },
 })
 
-export const PinningAlert: React.FC = () => {
+type PinningAlertProps = {
+  secondMsg?: boolean
+}
+
+export const PinningAlert: React.FC<PinningAlertProps> = ({ secondMsg }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { setCurrentPath } = usePublicationContext()
@@ -43,8 +47,24 @@ export const PinningAlert: React.FC = () => {
 
         <Grid item>
           <Typography variant="body1" fontWeight={500} color={palette.secondary[1000]}>
-            It is not recommended to publish an article without a configured pinning service. Without a configured
-            pinning service, your transactions will be much more expensive.
+            {secondMsg ? (
+              <>
+                <Box>
+                  <span style={{ fontWeight: "bold" }}> Use the Public IPFS-Gateway:</span> Retrieve the hash content,
+                  but note that we don't store images or articles.
+                </Box>
+                <Box>
+                  <span style={{ fontWeight: "bold" }}>Set Up a Custom Pinning Service:</span> Trust your preferred
+                  service for more personalized control.
+                </Box>
+                <Box>
+                  <span style={{ fontWeight: "bold" }}> Post the Article Directly on Chain: </span> Keep in mind, this
+                  is more expensive, and images are not supported.
+                </Box>
+              </>
+            ) : (
+              "It is not recommended to publish an article without a configured pinning service. Without a configured pinning service, your transactions will be much more expensive."
+            )}
           </Typography>
         </Grid>
         <Grid item>
