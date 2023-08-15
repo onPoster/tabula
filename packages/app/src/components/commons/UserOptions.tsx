@@ -124,7 +124,7 @@ export const UserOptions: React.FC = () => {
             <EditIcon sx={{ color: palette.grays[800], width: 16 }} />
           </Avatar>
           <Typography sx={{ fontFamily: typography.fontFamilies.sans, whiteSpace: "nowrap" }} variant="body2">
-            Update Pinning Configuration
+            Update Store Configuration
           </Typography>
         </Stack>
       </MenuItem>
