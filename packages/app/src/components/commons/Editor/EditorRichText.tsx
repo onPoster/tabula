@@ -16,6 +16,7 @@ import { palette, typography } from "../../../theme"
 import { useOnClickOutside } from "../../../hooks/useOnClickOutside"
 import { useArticleContext } from "../../../services/publications/contexts"
 import useLocalStorage from "../../../hooks/useLocalStorage"
+import { PinningConfigurationOption } from "../PinningConfigurationModal"
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -232,7 +233,12 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selecte
 
 const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, onAdd }) => {
   const { setShowBlockTypePopup } = useArticleContext()
-  const [pinning] = useLocalStorage("pinning", undefined)
+  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
+    "pinningOptionSelected",
+    undefined,
+  )
+  const isDirectlyOnChain =
+    pinningOptionSelected && pinningOptionSelected === PinningConfigurationOption.DirectlyOnChain
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -352,7 +358,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
   }, [topOffset])
 
   const handleSelection = (value: RICH_TEXT_ELEMENTS) => {
-    if (value === RICH_TEXT_ELEMENTS.IMAGE && !pinning) {
+    if (value === RICH_TEXT_ELEMENTS.IMAGE && isDirectlyOnChain) {
       return
     }
     if (onRichTextSelected) {
@@ -433,7 +439,7 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
                       <RichTextItem
                         label={label}
                         icon={icon}
-                        disabled={!pinning && value === RICH_TEXT_ELEMENTS.IMAGE ? true : false}
+                        disabled={isDirectlyOnChain && value === RICH_TEXT_ELEMENTS.IMAGE ? true : false}
                         selected={index + HEADER_OPTIONS.length === selectedIndex}
                       />
                     </div>

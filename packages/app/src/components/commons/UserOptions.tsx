@@ -5,8 +5,8 @@ import PushPinIcon from "@mui/icons-material/PushPin"
 import CopyIcon from "@mui/icons-material/CopyAllOutlined"
 import LinkOffIcon from "@mui/icons-material/LinkOff"
 import ExitToAppIcon from "@mui/icons-material/ExitToApp"
+import EditIcon from "@mui/icons-material/Edit"
 import NodeIcon from "../../assets/images/icons/node"
-
 
 import { useWeb3React } from "@web3-react/core"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -16,6 +16,7 @@ import IPFSNodeModal from "./IPFSNodeModal"
 import { useNotification } from "../../hooks/useNotification"
 import { chainIdToChainName, SupportedChainIcon } from "../../constants/chain"
 import { shortAddress } from "../../utils/string-handler"
+import PinningConfigurationModal from "./PinningConfigurationModal"
 
 const UserOptionsContainer = styled(Paper)({
   padding: 8,
@@ -39,6 +40,7 @@ export const UserOptions: React.FC = () => {
   const { account, chainId, deactivate } = useWeb3React()
   const { setCurrentPath } = usePublicationContext()
   const [showIPFSModal, setShowIPFSModal] = useState<boolean>(false)
+  const [showSettingModal, setShowSettingModal] = useState<boolean>(false)
   const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
   const location = useLocation()
   const navigate = useNavigate()
@@ -114,6 +116,23 @@ export const UserOptions: React.FC = () => {
         item
         sx={{ cursor: "pointer" }}
         onClick={() => {
+          setShowSettingModal(true)
+        }}
+      >
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Avatar sx={{ width: 24, height: 24, background: palette.grays[100] }}>
+            <EditIcon sx={{ color: palette.grays[800], width: 16 }} />
+          </Avatar>
+          <Typography sx={{ fontFamily: typography.fontFamilies.sans, whiteSpace: "nowrap" }} variant="body2">
+            Update Pinning Configuration
+          </Typography>
+        </Stack>
+      </MenuItem>
+
+      <MenuItem
+        item
+        sx={{ cursor: "pointer" }}
+        onClick={() => {
           setCurrentPath(location.pathname)
           navigate("/pinning")
         }}
@@ -128,7 +147,13 @@ export const UserOptions: React.FC = () => {
         </Stack>
       </MenuItem>
 
-      <MenuItem item sx={{ cursor: "pointer" }} onClick={() => {setShowIPFSModal(!showIPFSModal)}}>
+      <MenuItem
+        item
+        sx={{ cursor: "pointer" }}
+        onClick={() => {
+          setShowIPFSModal(!showIPFSModal)
+        }}
+      >
         <Stack direction="row" spacing={1} alignItems="center">
           <NodeIcon sx={{ color: palette.grays[800], width: 24 }} />
           <Typography sx={{ fontFamily: typography.fontFamilies.sans, whiteSpace: "nowrap" }} variant="body2">
@@ -179,6 +204,7 @@ export const UserOptions: React.FC = () => {
       </MenuItem>
 
       <IPFSNodeModal open={showIPFSModal} onClose={() => setShowIPFSModal(false)} />
+      <PinningConfigurationModal open={showSettingModal} onClose={() => setShowSettingModal(false)} />
     </UserOptionsContainer>
   )
 }

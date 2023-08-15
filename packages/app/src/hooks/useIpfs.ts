@@ -3,6 +3,7 @@ import { Pinning } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
+import { PinningConfigurationOption } from "../components/commons/PinningConfigurationModal"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY
@@ -22,6 +23,10 @@ export interface IpfsFunctions {
 }
 
 export const useIpfs = (): IpfsFunctions => {
+  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
+    "pinningOptionSelected",
+    undefined,
+  )
   const [pinning] = useLocalStorage("pinning", undefined)
   const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const openNotification = useNotification()
@@ -47,9 +52,11 @@ export const useIpfs = (): IpfsFunctions => {
    * @param {File | string} file - The file or string content to be uploaded to IPFS
    * @returns {Promise<{ cid?: any; path: string } | undefined>} The CID and path of the file in IPFS, or undefined if an error occurs
    */
-  const uploadToInfura = async (file: File | string): Promise<{ cid?: any; path: string } | undefined> => {
+  const uploadToInfura = async (
+    file: File | string,
+    pin: boolean,
+  ): Promise<{ cid?: any; path: string } | undefined> => {
     const formData = new FormData()
-
     // Check if 'file' is a string or an instance of File/Blob
     if (typeof file === "string") {
       const blob = new Blob([file], { type: "text/plain" }) // Convert string to Blob
@@ -57,8 +64,7 @@ export const useIpfs = (): IpfsFunctions => {
     } else {
       formData.append("file", file)
     }
-
-    const response = await axios.post("https://ipfs.infura.io:5001/api/v0/add?pin=false", formData, {
+    const response = await axios.post(`https://ipfs.infura.io:5001/api/v0/add?pin=${pin}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: "Basic " + Buffer.from(`${INFURA_API_KEY}:${INFURA_API_KEY_SECRET}`).toString("base64"),
@@ -81,18 +87,27 @@ export const useIpfs = (): IpfsFunctions => {
     console.log("uploading content")
     let result
 
-    try {
-      // First attempts to upload the content using the IPFS HTTP client
-      const client = await getClientHack(ipfsNodeEndpoint)
-      result = await client.add(file)
-    } catch (error) {
-      console.log("Failed to upload content using IPFS HTTP client:", error)
-      // If the upload fails, it attempts to upload the file using the Infura API.
-      // This is typically used when the user is using a public IPFS gateway, which does not support generating a CID.
+    if (pinningOptionSelected === PinningConfigurationOption.OurPinningService) {
       try {
-        result = await uploadToInfura(file)
+        result = await uploadToInfura(file, true)
       } catch (infuraError) {
         console.error("Failed to upload file using Infura API:", infuraError)
+      }
+    }
+    if (pinningOptionSelected === PinningConfigurationOption.CustomPinningService && pinning) {
+      try {
+        // First attempts to upload the content using the IPFS HTTP client
+        const client = await getClientHack(ipfsNodeEndpoint)
+        result = await client.add(file)
+      } catch (error) {
+        console.log("Failed to upload content using IPFS HTTP client:", error)
+        // If the upload fails, it attempts to upload the file using the Infura API.
+        // This is typically used when the user is using a public IPFS gateway, which does not support generating a CID.
+        try {
+          result = await uploadToInfura(file, false)
+        } catch (infuraError) {
+          console.error("Failed to upload file using Infura API:", infuraError)
+        }
       }
     }
 

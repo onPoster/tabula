@@ -7,15 +7,12 @@ import CreateArticlePage from "../../layout/CreateArticlePage"
 import { ArticleContentSection } from "./components/ArticleContentSection"
 import { palette } from "../../../theme"
 import useDebouncedState from "../../../hooks/useDebouncedState"
-import useLocalStorage from "../../../hooks/useLocalStorage"
-import { PinningAlert } from "../../commons/PinningAlert"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
 }
 
 export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({ type }) => {
-  const [pinning] = useLocalStorage("pinning", undefined)
   const { publication } = usePublicationContext()
   const { draftArticle, updateDraftArticle, articleTitleError, articleContentError } = useArticleContext()
 
@@ -35,11 +32,6 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
       >
         <Container maxWidth="md" sx={{ px: [8] }}>
           <Grid container gap={4} flexDirection="column" my={12.5}>
-            {!pinning && (
-              <Grid item xs={12}>
-                <PinningAlert secondMsg />
-              </Grid>
-            )}
             <Grid item xs={12}>
               <Stack spacing={1}>
                 <InputLabel>

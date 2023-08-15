@@ -17,6 +17,7 @@ import { useNotification } from "../../../hooks/useNotification"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { Dropdown } from "../../commons/Dropdown"
 import { PINNING_OPTIONS } from "../../../constants/pinning"
+import { PinningConfigurationOption } from "../../commons/PinningConfigurationModal"
 
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
@@ -62,6 +63,10 @@ const SetupIpfsView: React.FC = () => {
   const openNotification = useNotification()
   const { isValidIpfsService } = useIpfs()
   const { currentPath, setCurrentPath } = usePublicationContext()
+  const [pinningOptionSelected, setPinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
+    "pinningOptionSelected",
+    undefined,
+  )
   const [pinning, setPinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const {
     control,
@@ -110,6 +115,9 @@ const SetupIpfsView: React.FC = () => {
   }
 
   const handleClose = () => {
+    if (!pinning && pinningOptionSelected === PinningConfigurationOption.CustomPinningService) {
+      setPinningOptionSelected(undefined)
+    }
     if (currentPath) {
       navigate(currentPath)
       setCurrentPath(undefined)

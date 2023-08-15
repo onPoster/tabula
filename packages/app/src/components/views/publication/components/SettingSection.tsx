@@ -22,6 +22,9 @@ import usePublications from "../../../../services/publications/hooks/usePublicat
 import { useNavigate, useParams } from "react-router-dom"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
+import useLocalStorage from "../../../../hooks/useLocalStorage"
+import { Pinning } from "../../../../models/pinning"
+import { PinningConfigurationOption } from "../../../commons/PinningConfigurationModal"
 
 type Post = {
   title: string
@@ -43,6 +46,11 @@ const publicationSchema = yup.object().shape({
 export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const navigate = useNavigate()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
+    "pinningOptionSelected",
+    undefined,
+  )
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
@@ -111,7 +119,10 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setLoading(true)
     const { title, description } = data
     let image
-    if (draftPublicationImage) {
+    if (
+      draftPublicationImage &&
+      (pinning || (pinningOptionSelected && pinningOptionSelected !== PinningConfigurationOption.DirectlyOnChain))
+    ) {
       image = await ipfs.uploadContent(draftPublicationImage)
     }
     if (!draftPublicationImage && publication?.image && !removePublicationImage) {

@@ -10,6 +10,7 @@ import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 import useDebouncedState from "../../../../hooks/useDebouncedState"
 import useLocalStorage from "../../../../hooks/useLocalStorage"
+import { PinningConfigurationOption } from "../../../commons/PinningConfigurationModal"
 
 export interface ArticleSidebarProps {
   showSidebar: boolean
@@ -17,7 +18,12 @@ export interface ArticleSidebarProps {
 }
 
 const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
-  const [pinning] = useLocalStorage("pinning", undefined)
+  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
+    "pinningOptionSelected",
+    undefined,
+  )
+  const isDirectlyOnChain =
+    pinningOptionSelected && pinningOptionSelected === PinningConfigurationOption.DirectlyOnChain
   const { article } = useArticleContext()
   const { draftArticle, saveDraftArticle, setDraftArticleThumbnail, draftArticleThumbnail, updateDraftArticle } =
     useArticleContext()
@@ -145,7 +151,9 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
           }}
         >
           {/* Thumbnail */}
-          <Tooltip title={!pinning ? "If you'd like to include images, you need to configure a pinning service." : ""}>
+          <Tooltip
+            title={isDirectlyOnChain ? "If you'd like to include images, you need to configure a pinning service." : ""}
+          >
             <Stack spacing={1}>
               <InputLabel>Thumbnail</InputLabel>
               <UploadFile
@@ -153,7 +161,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
                 defaultUri={draftArticle?.image ?? undefined}
                 onFileSelected={handleOnFiles}
                 convertedFile={setUriImage}
-                disabled={!pinning}
+                disabled={isDirectlyOnChain}
               />
             </Stack>
           </Tooltip>
