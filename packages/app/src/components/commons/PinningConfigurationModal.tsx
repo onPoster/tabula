@@ -97,7 +97,7 @@ const PinningConfigurationModal: React.FC<PinningConfigurationModalProps> = (pro
                   sx={{ margin: 0 }}
                   color={palette.grays[1000]}
                 >
-                  Pinning Service Not Configured
+                  Choose store option
                 </Typography>
               </Grid>
               <Grid item>
