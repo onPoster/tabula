@@ -7,7 +7,6 @@ import CloseIcon from "@mui/icons-material/Close"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import PinningConfiguration from "./Pinning/PinningConfiguration"
 import PinningSelection from "./Pinning/PinningSelection"
-import { Pinning } from "../../models/pinning"
 
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
@@ -29,7 +28,6 @@ export enum PinningConfigurationOption {
 export interface PinningConfigurationModalProps extends Omit<ModalProps, "children"> {}
 
 const PinningConfigurationModal: React.FC<PinningConfigurationModalProps> = (props) => {
-  const [pinning, setPinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [, setIsSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>(
     "isSelectedHowToSaveArticle",
     undefined,
