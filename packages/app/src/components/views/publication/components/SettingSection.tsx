@@ -23,8 +23,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 import useLocalStorage from "../../../../hooks/useLocalStorage"
-import { Pinning } from "../../../../models/pinning"
-import { PinningConfigurationOption } from "../../../commons/PinningConfigurationModal"
+import { Pinning, PinningService } from "../../../../models/pinning"
 
 type Post = {
   title: string
@@ -47,10 +46,6 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const navigate = useNavigate()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
-    "pinningOptionSelected",
-    undefined,
-  )
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
@@ -119,10 +114,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setLoading(true)
     const { title, description } = data
     let image
-    if (
-      draftPublicationImage &&
-      (pinning || (pinningOptionSelected && pinningOptionSelected !== PinningConfigurationOption.DirectlyOnChain))
-    ) {
+    if (draftPublicationImage && pinning && pinning.service !== PinningService.NONE) {
       image = await ipfs.uploadContent(draftPublicationImage)
     }
     if (!draftPublicationImage && publication?.image && !removePublicationImage) {

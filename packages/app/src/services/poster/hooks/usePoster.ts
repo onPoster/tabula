@@ -18,6 +18,8 @@ import {
 } from "../type"
 import { chainParameters, SupportedChainId } from "../../../constants/chain"
 import usePublication from "../../publications/hooks/usePublication"
+import useLocalStorage from "../../../hooks/useLocalStorage"
+import { Pinning, PinningService } from "../../../models/pinning"
 
 const PUBLICATION_TAG = "PUBLICATION"
 const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
@@ -29,6 +31,7 @@ const usePoster = () => {
   const { setTransactionUrl } = usePosterContext()
   const { chainId } = useWeb3React()
   const contract = getContract(POSTER_CONTRACT as string)
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useIpfs()
@@ -134,40 +137,43 @@ const usePoster = () => {
   const createArticle = useCallback(
     async (fields: PosterArticle, pin: boolean): Promise<any> => {
       const result = await executeTransaction(fields)
-      console.log("result", result)
       if (!result.error) {
-        if (fields.image) {
-          console.log("pin image action")
-          await pinAction(fields.image, `${fields.title}-image`, "Successfully image pinned")
-        }
-        if (pin) {
-          console.log("pin article action")
-          await pinAction(fields.article, `Article-${fields.title}`, "Successfully article pinned")
+        if (pinning && ![PinningService.PUBLIC, PinningService.NONE].includes(pinning.service)) {
+          if (fields.image) {
+            console.log("pin image action")
+            await pinAction(fields.image, `${fields.title}-image`, "Successfully image pinned")
+          }
+          if (pin) {
+            console.log("pin article action")
+            await pinAction(fields.article, `Article-${fields.title}`, "Successfully article pinned")
+          }
         }
       }
       return result
     },
-    [executeTransaction, pinAction],
+    [executeTransaction, pinAction, pinning],
   )
 
   const updateArticle = useCallback(
     async (fields: PosterUpdateArticle, pin: boolean): Promise<any> => {
       const result = await executeTransaction(fields)
       if (!result.error) {
-        if (fields.image) {
-          await pinAction(fields.image, `Image-${fields.title}-${fields.lastUpdated}`, "Successfully image pinned")
-        }
-        if (pin) {
-          await pinAction(
-            fields.article,
-            `Article-${fields.title}-${fields.lastUpdated}`,
-            "Successfully pinned article",
-          )
+        if (pinning && ![PinningService.PUBLIC, PinningService.NONE].includes(pinning.service)) {
+          if (fields.image) {
+            await pinAction(fields.image, `Image-${fields.title}-${fields.lastUpdated}`, "Successfully image pinned")
+          }
+          if (pin) {
+            await pinAction(
+              fields.article,
+              `Article-${fields.title}-${fields.lastUpdated}`,
+              "Successfully pinned article",
+            )
+          }
         }
       }
       return result
     },
-    [executeTransaction, pinAction],
+    [executeTransaction, pinAction, pinning],
   )
 
   const deleteArticle = useCallback(

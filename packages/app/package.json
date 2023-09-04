@@ -59,6 +59,7 @@
   },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",
+    "old-start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

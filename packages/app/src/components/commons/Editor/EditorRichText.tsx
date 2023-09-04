@@ -16,7 +16,7 @@ import { palette, typography } from "../../../theme"
 import { useOnClickOutside } from "../../../hooks/useOnClickOutside"
 import { useArticleContext } from "../../../services/publications/contexts"
 import useLocalStorage from "../../../hooks/useLocalStorage"
-import { PinningConfigurationOption } from "../PinningConfigurationModal"
+import { Pinning, PinningService } from "../../../models/pinning"
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -233,12 +233,8 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selecte
 
 const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, onAdd }) => {
   const { setShowBlockTypePopup } = useArticleContext()
-  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
-    "pinningOptionSelected",
-    undefined,
-  )
-  const isDirectlyOnChain =
-    pinningOptionSelected && pinningOptionSelected === PinningConfigurationOption.DirectlyOnChain
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)

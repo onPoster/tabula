@@ -75,7 +75,7 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
           {show && (
             <Grid item sx={{ position: "absolute", top: 45 }}>
               <Box ref={ref}>
-                <UserOptions />
+                <UserOptions onClose={() => setShow(false)} />
               </Box>
             </Grid>
           )}

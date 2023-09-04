@@ -13,7 +13,7 @@ import Avatar from "../commons/Avatar"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { useIpfs } from "../../hooks/useIpfs"
 import useLocalStorage from "../../hooks/useLocalStorage"
-import { Pinning } from "../../models/pinning"
+import { Pinning, PinningService } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
 import usePoster from "../../services/poster/hooks/usePoster"
 import useArticle from "../../services/publications/hooks/useArticle"
@@ -33,10 +33,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const ipfs = useIpfs()
   const [publicationId, setPublicationId] = useState<string>("")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
-    "pinningOptionSelected",
-    undefined,
-  )
+  const [isSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>("isSelectedHowToSaveArticle", undefined)
   const { createArticle, updateArticle } = usePoster()
   const { setCurrentPath, loading: loadingTransaction, ipfsLoading, setLoading } = usePublicationContext()
   const {
@@ -153,7 +150,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       setArticleEditorState(undefined)
     }
     setStoreArticleContent(true)
-    if (!pinning && !pinningOptionSelected) {
+    if (!pinning && !isSelectedHowToSaveArticle) {
       setShowSettingModal(true)
       return
     }
@@ -184,9 +181,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   }
 
   const checkPinningRequirements = (): boolean => {
-    return pinning || (pinningOptionSelected && pinningOptionSelected !== PinningConfigurationOption.DirectlyOnChain)
-      ? true
-      : false
+    return pinning && pinning.service === PinningService.NONE ? false : true
   }
 
   //V2
@@ -249,8 +244,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
-    console.log("checkPinningRequirements() optional", checkPinningRequirements())
-
     if (draftArticleThumbnail && checkPinningRequirements()) {
       await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
         articleThumbnail = img.path
@@ -268,7 +261,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       if (draftArticleText && checkPinningRequirements()) {
         hashArticle = await ipfs.uploadContent(draftArticleText)
       }
-
       if (title) {
         if (type === "new") {
           console.log("before start")
@@ -430,7 +422,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
               {show && (
                 <Grid item sx={{ position: "absolute", top: 45 }}>
                   <Stack ref={ref}>
-                    <UserOptions />
+                    <UserOptions onClose={() => setShow(false)} />
                   </Stack>
                 </Grid>
               )}

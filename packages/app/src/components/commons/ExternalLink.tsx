@@ -13,12 +13,13 @@ interface ExternalLinkProps {
   link: string
   children: React.ReactNode
   // pass className to allowlocal style overrides
+  style?: React.CSSProperties
   className?: string
 }
 
-export const ExternalLink = ({ link, children, className }: ExternalLinkProps): JSX.Element => {
+export const ExternalLink = ({ link, children, style }: ExternalLinkProps): JSX.Element => {
   return (
-    <Link className={className} href={link} rel="noreferrer noopener" target="_blank">
+    <Link style={style} href={link} rel="noreferrer noopener" target="_blank">
       {children}
     </Link>
   )

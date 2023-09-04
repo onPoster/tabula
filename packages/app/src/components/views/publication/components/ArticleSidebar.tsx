@@ -10,7 +10,7 @@ import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 import useDebouncedState from "../../../../hooks/useDebouncedState"
 import useLocalStorage from "../../../../hooks/useLocalStorage"
-import { PinningConfigurationOption } from "../../../commons/PinningConfigurationModal"
+import { Pinning, PinningService } from "../../../../models/pinning"
 
 export interface ArticleSidebarProps {
   showSidebar: boolean
@@ -18,12 +18,8 @@ export interface ArticleSidebarProps {
 }
 
 const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSidebar }) => {
-  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
-    "pinningOptionSelected",
-    undefined,
-  )
-  const isDirectlyOnChain =
-    pinningOptionSelected && pinningOptionSelected === PinningConfigurationOption.DirectlyOnChain
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const { article } = useArticleContext()
   const { draftArticle, saveDraftArticle, setDraftArticleThumbnail, draftArticleThumbnail, updateDraftArticle } =
     useArticleContext()

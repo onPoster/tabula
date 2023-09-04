@@ -10,6 +10,8 @@ export enum PinningService {
   WEB3_STORAGE = "WEB3_STORAGE",
   NFT_STORAGE = "NFT_STORAGE",
   CUSTOM = "CUSTOM",
+  NONE = "NONE",
+  PUBLIC = "PUBLIC",
 }
 
 export enum PinningServiceEndpoint {
@@ -17,4 +19,6 @@ export enum PinningServiceEndpoint {
   ESTUARY = "https://api.estuary.tech/pinning",
   WEB3_STORAGE = "https://api.web3.storage/pins",
   NFT_STORAGE = "https://api.nft.storage/pins",
+  NONE = "",
+  PUBLIC = "",
 }

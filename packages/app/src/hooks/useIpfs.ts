@@ -1,9 +1,8 @@
 import useLocalStorage from "./useLocalStorage"
-import { Pinning } from "../models/pinning"
+import { Pinning, PinningService } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
-import { PinningConfigurationOption } from "../components/commons/PinningConfigurationModal"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
 const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY
@@ -23,11 +22,8 @@ export interface IpfsFunctions {
 }
 
 export const useIpfs = (): IpfsFunctions => {
-  const [pinningOptionSelected] = useLocalStorage<PinningConfigurationOption | undefined>(
-    "pinningOptionSelected",
-    undefined,
-  )
-  const [pinning] = useLocalStorage("pinning", undefined)
+  const [isSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>("isSelectedHowToSaveArticle", undefined)
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const openNotification = useNotification()
   // TODO: keeping until we find a better way to handle this
@@ -87,14 +83,14 @@ export const useIpfs = (): IpfsFunctions => {
     console.log("uploading content")
     let result
 
-    if (pinningOptionSelected === PinningConfigurationOption.OurPinningService) {
+    if (pinning && pinning?.service === PinningService.PUBLIC) {
       try {
         result = await uploadToInfura(file, true)
       } catch (infuraError) {
         console.error("Failed to upload file using Infura API:", infuraError)
       }
     }
-    if (pinningOptionSelected === PinningConfigurationOption.CustomPinningService && pinning) {
+    if (isSelectedHowToSaveArticle && pinning) {
       try {
         // First attempts to upload the content using the IPFS HTTP client
         const client = await getClientHack(ipfsNodeEndpoint)
@@ -158,6 +154,10 @@ export const useIpfs = (): IpfsFunctions => {
   const pinAction = async (path: string, name: string, msg?: string) => {
     if (pinning) {
       const pinningService: Pinning = pinning as Pinning
+      if (pinningService.service === PinningService.PUBLIC) {
+        //We used infura to pin in the uploadContent method
+        return
+      }
       await axios
         .post(
           `${pinningService.endpoint}/pins`,
