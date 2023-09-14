@@ -13,7 +13,6 @@ import { ArticleView } from "./components/views/publication/ArticleView"
 import ScrollToTop from "./components/commons/ScrollToTop"
 import { subgraphClient } from "./services/graphql"
 import { PermissionView } from "./components/views/publication/PermissionView"
-import SetupIpfsView from "./components/views/pinning/SetupIpfsView"
 import { useWeb3React } from "@web3-react/core"
 import { PosterProvider } from "./services/poster/context"
 import { WalletProvider } from "./connectors/WalletProvider"
@@ -53,7 +52,6 @@ const App: React.FC = () => {
                   {" "}
                   <Route path="/" element={<LandingView />} />
                   <Route path="/wallet" element={<WalletView />} />
-                  <Route path="/pinning" element={<SetupIpfsView />} />
                   <Route path="/publications" element={<PublicationsView updateChainId={updateChainId} />} />
                   <Route path=":publicationSlug" element={<PublicationView updateChainId={updateChainId} />} />
                   {/* Redirect old routes to new routes */}

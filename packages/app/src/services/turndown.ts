@@ -24,11 +24,9 @@ turndownService.addRule("pre", {
 turndownService.addRule("figure", {
   filter: function (node) {
     const isMatch = node.nodeName === "FIGURE" && node.innerHTML.trim() === "&nbsp;"
-    // console.log(`Checking node: ${node.outerHTML}, isMatch: ${isMatch}`)
     return isMatch
   },
   replacement: function () {
-    // console.log("Replacing figure node with divider")
     return "\n\n---\n\n"
   },
 })

@@ -1,5 +1,5 @@
 import useLocalStorage from "./useLocalStorage"
-import { Pinning } from "../models/pinning"
+import { Pinning, PinningService } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
@@ -22,7 +22,8 @@ export interface IpfsFunctions {
 }
 
 export const useIpfs = (): IpfsFunctions => {
-  const [pinning] = useLocalStorage("pinning", undefined)
+  const [isSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>("isSelectedHowToSaveArticle", undefined)
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
   const openNotification = useNotification()
   // TODO: keeping until we find a better way to handle this
@@ -47,9 +48,11 @@ export const useIpfs = (): IpfsFunctions => {
    * @param {File | string} file - The file or string content to be uploaded to IPFS
    * @returns {Promise<{ cid?: any; path: string } | undefined>} The CID and path of the file in IPFS, or undefined if an error occurs
    */
-  const uploadToInfura = async (file: File | string): Promise<{ cid?: any; path: string } | undefined> => {
+  const uploadToInfura = async (
+    file: File | string,
+    pin: boolean,
+  ): Promise<{ cid?: any; path: string } | undefined> => {
     const formData = new FormData()
-
     // Check if 'file' is a string or an instance of File/Blob
     if (typeof file === "string") {
       const blob = new Blob([file], { type: "text/plain" }) // Convert string to Blob
@@ -57,8 +60,7 @@ export const useIpfs = (): IpfsFunctions => {
     } else {
       formData.append("file", file)
     }
-
-    const response = await axios.post("https://ipfs.infura.io:5001/api/v0/add?pin=false", formData, {
+    const response = await axios.post(`https://ipfs.infura.io:5001/api/v0/add?pin=${pin}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: "Basic " + Buffer.from(`${INFURA_API_KEY}:${INFURA_API_KEY_SECRET}`).toString("base64"),
@@ -81,18 +83,27 @@ export const useIpfs = (): IpfsFunctions => {
     console.log("uploading content")
     let result
 
-    try {
-      // First attempts to upload the content using the IPFS HTTP client
-      const client = await getClientHack(ipfsNodeEndpoint)
-      result = await client.add(file)
-    } catch (error) {
-      console.log("Failed to upload content using IPFS HTTP client:", error)
-      // If the upload fails, it attempts to upload the file using the Infura API.
-      // This is typically used when the user is using a public IPFS gateway, which does not support generating a CID.
+    if (pinning && pinning?.service === PinningService.PUBLIC) {
       try {
-        result = await uploadToInfura(file)
+        result = await uploadToInfura(file, true)
       } catch (infuraError) {
         console.error("Failed to upload file using Infura API:", infuraError)
+      }
+    }
+    if (isSelectedHowToSaveArticle && pinning) {
+      try {
+        // First attempts to upload the content using the IPFS HTTP client
+        const client = await getClientHack(ipfsNodeEndpoint)
+        result = await client.add(file)
+      } catch (error) {
+        console.log("Failed to upload content using IPFS HTTP client:", error)
+        // If the upload fails, it attempts to upload the file using the Infura API.
+        // This is typically used when the user is using a public IPFS gateway, which does not support generating a CID.
+        try {
+          result = await uploadToInfura(file, false)
+        } catch (infuraError) {
+          console.error("Failed to upload file using Infura API:", infuraError)
+        }
       }
     }
 
@@ -143,6 +154,10 @@ export const useIpfs = (): IpfsFunctions => {
   const pinAction = async (path: string, name: string, msg?: string) => {
     if (pinning) {
       const pinningService: Pinning = pinning as Pinning
+      if (pinningService.service === PinningService.PUBLIC) {
+        //We used infura to pin in the uploadContent method
+        return
+      }
       await axios
         .post(
           `${pinningService.endpoint}/pins`,

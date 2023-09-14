@@ -30,6 +30,9 @@
     "@graphprotocol/graph-cli": "0.28.0",
     "@graphprotocol/graph-ts": "0.26.0"
   },
+  "resolutions": {
+    "concat-stream": "1.6.2"
+  },
   "devDependencies": {
     "matchstick-as": "^0.4.0",
     "mustache": "^4.2.0",

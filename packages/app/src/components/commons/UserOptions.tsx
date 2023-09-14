@@ -5,17 +5,17 @@ import PushPinIcon from "@mui/icons-material/PushPin"
 import CopyIcon from "@mui/icons-material/CopyAllOutlined"
 import LinkOffIcon from "@mui/icons-material/LinkOff"
 import ExitToAppIcon from "@mui/icons-material/ExitToApp"
+// import EditIcon from "@mui/icons-material/Edit"
 import NodeIcon from "../../assets/images/icons/node"
 
-
 import { useWeb3React } from "@web3-react/core"
-import { useLocation, useNavigate } from "react-router-dom"
-import { usePublicationContext } from "../../services/publications/contexts"
+import { useNavigate } from "react-router-dom"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import IPFSNodeModal from "./IPFSNodeModal"
 import { useNotification } from "../../hooks/useNotification"
 import { chainIdToChainName, SupportedChainIcon } from "../../constants/chain"
 import { shortAddress } from "../../utils/string-handler"
+import PinningConfigurationModal from "./PinningConfigurationModal"
 
 const UserOptionsContainer = styled(Paper)({
   padding: 8,
@@ -35,12 +35,14 @@ const MenuItem = styled(Grid)({
   },
 })
 
-export const UserOptions: React.FC = () => {
+type UserOptionProps = {
+  onClose: () => void
+}
+export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
   const { account, chainId, deactivate } = useWeb3React()
-  const { setCurrentPath } = usePublicationContext()
   const [showIPFSModal, setShowIPFSModal] = useState<boolean>(false)
+  const [showSettingModal, setShowSettingModal] = useState<boolean>(false)
   const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
-  const location = useLocation()
   const navigate = useNavigate()
   const openNotification = useNotification()
 
@@ -114,8 +116,7 @@ export const UserOptions: React.FC = () => {
         item
         sx={{ cursor: "pointer" }}
         onClick={() => {
-          setCurrentPath(location.pathname)
-          navigate("/pinning")
+          setShowSettingModal(true)
         }}
       >
         <Stack direction="row" spacing={1} alignItems="center">
@@ -128,7 +129,13 @@ export const UserOptions: React.FC = () => {
         </Stack>
       </MenuItem>
 
-      <MenuItem item sx={{ cursor: "pointer" }} onClick={() => {setShowIPFSModal(!showIPFSModal)}}>
+      <MenuItem
+        item
+        sx={{ cursor: "pointer" }}
+        onClick={() => {
+          setShowIPFSModal(!showIPFSModal)
+        }}
+      >
         <Stack direction="row" spacing={1} alignItems="center">
           <NodeIcon sx={{ color: palette.grays[800], width: 24 }} />
           <Typography sx={{ fontFamily: typography.fontFamilies.sans, whiteSpace: "nowrap" }} variant="body2">
@@ -142,6 +149,7 @@ export const UserOptions: React.FC = () => {
         sx={{ cursor: "pointer" }}
         onClick={() => {
           navigate(`/publications`)
+          onClose()
         }}
       >
         <Stack direction="row" spacing={1} alignItems="center">
@@ -162,6 +170,7 @@ export const UserOptions: React.FC = () => {
             setWalletAutoConnect(undefined)
           }
           deactivate()
+          onClose()
         }}
       >
         <Stack direction="row" spacing={1} alignItems="center">
@@ -178,7 +187,20 @@ export const UserOptions: React.FC = () => {
         </Stack>
       </MenuItem>
 
-      <IPFSNodeModal open={showIPFSModal} onClose={() => setShowIPFSModal(false)} />
+      <IPFSNodeModal
+        open={showIPFSModal}
+        onClose={() => {
+          setShowIPFSModal(false)
+          onClose()
+        }}
+      />
+      <PinningConfigurationModal
+        open={showSettingModal}
+        onClose={() => {
+          setShowSettingModal(false)
+          onClose()
+        }}
+      />
     </UserOptionsContainer>
   )
 }
