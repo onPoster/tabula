@@ -103,7 +103,6 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   }
 
   const handleShowImg = (): string | undefined => {
-    console.log('uri', uri)
     if (uri) {
       return uri
     }

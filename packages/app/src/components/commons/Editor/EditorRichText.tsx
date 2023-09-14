@@ -15,6 +15,8 @@ import { DragIndicator } from "@mui/icons-material"
 import { palette, typography } from "../../../theme"
 import { useOnClickOutside } from "../../../hooks/useOnClickOutside"
 import { useArticleContext } from "../../../services/publications/contexts"
+import useLocalStorage from "../../../hooks/useLocalStorage"
+import { Pinning, PinningService } from "../../../models/pinning"
 
 const RichTextButton = styled(Box)({
   position: "relative",
@@ -75,6 +77,7 @@ type RichTextItemProps = {
   color?: string
   icon: React.ReactNode
   selected?: boolean
+  disabled?: boolean
 }
 
 type RichTextProps = {
@@ -190,7 +193,7 @@ const DragTooltipContent = () => {
   )
 }
 
-const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selected }) => {
+const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selected, disabled }) => {
   return (
     <Grid
       container
@@ -199,7 +202,10 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selecte
       alignItems="center"
       sx={{
         cursor: "pointer",
-        "& .rich-text-icon": { backgroundColor: selected ? palette.grays[100] : palette.grays[50] },
+        "& .rich-text-icon": {
+          backgroundColor: selected ? palette.grays[100] : palette.grays[50],
+          opacity: disabled ? 0.5 : "initial",
+        },
         "&:hover": {
           "& .rich-text-icon": { backgroundColor: palette.grays[100] },
         },
@@ -211,7 +217,7 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selecte
       {label && (
         <Grid item>
           <Typography
-            color={color}
+            color={disabled ? palette.grays[400] : color}
             variant="body2"
             fontWeight={600}
             fontSize={11}
@@ -227,7 +233,8 @@ const RichTextItem: React.FC<RichTextItemProps> = ({ label, icon, color, selecte
 
 const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showCommand, onDelete, onAdd }) => {
   const { setShowBlockTypePopup } = useArticleContext()
-
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const containerRef = useRef<Element | (() => Element | null) | null>(null)
   const richTextRef = useRef<HTMLDivElement | null>(null)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -283,7 +290,6 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
         case "Enter":
           event.preventDefault()
           setSelectedIndex((currentIndex) => {
-            console.log("currentIndex", currentIndex)
             const selectedOption = richTextOption[currentIndex]
             if (selectedOption) {
               handleSelection(selectedOption.value)
@@ -348,6 +354,9 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
   }, [topOffset])
 
   const handleSelection = (value: RICH_TEXT_ELEMENTS) => {
+    if (value === RICH_TEXT_ELEMENTS.IMAGE && isDirectlyOnChain) {
+      return
+    }
     if (onRichTextSelected) {
       onRichTextSelected(value)
       setShow(false)
@@ -423,7 +432,12 @@ const EditorRichText: React.FC<RichTextProps> = ({ onRichTextSelected, showComma
                 {OPTIONS.map(({ label, icon, value }, index) => (
                   <Grid item key={`${label}-${index}`} ref={optionRefs[index]}>
                     <div onClick={() => value && handleSelection(value)} tabIndex={0}>
-                      <RichTextItem label={label} icon={icon} selected={index + 6 === selectedIndex} />
+                      <RichTextItem
+                        label={label}
+                        icon={icon}
+                        disabled={isDirectlyOnChain && value === RICH_TEXT_ELEMENTS.IMAGE ? true : false}
+                        selected={index + HEADER_OPTIONS.length === selectedIndex}
+                      />
                     </div>
                   </Grid>
                 ))}

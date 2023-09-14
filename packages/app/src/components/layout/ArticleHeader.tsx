@@ -13,11 +13,12 @@ import Avatar from "../commons/Avatar"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { useIpfs } from "../../hooks/useIpfs"
 import useLocalStorage from "../../hooks/useLocalStorage"
-import { Pinning } from "../../models/pinning"
+import { Pinning, PinningService } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
 import usePoster from "../../services/poster/hooks/usePoster"
 import useArticle from "../../services/publications/hooks/useArticle"
 import { removeHashPrefixFromImages } from "../../utils/modifyHTML"
+import PinningConfigurationModal, { PinningConfigurationOption } from "../commons/PinningConfigurationModal"
 
 type Props = {
   publication?: Publication
@@ -32,6 +33,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const ipfs = useIpfs()
   const [publicationId, setPublicationId] = useState<string>("")
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const [isSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>("isSelectedHowToSaveArticle", undefined)
   const { createArticle, updateArticle } = usePoster()
   const { setCurrentPath, loading: loadingTransaction, ipfsLoading, setLoading } = usePublicationContext()
   const {
@@ -70,13 +72,13 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     chainId: publicationChainId,
     transactionCompleted,
   } = usePublication(publicationSlug || publication?.id || "")
+  const [showSettingModal, setShowSettingModal] = useState<boolean>(false)
   const [show, setShow] = useState<boolean>(false)
   const [prepareArticleTransaction, setPrepareArticleTransaction] = useState<boolean>(false)
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
   const newTransaction = useRef<boolean>(false)
   const editTransaction = useRef<boolean>(false)
-
   // useOnClickOutside(ref, () => {
   //   if (show) {
   //     setShow(!show)
@@ -143,6 +145,19 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     }
   }, [prepareArticleTransaction, storeArticleContent])
 
+  const handlePublishAction = () => {
+    if (type === "edit") {
+      setArticleEditorState(undefined)
+    }
+    setStoreArticleContent(true)
+    if (!pinning && !isSelectedHowToSaveArticle) {
+      setShowSettingModal(true)
+      return
+    }
+    setExecuteArticleTransaction(true)
+    setPrepareArticleTransaction(true)
+  }
+
   const handleNavigation = async () => {
     refetch()
     clearArticleState()
@@ -164,6 +179,11 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setPrepareArticleTransaction(false)
     setLoading(false)
   }
+
+  const checkPinningRequirements = (): boolean => {
+    return pinning && pinning.service === PinningService.NONE ? false : true
+  }
+
   //V2
   const prepareTransaction = async () => {
     let initialError = false
@@ -183,7 +203,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setArticleContentError(false)
     setLoading(true)
     let articleContent = ""
-    if (contentImageFiles) {
+    if (contentImageFiles && checkPinningRequirements()) {
       const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
       const parser = new DOMParser()
       let doc = parser.parseFromString(articleWithHash as string, "text/html")
@@ -224,8 +244,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
-
-    if (draftArticleThumbnail) {
+    if (draftArticleThumbnail && checkPinningRequirements()) {
       await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
         articleThumbnail = img.path
       })
@@ -239,13 +258,13 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         clearTransactionStates()
         throw new Error("Publication id is null")
       }
-      if (pinning && draftArticleText) {
+      if (draftArticleText && checkPinningRequirements()) {
         hashArticle = await ipfs.uploadContent(draftArticleText)
       }
-
       if (title) {
         if (type === "new") {
           console.log("before start")
+
           return await createArticle(
             {
               action: "article/create",
@@ -295,6 +314,18 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     }
     clearTransactionStates()
   }
+
+  const handleClosePinningConfigurationModal = (event: {}, _reason: "backdropClick" | "escapeKeyDown") => {
+    const option = event as { pinningOptionSelected: PinningConfigurationOption } | undefined
+    if (!option) {
+      return setShowSettingModal(false)
+    }
+    if (option.pinningOptionSelected !== PinningConfigurationOption.CustomPinningService) {
+      setExecuteArticleTransaction(true)
+      setPrepareArticleTransaction(true)
+    }
+    setShowSettingModal(false)
+  }
   return (
     <Stack
       component="header"
@@ -313,6 +344,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         mt: 4,
       }}
     >
+      <PinningConfigurationModal open={showSettingModal} onClose={handleClosePinningConfigurationModal} />
       {publication && (
         <Stack
           alignItems={"center"}
@@ -348,14 +380,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
 
           <Button
             variant="contained"
-            onClick={() => {
-              if (type === "edit") {
-                setArticleEditorState(undefined)
-              }
-              setStoreArticleContent(true)
-              setExecuteArticleTransaction(true)
-              setPrepareArticleTransaction(true)
-            }}
+            onClick={handlePublishAction}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
             disabled={loadingTransaction || ipfsLoading || createArticleIndexing || updateArticleIndexing}
           >
@@ -397,7 +422,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
               {show && (
                 <Grid item sx={{ position: "absolute", top: 45 }}>
                   <Stack ref={ref}>
-                    <UserOptions />
+                    <UserOptions onClose={() => setShow(false)} />
                   </Stack>
                 </Grid>
               )}
