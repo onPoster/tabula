@@ -41,9 +41,16 @@ type UploadFileProps = {
   defaultUri?: string | undefined
   onFileSelected: (file: File | undefined) => void
   convertedFile?: (uri: string | undefined) => void
+  disabled?: boolean
 }
 
-export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, defaultUri, onFileSelected, convertedFile }) => {
+export const UploadFile: React.FC<UploadFileProps> = ({
+  defaultImage,
+  defaultUri,
+  onFileSelected,
+  convertedFile,
+  disabled,
+}) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null>(null)
@@ -71,7 +78,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, defaultUri
     }
   }, [defaultImage, ipfs, defaultImageSrc])
 
-  const openImagePicker = () => inputFile && inputFile.current?.click()
+  const openImagePicker = () => !disabled && inputFile && inputFile.current?.click()
 
   const removeImage = () => {
     setFile(null)
@@ -94,7 +101,12 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, defaultUri
   return (
     <>
       {!imageHash && !uri && (
-        <UploadFileContainer container gap={1} onClick={openImagePicker}>
+        <UploadFileContainer
+          container
+          gap={1}
+          onClick={openImagePicker}
+          sx={{ background: disabled ? palette.grays[200] : palette.grays[50] }}
+        >
           <AddIcon />
           <Typography fontSize={14} textAlign="center" color={palette.grays[600]} lineHeight={1.5} maxWidth="80%">
             Include a high-quality image in your post to make it more inviting.

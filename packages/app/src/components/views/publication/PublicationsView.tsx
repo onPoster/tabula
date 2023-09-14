@@ -20,6 +20,8 @@ import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import { usePublicationContext } from "../../../services/publications/contexts"
+import useLocalStorage from "../../../hooks/useLocalStorage"
+import { Pinning, PinningService } from "../../../models/pinning"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -73,6 +75,7 @@ interface PublicationsViewProps {
 
 export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
   const { setLastPathWithChainName } = usePosterContext()
@@ -147,7 +150,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setLoading(true)
     const { title, description } = data
     let image
-    if (publicationImg) {
+    if (publicationImg && pinning && pinning.service !== PinningService.NONE) {
       image = await ipfs.uploadContent(publicationImg)
     }
     if (title) {

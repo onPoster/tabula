@@ -151,7 +151,6 @@ const EditorInlineText: React.FC<InlineRichTextProps> = ({
       return
     }
     setShowInvalidUrl(true)
-    console.log("The user press enter")
   }
 
   return (
