@@ -18,6 +18,7 @@ import { PosterProvider } from "./services/poster/context"
 import { WalletProvider } from "./connectors/WalletProvider"
 import { RedirectOldRoute } from "./components/commons/RedicrectOldRoute"
 import PreviewArticleView from "./components/views/publication/PreviewArticleView"
+import { EnsProvider } from "./services/ens/context"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
@@ -44,39 +45,41 @@ const App: React.FC = () => {
     <SnackbarProvider maxSnack={1}>
       <UrqlProvider value={currentSubgraphClient}>
         <WalletProvider>
-          <PublicationProvider>
-            <ArticleProvider>
-              <PosterProvider>
-                <ScrollToTop />
-                <Routes>
-                  {" "}
-                  <Route path="/" element={<LandingView />} />
-                  <Route path="/wallet" element={<WalletView />} />
-                  <Route path="/publications" element={<PublicationsView updateChainId={updateChainId} />} />
-                  <Route path=":publicationSlug" element={<PublicationView updateChainId={updateChainId} />} />
-                  {/* Redirect old routes to new routes */}
-                  <Route path="/goerli/*" element={<RedirectOldRoute />} />
-                  <Route path="/mainnet/*" element={<RedirectOldRoute />} />
-                  <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
-                  <Route path="/polygon/*" element={<RedirectOldRoute />} />
-                  <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
-                  <Route path="/optimism/*" element={<RedirectOldRoute />} />
-                  {/* New routes */}
-                  <Route path=":publicationSlug">
-                    <Route path="permissions/:type" element={<PermissionView />} />
+          <EnsProvider>
+            <PublicationProvider>
+              <ArticleProvider>
+                <PosterProvider>
+                  <ScrollToTop />
+                  <Routes>
+                    {" "}
+                    <Route path="/" element={<LandingView />} />
+                    <Route path="/wallet" element={<WalletView />} />
+                    <Route path="/publications" element={<PublicationsView updateChainId={updateChainId} />} />
+                    <Route path=":publicationSlug" element={<PublicationView updateChainId={updateChainId} />} />
+                    {/* Redirect old routes to new routes */}
+                    <Route path="/goerli/*" element={<RedirectOldRoute />} />
+                    <Route path="/mainnet/*" element={<RedirectOldRoute />} />
+                    <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
+                    <Route path="/polygon/*" element={<RedirectOldRoute />} />
+                    <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
+                    <Route path="/optimism/*" element={<RedirectOldRoute />} />
+                    {/* New routes */}
+                    <Route path=":publicationSlug">
+                      <Route path="permissions/:type" element={<PermissionView />} />
 
-                    <Route path="new" element={<CreateArticleView type="new" />} />
+                      <Route path="new" element={<CreateArticleView type="new" />} />
 
-                    <Route path=":type/preview" element={<PreviewArticleView />} />
+                      <Route path=":type/preview" element={<PreviewArticleView />} />
 
-                    <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
+                      <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
 
-                    <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} />
-                  </Route>
-                </Routes>
-              </PosterProvider>
-            </ArticleProvider>
-          </PublicationProvider>
+                      <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} />
+                    </Route>
+                  </Routes>
+                </PosterProvider>
+              </ArticleProvider>
+            </PublicationProvider>
+          </EnsProvider>
         </WalletProvider>
       </UrqlProvider>
     </SnackbarProvider>

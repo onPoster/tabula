@@ -24,6 +24,8 @@ import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
 import useLocalStorage from "../../../../hooks/useLocalStorage"
 import { Pinning, PinningService } from "../../../../models/pinning"
+import { useEnsContext } from "../../../../services/ens/context"
+import EnsModal from "./EnsModal"
 
 type Post = {
   title: string
@@ -45,9 +47,11 @@ const publicationSchema = yup.object().shape({
 export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const navigate = useNavigate()
+
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const [openENSModal, setOpenENSModal] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {
     publication,
@@ -57,6 +61,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     removePublicationImage,
     setRemovePublicationImage,
   } = usePublicationContext()
+  const { ensName } = useEnsContext()
   const { executePublication, deletePublication } = usePoster()
   const {
     indexing: updateIndexing,
@@ -236,6 +241,27 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                 errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
               />
             </Grid>
+            {ensName && (
+              <Grid item>
+                <Button
+                  onClick={() => setOpenENSModal(true)}
+                  style={{
+                    color: palette.primary[1000],
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  Link Your Publication to Your ENS Name
+                </Button>
+              </Grid>
+            )}
+            {ensName && (
+              <EnsModal
+                open={openENSModal}
+                onClose={() => setOpenENSModal(false)}
+                publicationId={publication?.id ?? ""}
+              />
+            )}
             <Grid item>
               <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
                 {couldDelete && (
