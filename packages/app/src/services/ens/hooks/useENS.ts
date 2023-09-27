@@ -5,6 +5,11 @@ import { INFURA_KEY } from "../../../connectors"
 import { abiImplementation, abiPublicResolver, abiRegistry } from "../contracts/abi"
 import { useNotification } from "../../../hooks/useNotification"
 import { TransactionReceipt } from "@ethersproject/providers"
+import { GET_ENS_NAMES_QUERY } from "../queries"
+import { ensSubgraphClient } from "../../graphql"
+import { useWeb3React } from "@web3-react/core"
+import { DropdownOption } from "../../../models/dropdown"
+import { useEnsContext } from "../context"
 
 // Addresses obtained from:
 // https://discuss.ens.domains/t/namewrapper-updates-including-testnet-deployment-addresses/14505
@@ -19,9 +24,27 @@ const ensImplementation = "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85" // ENS: B
 
 export const useENS = () => {
   const openNotification = useNotification()
+  const { chainId, account } = useWeb3React()
+  const { setEnsNameList } = useEnsContext()
 
+  const client = ensSubgraphClient(chainId)
   const [loading, setLoading] = useState(false)
   const [transactionCompleted, setTransactionCompleted] = useState(false)
+
+  const fetchNames = async () => {
+    client
+      .query(GET_ENS_NAMES_QUERY, { id: account?.toLowerCase() })
+      .toPromise()
+      .then((result) => {
+        const data = result.data
+        if (data.account && data.account.wrappedDomains.length) {
+          const list: DropdownOption[] = data.account.wrappedDomains.map((ens: { domain: { name: string } }) => {
+            return { label: ens.domain.name, value: ens.domain.name }
+          })
+          setEnsNameList(list)
+        }
+      })
+  }
 
   const getPublicResolverAddress = useCallback((chainId: SupportedChainId): string | undefined => {
     return publicResolvers[chainId]
@@ -58,16 +81,19 @@ export const useENS = () => {
     }
   }, [])
 
-  const generateTextRecord = useCallback((provider: ethers.providers.ExternalProvider, publicationId: string) => {
-    try {
-      const web3Provider = new ethers.providers.Web3Provider(provider)
-      const contract = new ethers.Contract(ensRegistry, abiPublicResolver, web3Provider)
-      const node = "0x32a03d3aa475a2eac9dddc2da7fb8e45544e77a3e5657aa40fdf6b506f9ff896" // Default Data Node
-      return contract.interface.encodeFunctionData("setText", [node, "tabula", publicationId])
-    } catch (e) {
-      console.log("ENS is not supported on this network")
-    }
-  }, [])
+  const generateTextRecord = useCallback(
+    (provider: ethers.providers.ExternalProvider, publicationId: string, ensName: string) => {
+      try {
+        const web3Provider = new ethers.providers.Web3Provider(provider)
+        const contract = new ethers.Contract(ensRegistry, abiPublicResolver, web3Provider)
+        const namehash = ethers.utils.namehash(ensName) // Calculate namehash of the ENS name
+        return contract.interface.encodeFunctionData("setText", [namehash, "tabula", publicationId])
+      } catch (e) {
+        console.log("ENS is not supported on this network")
+      }
+    },
+    [],
+  )
 
   const setRecordMulticall = useCallback(
     async (provider: ethers.providers.ExternalProvider, textRecord: string, chainId: SupportedChainId) => {
@@ -165,6 +191,7 @@ export const useENS = () => {
     checkIfIsController,
     checkIfIsOwner,
     setTextRecord,
+    fetchNames,
     loading,
     transactionCompleted,
   }

@@ -1,11 +1,12 @@
 import { Button, CircularProgress, Grid, Modal, ModalProps, Typography, styled } from "@mui/material"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { palette, typography } from "../../../../theme"
 import { ViewContainer } from "../../../commons/ViewContainer"
 import CloseIcon from "@mui/icons-material/Close"
 import { useEnsContext } from "../../../../services/ens/context"
 import { useWeb3React } from "@web3-react/core"
 import useENS from "../../../../services/ens/hooks/useENS"
+import { Dropdown } from "../../../commons/Dropdown"
 
 interface EnsModalProps extends Omit<ModalProps, "children"> {
   publicationId: string
@@ -26,7 +27,8 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
   const { generateTextRecord, setRecordMulticall, loading, transactionCompleted } = useENS()
   const { connector, chainId } = useWeb3React()
   const ref = useRef(null)
-  const { ensName } = useEnsContext()
+  const { ensNameList } = useEnsContext()
+  const [ensNameSelected, setEnsNameSelected] = useState<string>("")
 
   useEffect(() => {
     if (transactionCompleted) {
@@ -36,8 +38,8 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
 
   const handleEnsRecord = async () => {
     const provider = await connector?.getProvider()
-    if (provider !== null && ensName && chainId) {
-      const textData = generateTextRecord(provider, publicationId)
+    if (provider !== null && ensNameSelected && chainId) {
+      const textData = generateTextRecord(provider, publicationId, ensNameSelected)
       textData && (await setRecordMulticall(provider, textData, chainId))
     }
   }
@@ -79,6 +81,16 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
           </Grid>
 
           <Grid item>
+            <Dropdown
+              title="Select an ENS name"
+              options={ensNameList}
+              onSelected={(e) => {
+                setEnsNameSelected(e.value)
+              }}
+            />
+          </Grid>
+
+          <Grid item>
             <Grid container gap={1}>
               <Typography fontFamily={typography.fontFamilies.sans}>
                 We're registering a record to your ENS name with the publication ID. This allows direct access to your
@@ -90,7 +102,7 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
                     cursor: "pointer",
                   }}
                 >
-                  tabula.gg/#/{ensName}
+                  tabula.gg/#/{ensNameSelected ?? "yourENS"}
                 </span>
                 .
               </Typography>
@@ -98,7 +110,7 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
           </Grid>
 
           <Grid item>
-            <Button variant="contained" type="submit" onClick={handleEnsRecord} disabled={loading}>
+            <Button variant="contained" type="submit" onClick={handleEnsRecord} disabled={loading || !ensNameSelected}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               Continue
             </Button>
