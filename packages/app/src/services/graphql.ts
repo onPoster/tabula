@@ -73,6 +73,11 @@ const getUrl = (chainId?: number) => {
 const getENSUrl = (chainId?: number) => {
   switch (chainId) {
     case SupportedChainId.MAINNET:
+    case SupportedChainId.GNOSIS_CHAIN:
+    case SupportedChainId.POLYGON:
+    case SupportedChainId.OPTIMISM:
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+    case SupportedChainId.ARBITRUM:
       return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_MAINNET
     case SupportedChainId.GOERLI:
       return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_GOERLI
