@@ -82,7 +82,7 @@ const getENSUrl = (chainId?: number) => {
     case SupportedChainId.GOERLI:
       return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_GOERLI
     default:
-      return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_GOERLI
+      return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_MAINNET
   }
 }
 

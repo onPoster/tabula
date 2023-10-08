@@ -81,22 +81,13 @@ export const useENS = () => {
     }
   }, [])
 
-  const generateTextRecord = useCallback(
-    (provider: ethers.providers.ExternalProvider, publicationId: string, ensName: string) => {
-      try {
-        const web3Provider = new ethers.providers.Web3Provider(provider)
-        const contract = new ethers.Contract(ensRegistry, abiPublicResolver, web3Provider)
-        const namehash = ethers.utils.namehash(ensName) // Calculate namehash of the ENS name
-        return contract.interface.encodeFunctionData("setText", [namehash, "tabula", publicationId])
-      } catch (e) {
-        console.log("ENS is not supported on this network")
-      }
-    },
-    [],
-  )
-
-  const setRecordMulticall = useCallback(
-    async (provider: ethers.providers.ExternalProvider, textRecord: string, chainId: SupportedChainId) => {
+  const setTextRecord = useCallback(
+    async (
+      provider: ethers.providers.ExternalProvider,
+      publicationId: string,
+      ensName: string,
+      chainId: SupportedChainId,
+    ) => {
       const parameters = chainParameters(chainId)
       const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
       setLoading(true)
@@ -109,22 +100,20 @@ export const useENS = () => {
         setLoading(false)
         return
       }
-
       try {
         const web3Provider = new ethers.providers.Web3Provider(provider)
         const contract = new ethers.Contract(ensRegistry, abiPublicResolver, web3Provider)
+        const namehash = ethers.utils.namehash(ensName) // Calculate namehash of the ENS name
         const signer = web3Provider.getSigner()
-        const data = contract.interface.encodeFunctionData("multicall", [[textRecord]])
-
+        const data = contract.interface.encodeFunctionData("setText", [namehash, "tabula", publicationId])
         if (!data) {
           openNotification({
-            message: "Failed to encode data for multicall.",
+            message: "Failed to encode data for setText.",
             variant: "error",
           })
           setLoading(false)
           return
         }
-
         const tx = await signer.sendTransaction({
           to: publicResolver,
           data: data,
@@ -152,17 +141,6 @@ export const useENS = () => {
     [getPublicResolverAddress, openNotification],
   )
 
-  const setTextRecord = useCallback(
-    async (provider: ethers.providers.BaseProvider, ensName: string, key: string, content: string) => {
-      const ensRegistryContract = new ethers.Contract(ensRegistry, abiRegistry, provider)
-      const nameHash = ethers.utils.namehash(ensName)
-      const ensResolver = await ensRegistryContract.resolver(nameHash)
-      const ensResolverContract = new ethers.Contract(ensResolver, abiPublicResolver, provider)
-      return ensResolverContract.setText(nameHash, key, content)
-    },
-    [],
-  )
-
   const checkIfIsOwner = useCallback(async (provider: ethers.providers.Provider, ensName: string, address: string) => {
     const BigNumber = ethers.BigNumber
     const name = ensName.split(".")[0]
@@ -186,8 +164,6 @@ export const useENS = () => {
   return {
     getTextRecordContent,
     lookupAddress,
-    generateTextRecord,
-    setRecordMulticall,
     checkIfIsController,
     checkIfIsOwner,
     setTextRecord,

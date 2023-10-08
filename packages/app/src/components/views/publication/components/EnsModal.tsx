@@ -24,7 +24,7 @@ const ModalContainer = styled(ViewContainer)({
 })
 
 const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
-  const { generateTextRecord, setRecordMulticall, loading, transactionCompleted } = useENS()
+  const { setTextRecord, loading, transactionCompleted } = useENS()
   const { connector, chainId } = useWeb3React()
   const ref = useRef(null)
   const { ensNameList } = useEnsContext()
@@ -39,8 +39,7 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
   const handleEnsRecord = async () => {
     const provider = await connector?.getProvider()
     if (provider !== null && ensNameSelected && chainId) {
-      const textData = generateTextRecord(provider, publicationId, ensNameSelected)
-      textData && (await setRecordMulticall(provider, textData, chainId))
+      await setTextRecord(provider, publicationId, ensNameSelected, chainId)
     }
   }
 
