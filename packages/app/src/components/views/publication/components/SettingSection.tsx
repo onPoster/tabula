@@ -27,6 +27,9 @@ import { Pinning, PinningService } from "../../../../models/pinning"
 import { useEnsContext } from "../../../../services/ens/context"
 import EnsModal from "./EnsModal"
 import useENS from "../../../../services/ens/hooks/useENS"
+import { useWeb3React } from "@web3-react/core"
+import NetworkModal from "../../../commons/NetworkModal"
+import { SupportedChainId } from "../../../../constants/chain"
 
 type Post = {
   title: string
@@ -48,10 +51,12 @@ const publicationSchema = yup.object().shape({
 export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const navigate = useNavigate()
+  const { chainId } = useWeb3React()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [openENSModal, setOpenENSModal] = useState<boolean>(false)
+  const [openNetworkModal, setOpenNetworkModal] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {
     publication,
@@ -193,6 +198,15 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     }
   }
 
+  const handleEns = () => {
+    if (chainId) {
+      if ([SupportedChainId.MAINNET, SupportedChainId.GOERLI, SupportedChainId.SEPOLIA].includes(chainId)) {
+        return setOpenENSModal(true)
+      }
+      return setOpenNetworkModal(true)
+    }
+  }
+
   return (
     <Container maxWidth="sm">
       <Box mt={4}>
@@ -259,7 +273,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
             {ensNameList && (
               <Grid item>
                 <Button
-                  onClick={() => setOpenENSModal(true)}
+                  onClick={handleEns}
                   style={{
                     color: palette.primary[1000],
                     textDecoration: "underline",
@@ -270,6 +284,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                 </Button>
               </Grid>
             )}
+            <NetworkModal open={openNetworkModal} handleClose={() => setOpenNetworkModal(false)} />
             {ensNameList && (
               <EnsModal
                 open={openENSModal}
