@@ -5,11 +5,17 @@ import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
 
 const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY
-const INFURA_API_KEY_SECRET = process.env.REACT_APP_INFURA_API_KEY_SECRET
+const INFURA_IPFS_API_KEY = process.env.REACT_APP_INFURA_IPFS_API_KEY
+const INFURA_IPFS_API_KEY_SECRET = process.env.REACT_APP_INFURA_IPFS_API_SECRET
 
 if (IPFS_GATEWAY == null) {
   throw new Error("REACT_APP_IPFS_GATEWAY is not set")
+}
+if (INFURA_IPFS_API_KEY == null) {
+  throw new Error("REACT_APP_INFURA_IPFS_API_KEY is not set")
+}
+if (INFURA_IPFS_API_KEY_SECRET == null) {
+  throw new Error("REACT_APP_INFURA_IPFS_API_SECRET is not set")
 }
 
 export interface IpfsFunctions {
@@ -63,7 +69,8 @@ export const useIpfs = (): IpfsFunctions => {
     const response = await axios.post(`https://ipfs.infura.io:5001/api/v0/add?pin=${pin}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: "Basic " + Buffer.from(`${INFURA_API_KEY}:${INFURA_API_KEY_SECRET}`).toString("base64"),
+        Authorization:
+          "Basic " + Buffer.from(`${INFURA_IPFS_API_KEY}:${INFURA_IPFS_API_KEY_SECRET}`).toString("base64"),
       },
     })
     // The returned data contains the CID of the file in IPFS, which is extracted and returned along with the path
