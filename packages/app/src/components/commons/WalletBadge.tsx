@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 
 import { Avatar } from "@mui/material"
 import * as blockies from "blockies-ts"
 
 import { useNotification } from "../../hooks/useNotification"
 import { useWeb3React } from "@web3-react/core"
-import { lookupAddress } from "../../services/ens"
+import { useEnsContext } from "../../services/ens/context"
+import useENS from "../../services/ens/hooks/useENS"
 
 type WalletBadgeProps = {
   copyable?: boolean
@@ -14,10 +15,11 @@ type WalletBadgeProps = {
 }
 
 export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyable }) => {
+  const { lookupAddress } = useENS()
   const avatarSrc = blockies.create({ seed: address.toLowerCase() }).toDataURL()
   const { connector, active, chainId } = useWeb3React()
+  const { setEnsName } = useEnsContext()
 
-  const [ensName, setEnsName] = useState<string>()
   const openNotification = useNotification()
 
   useEffect(() => {
@@ -25,14 +27,14 @@ export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyab
       if (address && active) {
         const provider = await connector?.getProvider()
         if (provider != null) {
-          const ensName = await lookupAddress(provider, address)
-          setEnsName(ensName ?? undefined)
+          const ens = await lookupAddress(provider, address)
+          setEnsName(ens)
         }
       }
     }
 
     fetchData().catch(console.error)
-  }, [active, address, connector, ensName, chainId])
+  }, [active, address, connector, chainId, setEnsName, lookupAddress])
 
   const handleAddressClick = async () => {
     if (copyable) {
