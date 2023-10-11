@@ -2,13 +2,13 @@ import { ethers } from "ethers"
 import { useState } from "react"
 import { Permission, Publication } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
-import { getTextRecordContent } from "../../ens"
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
-
+import useENS from "../../ens/hooks/useENS"
 
 const [usePublicationContext, PublicationContextProvider] = createGenericContext<PublicationContextType>()
 
 const PublicationProvider = ({ children }: PublicationProviderProps) => {
+  const { getTextRecordContent } = useENS()
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
   const [publications, setPublications] = useState<Publication[] | undefined>(undefined)
   const [publication, setPublication] = useState<Publication | undefined>(undefined)
@@ -17,7 +17,6 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const [draftPublicationImage, setDraftPublicationImage] = useState<File | undefined>(undefined)
   const [loading, setLoading] = useState<boolean>(false)
   const [ipfsLoading, setIpfsLoading] = useState<boolean>(false)
-
   const [slugToPublicationId, setSlugToPublicationId] = useState<{ [key: string]: string }>({})
   const [publicationAvatar, setPublicationAvatar] = useState<{ publicationId: string; uri: string } | undefined>(
     undefined,
