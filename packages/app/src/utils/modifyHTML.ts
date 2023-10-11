@@ -16,7 +16,6 @@ export function removeHashPrefixFromImages(articleHTML: string): string {
   let modifiedHTMLString = Array.from(doc.body.childNodes)
     .map((node) => new XMLSerializer().serializeToString(node))
     .join("")
-
   return modifiedHTMLString
 }
 
