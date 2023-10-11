@@ -21,7 +21,8 @@ import { usePosterContext } from "../../../services/poster/context"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
 import { usePublicationContext } from "../../../services/publications/contexts"
 import useLocalStorage from "../../../hooks/useLocalStorage"
-import { Pinning, PinningService } from "../../../models/pinning"
+import { Pinning } from "../../../models/pinning"
+import { checkPinningRequirements } from "../../../utils/pinning"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -150,7 +151,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setLoading(true)
     const { title, description } = data
     let image
-    if (publicationImg && pinning && pinning.service !== PinningService.NONE) {
+    if (publicationImg && checkPinningRequirements(pinning)) {
       image = await ipfs.uploadContent(publicationImg)
     }
     if (title) {

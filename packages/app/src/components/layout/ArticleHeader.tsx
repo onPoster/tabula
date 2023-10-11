@@ -13,12 +13,13 @@ import Avatar from "../commons/Avatar"
 // import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { useIpfs } from "../../hooks/useIpfs"
 import useLocalStorage from "../../hooks/useLocalStorage"
-import { Pinning, PinningService } from "../../models/pinning"
+import { Pinning } from "../../models/pinning"
 import useArticles from "../../services/publications/hooks/useArticles"
 import usePoster from "../../services/poster/hooks/usePoster"
 import useArticle from "../../services/publications/hooks/useArticle"
 import { removeHashPrefixFromImages } from "../../utils/modifyHTML"
 import PinningConfigurationModal, { PinningConfigurationOption } from "../commons/PinningConfigurationModal"
+import { checkPinningRequirements } from "../../utils/pinning"
 
 type Props = {
   publication?: Publication
@@ -180,10 +181,6 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setLoading(false)
   }
 
-  const checkPinningRequirements = (): boolean => {
-    return pinning && pinning.service === PinningService.NONE ? false : true
-  }
-
   //V2
   const prepareTransaction = async () => {
     let initialError = false
@@ -203,7 +200,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setArticleContentError(false)
     setLoading(true)
     let articleContent = ""
-    if (contentImageFiles && checkPinningRequirements()) {
+    if (contentImageFiles && checkPinningRequirements(pinning)) {
       const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
       const parser = new DOMParser()
       let doc = parser.parseFromString(articleWithHash as string, "text/html")
@@ -244,7 +241,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     let articleThumbnail = ""
     let hashArticle
     const { title, article: draftArticleText, description, tags } = article
-    if (draftArticleThumbnail && checkPinningRequirements()) {
+    if (draftArticleThumbnail && checkPinningRequirements(pinning)) {
       await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
         articleThumbnail = img.path
       })
@@ -258,7 +255,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         clearTransactionStates()
         throw new Error("Publication id is null")
       }
-      if (draftArticleText && checkPinningRequirements()) {
+      if (draftArticleText && checkPinningRequirements(pinning)) {
         hashArticle = await ipfs.uploadContent(draftArticleText)
       }
       if (title) {

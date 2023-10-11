@@ -90,7 +90,7 @@ export const useIpfs = (): IpfsFunctions => {
     console.log("uploading content")
     let result
 
-    if (pinning && pinning?.service === PinningService.PUBLIC) {
+    if (!pinning || (pinning && pinning?.service === PinningService.PUBLIC)) {
       try {
         result = await uploadToInfura(file, true)
       } catch (infuraError) {

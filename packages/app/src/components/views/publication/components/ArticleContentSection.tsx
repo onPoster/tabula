@@ -1,7 +1,6 @@
 import { Box } from "@mui/material"
 import React from "react"
 import { palette } from "../../../../theme"
-// import { EditableBlock } from "../../../commons/EditableBlock"
 import Editor from "../../../commons/Editor/Editor"
 
 export const ArticleContentSection: React.FC = React.memo(() => {
@@ -18,7 +17,6 @@ export const ArticleContentSection: React.FC = React.memo(() => {
       }}
     >
       <Box className="editor">
-        {/* <EditableBlock /> */}
         <Editor />
       </Box>
     </Box>
