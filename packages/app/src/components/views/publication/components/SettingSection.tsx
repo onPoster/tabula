@@ -7,7 +7,6 @@ import {
   Grid,
   InputLabel,
   TextField,
-  // Typography,
 } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
@@ -284,7 +283,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                 </Button>
               </Grid>
             )}
-            <NetworkModal open={openNetworkModal} handleClose={() => setOpenNetworkModal(false)} />
+            <NetworkModal open={openNetworkModal} onClose={() => setOpenNetworkModal(false)} />
             {ensNameList && (
               <EnsModal
                 open={openENSModal}

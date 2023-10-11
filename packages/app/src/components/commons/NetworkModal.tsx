@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Grid, Modal, Typography, styled } from "@mui/material"
+import { Button, CircularProgress, Grid, Modal, ModalProps, Typography, styled } from "@mui/material"
 import React, { useRef, useState } from "react"
 import { palette, typography } from "../../theme"
 import { ViewContainer } from "./ViewContainer"
@@ -12,6 +12,7 @@ type NetworkError = {
   stack: string
 }
 
+interface NetworkModalProps extends Omit<ModalProps, "children"> {}
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",
   top: "50%",
@@ -23,7 +24,7 @@ const ModalContainer = styled(ViewContainer)({
   padding: 24,
 })
 
-const NetworkModal: React.FC<any> = ({ open, handleClose }) => {
+const NetworkModal: React.FC<NetworkModalProps> = ({ open, onClose }) => {
   const ref = useRef(null)
   const openNotification = useNotification()
   const { library } = useWeb3React()
@@ -34,7 +35,7 @@ const NetworkModal: React.FC<any> = ({ open, handleClose }) => {
       try {
         setLoading(true)
         await library.send("wallet_switchEthereumChain", [{ chainId: "0x1" }])
-        handleClose({}, "escapeKeyDown")
+        onClose && onClose({}, "escapeKeyDown")
       } catch (switchError: unknown) {
         const error = switchError as NetworkError
         setLoading(false)
@@ -59,7 +60,7 @@ const NetworkModal: React.FC<any> = ({ open, handleClose }) => {
     }
   }
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal open={open} onClose={onClose}>
       <ModalContainer maxWidth="md" ref={ref}>
         <Grid container spacing={3} py={3} px={4} flexDirection="column">
           <Grid item>
@@ -78,7 +79,7 @@ const NetworkModal: React.FC<any> = ({ open, handleClose }) => {
                 <CloseIcon
                   style={{ cursor: "pointer" }}
                   onClick={() => {
-                    !loading && handleClose({}, "escapeKeyDown")
+                    !loading && onClose && onClose({}, "escapeKeyDown")
                   }}
                 />
               </Grid>
