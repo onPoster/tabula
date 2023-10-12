@@ -204,6 +204,7 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ showSidebar, setShowSid
               placeholder="Add a tag..."
               onSelected={setHandleTags}
               value={tags}
+              limit={5}
               errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your article" : undefined}
             />
           </Stack>
