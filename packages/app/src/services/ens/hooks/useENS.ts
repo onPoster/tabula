@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react"
 import { ethers } from "ethers"
 import { SupportedChainId, chainParameters } from "../../../constants/chain"
-import { INFURA_KEY } from "../../../connectors"
+import { INFURA_NETWORK_ACCESS_KEY } from "../../../connectors"
 import { abiImplementation, abiPublicResolver, abiRegistry } from "../contracts/abi"
 import { useNotification } from "../../../hooks/useNotification"
 import { TransactionReceipt } from "@ethersproject/providers"
@@ -51,7 +51,7 @@ export const useENS = () => {
   }, [])
 
   const getTextRecordContentInfura = useCallback(async (ensName: string, textRecordKey: string) => {
-    const provider = new ethers.providers.InfuraProvider("mainnet", INFURA_KEY)
+    const provider = new ethers.providers.InfuraProvider("mainnet", INFURA_NETWORK_ACCESS_KEY)
     const resolver = await provider.getResolver(ensName)
     return resolver?.getText(textRecordKey)
   }, [])
