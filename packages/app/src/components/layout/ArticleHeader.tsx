@@ -10,7 +10,6 @@ import usePublication from "../../services/publications/hooks/usePublication"
 import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
 import Avatar from "../commons/Avatar"
-// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
 import { useIpfs } from "../../hooks/useIpfs"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import { Pinning } from "../../models/pinning"
@@ -20,6 +19,9 @@ import useArticle from "../../services/publications/hooks/useArticle"
 import { removeHashPrefixFromImages } from "../../utils/modifyHTML"
 import PinningConfigurationModal, { PinningConfigurationOption } from "../commons/PinningConfigurationModal"
 import { checkPinningRequirements } from "../../utils/pinning"
+import { PosterArticle, PosterUpdateArticle } from "../../services/poster/type"
+import { useNotification } from "../../hooks/useNotification"
+import { SupportedChainId, chainParameters } from "../../constants/chain"
 
 type Props = {
   publication?: Publication
@@ -27,8 +29,9 @@ type Props = {
 }
 
 const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
+  const openNotification = useNotification()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { account, active } = useWeb3React()
+  const { account, active, chainId } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
   const ipfs = useIpfs()
@@ -51,6 +54,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     contentImageFiles,
     storeArticleContent,
     setArticleEditorState,
+    saveArticle,
   } = useArticleContext()
 
   const {
@@ -61,11 +65,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   } = useArticles()
   const {
     indexing: updateArticleIndexing,
-    setExecutePollInterval: updatePoll,
     transactionCompleted: updateTransaction,
     newArticleId: updateArticleId,
-    setOldArticleHash,
-    setArticleId,
     setCurrentTimestamp,
   } = useArticle(draftArticle?.id ?? "")
   const {
@@ -73,6 +74,8 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     chainId: publicationChainId,
     transactionCompleted,
   } = usePublication(publicationSlug || publication?.id || "")
+  const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
+  const URL = parameters && parameters.blockExplorerUrls[0]
   const [showSettingModal, setShowSettingModal] = useState<boolean>(false)
   const [show, setShow] = useState<boolean>(false)
   const [prepareArticleTransaction, setPrepareArticleTransaction] = useState<boolean>(false)
@@ -181,30 +184,25 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     setLoading(false)
   }
 
-  //V2
-  const prepareTransaction = async () => {
-    let initialError = false
+  const validateArticleContent = () => {
     if (draftArticle?.title === "") {
       setExecuteArticleTransaction(false)
       setArticleTitleError(true)
-      initialError = true
+      return false
     }
     if (!articleEditorState || articleEditorState === "<p></p>") {
       setArticleContentError(true)
-      initialError = true
+      return false
     }
-    if (initialError) {
-      return
-    }
-    setArticleTitleError(false)
-    setArticleContentError(false)
-    setLoading(true)
-    let articleContent = ""
-    if (contentImageFiles && checkPinningRequirements(pinning)) {
-      const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
-      const parser = new DOMParser()
-      let doc = parser.parseFromString(articleWithHash as string, "text/html")
-      let imgs = Array.from(doc.getElementsByTagName("img"))
+    return true
+  }
+
+  const processImagesInContent = async () => {
+    const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
+    const parser = new DOMParser()
+    let doc = parser.parseFromString(articleWithHash as string, "text/html")
+    let imgs = Array.from(doc.getElementsByTagName("img"))
+    if (contentImageFiles?.length) {
       for (const img of imgs) {
         let altValue = img.alt
         let file = contentImageFiles.find((file: File) => file.lastModified.toString() === altValue)
@@ -213,38 +211,91 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
           img.src = hash
         }
       }
-
-      let newDoc = parser.parseFromString(doc.body.innerHTML, "text/html")
-      let modifiedHTMLString = newDoc.body.innerHTML
-      articleContent = modifiedHTMLString
     }
+    let newDoc = parser.parseFromString(doc.body.innerHTML, "text/html")
+    return newDoc.body.innerHTML
+  }
 
-    if (!contentImageFiles && articleEditorState?.includes("img")) {
+  const prepareTransaction = async () => {
+    if (!validateArticleContent()) return
+
+    setArticleTitleError(false)
+    setArticleContentError(false)
+    setLoading(true)
+
+    let articleContent = ""
+    if (contentImageFiles && checkPinningRequirements(pinning)) {
+      articleContent = await processImagesInContent()
+    } else if (!contentImageFiles && articleEditorState?.includes("img")) {
       articleContent = removeHashPrefixFromImages(articleEditorState)
-    }
-    if (!contentImageFiles && articleEditorState && !articleEditorState.includes("img")) {
+    } else if (!contentImageFiles && articleEditorState && !articleEditorState.includes("img")) {
       articleContent = articleEditorState
     }
+
     if (draftArticle) {
       const newArticle = {
         ...draftArticle,
         article: articleContent as string,
       }
-
       await handleArticleAction(newArticle)
     }
+
     setLoading(false)
     setExecuteArticleTransaction(false)
   }
 
-  const handleArticleAction = async (article: Article) => {
+  const uploadThumbnail = async () => {
     let articleThumbnail = ""
-    let hashArticle
-    const { title, article: draftArticleText, description, tags } = article
     if (draftArticleThumbnail && checkPinningRequirements(pinning)) {
-      await ipfs.uploadContent(draftArticleThumbnail).then(async (img) => {
+      await ipfs.uploadContent(draftArticleThumbnail).then((img) => {
         articleThumbnail = img.path
       })
+    }
+    return articleThumbnail
+  }
+
+  const createNewArticle = async (articleData: PosterArticle, hashArticle: boolean) => {
+    console.log("before start")
+    return await createArticle(articleData, hashArticle).then((res) => {
+      if (res?.error) {
+        clearTransactionStates()
+      } else {
+        createPoll(true)
+      }
+    })
+  }
+
+  const updateExistingArticle = async (articleData: PosterUpdateArticle, hashArticle: boolean, article: Article) => {
+    await updateArticle(articleData, hashArticle).then((res) => {
+      if (res && res.error) {
+        clearTransactionStates()
+      } else if (article && article.lastUpdated) {
+        const date = new Date()
+        const timestamp = Math.floor(date.getTime() / 1000)
+        const temporalArticle = { ...article }
+        temporalArticle.lastUpdated = timestamp.toString()
+        openNotification({
+          message: "Execute transaction confirmed!",
+          autoHideDuration: 5000,
+          variant: "success",
+          detailsLink: `${URL}tx/${res.transaction.transactionHash}`,
+          preventDuplicate: true,
+        })
+        saveArticle(temporalArticle)
+        saveDraftArticle(undefined)
+        navigate(`/${publicationSlug ?? publication?.id ?? publicationId}/${temporalArticle.id}`)
+        return
+      }
+    })
+  }
+
+  const handleArticleAction = async (article: Article) => {
+    const { title, article: draftArticleText, description, tags } = article
+    const articleThumbnail = await uploadThumbnail()
+    let hashArticle
+
+    if (draftArticleText && checkPinningRequirements(pinning)) {
+      hashArticle = await ipfs.uploadContent(draftArticleText)
     }
 
     if (article && (publication || article.publication) && account) {
@@ -255,61 +306,28 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         clearTransactionStates()
         throw new Error("Publication id is null")
       }
-      if (draftArticleText && checkPinningRequirements(pinning)) {
-        hashArticle = await ipfs.uploadContent(draftArticleText)
-      }
-      if (title) {
-        if (type === "new") {
-          console.log("before start")
 
-          return await createArticle(
-            {
-              action: "article/create",
-              publicationId: id,
-              title,
-              article: hashArticle ? hashArticle.path : draftArticleText,
-              description,
-              tags,
-              image: articleThumbnail,
-              authors: [account],
-            },
-            hashArticle ? true : false,
-          ).then((res) => {
-            console.log("response of the create article", res)
-            if (res?.error) {
-              clearTransactionStates()
-            } else {
-              createPoll(true)
-            }
-          })
-        }
-        if (type === "edit" && article && article.id && article.lastUpdated) {
-          setCurrentTimestamp(parseInt(article.lastUpdated))
-          await updateArticle(
-            {
-              action: "article/update",
-              id: article.id,
-              title,
-              article: hashArticle ? hashArticle.path : draftArticleText,
-              description,
-              tags,
-              image: articleThumbnail,
-            },
-            hashArticle ? true : false,
-          ).then((res) => {
-            if (res && res.error) {
-              clearTransactionStates()
-            } else if (article && article.lastUpdated) {
-              setOldArticleHash(article.article)
-              setArticleId(article.id)
-              updatePoll(true)
-            }
-          })
-        }
+      const articleData = {
+        action: type === "new" ? "article/create" : "article/update",
+        publicationId: id,
+        id: article.id,
+        title,
+        article: hashArticle ? hashArticle.path : draftArticleText,
+        description,
+        tags,
+        image: articleThumbnail,
+        authors: [account],
       }
-      return
+
+      if (type === "new") {
+        await createNewArticle(articleData as PosterArticle, hashArticle ? true : false)
+      } else if (type === "edit" && article && article.id && article.lastUpdated) {
+        setCurrentTimestamp(parseInt(article.lastUpdated))
+        await updateExistingArticle(articleData as PosterUpdateArticle, hashArticle ? true : false, article)
+      }
+    } else {
+      clearTransactionStates()
     }
-    clearTransactionStates()
   }
 
   const handleClosePinningConfigurationModal = (event: {}, _reason: "backdropClick" | "escapeKeyDown") => {
@@ -323,6 +341,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     }
     setShowSettingModal(false)
   }
+
   return (
     <Stack
       component="header"

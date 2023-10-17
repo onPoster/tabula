@@ -27,14 +27,14 @@
     "auth": "bash -c 'source .env || true && graph auth --studio $SUBGRAPH_DEPLOYMENT_KEY'"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.28.0",
-    "@graphprotocol/graph-ts": "0.26.0"
+    "@graphprotocol/graph-cli": "^0.59.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
   },
   "resolutions": {
     "concat-stream": "1.6.2"
   },
   "devDependencies": {
-    "matchstick-as": "^0.4.0",
+    "matchstick-as": "^0.6.0",
     "mustache": "^4.2.0",
     "prettier": "^2.5.1"
   }

@@ -84,9 +84,9 @@ const usePoster = () => {
         console.log("Starting transaction")
         const tx = await poster.post(JSON.stringify(content), PUBLICATION_TAG)
         const receipt: TransactionReceipt = await tx.wait()
-        console.log("Transaction completed", receipt)
         setLoading(false)
         setTransactionUrl(`${URL}tx/${receipt.transactionHash}`)
+
         return { error: false, transaction: receipt }
       } catch (error: any) {
         setLoading(false)
@@ -157,6 +157,7 @@ const usePoster = () => {
   const updateArticle = useCallback(
     async (fields: PosterUpdateArticle, pin: boolean): Promise<any> => {
       const result = await executeTransaction(fields)
+      console.log("result", result)
       if (!result.error) {
         if (pinning && ![PinningService.PUBLIC, PinningService.NONE].includes(pinning.service)) {
           if (fields.image) {
