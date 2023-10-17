@@ -251,6 +251,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
                 <CreatableSelect
                   placeholder="Add up to 5 tags for your publication..."
                   onSelected={handleTags}
+                  limit={5}
                   errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
                 />
               </Grid>
@@ -258,7 +259,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
           </Grid>
 
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublicationsButton variant="contained" type="submit" disabled={loading || indexing}>
+            <PublicationsButton variant="contained" type="submit" disabled={loading || indexing || tags.length > 5}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               {indexing ? "Indexing..." : "Create Publication"}
             </PublicationsButton>
