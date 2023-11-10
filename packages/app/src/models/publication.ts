@@ -55,3 +55,5 @@ export interface Article {
     permissions: Permission[]
   }
 }
+
+export type DraftArticle = Omit<Article, "image"> & { image?: string | null | File }

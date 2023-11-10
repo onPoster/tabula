@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
@@ -8,15 +8,20 @@ import theme, { palette, typography } from "../../theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 import usePublication from "../../services/publications/hooks/usePublication"
 import { haveActionPermission } from "../../utils/permission"
-import { usePublicationContext } from "../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from "../../services/publications/contexts"
 import { UserOptions } from "../commons/UserOptions"
-import { useOnClickOutside } from "../../hooks/useOnClickOutside"
-
+// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+import { Edit } from "@mui/icons-material"
+import isIPFS from "is-ipfs"
 import Avatar from "../commons/Avatar"
+import { useIpfs } from "../../hooks/useIpfs"
+import { processArticleContent } from "../../utils/modifyHTML"
 
 type Props = {
+  articleId?: string
   publication?: Publication
   showCreatePost?: boolean
+  showEditButton?: boolean
 }
 
 const ItemContainer = styled(Grid)({
@@ -27,22 +32,33 @@ const ItemContainer = styled(Grid)({
     margin: "15px 0px",
   },
 })
-const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => {
+const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreatePost, showEditButton }) => {
+  const ipfs = useIpfs()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active } = useWeb3React()
   const navigate = useNavigate()
   const location = useLocation()
-  const { setCurrentPath, saveDraftArticle, saveArticle } = usePublicationContext()
+  const { savePublication } = usePublicationContext()
+  const {
+    article,
+    setCurrentPath,
+    saveDraftArticle,
+    saveArticle,
+    setMarkdownArticle,
+    setDraftArticleThumbnail,
+    setArticleEditorState,
+  } = useArticleContext()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const ref = useRef()
-  useOnClickOutside(ref, () => {
-    if (show) {
-      setShow(!show)
-    }
-  })
+  // useOnClickOutside(ref, () => {
+  //   if (show) {
+  //     setShow(!show)
+  //   }
+  // })
 
   useEffect(() => {
     if (location.pathname) {
@@ -51,12 +67,24 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
   }, [location, setCurrentPath])
 
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
+  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
 
-  const handleNavigation = async () => {
+  const handleNavigation = () => {
     refetch()
-    saveDraftArticle(undefined)
+    saveDraftArticle(INITIAL_ARTICLE_VALUE)
     saveArticle(undefined)
     navigate(`/${publicationSlug}`)
+  }
+
+  const handleEditNavigation = async () => {
+    if (article) {
+      await processArticleContent(article, ipfs, isValidHash ?? false).then(({ img, content, modifiedHTMLString }) => {
+        saveDraftArticle({ ...article, title: article.title, image: img })
+        savePublication(article.publication)
+        setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
+        navigate(`/${publicationSlug}/${articleId}/edit`)
+      })
+    }
   }
 
   return (
@@ -113,7 +141,7 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   {show && (
                     <Grid item sx={{ position: "absolute", top: 45 }}>
                       <Box ref={ref}>
-                        <UserOptions />
+                        <UserOptions onClose={() => setShow(false)} />
                       </Box>
                     </Grid>
                   )}
@@ -128,10 +156,31 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost }) => 
                   size={"large"}
                   onClick={() => {
                     navigate(`./new`)
+                    setArticleEditorState(undefined)
+                    setMarkdownArticle(undefined)
+                    saveDraftArticle(INITIAL_ARTICLE_VALUE)
+                    saveArticle(undefined)
+                    setDraftArticleThumbnail(undefined)
                   }}
                 >
                   <AddIcon style={{ marginRight: 13 }} />
                   New Article
+                </Button>
+              </Grid>
+            )}
+
+            {showEditButton && havePermissionToUpdate && (
+              <Grid item>
+                <Button
+                  variant="contained"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleEditNavigation()
+                  }}
+                >
+                  <Edit sx={{ mr: "13px", width: 16 }} />
+                  Edit
                 </Button>
               </Grid>
             )}

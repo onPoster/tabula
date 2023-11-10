@@ -4,6 +4,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react"
 import { palette, typography } from "../../theme"
 import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
+import EditIcon from "@mui/icons-material/Edit"
 import { useIpfs } from "../../hooks/useIpfs"
 import { usePublicationContext } from "../../services/publications/contexts"
 import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
@@ -26,11 +27,10 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const inputFile = useRef<HTMLInputElement | null>(null)
   const openImagePicker = () => inputFile && inputFile.current?.click()
   const [uri, setUri] = useState<string | undefined>(undefined)
+  const [deterministicUri, setDeterministicUri] = useState<string>()
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
   const { publicationAvatar, setRemovePublicationImage, removePublicationImage } = usePublicationContext()
-
   const ipfs = useIpfs()
-
   useDynamicFavIcon(uri)
 
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -65,13 +65,26 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
       getDefaultImageSrc()
     }
     if (!defaultImage && defaultImageSrc === "" && !removePublicationImage && publicationAvatar && !newPublication) {
+      setDeterministicUri(publicationAvatar.uri)
       setUri(publicationAvatar.uri)
       return setDefaultImageSrc(publicationAvatar.uri)
     }
     if (!defaultImage && !uri && defaultImageSrc) {
       return setDefaultImageSrc("")
     }
-  }, [defaultImage, ipfs, defaultImageSrc, removePublicationImage, publicationAvatar, newPublication, uri])
+    if (!deterministicUri && publicationAvatar) {
+      setDeterministicUri(publicationAvatar.uri)
+    }
+  }, [
+    defaultImage,
+    ipfs,
+    defaultImageSrc,
+    removePublicationImage,
+    publicationAvatar,
+    newPublication,
+    uri,
+    deterministicUri,
+  ])
 
   const handlerImageAction = () => {
     if (!uri && (!defaultImage || removePublicationImage)) {
@@ -79,11 +92,27 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
     }
   }
 
-  const deleteImage = () => {
+  const deleteImage = (isDeterministic: boolean) => {
     setFile(undefined)
     setUri(undefined)
     setDefaultImageSrc("")
     setRemovePublicationImage(true)
+    if (isDeterministic) {
+      return openImagePicker()
+    }
+  }
+
+  const handleShowImg = (): string | undefined => {
+    if (uri) {
+      return uri
+    }
+    if (defaultImageSrc) {
+      return defaultImageSrc
+    }
+    if (deterministicUri && !newPublication) {
+      return deterministicUri
+    }
+    return undefined
   }
 
   return (
@@ -104,8 +133,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
                 }}
                 onClick={handlerImageAction}
               >
-                <AddIcon />
-                <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
+                {newPublication ? <AddIcon /> : <EditIcon />}
               </SmallAvatar>
             )}
             {(uri || defaultImage) && !removePublicationImage && (
@@ -117,16 +145,16 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
                     bgcolor: "#B34A03",
                   },
                 }}
-                onClick={deleteImage}
+                onClick={() => deleteImage(deterministicUri === uri ? true : false)}
               >
-                <ClearIcon />
+                {deterministicUri === uri ? <EditIcon /> : <ClearIcon />}
               </SmallAvatar>
             )}
           </>
         }
       >
         <Avatar
-          src={uri ? uri : defaultImageSrc}
+          src={handleShowImg()}
           onClick={openImagePicker}
           sx={{
             width: 160,
@@ -148,6 +176,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
           publication image.
         </Avatar>
       </Badge>
+      <input type="file" id="file" ref={inputFile} hidden accept="image/*" onChange={handleImage} />
     </Stack>
   )
 }

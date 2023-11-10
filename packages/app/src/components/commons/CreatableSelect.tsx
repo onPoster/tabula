@@ -12,6 +12,7 @@ export interface CreateSelectProps {
   placeholder?: string
   errorMsg?: string
   isAddress?: boolean
+  limit?: number
 }
 
 const customStyles = {
@@ -45,7 +46,6 @@ const customStyles = {
     ...base,
     color: palette.whites[1000],
     background: palette.secondary[600],
-    maxWidth: "calc(28% - 4px)",
     "&:hover": {
       background: palette.secondary[800],
     },
@@ -60,7 +60,14 @@ const customStyles = {
   }),
 }
 
-export const CreatableSelect: React.FC<CreateSelectProps> = ({ options, onSelected, value, placeholder, errorMsg }) => {
+export const CreatableSelect: React.FC<CreateSelectProps> = ({
+  options,
+  onSelected,
+  value,
+  placeholder,
+  errorMsg,
+  limit,
+}) => {
   const [values, setValues] = useState<CreateSelectOption[]>([])
 
   useEffect(() => {
@@ -73,6 +80,10 @@ export const CreatableSelect: React.FC<CreateSelectProps> = ({ options, onSelect
   }, [value])
 
   const handleChange = (newValue: OnChangeValue<CreateSelectOption, any>) => {
+    const list = newValue as CreateSelectOption[]
+    if (limit && list.length > limit) {
+      return
+    }
     if (onSelected) {
       onSelected(newValue as CreateSelectOption[])
     }

@@ -19,6 +19,10 @@ import { CreatableSelect } from "../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../models/dropdown"
 import { usePosterContext } from "../../../services/poster/context"
 import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
+import { usePublicationContext } from "../../../services/publications/contexts"
+import useLocalStorage from "../../../hooks/useLocalStorage"
+import { Pinning } from "../../../models/pinning"
+import { checkPinningRequirements } from "../../../utils/pinning"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -72,6 +76,7 @@ interface PublicationsViewProps {
 
 export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainId }) => {
   const navigate = useNavigate()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { account, chainId } = useWeb3React()
   const { executePublication } = usePoster()
   const { setLastPathWithChainName } = usePosterContext()
@@ -86,6 +91,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setLastPublicationTitle,
     setExecutePollInterval,
   } = usePublications()
+  const { setPublicationAvatar } = usePublicationContext()
   const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
@@ -121,6 +127,10 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
   }, [publications, account])
 
   useEffect(() => {
+    setPublicationAvatar(undefined)
+  }, [setPublicationAvatar])
+
+  useEffect(() => {
     if (redirect && lastPublicationId) {
       setLoading(false)
       navigate(`../${lastPublicationId}`)
@@ -141,7 +151,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     setLoading(true)
     const { title, description } = data
     let image
-    if (publicationImg) {
+    if (publicationImg && checkPinningRequirements(pinning)) {
       image = await ipfs.uploadContent(publicationImg)
     }
     if (title) {
@@ -241,6 +251,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
                 <CreatableSelect
                   placeholder="Add up to 5 tags for your publication..."
                   onSelected={handleTags}
+                  limit={5}
                   errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
                 />
               </Grid>
@@ -248,7 +259,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
           </Grid>
 
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublicationsButton variant="contained" type="submit" disabled={loading || indexing}>
+            <PublicationsButton variant="contained" type="submit" disabled={loading || indexing || tags.length > 5}>
               {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               {indexing ? "Indexing..." : "Create Publication"}
             </PublicationsButton>

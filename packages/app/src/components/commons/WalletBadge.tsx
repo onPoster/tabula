@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react"
-import { styled } from "@mui/styles"
-import { Avatar, Box, Stack, Typography } from "@mui/material"
+import React, { useEffect } from "react"
+
+import { Avatar } from "@mui/material"
 import * as blockies from "blockies-ts"
-import { palette, typography } from "../../theme"
-import { shortAddress } from "../../utils/string"
+
 import { useNotification } from "../../hooks/useNotification"
 import { useWeb3React } from "@web3-react/core"
-import { lookupAddress } from "../../services/ens"
+import { useEnsContext } from "../../services/ens/context"
+import useENS from "../../services/ens/hooks/useENS"
 
 type WalletBadgeProps = {
   copyable?: boolean
@@ -14,18 +14,12 @@ type WalletBadgeProps = {
   hover?: boolean
 }
 
-const WalletAddressContainer = styled(Box)({
-  background: palette.secondary[100],
-  borderRadius: 4,
-  padding: "4px 8px",
-  boxSizing: "border-box",
-})
-
 export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyable }) => {
+  const { lookupAddress } = useENS()
   const avatarSrc = blockies.create({ seed: address.toLowerCase() }).toDataURL()
   const { connector, active, chainId } = useWeb3React()
+  const { setEnsName } = useEnsContext()
 
-  const [ensName, setEnsName] = useState<string>()
   const openNotification = useNotification()
 
   useEffect(() => {
@@ -33,14 +27,14 @@ export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyab
       if (address && active) {
         const provider = await connector?.getProvider()
         if (provider != null) {
-          const ensName = await lookupAddress(provider, address)
-          setEnsName(ensName ?? undefined)
+          const ens = await lookupAddress(provider, address)
+          setEnsName(ens)
         }
       }
     }
 
     fetchData().catch(console.error)
-  }, [active, address, connector, ensName, chainId])
+  }, [active, address, connector, chainId, setEnsName, lookupAddress])
 
   const handleAddressClick = async () => {
     if (copyable) {
@@ -53,27 +47,17 @@ export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyab
     }
   }
   return (
-    <Stack
-      alignItems={"center"}
-      direction="row"
-      spacing={1}
+    <Avatar
+      src={avatarSrc}
       sx={{
+        width: 24,
+        height: 24,
+        cursor: "pointer",
         "&:hover": {
-          opacity: hover ? 0.8 : null,
+          opacity: 0.8,
         },
       }}
-    >
-      <Avatar src={avatarSrc} sx={{ width: 24, height: 24 }} />
-      <WalletAddressContainer onClick={handleAddressClick}>
-        <Typography
-          color={palette.secondary[800]}
-          fontFamily={typography.fontFamilies.sans}
-          fontWeight={600}
-          sx={{ cursor: copyable ? "pointer" : "cursor" }}
-        >
-          {ensName ?? shortAddress(address).toLowerCase()}
-        </Typography>
-      </WalletAddressContainer>
-    </Stack>
+      onClick={handleAddressClick}
+    />
   )
 }

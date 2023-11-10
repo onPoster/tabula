@@ -11,7 +11,8 @@ const UploadFileContainer = styled(Grid)({
   alignItems: "center",
   minHeight: 213,
   border: `1px solid ${palette.grays[200]}`,
-  background: palette.grays[100],
+  backgroundColor: palette.grays[50],
+  backdropFilter: "blur(2px)",
   cursor: "pointer",
   borderRadius: 4,
   flexDirection: "column",
@@ -36,17 +37,30 @@ const UploadEditButton = styled(Fab)({
 })
 
 type UploadFileProps = {
-  defaultImage?: string | undefined | null
+  defaultImage?: string | undefined | null | File
+  defaultUri?: string | undefined
   onFileSelected: (file: File | undefined) => void
+  convertedFile?: (uri: string | undefined) => void
+  disabled?: boolean
 }
 
-export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSelected }) => {
+export const UploadFile: React.FC<UploadFileProps> = ({
+  defaultImage,
+  defaultUri,
+  onFileSelected,
+  convertedFile,
+  disabled,
+}) => {
   const inputFile = useRef<HTMLInputElement | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [uri, setUri] = useState<string | null>(null)
-  const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage)
+  const [imageHash, setImageHash] = useState<string | undefined | null>(defaultImage as string)
   const [defaultImageSrc, setDefaultImageSrc] = useState<string>("")
   const ipfs = useIpfs()
+
+  useEffect(() => {
+    if (defaultUri) setUri(defaultUri)
+  }, [defaultUri])
 
   useEffect(() => {
     if (file) onFileSelected(file)
@@ -55,7 +69,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
   useEffect(() => {
     const getDefaultImageSrc = async () => {
       if (defaultImage) {
-        const src = await ipfs.getImgSrc(defaultImage)
+        const src = await ipfs.getImgSrc(defaultImage as string)
         setDefaultImageSrc(src)
       }
     }
@@ -64,18 +78,20 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
     }
   }, [defaultImage, ipfs, defaultImageSrc])
 
-  const openImagePicker = () => inputFile && inputFile.current?.click()
+  const openImagePicker = () => !disabled && inputFile && inputFile.current?.click()
 
   const removeImage = () => {
     setFile(null)
     setUri(null)
     setImageHash(null)
+    onFileSelected(undefined)
   }
   const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let reader = new FileReader()
       reader.onload = (e) => {
         setUri(e.target?.result as string)
+        convertedFile && convertedFile(e.target?.result as string)
       }
       setFile(event.target.files[0])
       reader.readAsDataURL(event.target.files[0])
@@ -85,9 +101,14 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
   return (
     <>
       {!imageHash && !uri && (
-        <UploadFileContainer container gap={1} onClick={openImagePicker}>
+        <UploadFileContainer
+          container
+          gap={1}
+          onClick={openImagePicker}
+          sx={{ background: disabled ? palette.grays[200] : palette.grays[50] }}
+        >
           <AddIcon />
-          <Typography textAlign="center" color={palette.grays[600]} lineHeight={1.25} maxWidth="50%">
+          <Typography fontSize={14} textAlign="center" color={palette.grays[600]} lineHeight={1.5} maxWidth="80%">
             Include a high-quality image in your post to make it more inviting.
           </Typography>
         </UploadFileContainer>
@@ -98,7 +119,7 @@ export const UploadFile: React.FC<UploadFileProps> = ({ defaultImage, onFileSele
             <Box component="img" sx={{ borderRadius: 1 }} alt="Article image" src={uri ? uri : defaultImageSrc} />
           </UploadContainer>
           {(imageHash || uri) && (
-            <UploadEditButton color="primary" aria-label="edit" onClick={removeImage}>
+            <UploadEditButton size="small" color="primary" aria-label="edit" onClick={removeImage}>
               <ClearIcon />
             </UploadEditButton>
           )}

@@ -7,7 +7,6 @@ import {
   Grid,
   InputLabel,
   TextField,
-  // Typography,
 } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
@@ -22,6 +21,14 @@ import usePublications from "../../../../services/publications/hooks/usePublicat
 import { useNavigate, useParams } from "react-router-dom"
 import { CreatableSelect } from "../../../commons/CreatableSelect"
 import { CreateSelectOption } from "../../../../models/dropdown"
+import useLocalStorage from "../../../../hooks/useLocalStorage"
+import { Pinning, PinningService } from "../../../../models/pinning"
+import { useEnsContext } from "../../../../services/ens/context"
+import EnsModal from "./EnsModal"
+import useENS from "../../../../services/ens/hooks/useENS"
+import { useWeb3React } from "@web3-react/core"
+import NetworkModal from "../../../commons/NetworkModal"
+import { SupportedChainId } from "../../../../constants/chain"
 
 type Post = {
   title: string
@@ -43,17 +50,23 @@ const publicationSchema = yup.object().shape({
 export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const navigate = useNavigate()
+  const { chainId } = useWeb3React()
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const [openENSModal, setOpenENSModal] = useState<boolean>(false)
+  const [openNetworkModal, setOpenNetworkModal] = useState<boolean>(false)
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
   const {
     publication,
-    saveIsEditing,
+    saveIsEditingPublication,
     saveDraftPublicationImage,
     draftPublicationImage,
     removePublicationImage,
     setRemovePublicationImage,
   } = usePublicationContext()
+  const { ensNameList } = useEnsContext()
+  const { fetchNames } = useENS()
   const { executePublication, deletePublication } = usePoster()
   const {
     indexing: updateIndexing,
@@ -73,13 +86,27 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   })
 
   useEffect(() => {
-    saveIsEditing(true)
+    fetchNames()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    saveIsEditingPublication(true)
     // returned function will be called on component unmount
     return () => {
-      saveIsEditing(false)
+      saveIsEditingPublication(false)
       saveDraftPublicationImage(undefined)
     }
-  }, [saveDraftPublicationImage, saveIsEditing])
+  }, [saveDraftPublicationImage, saveIsEditingPublication])
+
+  useEffect(() => {
+    if (publication && !loading && publication.lastUpdated) {
+      setValue("title", publication.title)
+      setValue("description", publication.description || "")
+      setTags(publication.tags || [])
+      setCurrentTimestamp(parseInt(publication.lastUpdated))
+    }
+  }, [loading, publication, setCurrentTimestamp, setValue])
 
   useEffect(() => {
     if (publication && !loading && publication.lastUpdated) {
@@ -111,7 +138,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setLoading(true)
     const { title, description } = data
     let image
-    if (draftPublicationImage) {
+    if (draftPublicationImage && pinning && pinning.service !== PinningService.NONE) {
       image = await ipfs.uploadContent(draftPublicationImage)
     }
     if (!draftPublicationImage && publication?.image && !removePublicationImage) {
@@ -170,6 +197,15 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     }
   }
 
+  const handleEns = () => {
+    if (chainId) {
+      if ([SupportedChainId.MAINNET, SupportedChainId.GOERLI, SupportedChainId.SEPOLIA].includes(chainId)) {
+        return setOpenENSModal(true)
+      }
+      return setOpenNetworkModal(true)
+    }
+  }
+
   return (
     <Container maxWidth="sm">
       <Box mt={4}>
@@ -214,6 +250,8 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                       {...field}
                       value={field.value}
                       placeholder="Tagline"
+                      multiline
+                      minRows={4}
                       sx={{ width: "100%" }}
                       id="publication-description"
                     />
@@ -231,6 +269,28 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                 errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
               />
             </Grid>
+            {ensNameList && (
+              <Grid item>
+                <Button
+                  onClick={handleEns}
+                  style={{
+                    color: palette.primary[1000],
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  Link Your Publication to Your ENS Name
+                </Button>
+              </Grid>
+            )}
+            <NetworkModal open={openNetworkModal} onClose={() => setOpenNetworkModal(false)} />
+            {ensNameList && (
+              <EnsModal
+                open={openENSModal}
+                onClose={() => setOpenENSModal(false)}
+                publicationId={publication?.id ?? ""}
+              />
+            )}
             <Grid item>
               <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
                 {couldDelete && (
