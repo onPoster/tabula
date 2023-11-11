@@ -19,6 +19,8 @@ env:
   REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
   REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
   REACT_APP_IPFS_GATEWAY: https://ipfs.io/ipfs
+  REACT_APP_ENS_SUBGRAPH_MAINNET: ensdomains/ens
+  REACT_APP_ENS_SUBGRAPH_GOERLI: ensdomains/ensgoerli
 jobs:
   deploy:
     runs-on: ubuntu-latest
