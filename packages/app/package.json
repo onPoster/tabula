@@ -104,8 +104,5 @@
     "prettier": "^2.5.1",
     "vite": "^5.0.10",
     "vite-tsconfig-paths": "^4.2.2"
-  },
-  "resolutions": {
-    "@babel/runtime": "7.18.0"
   }
 }
