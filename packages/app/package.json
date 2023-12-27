@@ -88,6 +88,9 @@
   "browser": {
     "crypto": false
   },
+  "engines": {
+    "node": "21.0.0"
+  },
   "devDependencies": {
     "@svgr/rollup": "^8.1.0",
     "@types/draft-convert": "^2.1.4",
