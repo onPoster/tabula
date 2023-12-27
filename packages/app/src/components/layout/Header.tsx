@@ -57,7 +57,7 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
     >
       <Link to="/" style={{ color: logoColor }}>
         <Box className={classes.logo}>
-          <Logo height="70" />
+          <Logo height="70" fill={logoColor} />
         </Box>
       </Link>
 

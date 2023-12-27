@@ -5,22 +5,22 @@ on:
     types: published
 
 env:
-  REACT_APP_POSTER_CONTRACT: ${{ secrets.REACT_APP_POSTER_CONTRACT }}
-  REACT_APP_INFURA_NETWORK_ACCESS_KEY: ${{ secrets.REACT_APP_INFURA_NETWORK_ACCESS_KEY }}
-  REACT_APP_INFURA_IPFS_API_KEY: ${{ secrets.REACT_APP_INFURA_IPFS_API_KEY }}
-  REACT_APP_INFURA_IPFS_API_SECRET: ${{ secrets.REACT_APP_INFURA_IPFS_API_SECRET }}
-  REACT_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
-  REACT_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
-  REACT_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula-mainnet
-  REACT_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
-  REACT_APP_SUBGRAPH_SEPOLIA: auryn-macmillan/tabula-sepolia
-  REACT_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
-  REACT_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
-  REACT_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
-  REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
-  REACT_APP_IPFS_GATEWAY: https://ipfs.io/ipfs
-  REACT_APP_ENS_SUBGRAPH_MAINNET: ensdomains/ens
-  REACT_APP_ENS_SUBGRAPH_GOERLI: ensdomains/ensgoerli
+  VITE_APP_POSTER_CONTRACT: ${{ secrets.VITE_APP_POSTER_CONTRACT }}
+  VITE_APP_INFURA_NETWORK_ACCESS_KEY: ${{ secrets.VITE_APP_INFURA_NETWORK_ACCESS_KEY }}
+  VITE_APP_INFURA_IPFS_API_KEY: ${{ secrets.VITE_APP_INFURA_IPFS_API_KEY }}
+  VITE_APP_INFURA_IPFS_API_SECRET: ${{ secrets.VITE_APP_INFURA_IPFS_API_SECRET }}
+  VITE_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
+  VITE_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
+  VITE_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula-mainnet
+  VITE_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
+  VITE_APP_SUBGRAPH_SEPOLIA: auryn-macmillan/tabula-sepolia
+  VITE_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
+  VITE_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
+  VITE_APP_SUBGRAPH_OPTIMISM: auryn-macmillan/tabula-optimism
+  VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
+  VITE_APP_IPFS_GATEWAY: https://ipfs.io/ipfs
+  VITE_APP_ENS_SUBGRAPH_MAINNET: ensdomains/ens
+  VITE_APP_ENS_SUBGRAPH_GOERLI: ensdomains/ensgoerli
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
         uses: anantaramdas/ipfs-pinata-deploy-action@39bbda1ce1fe24c69c6f57861b8038278d53688d
         with:
           pin-name: Tabula - Release — ${ GITHUB_SHA }
-          path: "./packages/app/build"
+          path: "./packages/app/dist"
           pinata-api-key: ${{ secrets.PINATA_API_KEY }}
           pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
 
@@ -144,4 +144,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.3.3
         with:
           branch: gh-pages
-          folder: ./packages/app/build
+          folder: ./packages/app/dist

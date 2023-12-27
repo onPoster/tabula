@@ -1,8 +1,8 @@
 import turndownService from "../services/turndown"
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
+const IPFS_GATEWAY = import.meta.env.VITE_APP_IPFS_GATEWAY
 
 if (IPFS_GATEWAY == null) {
-  throw new Error("REACT_APP_IPFS_GATEWAY is not set")
+  throw new Error("VITE_APP_IPFS_GATEWAY is not set")
 }
 
 export function shortAddress(address: string) {

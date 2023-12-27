@@ -4,18 +4,18 @@ import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
 
-const IPFS_GATEWAY = process.env.REACT_APP_IPFS_GATEWAY
-const INFURA_IPFS_API_KEY = process.env.REACT_APP_INFURA_IPFS_API_KEY
-const INFURA_IPFS_API_KEY_SECRET = process.env.REACT_APP_INFURA_IPFS_API_SECRET
+const IPFS_GATEWAY = import.meta.env.VITE_APP_IPFS_GATEWAY
+const INFURA_IPFS_API_KEY = import.meta.env.VITE_APP_INFURA_IPFS_API_KEY
+const INFURA_IPFS_API_KEY_SECRET = import.meta.env.VITE_APP_INFURA_IPFS_API_SECRET
 
 if (IPFS_GATEWAY == null) {
-  throw new Error("REACT_APP_IPFS_GATEWAY is not set")
+  throw new Error("VITE_APP_IPFS_GATEWAY is not set")
 }
 if (INFURA_IPFS_API_KEY == null) {
-  throw new Error("REACT_APP_INFURA_IPFS_API_KEY is not set")
+  throw new Error("VITE_APP_INFURA_IPFS_API_KEY is not set")
 }
 if (INFURA_IPFS_API_KEY_SECRET == null) {
-  throw new Error("REACT_APP_INFURA_IPFS_API_SECRET is not set")
+  throw new Error("VITE_APP_INFURA_IPFS_API_SECRET is not set")
 }
 
 export interface IpfsFunctions {

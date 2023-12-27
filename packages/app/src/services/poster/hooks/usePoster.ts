@@ -22,7 +22,7 @@ import useLocalStorage from "../../../hooks/useLocalStorage"
 import { Pinning, PinningService } from "../../../models/pinning"
 
 const PUBLICATION_TAG = "PUBLICATION"
-const POSTER_CONTRACT = process.env.REACT_APP_POSTER_CONTRACT
+const POSTER_CONTRACT = import.meta.env.VITE_APP_POSTER_CONTRACT
 
 const usePoster = () => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
