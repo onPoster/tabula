@@ -1,5 +1,5 @@
 import React from "react"
-import ReactDOM from "react-dom"
+import { createRoot } from "react-dom/client"
 import App from "./App"
 import { HashRouter } from "react-router-dom"
 import "./index.css"
@@ -10,7 +10,10 @@ import { Web3ReactProvider } from "@web3-react/core"
 import { getLibrary } from "./config"
 import { Helmet } from "react-helmet"
 
-ReactDOM.render(
+const container = document.getElementById("root") as Element | DocumentFragment
+const root = createRoot(container)
+
+root.render(
   <React.StrictMode>
     <Helmet>
       <meta property="og:title" content="Tabula" />
@@ -32,5 +35,4 @@ ReactDOM.render(
       </HashRouter>
     </Web3ReactProvider>
   </React.StrictMode>,
-  document.getElementById("root"),
 )
