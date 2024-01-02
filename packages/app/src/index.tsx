@@ -9,6 +9,7 @@ import { day } from "./theme/day"
 import { Web3ReactProvider } from "@web3-react/core"
 import { getLibrary } from "./config"
 import { Helmet } from "react-helmet"
+import { IPFSProvider } from "./services/ipfs/context"
 
 const container = document.getElementById("root") as Element | DocumentFragment
 const root = createRoot(container)
@@ -29,8 +30,10 @@ root.render(
     <Web3ReactProvider getLibrary={getLibrary}>
       <HashRouter>
         <ThemeProvider theme={day}>
-          <CssBaseline />
-          <App />
+          <IPFSProvider>
+            <CssBaseline />
+            <App />
+          </IPFSProvider>
         </ThemeProvider>
       </HashRouter>
     </Web3ReactProvider>

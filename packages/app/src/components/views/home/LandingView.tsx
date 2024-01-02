@@ -12,6 +12,7 @@ import tabletHero from "../../../assets/images/tablet-hero-graphic.png"
 import paperTextureNight from "../../../assets/images/paper-texture-800-night.jpg"
 import { makeStyles } from "@mui/styles"
 import { useNavigate } from "react-router-dom"
+import { useIPFSContext } from "../../../services/ipfs/context"
 
 const benefits = [
   {
@@ -63,9 +64,19 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
+const MOCK =
+  "<h1>A Revolutionary Motivational Tool for Developers</h1><p><strong>Introduction</strong></p><p>In today&#x27;s hyper-connected world, software performance is key. Yet, how do you ensure your developers are intrinsically motivated to deliver optimal performance? Introducing DevPill - the first-of-its-kind motivational tool designed to transform the way your developers approach their work.</p><p><strong>Product Overview</strong></p><p>DevPill is a groundbreaking tool that operates on a powerful yet simple premise: When your software crashes or runs slowly, your developers experience a slight discomfort. This immediate feedback mechanism provides developers a visceral connection to their work&#x27;s performance, igniting a deep-rooted motivation to deliver the best software solutions possible.</p><p><strong>Benefits</strong></p><ol type='1'><li><strong>Increased Performance:</strong> DevPill creates an immediate, tangible connection between a developers work and its outcome, resulting in increased focus on delivering high-performing, error-free software.</li><li><strong>Enhanced Motivation:</strong> Through DevPill, developers will strive for perfection, not just due to professional pride, but because their comfort is directly linked to the software&#x27;s performance.</li><li><strong>Team Accountability:</strong> DevPill fosters a culture of accountability and responsibility, ensuring every team member is dedicated to optimal software performance.</li><li><strong>Innovation &amp; Problem-Solving:</strong> With a keen desire to avoid discomfort, your developers will be more motivated than ever to troubleshoot and innovate, ensuring that problems are quickly resolved.</li></ol><p><strong>Safety &amp; Ethics</strong></p><p>DevPill is designed with a focus on safety and ethics. The discomfort triggered by software performance issues is mild and harmless, akin to a minor headache. Our product has been rigorously tested to ensure it complies with all health and safety standards.</p><p><strong>Conclusion</strong></p><p>In the competitive landscape of software development, every edge counts. DevPill provides a unique, revolutionary approach to enhancing developer motivation, accountability, and ultimately, software performance. Give your developers the tool they need to truly connect with their work. Choose DevPill.</p>"
+
 export const LandingView: React.FC = () => {
   const classes = useStyles()
   const navigate = useNavigate()
+  const { pinAction, encode } = useIPFSContext()
+  const test = async () => {
+    const textEnconded = await encode(MOCK)
+    textEnconded && pinAction(textEnconded, "test-encoded")
+    
+    console.log("textEncoded", textEnconded)
+  }
   return (
     <Page>
       <Box
@@ -110,7 +121,7 @@ export const LandingView: React.FC = () => {
                 Instant web3 publications for writers, DAOs, and any Ethereum-based account.
               </Typography>
               <Box sx={{ mt: 4 }}>
-                <Button variant="contained" onClick={() => navigate("/wallet")}>
+                <Button variant="contained" onClick={() => test()}>
                   Get Started
                 </Button>
               </Box>

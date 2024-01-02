@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { PublicationView } from "./components/views/publication/PublicationView"
 import { Routes, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
@@ -19,6 +19,7 @@ import { WalletProvider } from "./connectors/WalletProvider"
 import { RedirectOldRoute } from "./components/commons/RedicrectOldRoute"
 import PreviewArticleView from "./components/views/publication/PreviewArticleView"
 import { EnsProvider } from "./services/ens/context"
+import { useIPFSContext } from "./services/ipfs/context"
 
 const App: React.FC = () => {
   // the chainId should be from the publication if its present
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   const { chainId: initialChainIdFromProvider } = useWeb3React() // chain id from connected wallet
   const [chainId, setChainId] = useState(initialChainIdFromProvider)
   const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
+  const { helia, startHelia, startingHelia, decodeCID } = useIPFSContext()
 
   const updateChainId = (newChainId: number | undefined) => {
     if (newChainId !== chainId) {
@@ -40,6 +42,22 @@ const App: React.FC = () => {
   useEffect(() => {
     setChainId(initialChainIdFromProvider)
   }, [initialChainIdFromProvider])
+
+  const initiateHelia = useCallback(async () => {
+    if (!helia && !startingHelia) {
+      await startHelia()
+    } else if (helia && !startingHelia) {
+      console.log("Helia", helia)
+    }
+  }, [helia, startingHelia, startHelia])
+
+  useEffect(() => {
+    initiateHelia()
+  }, [initiateHelia])
+
+  useEffect(() => {
+    helia && decodeCID("QmeitdACdbL7u6KE5fMVimSzdUHbUZPRzcJQLaw2uKoELm" as any)
+  }, [helia])
 
   return (
     <SnackbarProvider maxSnack={1}>
