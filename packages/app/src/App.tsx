@@ -46,18 +46,12 @@ const App: React.FC = () => {
   const initiateHelia = useCallback(async () => {
     if (!helia && !startingHelia) {
       await startHelia()
-    } else if (helia && !startingHelia) {
-      console.log("Helia", helia)
     }
   }, [helia, startingHelia, startHelia])
 
   useEffect(() => {
     initiateHelia()
   }, [initiateHelia])
-
-  useEffect(() => {
-    helia && decodeCID("QmeitdACdbL7u6KE5fMVimSzdUHbUZPRzcJQLaw2uKoELm" as any)
-  }, [helia])
 
   return (
     <SnackbarProvider maxSnack={1}>
