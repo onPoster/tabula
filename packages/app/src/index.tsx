@@ -11,7 +11,7 @@ import { getLibrary } from "./config"
 import { Helmet } from "react-helmet"
 
 ReactDOM.render(
-  <React.StrictMode>
+  <React.Fragment>
     <Helmet>
       <meta property="og:title" content="Tabula" />
       <meta property="og:site_name" content="Tabula" />
@@ -31,6 +31,6 @@ ReactDOM.render(
         </ThemeProvider>
       </HashRouter>
     </Web3ReactProvider>
-  </React.StrictMode>,
+  </React.Fragment>,
   document.getElementById("root"),
 )

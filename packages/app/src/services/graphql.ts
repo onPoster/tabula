@@ -1,51 +1,51 @@
 import { createClient, defaultExchanges } from "urql"
 import { SupportedChainId } from "../constants/chain"
 
-if (!process.env.REACT_APP_SUBGRAPH_BASE_URL) {
-  throw new Error("REACT_APP_SUBGRAPH_BASE_URL is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_BASE_URL) {
+  throw new Error("VITE_APP_SUBGRAPH_BASE_URL is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_GNOSIS_CHAIN) {
-  throw new Error("REACT_APP_SUBGRAPH_GNOSIS_CHAIN is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_GNOSIS_CHAIN) {
+  throw new Error("VITE_APP_SUBGRAPH_GNOSIS_CHAIN is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_MAINNET) {
-  throw new Error("REACT_APP_SUBGRAPH_MAINNET is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_MAINNET) {
+  throw new Error("VITE_APP_SUBGRAPH_MAINNET is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_GOERLI) {
-  throw new Error("REACT_APP_SUBGRAPH_GOERLI is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_GOERLI) {
+  throw new Error("VITE_APP_SUBGRAPH_GOERLI is not set")
 }
-// if (!process.env.REACT_APP_SUBGRAPH_SEPOLIA) {
-//   throw new Error("REACT_APP_SUBGRAPH_SEPOLIA is not set")
+// if (!import.meta.env.VITE_APP_SUBGRAPH_SEPOLIA) {
+//   throw new Error("VITE_APP_SUBGRAPH_SEPOLIA is not set")
 // }
-if (!process.env.REACT_APP_SUBGRAPH_POLYGON) {
-  throw new Error("REACT_APP_SUBGRAPH_POLYGON is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_POLYGON) {
+  throw new Error("VITE_APP_SUBGRAPH_POLYGON is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_ARBITRUM) {
-  throw new Error("REACT_APP_SUBGRAPH_ARBITRUM is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_ARBITRUM) {
+  throw new Error("VITE_APP_SUBGRAPH_ARBITRUM is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_OPTIMISM) {
-  throw new Error("REACT_APP_SUBGRAPH_OPTIMISM is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM) {
+  throw new Error("VITE_APP_SUBGRAPH_OPTIMISM is not set")
 }
-if (!process.env.REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN) {
-  throw new Error("REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN) {
+  throw new Error("VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN is not set")
 }
-if (!process.env.REACT_APP_ENS_SUBGRAPH_MAINNET) {
-  throw new Error("REACT_APP_ENS_SUBGRAPH_MAINNET is not set")
+if (!import.meta.env.VITE_APP_ENS_SUBGRAPH_MAINNET) {
+  throw new Error("VITE_APP_ENS_SUBGRAPH_MAINNET is not set")
 }
-if (!process.env.REACT_APP_ENS_SUBGRAPH_GOERLI) {
-  throw new Error("REACT_APP_ENS_SUBGRAPH_GOERLI is not set")
+if (!import.meta.env.VITE_APP_ENS_SUBGRAPH_GOERLI) {
+  throw new Error("VITE_APP_ENS_SUBGRAPH_GOERLI is not set")
 }
 
-const BASE_SUBGRAPH_URL = process.env.REACT_APP_SUBGRAPH_BASE_URL
-const SUBGRAPH_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_GNOSIS_CHAIN
-const SUBGRAPH_MAINNET = process.env.REACT_APP_SUBGRAPH_MAINNET
-const SUBGRAPH_GOERLI = process.env.REACT_APP_SUBGRAPH_GOERLI
-const SUBGRAPH_SEPOLIA = process.env.REACT_APP_SUBGRAPH_SEPOLIA
-const SUBGRAPH_POLYGON = process.env.REACT_APP_SUBGRAPH_POLYGON
-const SUBGRAPH_ARBITRUM = process.env.REACT_APP_SUBGRAPH_ARBITRUM
-const SUBGRAPH_OPTIMISM = process.env.REACT_APP_SUBGRAPH_OPTIMISM
-const SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN = process.env.REACT_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN
-const ENS_SUBGRAPH_MAINNET = process.env.REACT_APP_ENS_SUBGRAPH_MAINNET
-const ENS_SUBGRAPH_GOERLI = process.env.REACT_APP_ENS_SUBGRAPH_GOERLI
+const BASE_SUBGRAPH_URL = import.meta.env.VITE_APP_SUBGRAPH_BASE_URL
+const SUBGRAPH_GNOSIS_CHAIN = import.meta.env.VITE_APP_SUBGRAPH_GNOSIS_CHAIN
+const SUBGRAPH_MAINNET = import.meta.env.VITE_APP_SUBGRAPH_MAINNET
+const SUBGRAPH_GOERLI = import.meta.env.VITE_APP_SUBGRAPH_GOERLI
+const SUBGRAPH_SEPOLIA = import.meta.env.VITE_APP_SUBGRAPH_SEPOLIA
+const SUBGRAPH_POLYGON = import.meta.env.VITE_APP_SUBGRAPH_POLYGON
+const SUBGRAPH_ARBITRUM = import.meta.env.VITE_APP_SUBGRAPH_ARBITRUM
+const SUBGRAPH_OPTIMISM = import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM
+const SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN = import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN
+const ENS_SUBGRAPH_MAINNET = import.meta.env.VITE_APP_ENS_SUBGRAPH_MAINNET
+const ENS_SUBGRAPH_GOERLI = import.meta.env.VITE_APP_ENS_SUBGRAPH_GOERLI
 
 const getUrl = (chainId?: number) => {
   switch (chainId) {
