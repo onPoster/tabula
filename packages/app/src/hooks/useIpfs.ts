@@ -3,6 +3,7 @@ import { Pinning, PinningService } from "../models/pinning"
 import axios from "axios"
 import { useNotification } from "./useNotification"
 import { getClient } from "../services/ipfs"
+import { useIPFSContext } from "../services/ipfs/context"
 
 const IPFS_GATEWAY = import.meta.env.VITE_APP_IPFS_GATEWAY
 const INFURA_IPFS_API_KEY = import.meta.env.VITE_APP_INFURA_IPFS_API_KEY
@@ -31,6 +32,7 @@ export const useIpfs = (): IpfsFunctions => {
   const [isSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>("isSelectedHowToSaveArticle", undefined)
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [ipfsNodeEndpoint] = useLocalStorage("ipfsNodeEndpoint", undefined)
+  const { decodeCID } = useIPFSContext()
   const openNotification = useNotification()
   // TODO: keeping until we find a better way to handle this
   const getClientHack = async (ipfsNodeEndpoint?: string) => {
@@ -144,17 +146,22 @@ export const useIpfs = (): IpfsFunctions => {
     return path
   }
 
-  const getText = async (hash: string): Promise<string> => {
-    const client = await getClientHack(ipfsNodeEndpoint)
-    let str = ""
-    if (client) {
-      const res = client.cat(hash)
-      const decoder = new TextDecoder()
+  // const getText = async (hash: string): Promise<string> => {
+  //   const client = await getClientHack(ipfsNodeEndpoint)
+  //   let str = ""
+  //   if (client) {
+  //     const res = client.cat(hash)
+  //     const decoder = new TextDecoder()
 
-      for await (const val of res) {
-        str = str + decoder.decode(val)
-      }
-    }
+  //     for await (const val of res) {
+  //       str = str + decoder.decode(val)
+  //     }
+  //   }
+  //   return str
+  // }
+  // V2 with helia
+  const getText = async (hash: string): Promise<string> => {
+    const str = await decodeCID(hash)
     return str
   }
 

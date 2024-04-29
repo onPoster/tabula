@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { PublicationView } from "@/components/views/publication/PublicationView"
 import { Routes, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
@@ -17,15 +17,27 @@ import { RedirectOldRoute } from "@/components/commons/RedicrectOldRoute"
 import PreviewArticleView from "@/components/views/publication/PreviewArticleView"
 import { EnsProvider } from "@/services/ens/context"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import { useIPFSContext } from "@/services/ipfs/context"
 
 const App: React.FC = () => {
   const { chainId } = useWeb3ModalAccount()
 
   const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
+  const { helia, startHelia, startingHelia, decodeCID } = useIPFSContext()
 
   useEffect(() => {
     setCurrentSubgraphClient(subgraphClient(chainId))
   }, [chainId])
+
+  const initiateHelia = useCallback(async () => {
+    if (!helia && !startingHelia) {
+      await startHelia()
+    }
+  }, [helia, startingHelia, startHelia])
+
+  useEffect(() => {
+    initiateHelia()
+  }, [initiateHelia])
 
   return (
     <SnackbarProvider maxSnack={1}>

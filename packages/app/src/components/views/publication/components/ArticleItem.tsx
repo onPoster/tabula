@@ -90,6 +90,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     const fetchArticleContent = useCallback(async () => {
       try {
         const data = await decodeArticleContent()
+        console.log("data", data)
         if (data) {
           setArticleHtmlContent(data)
         }

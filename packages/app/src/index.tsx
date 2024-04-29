@@ -8,6 +8,7 @@ import { day } from "@/theme/day"
 import { Helmet } from "react-helmet"
 import ReactDOM from "react-dom/client"
 import { WalletProvider } from "@/connectors/WalletProvider"
+import { IPFSProvider } from "@/services/ipfs/context"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.Fragment>
@@ -25,8 +26,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <HashRouter>
       <ThemeProvider theme={day}>
         <WalletProvider>
-          <CssBaseline />
-          <App />
+          <IPFSProvider>
+            <CssBaseline />
+            <App />
+          </IPFSProvider>
         </WalletProvider>
       </ThemeProvider>
     </HashRouter>
