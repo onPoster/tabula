@@ -191,7 +191,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
 
   const handleEns = () => {
     if (chainId) {
-      if ([SupportedChainId.MAINNET, SupportedChainId.GOERLI, SupportedChainId.SEPOLIA].includes(chainId)) {
+      if ([SupportedChainId.MAINNET, SupportedChainId.SEPOLIA].includes(chainId)) {
         return setOpenENSModal(true)
       }
       return setOpenNetworkModal(true)

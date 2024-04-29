@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from "react"
 import { Button, CircularProgress, Grid, Stack, Typography } from "@mui/material"
-import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Article, Publication } from "../../models/publication"
 import { palette, typography } from "../../theme"
@@ -22,7 +21,7 @@ import { checkPinningRequirements } from "../../utils/pinning"
 import { PosterArticle, PosterUpdateArticle } from "../../services/poster/type"
 import { useNotification } from "../../hooks/useNotification"
 import { SupportedChainId, chainParameters } from "../../constants/chain"
-import { useWeb3Modal } from "@web3modal/ethers5/react"
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 type Props = {
   publication?: Publication
@@ -33,7 +32,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const openNotification = useNotification()
   const { open } = useWeb3Modal()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { account, active, chainId } = useWeb3React()
+  const { address, isConnected, chainId } = useWeb3ModalAccount()
   const navigate = useNavigate()
   const location = useLocation()
   const ipfs = useIpfs()
@@ -76,7 +75,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     chainId: publicationChainId,
     transactionCompleted,
   } = usePublication(publicationSlug || publication?.id || "")
-  const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
+  const parameters = chainParameters(chainId ? chainId : SupportedChainId.SEPOLIA)
   const URL = parameters && parameters.blockExplorerUrls[0]
   const [showSettingModal, setShowSettingModal] = useState<boolean>(false)
   const [show, setShow] = useState<boolean>(false)
@@ -300,7 +299,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
       hashArticle = await ipfs.uploadContent(draftArticleText)
     }
 
-    if (article && (publication || article.publication) && account) {
+    if (article && (publication || article.publication) && address) {
       setPublicationId(article.publication?.id ?? "")
       const id = publication?.id || article.publication?.id
 
@@ -318,7 +317,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         description,
         tags,
         image: articleThumbnail,
-        authors: [account],
+        authors: [address],
       }
 
       if (type === "new") {
@@ -408,7 +407,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             {createArticleIndexing || updateArticleIndexing ? "Indexing..." : "Publish"}
           </Button>
         </Stack>
-        {!active ? (
+        {!isConnected ? (
           <Button
             variant="outlined"
             sx={{
@@ -425,7 +424,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             Connect Wallet
           </Button>
         ) : (
-          account && (
+          address && (
             <Grid
               container
               flexDirection="column"
@@ -434,7 +433,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
               sx={{ position: "relative" }}
             >
               <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-                <WalletBadge hover address={account} />
+                <WalletBadge hover address={address} />
               </Grid>
 
               {show && (

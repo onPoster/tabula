@@ -10,12 +10,9 @@ if (!import.meta.env.VITE_APP_SUBGRAPH_GNOSIS_CHAIN) {
 if (!import.meta.env.VITE_APP_SUBGRAPH_MAINNET) {
   throw new Error("VITE_APP_SUBGRAPH_MAINNET is not set")
 }
-if (!import.meta.env.VITE_APP_SUBGRAPH_GOERLI) {
-  throw new Error("VITE_APP_SUBGRAPH_GOERLI is not set")
+if (!import.meta.env.VITE_APP_SUBGRAPH_SEPOLIA) {
+  throw new Error("VITE_APP_SUBGRAPH_SEPOLIA is not set")
 }
-// if (!import.meta.env.VITE_APP_SUBGRAPH_SEPOLIA) {
-//   throw new Error("VITE_APP_SUBGRAPH_SEPOLIA is not set")
-// }
 if (!import.meta.env.VITE_APP_SUBGRAPH_POLYGON) {
   throw new Error("VITE_APP_SUBGRAPH_POLYGON is not set")
 }
@@ -31,21 +28,17 @@ if (!import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN) {
 if (!import.meta.env.VITE_APP_ENS_SUBGRAPH_MAINNET) {
   throw new Error("VITE_APP_ENS_SUBGRAPH_MAINNET is not set")
 }
-if (!import.meta.env.VITE_APP_ENS_SUBGRAPH_GOERLI) {
-  throw new Error("VITE_APP_ENS_SUBGRAPH_GOERLI is not set")
-}
 
 const BASE_SUBGRAPH_URL = import.meta.env.VITE_APP_SUBGRAPH_BASE_URL
 const SUBGRAPH_GNOSIS_CHAIN = import.meta.env.VITE_APP_SUBGRAPH_GNOSIS_CHAIN
 const SUBGRAPH_MAINNET = import.meta.env.VITE_APP_SUBGRAPH_MAINNET
-const SUBGRAPH_GOERLI = import.meta.env.VITE_APP_SUBGRAPH_GOERLI
 const SUBGRAPH_SEPOLIA = import.meta.env.VITE_APP_SUBGRAPH_SEPOLIA
 const SUBGRAPH_POLYGON = import.meta.env.VITE_APP_SUBGRAPH_POLYGON
 const SUBGRAPH_ARBITRUM = import.meta.env.VITE_APP_SUBGRAPH_ARBITRUM
 const SUBGRAPH_OPTIMISM = import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM
 const SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN = import.meta.env.VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN
 const ENS_SUBGRAPH_MAINNET = import.meta.env.VITE_APP_ENS_SUBGRAPH_MAINNET
-const ENS_SUBGRAPH_GOERLI = import.meta.env.VITE_APP_ENS_SUBGRAPH_GOERLI
+const ENS_SUBGRAPH_SEPOLIA = import.meta.env.VITE_APP_ENS_SUBGRAPH_SEPOLIA
 
 const getUrl = (chainId?: number) => {
   switch (chainId) {
@@ -53,8 +46,6 @@ const getUrl = (chainId?: number) => {
       return BASE_SUBGRAPH_URL + SUBGRAPH_MAINNET
     case SupportedChainId.GNOSIS_CHAIN:
       return BASE_SUBGRAPH_URL + SUBGRAPH_GNOSIS_CHAIN
-    case SupportedChainId.GOERLI:
-      return BASE_SUBGRAPH_URL + SUBGRAPH_GOERLI
     case SupportedChainId.SEPOLIA:
       return BASE_SUBGRAPH_URL + SUBGRAPH_SEPOLIA
     case SupportedChainId.POLYGON:
@@ -66,7 +57,7 @@ const getUrl = (chainId?: number) => {
     case SupportedChainId.ARBITRUM:
       return BASE_SUBGRAPH_URL + SUBGRAPH_ARBITRUM
     default:
-      return BASE_SUBGRAPH_URL + SUBGRAPH_GOERLI
+      return BASE_SUBGRAPH_URL + SUBGRAPH_SEPOLIA
   }
 }
 
@@ -79,8 +70,8 @@ const getENSUrl = (chainId?: number) => {
     case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
     case SupportedChainId.ARBITRUM:
       return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_MAINNET
-    case SupportedChainId.GOERLI:
-      return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_GOERLI
+    case SupportedChainId.SEPOLIA:
+      return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_SEPOLIA
     default:
       return BASE_SUBGRAPH_URL + ENS_SUBGRAPH_MAINNET
   }

@@ -38,8 +38,8 @@ const usePoster = () => {
   const { pinAction } = useIpfs()
   const [isValidChain, setIsValidChain] = useState<boolean>(false)
   const [properlyNetwork, setProperlyNetwork] = useState<string | null>(null)
-  const parameters = chainParameters(chainId ? chainId : SupportedChainId.GOERLI)
-  const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
+  const parameters = chainParameters(chainId ? chainId : SupportedChainId.SEPOLIA)
+  const URL = parameters ? parameters.blockExplorerUrls[0] : "https://sepolia.etherscan.io/tx/"
 
   useEffect(() => {
     if (chainId != null) {

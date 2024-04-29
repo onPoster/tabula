@@ -15,7 +15,6 @@ import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 const publicResolvers: { [key in SupportedChainId]?: string } = {
   [SupportedChainId.SEPOLIA]: "0x8FADE66B79cC9f707aB26799354482EB93a5B7dD",
   [SupportedChainId.MAINNET]: "0x231b0ee14048e9dccd1d247744d114a4eb5e8e63",
-  [SupportedChainId.GOERLI]: "0xd7a4F6473f32aC2Af804B3686AE8F1932bC35750",
 }
 
 const INFURA_NETWORK_ACCESS_KEY = import.meta.env.VITE_APP_INFURA_NETWORK_ACCESS_KEY
@@ -95,7 +94,7 @@ export const useENS = () => {
       chainId: SupportedChainId,
     ) => {
       const parameters = chainParameters(chainId)
-      const URL = parameters ? parameters.blockExplorerUrls[0] : "https://goerli.etherscan.io/tx/"
+      const URL = parameters ? parameters.blockExplorerUrls[0] : "https://sepolia.etherscan.io/tx/"
       setLoading(true)
       const publicResolver = getPublicResolverAddress(chainId)
       if (!publicResolver) {

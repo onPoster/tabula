@@ -12,7 +12,6 @@ env:
   VITE_APP_SUBGRAPH_BASE_URL: https://api.thegraph.com/subgraphs/name/
   VITE_APP_SUBGRAPH_GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
   VITE_APP_SUBGRAPH_MAINNET: auryn-macmillan/tabula-mainnet
-  VITE_APP_SUBGRAPH_GOERLI: auryn-macmillan/tabula-goerli
   VITE_APP_SUBGRAPH_SEPOLIA: auryn-macmillan/tabula-sepolia
   VITE_APP_SUBGRAPH_POLYGON: auryn-macmillan/tabula-polygon
   VITE_APP_SUBGRAPH_ARBITRUM: auryn-macmillan/tabula-arbitrum
@@ -20,7 +19,7 @@ env:
   VITE_APP_SUBGRAPH_OPTIMISM_ON_GNOSIS_CHAIN: auryn-macmillan/tabula-optimism-on-gnosis-chain
   VITE_APP_IPFS_GATEWAY: https://ipfs.io/ipfs
   VITE_APP_ENS_SUBGRAPH_MAINNET: ensdomains/ens
-  VITE_APP_ENS_SUBGRAPH_GOERLI: ensdomains/ensgoerli
+  VITE_APP_ENS_SUBGRAPH_SEPOLIA: ensdomains/enssepolia
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -110,16 +109,10 @@ jobs:
           HOSTED_SERVICE_SUBGRAPH__GNOSIS_CHAIN: auryn-macmillan/tabula-gnosis-chain
         run: yarn deploy:gnosis-chain
 
-      - name: Deploy subgraph to Goerli
-        working-directory: packages/subgraph
-        env:
-          HOSTED_SERVICE_SUBGRAPH__GOERLI: auryn-macmillan/tabula-goerli
-        run: yarn deploy:goerli
-
       - name: Deploy subgraph to Sepolia
         working-directory: packages/subgraph
         env:
-          HOSTED_SERVICE_SUBGRAPH__GOERLI: auryn-macmillan/tabula-sepolia
+          HOSTED_SERVICE_SUBGRAPH__SEPOLIA: auryn-macmillan/tabula-sepolia
         run: yarn deploy:sepolia
 
       - name: Deploy subgraph to Polygon
