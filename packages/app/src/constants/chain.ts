@@ -1,11 +1,10 @@
-import { AbstractConnector } from "@web3-react/abstract-connector"
-import MainnetIcon from "../assets/images/networks/ethereum.png";
-import GoerliIcon from "../assets/images/networks/goerli.png";
-import GnosisChainIcon from "../assets/images/networks/gnosis-chain.png";
-import OptimismIcon from "../assets/images/networks/optimism.png";
-import ArbitrumIcon from "../assets/images/networks/arbitrum.png";
-import PolygonIcon from "../assets/images/networks/polygon.png";
-import OptimismOnGnosisChainIcon from "../assets/images/networks/optimism-on-gnosis-chain.png";
+import MainnetIcon from "@/assets/images/networks/ethereum.png"
+import GoerliIcon from "@/assets/images/networks/goerli.png"
+import GnosisChainIcon from "@/assets/images/networks/gnosis-chain.png"
+import OptimismIcon from "@/assets/images/networks/optimism.png"
+import ArbitrumIcon from "@/assets/images/networks/arbitrum.png"
+import PolygonIcon from "@/assets/images/networks/polygon.png"
+import OptimismOnGnosisChainIcon from "@/assets/images/networks/optimism-on-gnosis-chain.png"
 
 // This is the place to add support for new networks
 
@@ -33,20 +32,20 @@ export enum SupportedChain {
 
 export const SupportedChainIcon = (chainId: number) => {
   switch (chainId) {
-  case SupportedChainId.MAINNET: 
-    return MainnetIcon
-  case SupportedChainId.GNOSIS_CHAIN: 
-  return GnosisChainIcon
-  case SupportedChainId.GOERLI: 
-  return GoerliIcon
-  case SupportedChainId.POLYGON: 
-    return PolygonIcon
-  case SupportedChainId.ARBITRUM: 
-    return ArbitrumIcon
-  case SupportedChainId.OPTIMISM: 
-    return OptimismIcon
-  case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN: 
-    return OptimismOnGnosisChainIcon
+    case SupportedChainId.MAINNET:
+      return MainnetIcon
+    case SupportedChainId.GNOSIS_CHAIN:
+      return GnosisChainIcon
+    case SupportedChainId.GOERLI:
+      return GoerliIcon
+    case SupportedChainId.POLYGON:
+      return PolygonIcon
+    case SupportedChainId.ARBITRUM:
+      return ArbitrumIcon
+    case SupportedChainId.OPTIMISM:
+      return OptimismIcon
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+      return OptimismOnGnosisChainIcon
   }
 }
 
@@ -130,26 +129,26 @@ export const chainToString = (chainId: number) => {
   }
 }
 
-export const switchChain = async (connector: AbstractConnector, chainId: number) => {
-  const provider = await connector.getProvider()
-  const requiredChainIdHex = `0x${chainId.toString(16)}`
-  return provider!
-    .request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: requiredChainIdHex }],
-    })
-    .catch((error: any) => {
-      if (error.code === 4902) {
-        // the user's wallet does not have this network, we will request to add it
-        return provider!.request({
-          method: "wallet_addEthereumChain",
-          params: [chainParameters(chainId)],
-        })
-      }
+// export const switchChain = async (connector: AbstractConnector, chainId: number) => {
+//   const provider = await connector.getProvider()
+//   const requiredChainIdHex = `0x${chainId.toString(16)}`
+//   return provider!
+//     .request({
+//       method: "wallet_switchEthereumChain",
+//       params: [{ chainId: requiredChainIdHex }],
+//     })
+//     .catch((error: any) => {
+//       if (error.code === 4902) {
+//         // the user's wallet does not have this network, we will request to add it
+//         return provider!.request({
+//           method: "wallet_addEthereumChain",
+//           params: [chainParameters(chainId)],
+//         })
+//       }
 
-      throw error
-    })
-}
+//       throw error
+//     })
+// }
 
 export const chainParameters = (chainId: number) => {
   const requiredChainIdHex = `0x${chainId.toString(16)}`
@@ -204,11 +203,7 @@ export const chainParameters = (chainId: number) => {
       return {
         chainId: requiredChainIdHex,
         chainName: "Sepolia",
-        rpcUrls: [
-          "https://rpc.sepolia.org",
-          "https://rpc2.sepolia.org",
-          "https://rpc-sepolia.rockx.com"
-        ],
+        rpcUrls: ["https://rpc.sepolia.org", "https://rpc2.sepolia.org", "https://rpc-sepolia.rockx.com"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",

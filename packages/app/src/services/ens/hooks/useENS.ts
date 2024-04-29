@@ -1,22 +1,27 @@
 import { useState, useCallback } from "react"
 import { ethers } from "ethers"
-import { SupportedChainId, chainParameters } from "../../../constants/chain"
-import { INFURA_NETWORK_ACCESS_KEY } from "../../../connectors"
-import { abiImplementation, abiPublicResolver, abiRegistry } from "../contracts/abi"
-import { useNotification } from "../../../hooks/useNotification"
+import { SupportedChainId, chainParameters } from "@/constants/chain"
+import { abiImplementation, abiPublicResolver, abiRegistry } from "@/services/ens/contracts/abi"
+import { useNotification } from "@/hooks/useNotification"
 import { TransactionReceipt } from "@ethersproject/providers"
-import { GET_ENS_NAMES_QUERY } from "../queries"
-import { ensSubgraphClient } from "../../graphql"
-import { useWeb3React } from "@web3-react/core"
-import { DropdownOption } from "../../../models/dropdown"
-import { useEnsContext } from "../context"
+import { GET_ENS_NAMES_QUERY } from "@/services/ens/queries"
+import { ensSubgraphClient } from "@/services/graphql"
+import { DropdownOption } from "@/models/dropdown"
+import { useEnsContext } from "@/services/ens/context"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 // Addresses obtained from:
-// https://discuss.ens.domains/t/namewrapper-updates-including-testnet-deployment-addresses/14505
+//discuss.ens.domains/t/namewrapper-updates-including-testnet-deployment-addresses/14505
 const publicResolvers: { [key in SupportedChainId]?: string } = {
   [SupportedChainId.SEPOLIA]: "0x8FADE66B79cC9f707aB26799354482EB93a5B7dD",
   [SupportedChainId.MAINNET]: "0x231b0ee14048e9dccd1d247744d114a4eb5e8e63",
   [SupportedChainId.GOERLI]: "0xd7a4F6473f32aC2Af804B3686AE8F1932bC35750",
+}
+
+const INFURA_NETWORK_ACCESS_KEY = import.meta.env.VITE_APP_INFURA_NETWORK_ACCESS_KEY
+
+if (typeof INFURA_NETWORK_ACCESS_KEY === "undefined") {
+  throw new Error(`VITE_APP_INFURA_NETWORK_ACCESS_KEY must be a defined environment variable`)
 }
 
 const ensRegistry = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" // ENS: Registry with Fallback (singleton, same address on different chains)
@@ -24,7 +29,8 @@ const ensImplementation = "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85" // ENS: B
 
 export const useENS = () => {
   const openNotification = useNotification()
-  const { chainId, account } = useWeb3React()
+  // const { chainId, account } = useWeb3React()
+  const { chainId, address } = useWeb3ModalAccount()
   const { setEnsNameList } = useEnsContext()
 
   const client = ensSubgraphClient(chainId)
@@ -33,7 +39,7 @@ export const useENS = () => {
 
   const fetchNames = async () => {
     client
-      .query(GET_ENS_NAMES_QUERY, { id: account?.toLowerCase() })
+      .query(GET_ENS_NAMES_QUERY, { id: address?.toLowerCase() })
       .toPromise()
       .then((result) => {
         const data = result.data

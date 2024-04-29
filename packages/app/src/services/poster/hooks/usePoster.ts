@@ -1,11 +1,9 @@
 import { TransactionReceipt } from "@ethersproject/providers"
-import { useWeb3React } from "@web3-react/core"
 import { useCallback, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { useIpfs } from "../../../hooks/useIpfs"
-import { useNotification } from "../../../hooks/useNotification"
-import { useWallet } from "../../../hooks/useWallet"
-import { checkIsValidChain } from "../../../utils/validation"
+import { useIpfs } from "@/hooks/useIpfs"
+import { useNotification } from "@/hooks/useNotification"
+import { checkIsValidChain } from "@/utils/validation"
 import { usePosterContext } from "../context"
 import { getContract } from "../contracts/contract"
 import {
@@ -16,10 +14,12 @@ import {
   PosterUpdateArticle,
   Publication,
 } from "../type"
-import { chainParameters, SupportedChainId } from "../../../constants/chain"
+import { chainParameters, SupportedChainId } from "@/constants/chain"
 import usePublication from "../../publications/hooks/usePublication"
-import useLocalStorage from "../../../hooks/useLocalStorage"
-import { Pinning, PinningService } from "../../../models/pinning"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { Pinning, PinningService } from "@/models/pinning"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import { useWalletContext } from "@/connectors/WalletProvider"
 
 const PUBLICATION_TAG = "PUBLICATION"
 const POSTER_CONTRACT = import.meta.env.VITE_APP_POSTER_CONTRACT
@@ -29,10 +29,11 @@ const usePoster = () => {
   const { chainId: publicationChainId } = usePublication(publicationSlug ?? "")
   const openNotification = useNotification()
   const { setTransactionUrl } = usePosterContext()
-  const { chainId } = useWeb3React()
+  // const { chainId } = useWeb3React()
+  const { chainId } = useWeb3ModalAccount()
+  const { signer } = useWalletContext()
   const contract = getContract(POSTER_CONTRACT as string)
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const { signer } = useWallet()
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useIpfs()
   const [isValidChain, setIsValidChain] = useState<boolean>(false)
@@ -68,16 +69,11 @@ const usePoster = () => {
 
   const executeTransaction = useCallback(
     async (content: any): Promise<any> => {
-      if (!isValidChain) {
+      console.log("entre")
+      if (!signer) {
         showChainError()
         return { error: true }
       }
-
-      if (!signer) {
-        // Handle case where signer is not available
-        return { error: true }
-      }
-
       setLoading(true)
       const poster = contract.connect(signer)
       try {
@@ -94,7 +90,7 @@ const usePoster = () => {
         return { error: true, message: error.message }
       }
     },
-    [isValidChain, signer, contract, showChainError, setTransactionUrl, URL, showTransactionError],
+    [signer, contract, showChainError, setTransactionUrl, URL, showTransactionError],
   )
 
   const executePublication = useCallback(

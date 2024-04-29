@@ -1,16 +1,15 @@
 import React from "react"
-import ReactDOM from "react-dom"
-import App from "./App"
+import App from "@/App"
 import { HashRouter } from "react-router-dom"
-import "./index.css"
-import "./draft.css"
+import "@/index.css"
+import "@/draft.css"
 import { CssBaseline, ThemeProvider } from "@mui/material"
-import { day } from "./theme/day"
-import { Web3ReactProvider } from "@web3-react/core"
-import { getLibrary } from "./config"
+import { day } from "@/theme/day"
 import { Helmet } from "react-helmet"
+import ReactDOM from "react-dom/client"
+import { WalletProvider } from "@/connectors/WalletProvider"
 
-ReactDOM.render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.Fragment>
     <Helmet>
       <meta property="og:title" content="Tabula" />
@@ -23,14 +22,13 @@ ReactDOM.render(
       <meta property="og:url" content="https://tabula.gg" />
       <meta property="og:image" content="https://tabula.gg/image.jpg" />
     </Helmet>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <HashRouter>
-        <ThemeProvider theme={day}>
+    <HashRouter>
+      <ThemeProvider theme={day}>
+        <WalletProvider>
           <CssBaseline />
           <App />
-        </ThemeProvider>
-      </HashRouter>
-    </Web3ReactProvider>
+        </WalletProvider>
+      </ThemeProvider>
+    </HashRouter>
   </React.Fragment>,
-  document.getElementById("root"),
 )

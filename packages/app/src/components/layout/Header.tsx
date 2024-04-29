@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "react-router-dom"
 import { Box, Button, Container, Grid } from "@mui/material"
 import { makeStyles } from "@mui/styles"
-import { ReactComponent as Logo } from "../../assets/images/tabula-logo-wordmark.svg"
-import { useWeb3React } from "@web3-react/core"
-import { WalletBadge } from "../commons/WalletBadge"
+import { ReactComponent as Logo } from "@/assets/images/tabula-logo-wordmark.svg"
+import { WalletBadge } from "@/components/commons/WalletBadge"
 
-import { useRef, useState } from "react"
-import { UserOptions } from "../commons/UserOptions"
-// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+import { useEffect, useRef, useState } from "react"
+import { UserOptions } from "@/components/commons/UserOptions"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import { useWeb3Modal } from "@web3modal/ethers5/react"
 
 const useStyles = makeStyles(() => ({
   logo: {
@@ -30,17 +30,19 @@ type Props = {
 }
 
 const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
-  const { account, active } = useWeb3React()
+  const { address, isConnected } = useWeb3ModalAccount()
+
+  const { open } = useWeb3Modal()
   const navigate = useNavigate()
   const classes = useStyles()
   const [show, setShow] = useState<boolean>(false)
   const ref = useRef<React.Ref<unknown> | undefined>()
 
-  // useOnClickOutside(ref, () => {
-  //   if (show) {
-  //     setShow(!show)
-  //   }
-  // })
+  useEffect(() => {
+    if (isConnected) {
+      navigate(`/publications`)
+    }
+  }, [isConnected, navigate])
 
   return (
     <Container
@@ -61,7 +63,7 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
         </Box>
       </Link>
 
-      {account && showBadge && (
+      {address && showBadge && (
         <Grid
           container
           flexDirection="column"
@@ -70,7 +72,7 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
           sx={{ position: "relative" }}
         >
           <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-            <WalletBadge hover address={account} />
+            <WalletBadge hover address={address} />
           </Grid>
           {show && (
             <Grid item sx={{ position: "absolute", top: 45 }}>
@@ -82,8 +84,8 @@ const Header: React.FC<Props> = ({ logoColor, showBadge }) => {
         </Grid>
       )}
 
-      {!active && (
-        <Button variant="contained" onClick={() => navigate("/wallet")}>
+      {!isConnected && (
+        <Button variant="contained" onClick={() => open()}>
           Connect Wallet
         </Button>
       )}

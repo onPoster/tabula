@@ -6,16 +6,15 @@ import { usePublicationContext } from "../../../../services/publications/context
 import PermissionItem from "../../../commons/PermissionItem"
 import { useNavigate } from "react-router-dom"
 import { haveActionPermission, usersWithPermissions } from "../../../../utils/permission"
-
-import { useWeb3React } from "@web3-react/core"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 export const PermissionSection: React.FC = () => {
   const navigate = useNavigate()
-  const { account } = useWeb3React()
+  const { address } = useWeb3ModalAccount()
   const { publication, savePermission } = usePublicationContext()
   const permissions = publication?.permissions || []
   const usersPermissions = usersWithPermissions(permissions)
-  const havePermissionToEdit = haveActionPermission(permissions, "publicationPermissions", account || "")
+  const havePermissionToEdit = haveActionPermission(permissions, "publicationPermissions", address || "")
   return (
     <Container maxWidth="sm">
       {/* <Grid container justifyContent="space-between" alignItems={"center"} my={4}>

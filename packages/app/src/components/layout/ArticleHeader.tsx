@@ -22,6 +22,7 @@ import { checkPinningRequirements } from "../../utils/pinning"
 import { PosterArticle, PosterUpdateArticle } from "../../services/poster/type"
 import { useNotification } from "../../hooks/useNotification"
 import { SupportedChainId, chainParameters } from "../../constants/chain"
+import { useWeb3Modal } from "@web3modal/ethers5/react"
 
 type Props = {
   publication?: Publication
@@ -30,6 +31,7 @@ type Props = {
 
 const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const openNotification = useNotification()
+  const { open } = useWeb3Modal()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { account, active, chainId } = useWeb3React()
   const navigate = useNavigate()
@@ -418,7 +420,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
                 boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
               },
             }}
-            onClick={() => navigate(`/wallet?publicationChainId=${publicationChainId}`)}
+            onClick={() => open()}
           >
             Connect Wallet
           </Button>

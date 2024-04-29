@@ -1,18 +1,9 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  FormHelperText,
-  Grid,
-  InputLabel,
-  TextField,
-} from "@mui/material"
+import { Box, Button, CircularProgress, Container, FormHelperText, Grid, InputLabel, TextField } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { usePublicationContext } from "../../../../services/publications/contexts"
 import { palette } from "../../../../theme"
-import { yupResolver } from "@hookform/resolvers/yup"
+// import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import { useIpfs } from "../../../../hooks/useIpfs"
 import usePoster from "../../../../services/poster/hooks/usePoster"
@@ -26,9 +17,10 @@ import { Pinning, PinningService } from "../../../../models/pinning"
 import { useEnsContext } from "../../../../services/ens/context"
 import EnsModal from "./EnsModal"
 import useENS from "../../../../services/ens/hooks/useENS"
-import { useWeb3React } from "@web3-react/core"
-import NetworkModal from "../../../commons/NetworkModal"
+// import { useWeb3React } from "@web3-react/core"
+
 import { SupportedChainId } from "../../../../constants/chain"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 type Post = {
   title: string
@@ -50,7 +42,7 @@ const publicationSchema = yup.object().shape({
 export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, couldEdit }) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const navigate = useNavigate()
-  const { chainId } = useWeb3React()
+  const { chainId } = useWeb3ModalAccount()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [tags, setTags] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
@@ -82,7 +74,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
     setValue,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(publicationSchema),
+    // resolver: yupResolver(publicationSchema),
   })
 
   useEffect(() => {
@@ -283,7 +275,6 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                 </Button>
               </Grid>
             )}
-            <NetworkModal open={openNetworkModal} onClose={() => setOpenNetworkModal(false)} />
             {ensNameList && (
               <EnsModal
                 open={openENSModal}

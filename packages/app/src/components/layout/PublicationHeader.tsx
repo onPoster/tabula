@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material"
-import { useWeb3React } from "@web3-react/core"
 import { WalletBadge } from "../commons/WalletBadge"
 import { Publication } from "../../models/publication"
 import AddIcon from "@mui/icons-material/Add"
@@ -16,6 +15,7 @@ import isIPFS from "is-ipfs"
 import Avatar from "../commons/Avatar"
 import { useIpfs } from "../../hooks/useIpfs"
 import { processArticleContent } from "../../utils/modifyHTML"
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 type Props = {
   articleId?: string
@@ -35,7 +35,7 @@ const ItemContainer = styled(Grid)({
 const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreatePost, showEditButton }) => {
   const ipfs = useIpfs()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { account, active } = useWeb3React()
+  const { address, isConnected } = useWeb3ModalAccount()
   const navigate = useNavigate()
   const location = useLocation()
   const { savePublication } = usePublicationContext()
@@ -48,6 +48,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
     setDraftArticleThumbnail,
     setArticleEditorState,
   } = useArticleContext()
+  const { open } = useWeb3Modal()
   const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
@@ -66,8 +67,8 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
     }
   }, [location, setCurrentPath])
 
-  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
-  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
+  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", address || "") : false
+  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", address || "") : false
 
   const handleNavigation = () => {
     refetch()
@@ -127,7 +128,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
         <Grid item>
           <ItemContainer container>
             <Grid item>
-              {account && (
+              {address && (
                 <Grid
                   container
                   flexDirection="column"
@@ -136,7 +137,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                   sx={{ position: "relative" }}
                 >
                   <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-                    <WalletBadge hover address={account} />
+                    <WalletBadge hover address={address} />
                   </Grid>
                   {show && (
                     <Grid item sx={{ position: "absolute", top: 45 }}>
@@ -187,7 +188,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
           </ItemContainer>
         </Grid>
 
-        {!active && (
+        {!isConnected && (
           <Button
             variant="outlined"
             sx={{
@@ -199,7 +200,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                 boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
               },
             }}
-            onClick={() => navigate(`/wallet?publicationChainId=${publicationChainId}`)}
+            onClick={() => open()}
           >
             Connect Wallet
           </Button>

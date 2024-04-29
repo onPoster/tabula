@@ -4,9 +4,9 @@ import { palette, typography } from "../../../../theme"
 import { ViewContainer } from "../../../commons/ViewContainer"
 import CloseIcon from "@mui/icons-material/Close"
 import { useEnsContext } from "../../../../services/ens/context"
-import { useWeb3React } from "@web3-react/core"
 import useENS from "../../../../services/ens/hooks/useENS"
 import { Dropdown } from "../../../commons/Dropdown"
+import { useWeb3ModalAccount, useWeb3ModalProvider } from "@web3modal/ethers5/react"
 
 interface EnsModalProps extends Omit<ModalProps, "children"> {
   publicationId: string
@@ -25,7 +25,9 @@ const ModalContainer = styled(ViewContainer)({
 
 const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
   const { setTextRecord, loading, transactionCompleted } = useENS()
-  const { connector, chainId } = useWeb3React()
+  // const { connector, chainId } = useWeb3React()
+  const { chainId } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
   const ref = useRef(null)
   const { ensNameList } = useEnsContext()
   const [ensNameSelected, setEnsNameSelected] = useState<string>("")
@@ -37,9 +39,8 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
   }, [props, transactionCompleted])
 
   const handleEnsRecord = async () => {
-    const provider = await connector?.getProvider()
-    if (provider !== null && ensNameSelected && chainId) {
-      await setTextRecord(provider, publicationId, ensNameSelected, chainId)
+    if (walletProvider && ensNameSelected && chainId) {
+      await setTextRecord(walletProvider, publicationId, ensNameSelected, chainId)
     }
   }
 

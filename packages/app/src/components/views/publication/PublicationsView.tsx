@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react"
 import { Button, Divider, Grid, styled, TextField, Typography, CircularProgress, FormHelperText } from "@mui/material"
-import Page from "../../layout/Page"
-import { palette, typography } from "../../../theme"
-import PublicationAvatar from "../../commons/PublicationAvatar"
-import PublicationItem from "../../commons/PublicationItem"
-import { useIpfs } from "../../../hooks/useIpfs"
-import usePoster from "../../../services/poster/hooks/usePoster"
-import { yupResolver } from "@hookform/resolvers/yup"
+import Page from "@/components/layout/Page"
+import { palette, typography } from "@/theme"
+import PublicationAvatar from "@/components/commons/PublicationAvatar"
+import PublicationItem from "@/components/commons/PublicationItem"
+import { useIpfs } from "@/hooks/useIpfs"
+import usePoster from "@/services/poster/hooks/usePoster"
+// import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import * as yup from "yup"
-import { Publication } from "../../../models/publication"
-import { useWeb3React } from "@web3-react/core"
+import { Publication } from "@/models/publication"
 import { useNavigate } from "react-router-dom"
-import { accessPublications } from "../../../utils/permission"
-import { ViewContainer } from "../../commons/ViewContainer"
-import usePublications from "../../../services/publications/hooks/usePublications"
-import { CreatableSelect } from "../../commons/CreatableSelect"
-import { CreateSelectOption } from "../../../models/dropdown"
-import { usePosterContext } from "../../../services/poster/context"
-import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
-import { usePublicationContext } from "../../../services/publications/contexts"
-import useLocalStorage from "../../../hooks/useLocalStorage"
-import { Pinning } from "../../../models/pinning"
-import { checkPinningRequirements } from "../../../utils/pinning"
+import { accessPublications } from "@/utils/permission"
+import { ViewContainer } from "@/components/commons/ViewContainer"
+import usePublications from "@/services/publications/hooks/usePublications"
+import { CreatableSelect } from "@/components/commons/CreatableSelect"
+import { CreateSelectOption } from "@/models/dropdown"
+import { usePosterContext } from "@/services/poster/context"
+import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
+import { usePublicationContext } from "@/services/publications/contexts"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { Pinning } from "@/models/pinning"
+import { checkPinningRequirements } from "@/utils/pinning"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -70,14 +70,12 @@ type Post = {
   description?: string
 }
 
-interface PublicationsViewProps {
-  updateChainId: (chainId: number) => void
-}
+interface PublicationsViewProps {}
 
-export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainId }) => {
+export const PublicationsView: React.FC<PublicationsViewProps> = () => {
   const navigate = useNavigate()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  const { account, chainId } = useWeb3React()
+  const { address } = useWeb3ModalAccount()
   const { executePublication } = usePoster()
   const { setLastPathWithChainName } = usePosterContext()
   useDynamicFavIcon(undefined)
@@ -100,15 +98,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(publicationSchema),
-  })
-
-  useEffect(() => {
-    if (chainId != null) {
-      updateChainId(chainId)
-    }
-  }, [chainId, updateChainId])
+  } = useForm()
 
   useEffect(() => {
     setLastPathWithChainName(undefined)
@@ -121,10 +111,10 @@ export const PublicationsView: React.FC<PublicationsViewProps> = ({ updateChainI
   }, [publications, executeQuery])
 
   useEffect(() => {
-    if (publications && publications.length && account) {
-      handlePublicationsToShow(publications, account)
+    if (publications && publications.length && address) {
+      handlePublicationsToShow(publications, address)
     }
-  }, [publications, account])
+  }, [publications, address])
 
   useEffect(() => {
     setPublicationAvatar(undefined)
