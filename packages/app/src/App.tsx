@@ -23,21 +23,18 @@ const App: React.FC = () => {
   const { chainId } = useWeb3ModalAccount()
 
   const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
-  const { helia, startHelia, startingHelia, decodeCID } = useIPFSContext()
+  const { startIpfsClientInstance } = useIPFSContext()
 
   useEffect(() => {
     setCurrentSubgraphClient(subgraphClient(chainId))
   }, [chainId])
 
-  const initiateHelia = useCallback(async () => {
-    if (!helia && !startingHelia) {
-      await startHelia()
-    }
-  }, [helia, startingHelia, startHelia])
-
   useEffect(() => {
-    initiateHelia()
-  }, [initiateHelia])
+    const initIPFS = async () => {
+      await startIpfsClientInstance()
+    }
+    initIPFS()
+  }, [startIpfsClientInstance])
 
   return (
     <SnackbarProvider maxSnack={1}>

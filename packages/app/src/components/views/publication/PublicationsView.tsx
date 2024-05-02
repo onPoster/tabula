@@ -139,26 +139,27 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
 
   const handlePublication = async (data: Post) => {
     setLoading(true)
-    const { title, description } = data
+    // const { title, description } = data
     let image
     if (publicationImg && checkPinningRequirements(pinning)) {
       image = await ipfs.uploadContent(publicationImg)
     }
-    if (title) {
-      await executePublication({
-        action: "publication/create",
-        title,
-        description,
-        tags,
-        image: image?.path,
-      }).then((res) => {
-        if (res && res.error) {
-          setLoading(false)
-        } else {
-          setExecutePollInterval(true)
-        }
-      })
-    }
+    console.log("image", image)
+    // if (title) {
+    //   await executePublication({
+    //     action: "publication/create",
+    //     title,
+    //     description,
+    //     tags,
+    //     image: image?.path,
+    //   }).then((res) => {
+    //     if (res && res.error) {
+    //       setLoading(false)
+    //     } else {
+    //       setExecutePollInterval(true)
+    //     }
+    //   })
+    // }
   }
 
   const handleTags = (items: CreateSelectOption[]) => {

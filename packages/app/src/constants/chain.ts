@@ -31,6 +31,8 @@ export const SupportedChainIcon = (chainId: number) => {
   switch (chainId) {
     case SupportedChainId.MAINNET:
       return MainnetIcon
+    case SupportedChainId.SEPOLIA:
+      return MainnetIcon
     case SupportedChainId.GNOSIS_CHAIN:
       return GnosisChainIcon
     case SupportedChainId.POLYGON:

@@ -8,7 +8,7 @@ import { GET_ENS_NAMES_QUERY } from "@/services/ens/queries"
 import { ensSubgraphClient } from "@/services/graphql"
 import { DropdownOption } from "@/models/dropdown"
 import { useEnsContext } from "@/services/ens/context"
-import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import { useWeb3ModalAccount, useWeb3ModalProvider } from "@web3modal/ethers5/react"
 
 // Addresses obtained from:
 //discuss.ens.domains/t/namewrapper-updates-including-testnet-deployment-addresses/14505
@@ -30,7 +30,8 @@ export const useENS = () => {
   const openNotification = useNotification()
   // const { chainId, account } = useWeb3React()
   const { chainId, address } = useWeb3ModalAccount()
-  const { setEnsNameList } = useEnsContext()
+  const { walletProvider } = useWeb3ModalProvider()
+  const { setEnsNameList, ensClientInstance } = useEnsContext()
 
   const client = ensSubgraphClient(chainId)
   const [loading, setLoading] = useState(false)
@@ -55,36 +56,54 @@ export const useENS = () => {
     return publicResolvers[chainId]
   }, [])
 
-  const getTextRecordContentInfura = useCallback(async (ensName: string, textRecordKey: string) => {
-    const provider = new ethers.providers.InfuraProvider("mainnet", INFURA_NETWORK_ACCESS_KEY)
-    const resolver = await provider.getResolver(ensName)
-    return resolver?.getText(textRecordKey)
-  }, [])
+  // const getTextRecordContentInfura = async (ensName: string, textRecordKey: string) => {
+  //   let chainName = "mainnet"
+  //   if (chainId === SupportedChainId.SEPOLIA) {
+  //     chainName = "sepolia"
+  //   }
+  //   const provider = new ethers.providers.JsonRpcProvider(
+  //     `https://${chainName}.infura.io/v3/${INFURA_NETWORK_ACCESS_KEY}`,
+  //   )
+  //   console.log("provider", provider)
+  //   const resolver = await provider.getResolver(ensName)
+  //   return resolver?.getText(textRecordKey)
+  // }
 
-  const getTextRecordContent = useCallback(
-    async (ensName: string, textRecordKey: string, provider?: ethers.providers.BaseProvider) => {
-      if (!provider) {
-        return getTextRecordContentInfura(ensName, textRecordKey)
-      }
+  const getTextRecordContent = async (ensName: string) => {
+    // if (!walletProvider) {
+    //   const infuraRecord = await getTextRecordContentInfura(ensName, "tabula")
 
-      try {
-        const resolver = await provider.getResolver(ensName)
-        return resolver?.getText(textRecordKey)
-      } catch (e) {
-        return getTextRecordContentInfura(ensName, textRecordKey)
-      }
-    },
-    [getTextRecordContentInfura],
-  )
-
-  const lookupAddress = useCallback(async (provider: ethers.providers.ExternalProvider, address: string) => {
-    try {
-      const web3Provider = new ethers.providers.Web3Provider(provider)
-      return await web3Provider.lookupAddress(address)
-    } catch (e) {
-      console.log("ENS is not supported on this network")
+    //   console.log("infuraRecord", infuraRecord)
+    // }
+    if (ensClientInstance) {
+      const ensRecords = await ensClientInstance.getTextRecord({ name: ensName, key: "tabula" })
+      return ensRecords
     }
-  }, [])
+  }
+  // const getTextRecordContent = useCallback(
+  //   async (ensName: string, textRecordKey: string, provider?: ethers.providers.BaseProvider) => {
+  //     if (!provider) {
+  //       return getTextRecordContentInfura(ensName, textRecordKey)
+  //     }
+
+  //     try {
+  //       const resolver = await provider.getResolver(ensName)
+  //       return resolver?.getText(textRecordKey)
+  //     } catch (e) {
+  //       return getTextRecordContentInfura(ensName, textRecordKey)
+  //     }
+  //   },
+  //   [getTextRecordContentInfura],
+  // )
+
+  // const lookupAddress = useCallback(async (provider: ethers.providers.ExternalProvider, address: string) => {
+  //   try {
+  //     const web3Provider = new ethers.providers.Web3Provider(provider)
+  //     return await web3Provider.lookupAddress(address)
+  //   } catch (e) {
+  //     console.log("ENS is not supported on this network")
+  //   }
+  // }, [])
 
   const setTextRecord = useCallback(
     async (
@@ -168,7 +187,7 @@ export const useENS = () => {
 
   return {
     getTextRecordContent,
-    lookupAddress,
+    // lookupAddress,
     checkIfIsController,
     checkIfIsOwner,
     setTextRecord,

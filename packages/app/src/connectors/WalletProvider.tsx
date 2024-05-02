@@ -8,6 +8,7 @@ import { ethers } from "ethers"
 export type WalletContextType = {
   web3modal: any
   signer: ethers.providers.JsonRpcSigner | null
+  provider: ethers.providers.Web3Provider | null
 }
 
 export type WalletProviderProps = {
@@ -27,11 +28,13 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
   })
 
   const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(null)
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
 
   useEffect(() => {
     if (walletProvider && !signer) {
       const provider = new ethers.providers.Web3Provider(walletProvider)
       const signer = provider.getSigner()
+      setProvider(provider)
       setSigner(signer)
     }
   }, [signer, walletProvider])
@@ -41,6 +44,7 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
       value={{
         web3modal,
         signer,
+        provider,
       }}
     >
       {children}

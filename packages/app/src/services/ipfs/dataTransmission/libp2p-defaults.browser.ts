@@ -47,9 +47,10 @@ export function libp2pDefaults(): Libp2pOptions<DefaultLibp2pServices> {
       }),
       webRTC(),
       webRTCDirect(),
-      webTransport(),
+      // webTransport(),
       webSockets(),
     ],
+    //@ts-ignore
     contentRouters: [ipniContentRouting("https://cid.contact")],
     connectionEncryption: [noise()],
     streamMuxers: [yamux(), mplex()],
