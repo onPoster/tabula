@@ -8,10 +8,12 @@ import { libp2pDefaults } from "@/services/ipfs/dataTransmission/libp2p-defaults
 // import { bootstrapConfig } from "@/services/ipfs/dataTransmission/bootstrappers"
 import { ImportCandidate, KuboRPCClient, create } from "kubo-rpc-client"
 import axios from "axios"
+import { PinataPinJobs } from "@/models/pinning"
+import { verifiedFetch } from "@helia/verified-fetch"
 
 const [useIPFSContext, IPFSContextProvider] = createGenericContext<IPFSContextType>()
 
-const PINATA_ENDPOINT = "https://api.pinata.cloud/pinning/pinByHash"
+const PINATA_ENDPOINT = "https://api.pinata.cloud/pinning"
 const INFURA_IPFS_API_KEY = import.meta.env.VITE_APP_INFURA_IPFS_API_KEY
 const INFURA_IPFS_API_KEY_SECRET = import.meta.env.VITE_APP_INFURA_IPFS_API_SECRET
 const PINATA_API_KEY = import.meta.env.VITE_APP_PINATA_API_KEY
@@ -31,6 +33,11 @@ if (PINATA_SECRET_API_KEY == null) {
 }
 
 const INFURA_AUTH = "Basic " + Buffer.from(`${INFURA_IPFS_API_KEY}:${INFURA_IPFS_API_KEY_SECRET}`).toString("base64")
+
+const PINATA_HEADERS = {
+  pinata_api_key: PINATA_API_KEY,
+  pinata_secret_api_key: PINATA_SECRET_API_KEY,
+}
 
 const IPFSProvider = ({ children }: IPFSProviderProps) => {
   const [helia, setHelia] = useState<Helia | undefined>(undefined)
@@ -121,18 +128,35 @@ const IPFSProvider = ({ children }: IPFSProviderProps) => {
       },
     }
 
-    const headers = {
-      pinata_api_key: PINATA_API_KEY,
-      pinata_secret_api_key: PINATA_SECRET_API_KEY,
-    }
     try {
-      const response = await axios.post(PINATA_ENDPOINT, body, { headers })
+      const response = await axios.post(`${PINATA_ENDPOINT}/pinByHash`, body, { headers: PINATA_HEADERS })
       console.log("Pinata Response:", response.data)
     } catch (error) {
       console.error("Error pinning the file", error)
     }
   }
 
+  const checkPinataPinStatus = async (cid: string) => {
+    try {
+      const response = await axios.get<PinataPinJobs>(`${PINATA_ENDPOINT}/pinJobs`, { headers: PINATA_HEADERS })
+      const item = response.data.rows.find((row) => row.ipfs_pin_hash === cid)
+      return item?.status
+    } catch (error) {
+      console.error("Error getting pinata status", error)
+    }
+  }
+
+  const generateIPFSImageUrl = async (cid: string) => {
+    const response = await verifiedFetch(cid, {
+      headers: {
+        accept: "image/png",
+      },
+    }) // CID for some image file
+    console.log(response.status)
+    console.log(response)
+    const blob = await response.blob()
+    return URL.createObjectURL(blob)
+  }
   // const encode = async (text: string): Promise<string | undefined> => {
   //   if (!helia) return
   //   if (fs && helia) {
@@ -178,6 +202,8 @@ const IPFSProvider = ({ children }: IPFSProviderProps) => {
         encodeIpfsHash,
         decodeIpfsHash,
         publicRemotePin,
+        checkPinataPinStatus,
+        generateIPFSImageUrl,
       }}
     >
       {children}

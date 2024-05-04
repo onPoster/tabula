@@ -22,3 +22,14 @@ export enum PinningServiceEndpoint {
   NONE = "",
   PUBLIC = "",
 }
+
+export interface PinataPinJobs {
+  count: number
+  rows: {
+    id: string
+    ipfs_pin_hash: string
+    date_queued: string
+    name: string
+    status: string
+  }[]
+}

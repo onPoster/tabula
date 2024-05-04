@@ -14,7 +14,6 @@ export const useWallet = () => {
     if (isConnected && !signer) {
       const getSigner = async () => {
         const provider = new ethers.providers.JsonRpcProvider(walletProvider as any)
-        console.log("provider", provider)
         const signer = provider.getSigner()
         setSigner(signer)
       }

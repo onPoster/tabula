@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from "react"
-import { Button, Divider, Grid, styled, TextField, Typography, CircularProgress, FormHelperText } from "@mui/material"
+import { Button, Divider, Grid, styled, TextField, Typography, CircularProgress } from "@mui/material"
 import Page from "@/components/layout/Page"
 import { palette, typography } from "@/theme"
 import PublicationAvatar from "@/components/commons/PublicationAvatar"
 import PublicationItem from "@/components/commons/PublicationItem"
 import { useIpfs } from "@/hooks/useIpfs"
-import usePoster from "@/services/poster/hooks/usePoster"
-// import { yupResolver } from "@hookform/resolvers/yup"
+import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
-import * as yup from "yup"
 import { Publication } from "@/models/publication"
 import { useNavigate } from "react-router-dom"
 import { accessPublications } from "@/utils/permission"
 import { ViewContainer } from "@/components/commons/ViewContainer"
 import usePublications from "@/services/publications/hooks/usePublications"
 import { CreatableSelect } from "@/components/commons/CreatableSelect"
-import { CreateSelectOption } from "@/models/dropdown"
 import { usePosterContext } from "@/services/poster/context"
 import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
 import { usePublicationContext } from "@/services/publications/contexts"
-import useLocalStorage from "@/hooks/useLocalStorage"
-import { Pinning } from "@/models/pinning"
-import { checkPinningRequirements } from "@/utils/pinning"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import { PublicationFormSchema, publicationSchema } from "@/schemas/publication.schema"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -58,13 +53,6 @@ const PublicationsDividerTextContainer = styled(Grid)({
   alignItems: "center",
 })
 
-const publicationSchema = yup.object().shape({
-  title: yup.string().required(),
-  tags: yup.array().min(1),
-  description: yup.string(),
-  image: yup.string(),
-})
-
 type Post = {
   title: string
   description?: string
@@ -74,41 +62,34 @@ interface PublicationsViewProps {}
 
 export const PublicationsView: React.FC<PublicationsViewProps> = () => {
   const navigate = useNavigate()
-  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  // const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { address } = useWeb3ModalAccount()
-  const { executePublication } = usePoster()
+  // const { encodeIpfsHash, decodeIpfsHash, generateIPFSImageUrl } = useIPFSContext()
   const { setLastPathWithChainName } = usePosterContext()
   useDynamicFavIcon(undefined)
-  const [loading, setLoading] = useState<boolean>(false)
-  const {
-    data: publications,
-    executeQuery,
-    indexing,
-    redirect,
-    lastPublicationId,
-    setLastPublicationTitle,
-    setExecutePollInterval,
-  } = usePublications()
+
+  const { data: publications, createNewPublication, txLoading, loading } = usePublications()
   const { setPublicationAvatar } = usePublicationContext()
-  const [tags, setTags] = useState<string[]>([])
   const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
   const [publicationImg, setPublicationImg] = useState<File>()
   const ipfs = useIpfs()
   const {
     control,
     handleSubmit,
-    formState: { errors },
-  } = useForm()
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(publicationSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      tags: [],
+      image: "",
+    },
+  })
 
   useEffect(() => {
     setLastPathWithChainName(undefined)
   }, [setLastPathWithChainName])
-
-  useEffect(() => {
-    if (!publications) {
-      executeQuery()
-    }
-  }, [publications, executeQuery])
 
   useEffect(() => {
     if (publications && publications.length && address) {
@@ -120,16 +101,8 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
     setPublicationAvatar(undefined)
   }, [setPublicationAvatar])
 
-  useEffect(() => {
-    if (redirect && lastPublicationId) {
-      setLoading(false)
-      navigate(`../${lastPublicationId}`)
-    }
-  }, [lastPublicationId, navigate, redirect])
-
-  const onSubmitHandler = (data: Post) => {
-    setLastPublicationTitle(data.title)
-    handlePublication(data)
+  const onSubmitHandler = async (data: Post) => {
+    await createNewPublication(data as PublicationFormSchema)
   }
 
   const handlePublicationsToShow = (publications: Publication[], address: string) => {
@@ -137,43 +110,41 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
     setPublicationsToShow(show)
   }
 
-  const handlePublication = async (data: Post) => {
-    setLoading(true)
-    // const { title, description } = data
-    let image
-    if (publicationImg && checkPinningRequirements(pinning)) {
-      image = await ipfs.uploadContent(publicationImg)
-    }
-    console.log("image", image)
-    // if (title) {
-    //   await executePublication({
-    //     action: "publication/create",
-    //     title,
-    //     description,
-    //     tags,
-    //     image: image?.path,
-    //   }).then((res) => {
-    //     if (res && res.error) {
-    //       setLoading(false)
-    //     } else {
-    //       setExecutePollInterval(true)
-    //     }
-    //   })
-    // }
-  }
+  // const handlePublication = async (data: Post) => {
+  //   console.log("data", data)
 
-  const handleTags = (items: CreateSelectOption[]) => {
-    if (items.length) {
-      const newTags = items.map((item) => item.value)
-      setTags(newTags)
-    } else {
-      setTags([])
-    }
-  }
-
+  //   // // setLoading(true)
+  //   // // const { title, description } = data
+  //   // let image
+  //   // if (publicationImg) {
+  //   //   // image = await encodeIpfsHash(publicationImg)
+  //   //   const decode = await generateIPFSImageUrl("iQmVrYgqBtbxyGPJMSWdo1nvXVhMBWeBfEzHQEZuFsrNA4e")
+  //   //   console.log("decode", decode)
+  //   // }
+  //   // // if (publicationImg && checkPinningRequirements(pinning)) {
+  //   // //   image = await ipfs.uploadContent(publicationImg)
+  //   // // }
+  //   // console.log("image", image)
+  //   // // if (title) {
+  //   // //   await executePublication({
+  //   // //     action: "publication/create",
+  //   // //     title,
+  //   // //     description,
+  //   // //     tags,
+  //   // //     image: image?.path,
+  //   // //   }).then((res) => {
+  //   // //     if (res && res.error) {
+  //   // //       setLoading(false)
+  //   // //     } else {
+  //   // //       setExecutePollInterval(true)
+  //   // //     }
+  //   // //   })
+  //   // // }
+  // }
+  console.log("publicationsToShow", publicationsToShow)
   return (
     <Page showBadge>
-      <form onSubmit={handleSubmit((data) => onSubmitHandler(data as Post))}>
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
         <ViewContainer maxWidth="sm">
           <Grid mt={10}>
             <Typography color={palette.secondary[1000]} variant="h2" fontFamily={typography.fontFamilies.sans}>
@@ -217,42 +188,55 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
               <Grid container flexDirection="column" gap={2}>
                 <Grid item>
                   <Controller
-                    defaultValue=""
                     control={control}
                     name="title"
                     render={({ field }) => (
-                      <TextField {...field} placeholder="Publication Name" sx={{ width: "100%" }} />
+                      <TextField
+                        {...field}
+                        placeholder="Publication Name"
+                        fullWidth
+                        error={!!errors.title}
+                        helperText={errors.title?.message}
+                      />
                     )}
-                    rules={{ required: true }}
                   />
-                  {errors && errors.title && (
-                    <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                      {errors.title.message as string}
-                    </FormHelperText>
-                  )}
                 </Grid>
 
                 <Controller
-                  defaultValue=""
                   control={control}
                   name="description"
-                  render={({ field }) => <TextField {...field} placeholder="Tagline" />}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      multiline
+                      rows={4}
+                      placeholder="Tagline"
+                      error={!!errors.description}
+                      helperText={errors.description?.message}
+                    />
+                  )}
                 />
-
-                <CreatableSelect
-                  placeholder="Add up to 5 tags for your publication..."
-                  onSelected={handleTags}
-                  limit={5}
-                  errorMsg={tags.length && tags.length >= 6 ? "Add up to 5 tags for your publication" : undefined}
+                <Controller
+                  control={control}
+                  name="tags"
+                  render={({ field, fieldState }) => (
+                    <CreatableSelect
+                      {...field}
+                      control={control}
+                      placeholder="Add up to 5 tags for your publication..."
+                      errorMsg={fieldState.error?.message}
+                    />
+                  )}
                 />
               </Grid>
             </Grid>
           </Grid>
 
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublicationsButton variant="contained" type="submit" disabled={loading || indexing || tags.length > 5}>
-              {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-              {indexing ? "Indexing..." : "Create Publication"}
+            <PublicationsButton variant="contained" type="submit" disabled={loading || txLoading || isSubmitting}>
+              {(loading || txLoading) && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+              Create Publication
             </PublicationsButton>
           </Grid>
         </ViewContainer>

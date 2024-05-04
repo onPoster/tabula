@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { PublicationView } from "@/components/views/publication/PublicationView"
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, useLocation } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
 import { Provider as UrqlProvider } from "urql"
 /** Views **/
@@ -18,16 +18,27 @@ import PreviewArticleView from "@/components/views/publication/PreviewArticleVie
 import { EnsProvider } from "@/services/ens/context"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 import { useIPFSContext } from "@/services/ipfs/context"
+import { CHAINS } from "@/config/network"
 
 const App: React.FC = () => {
-  const { chainId } = useWeb3ModalAccount()
-
-  const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(chainId))
+  const { chainId: userChainId } = useWeb3ModalAccount()
+  const location = useLocation()
+  const [currentSubgraphClient, setCurrentSubgraphClient] = useState(subgraphClient(userChainId))
   const { startIpfsClientInstance } = useIPFSContext()
 
   useEffect(() => {
-    setCurrentSubgraphClient(subgraphClient(chainId))
-  }, [chainId])
+    const pathParts = location.pathname.split("-")
+    let urlChainId = pathParts[0].replace("/", "")
+    console.log("urlChainId", urlChainId)
+    const validChainIds = CHAINS.map((chain) => chain.id.toString())
+
+    if (!validChainIds.includes(urlChainId) && userChainId) {
+      urlChainId = userChainId.toString()
+    }
+
+    const client = subgraphClient(parseInt(urlChainId))
+    setCurrentSubgraphClient(client)
+  }, [location, userChainId])
 
   useEffect(() => {
     const initIPFS = async () => {

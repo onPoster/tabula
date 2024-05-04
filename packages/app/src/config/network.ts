@@ -3,7 +3,7 @@ import { mainnet, gnosis, sepolia, polygon, arbitrum, optimism } from "viem/chai
 import type { Chain } from "@web3modal/scaffold-utils/ethers"
 export const PROJECT_ID = "6b3a2e6c039729542f51cff2bc96e43f"
 
-const CHAINS = [mainnet, gnosis, sepolia, polygon, arbitrum, optimism]
+export const CHAINS = [mainnet, gnosis, sepolia, polygon, arbitrum, optimism]
 
 export const getChains = (): Chain[] => {
   return CHAINS.map((chain) => {

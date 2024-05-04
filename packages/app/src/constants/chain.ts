@@ -159,7 +159,7 @@ export const chainParameters = (chainId: number) => {
           symbol: "ETH",
           decimals: 18,
         },
-        blockExplorerUrls: ["https://etherscan.io"],
+        blockExplorerUrls: ["https://etherscan.io/"],
       }
     case SupportedChainId.GNOSIS_CHAIN:
       return {

@@ -70,7 +70,7 @@ export const LandingView: React.FC = () => {
   const classes = useStyles()
   const navigate = useNavigate()
 
-  const handleInit = () => {
+  const handleInit = async () => {
     if (!isConnected) return open()
     navigate(`/publications`)
   }

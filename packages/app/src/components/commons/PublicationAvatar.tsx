@@ -1,13 +1,13 @@
 import { Avatar, Badge, Stack } from "@mui/material"
 import { styled } from "@mui/styles"
 import React, { ChangeEvent, useEffect, useRef, useState } from "react"
-import { palette, typography } from "../../theme"
+import { palette, typography } from "@/theme"
 import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
 import EditIcon from "@mui/icons-material/Edit"
-import { useIpfs } from "../../hooks/useIpfs"
-import { usePublicationContext } from "../../services/publications/contexts"
-import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
+import { useIpfs } from "@/hooks/useIpfs"
+import { usePublicationContext } from "@/services/publications/contexts"
+import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
 
 const SmallAvatar = styled(Avatar)({
   width: 40,

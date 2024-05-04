@@ -10,6 +10,8 @@ export type IPFSContextType = {
   encodeIpfsHash: (content: ImportCandidate) => Promise<string | undefined>
   decodeIpfsHash: (cid: string) => Promise<string>
   publicRemotePin: (cid: string, fileName: string) => Promise<void>
+  checkPinataPinStatus: (cid: string) => Promise<string | undefined>
+  generateIPFSImageUrl: (cid: string) => Promise<string>
 }
 
 export type IPFSProviderProps = {
