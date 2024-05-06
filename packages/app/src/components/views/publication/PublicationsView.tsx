@@ -4,7 +4,6 @@ import Page from "@/components/layout/Page"
 import { palette, typography } from "@/theme"
 import PublicationAvatar from "@/components/commons/PublicationAvatar"
 import PublicationItem from "@/components/commons/PublicationItem"
-import { useIpfs } from "@/hooks/useIpfs"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, Controller } from "react-hook-form"
 import { Publication } from "@/models/publication"
@@ -56,26 +55,15 @@ const PublicationsDividerTextContainer = styled(Grid)({
   alignItems: "center",
 })
 
-type Post = {
-  title: string
-  description?: string
-}
-
-interface PublicationsViewProps {}
-
-export const PublicationsView: React.FC<PublicationsViewProps> = () => {
+export const PublicationsView: React.FC = () => {
+  useDynamicFavIcon(undefined)
   const navigate = useNavigate()
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { address } = useWeb3ModalAccount()
-  // const { encodeIpfsHash, decodeIpfsHash, generateIPFSImageUrl } = useIPFSContext()
   const { setLastPathWithChainName } = usePosterContext()
-  useDynamicFavIcon(undefined)
-
   const { data: publications, createNewPublication, txLoading, loading } = usePublications()
   const { setPublicationAvatar } = usePublicationContext()
   const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
-  const [publicationImg, setPublicationImg] = useState<File>()
-  const ipfs = useIpfs()
   const {
     control,
     handleSubmit,

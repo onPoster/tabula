@@ -41,7 +41,7 @@ const ARTICLE_CONTENT = `
 `
 
 const PUBLICATIONS = `
-  publications {
+  publications(orderBy: lastUpdated, orderDirection: desc) {
     ${PUBLICATION_CONTENT}
   }
 `
@@ -73,7 +73,7 @@ export const GET_ARTICLE_QUERY = gql`
 
 export const GET_ARTICLES_QUERY = gql`
   query getArticles {
-    articles {
+    articles(orderBy: lastUpdated, orderDirection: desc) {
       ${ARTICLE_CONTENT}
     }
   }
