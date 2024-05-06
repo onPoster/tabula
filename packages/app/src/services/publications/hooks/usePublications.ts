@@ -10,6 +10,8 @@ import abi from "@/services/poster/contracts/abi"
 import { Action } from "@/utils/create-subgraph-id"
 import { useMonitorTransaction } from "@/hooks/useMonitorTransaction"
 import { useNavigate } from "react-router-dom"
+import { useIPFSContext } from "@/services/ipfs/context"
+import { generatePublicationBody } from "../utils/publication-methods"
 
 const POSTER_CONTRACT = import.meta.env.VITE_APP_POSTER_CONTRACT
 const POSTER_ABI = abi
@@ -17,6 +19,7 @@ const POSTER_METHOD = "post"
 
 const usePublications = () => {
   const openNotification = useNotification()
+  const { encodeIpfsHash, remotePin } = useIPFSContext()
   const navigate = useNavigate()
   // const { savePublications } = usePublicationContext()
   const { signer } = useWalletContext()
@@ -59,16 +62,12 @@ const usePublications = () => {
   const createNewPublication = async (fields: PublicationFormSchema) => {
     try {
       setTxLoading(true)
-      const result = await executeTransaction(
-        JSON.stringify({
-          action: "publication/create",
-          title: fields.title,
-          description: fields.description,
-          tags: fields.tags ?? [],
-        }),
-        "PUBLICATION",
-      )
+      const publicationBody = await generatePublicationBody(fields, encodeIpfsHash)
+      const result = await executeTransaction(JSON.stringify(publicationBody), "PUBLICATION")
       if (result.transactionIdTabulaFormat && result.transactionUrl) {
+        if (publicationBody.image && fields.image) {
+          await remotePin(publicationBody.image, `${result.transactionIdTabulaFormat}-${fields.image.name}`)
+        }
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,

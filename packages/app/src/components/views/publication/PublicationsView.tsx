@@ -18,6 +18,9 @@ import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
 import { usePublicationContext } from "@/services/publications/contexts"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 import { PublicationFormSchema, publicationSchema } from "@/schemas/publication.schema"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { Pinning, PinningService } from "@/models/pinning"
+import { AlertContainer } from "@/components/commons/Pinning/PinningConfiguration"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -62,7 +65,7 @@ interface PublicationsViewProps {}
 
 export const PublicationsView: React.FC<PublicationsViewProps> = () => {
   const navigate = useNavigate()
-  // const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { address } = useWeb3ModalAccount()
   // const { encodeIpfsHash, decodeIpfsHash, generateIPFSImageUrl } = useIPFSContext()
   const { setLastPathWithChainName } = usePosterContext()
@@ -76,6 +79,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(publicationSchema),
@@ -83,7 +87,7 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
       title: "",
       description: "",
       tags: [],
-      image: "",
+      image: undefined,
     },
   })
 
@@ -101,8 +105,8 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
     setPublicationAvatar(undefined)
   }, [setPublicationAvatar])
 
-  const onSubmitHandler = async (data: Post) => {
-    await createNewPublication(data as PublicationFormSchema)
+  const onSubmitHandler = async (newPublicationFields: PublicationFormSchema) => {
+    await createNewPublication(newPublicationFields)
   }
 
   const handlePublicationsToShow = (publications: Publication[], address: string) => {
@@ -110,38 +114,6 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
     setPublicationsToShow(show)
   }
 
-  // const handlePublication = async (data: Post) => {
-  //   console.log("data", data)
-
-  //   // // setLoading(true)
-  //   // // const { title, description } = data
-  //   // let image
-  //   // if (publicationImg) {
-  //   //   // image = await encodeIpfsHash(publicationImg)
-  //   //   const decode = await generateIPFSImageUrl("iQmVrYgqBtbxyGPJMSWdo1nvXVhMBWeBfEzHQEZuFsrNA4e")
-  //   //   console.log("decode", decode)
-  //   // }
-  //   // // if (publicationImg && checkPinningRequirements(pinning)) {
-  //   // //   image = await ipfs.uploadContent(publicationImg)
-  //   // // }
-  //   // console.log("image", image)
-  //   // // if (title) {
-  //   // //   await executePublication({
-  //   // //     action: "publication/create",
-  //   // //     title,
-  //   // //     description,
-  //   // //     tags,
-  //   // //     image: image?.path,
-  //   // //   }).then((res) => {
-  //   // //     if (res && res.error) {
-  //   // //       setLoading(false)
-  //   // //     } else {
-  //   // //       setExecutePollInterval(true)
-  //   // //     }
-  //   // //   })
-  //   // // }
-  // }
-  console.log("publicationsToShow", publicationsToShow)
   return (
     <Page showBadge>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -182,7 +154,16 @@ export const PublicationsView: React.FC<PublicationsViewProps> = () => {
           </Grid>
           <Grid container alignItems="center" mt={4}>
             <PublicationsAvatarContainer item xs={12} md={4} sx={{ display: "flex" }}>
-              <PublicationAvatar onFileSelected={setPublicationImg} newPublication />
+              {(!pinning || (pinning && pinning.service !== PinningService.NONE)) && (
+                <PublicationAvatar onFileSelected={(fileSelected) => setValue("image", fileSelected)} newPublication />
+              )}
+              {pinning && pinning.service === PinningService.NONE && (
+                <AlertContainer width={"100%"}>
+                  <Typography variant="body1" fontWeight={500} color={palette.secondary[1000]}>
+                    To enable the publication of images, please set up a pinning service in the settings.
+                  </Typography>
+                </AlertContainer>
+              )}
             </PublicationsAvatarContainer>
             <Grid item xs={12} md={8}>
               <Grid container flexDirection="column" gap={2}>

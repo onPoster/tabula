@@ -18,7 +18,7 @@ const SmallAvatar = styled(Avatar)({
 
 type PublicationAvatarProps = {
   defaultImage?: string | null | undefined
-  onFileSelected: (file: File) => void
+  onFileSelected: (file: File | undefined) => void
   newPublication?: boolean
 }
 
@@ -95,6 +95,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const deleteImage = (isDeterministic: boolean) => {
     setFile(undefined)
     setUri(undefined)
+    onFileSelected(undefined)
     setDefaultImageSrc("")
     setRemovePublicationImage(true)
     if (isDeterministic) {

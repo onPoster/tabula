@@ -1,12 +1,12 @@
 import styled from "@emotion/styled"
 import { Grid, Modal, ModalProps, Typography } from "@mui/material"
 import React, { useRef, useState } from "react"
-import { palette, typography } from "../../theme"
-import { ViewContainer } from "./ViewContainer"
+import { palette, typography } from "@/theme"
+import { ViewContainer } from "@/components/commons/ViewContainer"
 import CloseIcon from "@mui/icons-material/Close"
-import useLocalStorage from "../../hooks/useLocalStorage"
-import PinningConfiguration from "./Pinning/PinningConfiguration"
-import PinningSelection from "./Pinning/PinningSelection"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import PinningConfiguration from "@/components/commons/Pinning/PinningConfiguration"
+import PinningSelection from "@/components/commons/Pinning/PinningSelection"
 
 const ModalContainer = styled(ViewContainer)({
   position: "absolute",

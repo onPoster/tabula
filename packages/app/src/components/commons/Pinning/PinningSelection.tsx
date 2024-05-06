@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import { Box, Button, Divider, FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material"
 import React, { useState } from "react"
-import { Pinning, PinningService } from "../../../models/pinning"
-import useLocalStorage from "../../../hooks/useLocalStorage"
-import { typography } from "../../../theme"
+import { Pinning, PinningService } from "@/models/pinning"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { typography } from "@/theme"
 
 const PinningConfContainer = styled(Box)({
   borderRadius: 4,

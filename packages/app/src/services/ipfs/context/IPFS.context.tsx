@@ -7,9 +7,10 @@ import { LevelBlockstore } from "blockstore-level"
 import { libp2pDefaults } from "@/services/ipfs/dataTransmission/libp2p-defaults.browser"
 // import { bootstrapConfig } from "@/services/ipfs/dataTransmission/bootstrappers"
 import { ImportCandidate, KuboRPCClient, create } from "kubo-rpc-client"
-import axios from "axios"
-import { PinataPinJobs } from "@/models/pinning"
+import axios, { AxiosRequestHeaders } from "axios"
+import { PinataPinJobs, Pinning, PinningService } from "@/models/pinning"
 import { verifiedFetch } from "@helia/verified-fetch"
+import useLocalStorage from "@/hooks/useLocalStorage"
 
 const [useIPFSContext, IPFSContextProvider] = createGenericContext<IPFSContextType>()
 
@@ -40,6 +41,7 @@ const PINATA_HEADERS = {
 }
 
 const IPFSProvider = ({ children }: IPFSProviderProps) => {
+  const [pinningMethodSaved] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [helia, setHelia] = useState<Helia | undefined>(undefined)
   const [kuboClientInstance, setKuboClientInstance] = useState<KuboRPCClient | undefined>(undefined)
   const [fs, setFs] = useState<UnixFS | undefined>(undefined)
@@ -120,7 +122,11 @@ const IPFSProvider = ({ children }: IPFSProviderProps) => {
     return cid.toV0().toString()
   }
 
-  const publicRemotePin = async (cid: string, fileName: string) => {
+  const remotePin = async (cid: string, fileName: string) => {
+    let headers: AxiosRequestHeaders = PINATA_HEADERS
+    if (pinningMethodSaved && pinningMethodSaved.service === PinningService.PINATA) {
+      headers = { Authorization: `Bearer ${pinningMethodSaved.accessToken}` }
+    }
     const body = {
       hashToPin: cid,
       pinataMetadata: {
@@ -129,7 +135,7 @@ const IPFSProvider = ({ children }: IPFSProviderProps) => {
     }
 
     try {
-      const response = await axios.post(`${PINATA_ENDPOINT}/pinByHash`, body, { headers: PINATA_HEADERS })
+      const response = await axios.post(`${PINATA_ENDPOINT}/pinByHash`, body, { headers })
       console.log("Pinata Response:", response.data)
     } catch (error) {
       console.error("Error pinning the file", error)
@@ -156,6 +162,24 @@ const IPFSProvider = ({ children }: IPFSProviderProps) => {
     console.log(response)
     const blob = await response.blob()
     return URL.createObjectURL(blob)
+  }
+
+  const isValidIpfsService = async (data: Pinning): Promise<boolean> => {
+    let isValid = false
+    await axios
+      .get(`$https://api.pinata.cloud/data/pinList`, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.accessToken}` },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          isValid = true
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        isValid = false
+      })
+    return isValid
   }
   // const encode = async (text: string): Promise<string | undefined> => {
   //   if (!helia) return
@@ -201,9 +225,10 @@ const IPFSProvider = ({ children }: IPFSProviderProps) => {
         startIpfsClientInstance,
         encodeIpfsHash,
         decodeIpfsHash,
-        publicRemotePin,
+        remotePin,
         checkPinataPinStatus,
         generateIPFSImageUrl,
+        isValidIpfsService,
       }}
     >
       {children}

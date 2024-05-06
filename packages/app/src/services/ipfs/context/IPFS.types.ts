@@ -1,3 +1,4 @@
+import { Pinning } from "@/models/pinning"
 import { UnixFS } from "@helia/unixfs"
 import { Helia } from "helia"
 import { ImportCandidate } from "kubo-rpc-client"
@@ -9,9 +10,10 @@ export type IPFSContextType = {
   startIpfsClientInstance: () => Promise<void>
   encodeIpfsHash: (content: ImportCandidate) => Promise<string | undefined>
   decodeIpfsHash: (cid: string) => Promise<string>
-  publicRemotePin: (cid: string, fileName: string) => Promise<void>
+  remotePin: (cid: string, fileName: string) => Promise<void>
   checkPinataPinStatus: (cid: string) => Promise<string | undefined>
   generateIPFSImageUrl: (cid: string) => Promise<string>
+  isValidIpfsService: (data: Pinning) => Promise<boolean>
 }
 
 export type IPFSProviderProps = {
