@@ -15,14 +15,13 @@ import { SettingSection } from "@/components/views/publication/components/Settin
 import Avatar from "@/components/commons/Avatar"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
-interface PublicationViewProps {}
-
-export const PublicationView: React.FC<PublicationViewProps> = () => {
+export const PublicationView: React.FC = () => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { address } = useWeb3ModalAccount()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
   const { data: publication, loading, executeQuery, imageSrc, publicationId } = usePublication(publicationSlug || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
+  const [removeCurrentImage, setRemoveCurrentImage] = useState<boolean>(false)
 
   const permissions = publication && publication.permissions
   const havePermission = permissions ? isOwner(permissions, address || "") : false
@@ -44,6 +43,16 @@ export const PublicationView: React.FC<PublicationViewProps> = () => {
       savePublication(publication)
     }
   }, [publication, savePublication])
+
+  const handlePublicationAvatar = (file: File | undefined) => {
+    saveDraftPublicationImage(file)
+    if (file) {
+      setRemoveCurrentImage(false)
+    }
+    if (!file && publication?.image) {
+      setRemoveCurrentImage(true)
+    }
+  }
 
   return (
     <PublicationPage publication={publication} showCreatePost={true}>
@@ -75,7 +84,7 @@ export const PublicationView: React.FC<PublicationViewProps> = () => {
                     />
                   )}
                   {editingPublication && (
-                    <PublicationAvatar defaultImage={imageSrc} onFileSelected={saveDraftPublicationImage} />
+                    <PublicationAvatar defaultImage={imageSrc} onFileSelected={handlePublicationAvatar} />
                   )}
                 </Box>
                 <Stack spacing={2}>
@@ -116,7 +125,11 @@ export const PublicationView: React.FC<PublicationViewProps> = () => {
                 {currentTab === "articles" && <ArticlesSection />}
                 {currentTab === "permissions" && <PermissionSection />}
                 {currentTab === "settings" && (
-                  <SettingSection couldEdit={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
+                  <SettingSection
+                    couldEdit={havePermissionToUpdate}
+                    couldDelete={havePermissionToDelete}
+                    removeCurrentImage={removeCurrentImage}
+                  />
                 )}
               </Grid>
             )}

@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { Permission, Publication } from "../../../models/publication"
-import { createGenericContext } from "../../../utils/create-generic-context"
+import { Permission, Publication } from "@/models/publication"
+import { createGenericContext } from "@/utils/create-generic-context"
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
-import useENS from "../../ens/hooks/useENS"
+import useENS from "@/services/ens/hooks/useENS"
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 const [usePublicationContext, PublicationContextProvider] = createGenericContext<PublicationContextType>()

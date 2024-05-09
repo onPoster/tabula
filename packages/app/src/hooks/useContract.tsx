@@ -24,7 +24,7 @@ export const useExecuteTransaction = <T,>(
   contractAddress: string,
   abi: ContractInterface,
   methodName: string,
-  action: Action,
+  action?: Action,
 ) => {
   const { chainId } = useWeb3ModalAccount()
   const parameters = chainId && chainParameters(chainId)
@@ -52,7 +52,7 @@ export const useExecuteTransaction = <T,>(
         return {
           error: false,
           transaction: receipt,
-          transactionIdTabulaFormat: generateIdFromTransaction(chainId, receipt, action),
+          transactionIdTabulaFormat: action ? generateIdFromTransaction(chainId, receipt, action) : "",
           transactionUrl: `${URL}tx/${receipt.transactionHash}`,
         }
       } catch (error: unknown) {

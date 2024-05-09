@@ -1,9 +1,18 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { TypedDocumentNode, useQuery } from "urql"
 
-export const useMonitorTransaction = (query: TypedDocumentNode<any, object>, variables: object) => {
+export type TransactionType = "create" | "update" | "delete"
+
+export const useMonitorTransaction = (
+  query: TypedDocumentNode<any, object>,
+  variables: object,
+  transactionType: TransactionType,
+  elementKey: string, // key for the element in the data
+) => {
   const [isIndexed, setIsIndexed] = useState<boolean>(false)
-  const [previousVariables, setPreviousVariables] = useState<object>({})
+  const previousLastUpdated = useRef<number | null>(null)
+  const previousVariables = useRef<object>({})
+  const [queryResult, setQueryResult] = useState<Object>({})
 
   const areVariablesValid = (vars: object) =>
     Object.values(vars).every((x) => x !== null && x !== undefined && x !== "")
@@ -15,24 +24,48 @@ export const useMonitorTransaction = (query: TypedDocumentNode<any, object>, var
   })
   const { data, fetching, error } = result
   useEffect(() => {
-    // Deep comparison of objects
-    if (JSON.stringify(previousVariables) !== JSON.stringify(variables)) {
+    // Accessing the element dynamically
+    const element = data ? data[elementKey] : null
+
+    setQueryResult(data)
+    // Reset state if variables change
+    if (JSON.stringify(previousVariables.current) !== JSON.stringify(variables)) {
       setIsIndexed(false)
-      setPreviousVariables(variables)
+      previousVariables.current = variables
+      previousLastUpdated.current = null
     }
 
-    if (data && areVariablesValid(data)) {
+    if (transactionType === "create" && element) {
       setIsIndexed(true)
-    } else if (!isIndexed && !fetching && areVariablesValid(variables)) {
+    }
+
+    if (transactionType === "update" && element) {
+      const currentLastUpdated = element.lastUpdated || null
+      if (previousLastUpdated.current === null) {
+        previousLastUpdated.current = currentLastUpdated
+      } else if (currentLastUpdated !== previousLastUpdated.current) {
+        setIsIndexed(true)
+        previousLastUpdated.current = currentLastUpdated
+      }
+    }
+
+    if (transactionType === "delete" && !element) {
+      setIsIndexed(true)
+    }
+
+    if (error) {
+      setIsIndexed(true)
+    }
+  }, [data, fetching, error, variables, elementKey, transactionType])
+
+  useEffect(() => {
+    if (!isIndexed && !fetching && areVariablesValid(variables)) {
       const intervalId = setInterval(() => {
         refetchQuery({ requestPolicy: "network-only" })
       }, 5000)
       return () => clearInterval(intervalId)
     }
-    if (error) {
-      setIsIndexed(true)
-    }
-  }, [data, fetching, error, isIndexed, variables, refetchQuery, previousVariables])
+  }, [isIndexed, fetching, variables, refetchQuery])
 
-  return { isIndexed, loading: fetching, error }
+  return { isIndexed, loading: fetching, queryResult, error }
 }

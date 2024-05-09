@@ -61,7 +61,8 @@ export const PublicationsView: React.FC = () => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { address } = useWeb3ModalAccount()
   const { setLastPathWithChainName } = usePosterContext()
-  const { data: publications, createNewPublication, txLoading, loading } = usePublications()
+  const { data: publications, createNewPublication, txLoading } = usePublications()
+  const { create: createLoading } = txLoading
   const { setPublicationAvatar } = usePublicationContext()
   const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
   const {
@@ -203,8 +204,8 @@ export const PublicationsView: React.FC = () => {
           </Grid>
 
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublicationsButton variant="contained" type="submit" disabled={loading || txLoading || isSubmitting}>
-              {(loading || txLoading) && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+            <PublicationsButton variant="contained" type="submit" disabled={createLoading || isSubmitting}>
+              {createLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               Create Publication
             </PublicationsButton>
           </Grid>

@@ -9,6 +9,12 @@ export interface Permission {
   publicationUpdate: boolean
 }
 
+export type PublicationAction =
+  | "publication/create"
+  | "publication/update"
+  | "publication/delete"
+  | "publication/permissions"
+
 export interface PermissionAction {
   "article/create": boolean
   "article/update": boolean

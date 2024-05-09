@@ -6,6 +6,10 @@ export interface PublicationFormSchema {
   tags?: { label: string; value: string }[]
   image?: File | undefined
 }
+export interface UpdatePublicationFormSchema extends PublicationFormSchema {
+  id: string
+}
+
 export const publicationSchema = yup.object({
   title: yup.string().required("Title is required"),
   description: yup.string().optional(),
