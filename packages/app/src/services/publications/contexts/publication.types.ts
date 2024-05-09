@@ -21,7 +21,7 @@ export type PublicationContextType = {
   saveIsEditingPublication: (isEditing: boolean) => void
   saveDraftPublicationImage: (file: File | undefined) => void
   setCurrentPath: (path: string | undefined) => void
-  savePermission: (permission: Permission) => void
+  savePermission: (permission: Permission | undefined) => void
   savePublication: (publication: Publication | undefined) => void
   savePublications: (publications: Publication[] | undefined) => void
 }

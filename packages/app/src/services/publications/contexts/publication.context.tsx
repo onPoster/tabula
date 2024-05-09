@@ -53,7 +53,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
 
   const savePublication = (publication: Publication | undefined) => setPublication(publication)
   const savePublications = (publications: Publication[] | undefined) => setPublications(publications)
-  const savePermission = (permission: Permission) => setPermission(permission)
+  const savePermission = (permission: Permission | undefined) => setPermission(permission)
   const saveIsEditingPublication = (isEditing: boolean) => setEditingPublication(isEditing)
   const saveDraftPublicationImage = (file: File | undefined) => setDraftPublicationImage(file)
 

@@ -13,10 +13,12 @@ import { useNavigate } from "react-router-dom"
 import { useIPFSContext } from "@/services/ipfs/context"
 import {
   deletePublicationBody,
+  generatePermissionBody,
   generatePublicationBody,
   generateUpdatePublicationBody,
 } from "@/services/publications/utils/publication-methods"
 import { usePublicationContext } from "@/services/publications/contexts"
+import { PermissionFormSchema } from "@/schemas/permission.schema"
 
 interface TransactionBody extends Object {
   image?: string
@@ -161,6 +163,12 @@ const usePublications = () => {
       setPublicationIdToDelete(publicationIdToDelete)
     })
   }
+  const givePermission = async (publicationId: string, form: PermissionFormSchema) => {
+    const publicationBody = await generatePermissionBody(publicationId, form)
+    handleTransaction(publicationBody, "update", () => {
+      setPublicationIdToUpdate(publicationId)
+    })
+  }
 
   return {
     loading: fetching,
@@ -171,6 +179,7 @@ const usePublications = () => {
     createNewPublication,
     deletePublication,
     updatePublication,
+    givePermission,
     refetch,
     executeQuery,
   }

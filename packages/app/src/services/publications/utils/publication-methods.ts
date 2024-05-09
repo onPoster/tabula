@@ -1,4 +1,5 @@
 import { PublicationAction } from "@/models/publication"
+import { PermissionFormSchema } from "@/schemas/permission.schema"
 import { PublicationFormSchema, UpdatePublicationFormSchema } from "@/schemas/publication.schema"
 
 const processPublicationBody = async (
@@ -53,5 +54,20 @@ export const deletePublicationBody = async (id: string) => {
   return {
     action: "publication/delete",
     id,
+  }
+}
+export const generatePermissionBody = async (publicationId: string, permissionFields: PermissionFormSchema) => {
+  return {
+    action: "publication/permissions",
+    id: publicationId,
+    account: permissionFields.account,
+    permissions: {
+      "article/create": permissionFields.articleCreate,
+      "article/update": permissionFields.articleUpdate,
+      "article/delete": permissionFields.articleDelete,
+      "publication/delete": permissionFields.publicationDelete,
+      "publication/update": permissionFields.publicationUpdate,
+      "publication/permissions": permissionFields.publicationPermissions,
+    },
   }
 }

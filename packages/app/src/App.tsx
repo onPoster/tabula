@@ -60,18 +60,18 @@ const App: React.FC = () => {
                   <Route path="/publications" element={<PublicationsView />} />
                   <Route path=":publicationSlug" element={<PublicationView />} />
                   {/* <Route path="/goerli/*" element={<RedirectOldRoute />} />
-                    <Route path="/mainnet/*" element={<RedirectOldRoute />} />
-                    <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
-                    <Route path="/polygon/*" element={<RedirectOldRoute />} />
-                    <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
-                    <Route path="/optimism/*" element={<RedirectOldRoute />} />
-                    <Route path=":publicationSlug">
-                      <Route path="permissions/:type" element={<PermissionView />} />
-                      <Route path="new" element={<CreateArticleView type="new" />} />
-                      <Route path=":type/preview" element={<PreviewArticleView />} />
-                      <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
-                      <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} />
-                    </Route> */}
+                  <Route path="/mainnet/*" element={<RedirectOldRoute />} />
+                  <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
+                  <Route path="/polygon/*" element={<RedirectOldRoute />} />
+                  <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
+                  <Route path="/optimism/*" element={<RedirectOldRoute />} /> */}
+                  <Route path=":publicationSlug">
+                    <Route path="permissions/:type" element={<PermissionView />} />
+                    {/* <Route path="new" element={<CreateArticleView type="new" />} />
+                    <Route path=":type/preview" element={<PreviewArticleView />} />
+                    <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
+                    <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} /> */}
+                  </Route>
                 </Routes>
               </PosterProvider>
             </ArticleProvider>
