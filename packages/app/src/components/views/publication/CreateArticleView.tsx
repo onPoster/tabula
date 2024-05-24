@@ -1,14 +1,14 @@
+import React, { useEffect, useState } from "react"
+import CreateArticlePage from "@/components/layout/CreateArticlePage"
+import Editor from "@/components/commons/Editor/AdvanceEditor"
 import { Box, Container, FormHelperText, Grid, InputLabel, Stack, TextField, Typography } from "@mui/material"
-
-import React, { useState } from "react"
 import { useArticleContext, usePublicationContext } from "@/services/publications/contexts"
 import { palette } from "@/theme"
-import CreateArticlePage from "@/components/layout/CreateArticlePage"
-
-import Editor from "@/components/commons/Editor/AdvanceEditor"
 import { defaultValue } from "@/components/commons/Editor/default-value"
 import { JSONContent } from "novel"
 import { Controller } from "react-hook-form"
+import { generateJSON } from "@tiptap/html"
+import useExtensions from "@/components/commons/Editor/extensions"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
@@ -16,21 +16,17 @@ interface CreateArticleViewProps {
 
 export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({ type }) => {
   const { publication } = usePublicationContext()
-  const {
-    // draftArticle,
-    // updateDraftArticle,
-    // articleTitleError,
-    // articleContentError,
-    setArticleHtml,
-    articleFormMethods,
-  } = useArticleContext()
-  const [value, setValue] = useState<JSONContent>(defaultValue)
-
+  const { setArticleHtml, articleFormMethods } = useArticleContext()
+  const [value, setValue] = useState<JSONContent | undefined>(undefined)
+  const extensions = useExtensions()
   const {
     control,
+    getValues,
     setValue: saveArticleValue,
     formState: { errors },
   } = articleFormMethods
+
+  const defaultArticleHtml = getValues("article")
 
   const handleEditorChange = (htmlContent: string) => {
     if (htmlContent === "<p></p>") {
@@ -43,6 +39,15 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
       setArticleHtml(htmlContent)
     }
   }
+
+  useEffect(() => {
+    if (!value) {
+      if (defaultArticleHtml) {
+        return setValue(generateJSON(defaultArticleHtml, extensions))
+      }
+      setValue(defaultValue)
+    }
+  }, [defaultArticleHtml, extensions, value])
 
   return (
     <CreateArticlePage publication={publication} type={type}>
@@ -91,13 +96,15 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
                   </Typography>
                 </InputLabel>
               </Stack>
-              <Controller
-                control={control}
-                name="article"
-                render={({ field }) => (
-                  <Editor initialValue={value} {...field} onChange={setValue} onHtml={handleEditorChange} />
-                )}
-              />
+              {value && (
+                <Controller
+                  control={control}
+                  name="article"
+                  render={({ field }) => (
+                    <Editor initialValue={value} {...field} onChange={setValue} onHtml={handleEditorChange} />
+                  )}
+                />
+              )}
               {errors.article && (
                 <FormHelperText sx={{ color: "#d32f2f", textTransform: "capitalize" }}>
                   {errors.article.message}

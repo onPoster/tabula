@@ -1,14 +1,14 @@
-import React, { SetStateAction } from "react"
+import React, { SetStateAction, useEffect, useState } from "react"
 import { Box, InputLabel, Stack, TextField, Tooltip, Typography, useTheme } from "@mui/material"
 import { useArticleContext } from "@/services/publications/contexts"
 import { Close } from "@mui/icons-material"
 import { palette, typography } from "@/theme"
 import { UploadFile } from "@/components/commons/UploadFile"
-// import LinkIcon from "@/assets/images/icons/link"
 import { CreatableSelect } from "@/components/commons/CreatableSelect"
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { Pinning, PinningService } from "@/models/pinning"
 import { Controller } from "react-hook-form"
+import { toBase64 } from "@/utils/string-handler"
 export interface ArticleSidebarProps {
   setShowSidebar: React.Dispatch<SetStateAction<boolean>>
 }
@@ -17,68 +17,37 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ setShowSidebar }) => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const { article } = useArticleContext()
-  const {
-    draftArticle,
-    // saveDraftArticle,
-    // setDraftArticleThumbnail,
-    // draftArticleThumbnail,
-    // updateDraftArticle,
-    articleFormMethods,
-  } = useArticleContext()
-  // const [articleThumbnail, setArticleThumbnail] = useState<File>()
-  // const [uriImage, setUriImage] = useState<string | undefined>(undefined)
-  // const [postUrl, setPostUrl] = useState<string | undefined>("this-is-a-test")
+  const { articleFormMethods } = useArticleContext()
 
   const {
     control,
+    getValues,
     setValue: setArticleFormValue,
     formState: { errors },
   } = articleFormMethods
-
+  const articleImage = getValues("image")
   const theme = useTheme()
+  const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
 
-  // useEffect(() => {
-  //   if (article?.tags?.length && !tags.length) {
-  //     setTags(article.tags)
-  //   }
+  useEffect(() => {
+    const transformImg = async () => {
+      if (typeof articleImage === "string") {
+        setThumbnailUri(`https://ipfs.io/ipfs/${articleImage}`)
+      }
+      if (articleImage) {
+        const base64Image = await toBase64(articleImage)
+        setThumbnailUri(base64Image)
+      } else {
+        setThumbnailUri(undefined)
+      }
+    }
 
-  //   if (draftArticle && (description === "" || !tags.length)) {
-  //     if (draftArticle.tags && draftArticle.tags.length) {
-  //       setTags(draftArticle.tags)
-  //     }
-  //     if (draftArticle.image) {
-  //       setUriImage(draftArticle.image)
-  //     }
-  //   }
-  // }, [article, draftArticle, tags.length, description])
-
-  // useEffect(() => {
-  //   if (draftArticleThumbnail && !articleThumbnail) {
-  //     setArticleThumbnail(draftArticleThumbnail)
-  //   }
-  // }, [draftArticleThumbnail])
-
-  // useEffect(() => {
-  //   if (draftArticle && uriImage) {
-  //     setDraftArticleThumbnail(articleThumbnail)
-  //     saveDraftArticle({ ...draftArticle, image: uriImage })
-  //   }
-  // }, [uriImage])
+    transformImg()
+  }, [articleImage])
 
   const handleClose = () => {
     setShowSidebar(false)
   }
-
-  // const handleOnFiles = (file: File | undefined) => {
-  //   setDraftArticleThumbnail(file)
-  //   setArticleThumbnail(file)
-  //   if (!file && draftArticle) {
-  //     setUriImage(undefined)
-  //     updateDraftArticle("image", null)
-  //   }
-  // }
-
-  // const edited = true
 
   return (
     <Box
@@ -136,9 +105,9 @@ const ArticleSidebar: React.FC<ArticleSidebarProps> = ({ setShowSidebar }) => {
               <InputLabel>Thumbnail</InputLabel>
               <UploadFile
                 defaultImage={article?.image}
-                defaultUri={draftArticle?.image ?? undefined}
+                defaultUri={thumbnailUri}
                 onFileSelected={(fileSelected) => setArticleFormValue("image", fileSelected)}
-                // convertedFile={setUriImage}
+                convertedFile={setThumbnailUri}
                 disabled={isDirectlyOnChain}
               />
             </Stack>

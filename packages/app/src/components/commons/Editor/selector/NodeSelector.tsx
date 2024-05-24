@@ -14,7 +14,7 @@ import FormatQuoteIcon from "@mui/icons-material/FormatQuote"
 import CodeIcon from "@mui/icons-material/Code"
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft"
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted"
-import ChecklistIcon from "@mui/icons-material/Checklist"
+// import ChecklistIcon from "@mui/icons-material/Checklist"
 import { typography } from "@/theme"
 
 export type SelectorItem = {

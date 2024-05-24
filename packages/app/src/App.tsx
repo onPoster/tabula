@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { PublicationView } from "@/components/views/publication/PublicationView"
 import { Routes, Route, useLocation } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
@@ -29,7 +29,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const pathParts = location.pathname.split("-")
     let urlChainId = pathParts[0].replace("/", "")
-    console.log("urlChainId", urlChainId)
     const validChainIds = CHAINS.map((chain) => chain.id.toString())
 
     if (!validChainIds.includes(urlChainId) && userChainId) {
@@ -59,18 +58,18 @@ const App: React.FC = () => {
                   <Route path="/" element={<LandingView />} />
                   <Route path="/publications" element={<PublicationsView />} />
                   <Route path=":publicationSlug" element={<PublicationView />} />
-                  {/* <Route path="/goerli/*" element={<RedirectOldRoute />} />
+                  <Route path="/goerli/*" element={<RedirectOldRoute />} />
                   <Route path="/mainnet/*" element={<RedirectOldRoute />} />
                   <Route path="/gnosis_chain/*" element={<RedirectOldRoute />} />
                   <Route path="/polygon/*" element={<RedirectOldRoute />} />
                   <Route path="/arbitrum/*" element={<RedirectOldRoute />} />
-                  <Route path="/optimism/*" element={<RedirectOldRoute />} /> */}
+                  <Route path="/optimism/*" element={<RedirectOldRoute />} />
                   <Route path=":publicationSlug">
                     <Route path="permissions/:type" element={<PermissionView />} />
-                    {/* <Route path="new" element={<CreateArticleView type="new" />} />
+                    <Route path="new" element={<CreateArticleView type="new" />} />
+                    <Route path="edit" element={<CreateArticleView type="edit" />} />
                     <Route path=":type/preview" element={<PreviewArticleView />} />
-                    <Route path=":articleId" element={<ArticleView updateChainId={updateChainId} />} />
-                    <Route path=":articleId/edit" element={<CreateArticleView type="edit" />} /> */}
+                    <Route path=":articleId" element={<ArticleView />} />
                   </Route>
                 </Routes>
               </PosterProvider>

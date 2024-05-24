@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useIpfs } from "../../../hooks/useIpfs"
 import { Article } from "../../../models/publication"
 import { createGenericContext } from "../../../utils/create-generic-context"
@@ -8,6 +8,7 @@ import { uid } from "uid"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { articleSchema } from "@/schemas/article.schema"
+import { useLocation } from "react-router-dom"
 
 export const INITIAL_ARTICLE_VALUE = { title: "", article: "" }
 export const INITIAL_ARTICLE_BLOCK = [{ id: uid(), html: "", tag: "p" }]
@@ -15,9 +16,11 @@ const [useArticleContext, ArticleContextProvider] = createGenericContext<Article
 
 const ArticleProvider = ({ children }: ArticleProviderProps) => {
   const ipfs = useIpfs()
+  const location = useLocation()
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
   const [draftArticle, setDraftArticle] = useState<Article | undefined>(INITIAL_ARTICLE_VALUE)
   const [article, setArticle] = useState<Article | undefined>(undefined)
+  const [articles, setArticles] = useState<Article[] | undefined>(undefined)
 
   const [executeArticleTransaction, setExecuteArticleTransaction] = useState<boolean>(false)
   const [draftArticleThumbnail, setDraftArticleThumbnail] = useState<File | undefined>(undefined)
@@ -49,6 +52,26 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     },
   })
   const [articleHtml, setArticleHtml] = useState<string | undefined>(undefined)
+
+  //Clear form
+  useEffect(() => {
+    const createArticleRegex = /\/new$/
+    const editArticleRegex = /\/edit$/
+    const previewArticleRegex = /\/preview$/
+    if (
+      !createArticleRegex.test(location.pathname) &&
+      !editArticleRegex.test(location.pathname) &&
+      !previewArticleRegex.test(location.pathname)
+    ) {
+      articleFormMethods.reset({
+        title: "",
+        article: "",
+        description: "",
+        tags: [],
+        image: undefined,
+      })
+    }
+  }, [location.pathname, articleFormMethods])
 
   const clearArticleState = () => {
     setCurrentPath(undefined)
@@ -134,6 +157,8 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         clearArticleState,
         contentImageFiles,
         setContentImageFiles,
+        setArticles,
+        articles,
       }}
     >
       {children}

@@ -1,4 +1,6 @@
-export const defaultValue = {
+import { JSONContent } from "novel";
+
+export const defaultValue: JSONContent = {
   type: "doc",
-  content: [],
+  content: [{ type: "paragraph" }],
 }

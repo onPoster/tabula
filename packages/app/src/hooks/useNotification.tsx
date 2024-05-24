@@ -14,7 +14,7 @@ const ExpandIcon = styled(OpenInNewIcon)({
   fontSize: 25,
 })
 
-const NotificationActions = ({ detailsLink, onClose }: { detailsLink?: string; onClose: () => void }) => (
+const NotificationActions: React.FC<{ detailsLink?: string; onClose: () => void }> = ({ detailsLink, onClose }) => (
   <Grid container alignItems="center">
     <Grid item>
       {detailsLink ? (

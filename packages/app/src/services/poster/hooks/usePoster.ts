@@ -36,7 +36,7 @@ const usePoster = () => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const [loading, setLoading] = useState<boolean>(false)
   const { pinAction } = useIpfs()
-  const [isValidChain, setIsValidChain] = useState<boolean>(false)
+  // const [isValidChain, setIsValidChain] = useState<boolean>(false)
   const [properlyNetwork, setProperlyNetwork] = useState<string | null>(null)
   const parameters = chainParameters(chainId ? chainId : SupportedChainId.SEPOLIA)
   const URL = parameters ? parameters.blockExplorerUrls[0] : "https://sepolia.etherscan.io/tx/"
@@ -44,7 +44,7 @@ const usePoster = () => {
   useEffect(() => {
     if (chainId != null) {
       const validationResult = checkIsValidChain(chainId, publicationChainId)
-      setIsValidChain(validationResult.isValid)
+      // setIsValidChain(validationResult.isValid)
       setProperlyNetwork(validationResult.network)
     }
   }, [publicationChainId, chainId])

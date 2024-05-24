@@ -1,6 +1,6 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
-import browserslistToEsbuild from "browserslist-to-esbuild"
+// import browserslistToEsbuild from "browserslist-to-esbuild"
 import svgr from "@svgr/rollup"
 import path from "path"
 import tsconfigPaths from "vite-tsconfig-paths"
@@ -14,7 +14,7 @@ export default defineConfig({
   },
   build: {
     // --> ["chrome79", "edge92", "firefox91", "safari13.1"]
-    target: browserslistToEsbuild(),
+    target: "esnext",
   },
   resolve: {
     alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],

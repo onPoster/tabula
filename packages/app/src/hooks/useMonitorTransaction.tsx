@@ -8,6 +8,7 @@ export const useMonitorTransaction = (
   variables: object,
   transactionType: TransactionType,
   elementKey: string, // key for the element in the data
+  defaultLastUpdated?: number | null,
 ) => {
   const [isIndexed, setIsIndexed] = useState<boolean>(false)
   const previousLastUpdated = useRef<number | null>(null)
@@ -42,7 +43,7 @@ export const useMonitorTransaction = (
     if (transactionType === "update" && element) {
       const currentLastUpdated = element.lastUpdated || null
       if (previousLastUpdated.current === null) {
-        previousLastUpdated.current = currentLastUpdated
+        previousLastUpdated.current = defaultLastUpdated ?? currentLastUpdated
       } else if (currentLastUpdated !== previousLastUpdated.current) {
         setIsIndexed(true)
         previousLastUpdated.current = currentLastUpdated
@@ -56,7 +57,7 @@ export const useMonitorTransaction = (
     if (error) {
       setIsIndexed(true)
     }
-  }, [data, fetching, error, variables, elementKey, transactionType])
+  }, [data, fetching, error, variables, elementKey, transactionType, defaultLastUpdated])
 
   useEffect(() => {
     if (!isIndexed && !fetching && areVariablesValid(variables)) {

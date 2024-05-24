@@ -4039,6 +4039,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-bold/-/extension-bold-2.3.2.tgz#ebe13406db8e7d906ad80ad7640b2e80dd6e92ce"
   integrity sha512-Mdc0qOPeJxxt5kSYKpNs7TzbQHeVpbpxwafUrxrvfD2iOnJlwlNxVWsVulc1t5EA8NpbTqYJTPmAtv2h/qmsfw==
 
+"@tiptap/extension-bold@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-bold/-/extension-bold-2.4.0.tgz#b5ced2c3bf51f304890137dbdf394d58c01eb208"
+  integrity sha512-csnW6hMDEHoRfxcPRLSqeJn+j35Lgtt1YRiOwn7DlS66sAECGRuoGfCvQSPij0TCDp4VCR9if5Sf8EymhnQumQ==
+
 "@tiptap/extension-bubble-menu@^2.3.2":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-bubble-menu/-/extension-bubble-menu-2.3.2.tgz#58580c93b08b8953d2f9a98b35f7fd86decc252a"
@@ -4066,6 +4071,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-code/-/extension-code-2.3.2.tgz#36689994b76550e068ca9cc29cc8721e441bf2b5"
   integrity sha512-LyIRBFJCxbgi96ejoeewESvfUf5igfngamZJK+uegfTcznimP0AjSWs3whJwZ9QXUsQrB9tIrWIG4GBtatp6qw==
 
+"@tiptap/extension-code@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-code/-/extension-code-2.4.0.tgz#3a9fed3585bf49f445505c2e9ad71fd66e117304"
+  integrity sha512-wjhBukuiyJMq4cTcK3RBTzUPV24k5n1eEPlpmzku6ThwwkMdwynnMGMAmSF3fErh3AOyOUPoTTjgMYN2d10SJA==
+
 "@tiptap/extension-color@^2.1.7":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-color/-/extension-color-2.3.2.tgz#341a99c77fe43b67e3907194224b144e08ecae95"
@@ -4075,6 +4085,11 @@
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-document/-/extension-document-2.3.2.tgz#8914f952c946d150398913f1801295f101ded179"
   integrity sha512-EQcfkvA7lkZPKllhGo2jiEYLJyXhBFK7++oRatgbfgHEJ2uLBGv6ys7WLCeRA/ntcaWTH3rlS+HR/Y8/nnyQYg==
+
+"@tiptap/extension-document@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-document/-/extension-document-2.4.0.tgz#a396b2cbcc8708aa2a0a41d0be481fda4b61c77b"
+  integrity sha512-3jRodQJZDGbXlRPERaloS+IERg/VwzpC1IO6YSJR9jVIsBO6xC29P3cKTQlg1XO7p6ZH/0ksK73VC5BzzTwoHg==
 
 "@tiptap/extension-dropcursor@^2.3.2":
   version "2.3.2"
@@ -4150,6 +4165,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-paragraph/-/extension-paragraph-2.3.2.tgz#2141b3fcf3ca74cadf8703c07582585407de723d"
   integrity sha512-bKzL4NXp0pDM/Q5ZCpjLxjQU4DwoWc6CDww1M4B4dp1sfiXiE2P7EOCMM2TfJOqNPUFpp5RcFKKcxC2Suj8W4w==
 
+"@tiptap/extension-paragraph@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-paragraph/-/extension-paragraph-2.4.0.tgz#5b9aea8775937b327bbe6754be12ae3144fb09ff"
+  integrity sha512-+yse0Ow67IRwcACd9K/CzBcxlpr9OFnmf0x9uqpaWt1eHck1sJnti6jrw5DVVkyEBHDh/cnkkV49gvctT/NyCw==
+
 "@tiptap/extension-placeholder@2.0.3":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-placeholder/-/extension-placeholder-2.0.3.tgz#69575353f09fc7524c9cdbfbf16c04f73c29d154"
@@ -4180,10 +4200,22 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-text/-/extension-text-2.3.2.tgz#000c1c4d5ae21b8ddef777b8298b67260e13274f"
   integrity sha512-a3whwDyyOsrmOQbfeY+Fm5XypSRgT3IGqWgz0r4U7oko57/X6Env08F1Ie2e2UkQw9B1MoW9cm3dC6jvrdzzYA==
 
+"@tiptap/extension-text@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-text/-/extension-text-2.4.0.tgz#a3a5f45a9856d513e574f24e2c9b6028273f8eb3"
+  integrity sha512-LV0bvE+VowE8IgLca7pM8ll7quNH+AgEHRbSrsI3SHKDCYB9gTHMjWaAkgkUVaO1u0IfCrjnCLym/PqFKa+vvg==
+
 "@tiptap/extension-underline@^2.1.7":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-underline/-/extension-underline-2.3.2.tgz#52ad67365c604a9afeb63600a30d13141594278a"
   integrity sha512-ZmhWG8gMXk62AhpIMuOofe8GWbkXBW1uYHG55Q9r7MmglESLJm13S5k8JVfOmOMKGzfE23A6yQkojnksAiSGoQ==
+
+"@tiptap/html@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/html/-/html-2.4.0.tgz#0fad860303e7f34b43d64ca8bfbf8ab260d33164"
+  integrity sha512-iM0sa6t0Hb5GTXnjdKvMDtD3KZgA4Mwx3QADeqfR10EjfPNlkh/BHU83oIhss/2JVRBXiUUDnNxW9cfpHX37/g==
+  dependencies:
+    zeed-dom "^0.10.9"
 
 "@tiptap/pm@^2.1.7":
   version "2.3.2"
@@ -13502,6 +13534,13 @@ yup@^0.32.11:
     nanoclone "^0.2.1"
     property-expr "^2.0.4"
     toposort "^2.0.2"
+
+zeed-dom@^0.10.9:
+  version "0.10.11"
+  resolved "https://registry.yarnpkg.com/zeed-dom/-/zeed-dom-0.10.11.tgz#36c7ded1aa4e638794049d90d1f6b0369000c9ac"
+  integrity sha512-7ukbu6aQKx34OQ7PfUIxOuAhk2MvyZY/t4/IJsVzy76zuMzfhE74+Dbyp8SHiUJPTPkF0FflP1KVrGJ7gk9IHw==
+  dependencies:
+    css-what "^6.1.0"
 
 zod-to-json-schema@3.22.5:
   version "3.22.5"

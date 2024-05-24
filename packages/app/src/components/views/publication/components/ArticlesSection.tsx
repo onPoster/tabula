@@ -9,15 +9,23 @@ import usePublication from "@/services/publications/hooks/usePublication"
 import { ArticleItem } from "./ArticleItem"
 import { INITIAL_ARTICLE_VALUE, useArticleContext } from "@/services/publications/contexts"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import useArticles from "@/services/publications/hooks/useArticles"
 
 export const ArticlesSection: React.FC = React.memo(() => {
   const navigate = useNavigate()
   const { address } = useWeb3ModalAccount()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { setMarkdownArticle, saveDraftArticle, saveArticle, setDraftArticleThumbnail, setArticleEditorState } =
-    useArticleContext()
-  const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
-  const articles = data && data.articles
+  const {
+    setMarkdownArticle,
+    saveDraftArticle,
+    saveArticle,
+    setDraftArticleThumbnail,
+    setArticleEditorState,
+    articles,
+    setArticles,
+  } = useArticleContext()
+  const { data, publicationId, refetch } = usePublication(publicationSlug ?? "")
+  const { data: articlesQueryData, refetch: refetchArticles } = useArticles()
   const permissions = data && data.permissions
   const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", address || "") : false
   const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", address || "") : false
@@ -28,6 +36,18 @@ export const ArticlesSection: React.FC = React.memo(() => {
       refetch()
     }
   }, [refetch, data, publicationId])
+
+  useEffect(() => {
+    if (!articlesQueryData) {
+      refetchArticles()
+    }
+  }, [articlesQueryData, refetchArticles])
+  
+  useEffect(() => {
+    if (articlesQueryData?.length) {
+      setArticles(articlesQueryData)
+    }
+  }, [articlesQueryData, setArticles])
 
   if (articles && articles.length > 0) {
     return (

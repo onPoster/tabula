@@ -123,7 +123,7 @@ const useStyles = makeStyles((theme: any) => ({
 const Editor: React.FC<EditorProps> = ({ initialValue, onChange, onHtml }) => {
   const classes = useStyles()
   const extensions = useExtensions()
-  const [saveStatus, setSaveStatus] = useState("Saved")
+  // const [saveStatus, setSaveStatus] = useState("Saved")
   const [openNode, setOpenNode] = useState<boolean>(false)
   const [openLink, setOpenLink] = useState<boolean>(false)
   const { suggestionItems, slashCommand } = useSuggestionItems()
@@ -134,13 +134,13 @@ const Editor: React.FC<EditorProps> = ({ initialValue, onChange, onHtml }) => {
 
   const debouncedUpdates = useDebouncedCallback(async (editor: EditorInstance) => {
     const json = editor.getJSON()
-    console.log("editor", editor)
+
     // window.localStorage.setItem("html-content", editor.getHTML())
     // window.localStorage.setItem("novel-content", JSON.stringify(json))
     // window.localStorage.setItem("markdown", editor.storage.markdown.getMarkdown())
     onChange(json)
     onHtml(editor.getHTML())
-    setSaveStatus("Saved")
+    // setSaveStatus("Saved")
   }, 500)
 
   // useEffect(() => {
@@ -149,7 +149,6 @@ const Editor: React.FC<EditorProps> = ({ initialValue, onChange, onHtml }) => {
   //   else setInitialContent(defaultEditorContent)
   // }, [])
 
-  // if (!initialContent) return null
   return (
     <EditorRoot>
       <EditorContent
@@ -169,7 +168,7 @@ const Editor: React.FC<EditorProps> = ({ initialValue, onChange, onHtml }) => {
         }}
         onUpdate={({ editor }) => {
           debouncedUpdates(editor)
-          setSaveStatus("Unsaved")
+          // setSaveStatus("Unsaved")
         }}
         slotAfter={<ImageResizer />}
       >

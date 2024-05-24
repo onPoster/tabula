@@ -18,6 +18,25 @@ export const extractAndReplaceImageHashes = (htmlString: string): { hashes: stri
   const modifiedHtml = new XMLSerializer().serializeToString(doc.documentElement)
   return { hashes, modifiedHtml }
 }
+export const addUrlToImageHashes = (htmlString: string): string => {
+
+ const parser = new DOMParser();
+ const doc = parser.parseFromString(htmlString, 'text/html');
+
+ // Get all the img elements in the document
+ const images = doc.getElementsByTagName('img');
+
+ // Update the src attribute for each img element
+ for (let img of images) {
+   const src = img.getAttribute('src');
+   if (src && !src.startsWith('https://ipfs.io/ipfs/')) {
+     img.setAttribute('src', `https://ipfs.io/ipfs/${src}`);
+   }
+ }
+
+ // Serialize the DOM object back into a string
+ return new XMLSerializer().serializeToString(doc);
+}
 
 const processArticleBody = async (
   publicationId: string,

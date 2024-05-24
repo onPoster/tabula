@@ -401,6 +401,7 @@ let theme = createTheme({
           font-family: ${typography.body1.fontFamily};
           font-size: ${typography.body1.fontSize};
           line-height: ${typography.body1.lineHeight};
+          min-height: 28px;
         }
         .divider {
           height: 28px;

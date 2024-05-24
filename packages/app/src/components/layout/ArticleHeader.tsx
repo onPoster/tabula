@@ -7,13 +7,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { useArticleContext, usePublicationContext } from "@/services/publications/contexts"
 import { UserOptions } from "@/components/commons/UserOptions"
 import Avatar from "@/components/commons/Avatar"
-// import { useIpfs } from "@/hooks/useIpfs"
-// import useLocalStorage from "@/hooks/useLocalStorage"
-// import { Pinning } from "@/models/pinning"
-// import { checkPinningRequirements } from "@/utils/pinning"
-// import { PosterArticle, PosterUpdateArticle } from "@/services/poster/type"
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
-import { ArticleFormSchema } from "@/schemas/article.schema"
+import { ArticleFormSchema, UpdateArticleFormSchema } from "@/schemas/article.schema"
 import useArticles from "@/services/publications/hooks/useArticles"
 
 type Props = {
@@ -27,76 +22,17 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const { address, isConnected } = useWeb3ModalAccount()
   const navigate = useNavigate()
   const location = useLocation()
-  // const ipfs = useIpfs()
-  // const [publicationId, setPublicationId] = useState<string>("")
-  // const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
-  // const [isSelectedHowToSaveArticle] = useLocalStorage<boolean | undefined>("isSelectedHowToSaveArticle", undefined)
-  // const { createArticle, updateArticle } = usePoster()
-  const { setCurrentPath, loading: loadingTransaction, ipfsLoading } = usePublicationContext()
-  const {
-    // saveDraftArticle,
-    // clearArticleState,
-    setStoreArticleContent,
-    setDraftArticlePath,
-    // draftArticle,
-    // setExecuteArticleTransaction,
-    // draftArticleThumbnail,
-    // setArticleTitleError,
-    // setArticleContentError,
-    // articleEditorState,
-    // contentImageFiles,
-    // storeArticleContent,
-    // setArticleEditorState,
-    // saveArticle,
-    articleFormMethods,
-  } = useArticleContext()
-  const { handleSubmit, getValues } = articleFormMethods
-  const { createNewArticle, txLoading } = useArticles()
-  const { create: createLoading } = txLoading
-  // const {
-  //   indexing: createArticleIndexing,
-  //   setExecutePollInterval: createPoll,
-  //   transactionCompleted: newArticleTransaction,
-  //   newArticleId,
-  // } = useArticles()
 
-  // const {
-  //   indexing: updateArticleIndexing,
-  //   transactionCompleted: updateTransaction,
-  //   newArticleId: updateArticleId,
-  //   setCurrentTimestamp,
-  // } = useArticle(draftArticle?.id ?? "")
-
-  // const {
-  //   refetch,
-  //   chainId: publicationChainId,
-  //   transactionCompleted,
-  // } = usePublication(publicationSlug || publication?.id || "")
-
-  // const parameters = chainParameters(chainId ? chainId : SupportedChainId.SEPOLIA)
-  // const URL = parameters && parameters.blockExplorerUrls[0]
+  const { setCurrentPath, ipfsLoading } = usePublicationContext()
+  const { setStoreArticleContent, setDraftArticlePath, articleFormMethods } = useArticleContext()
+  const { handleSubmit } = articleFormMethods
+  const { createNewArticle, txLoading, updateArticle } = useArticles()
+  const { create: createLoading, update: updateLoading } = txLoading
 
   const [show, setShow] = useState<boolean>(false)
-  // const [prepareArticleTransaction, setPrepareArticleTransaction] = useState<boolean>(false)
+
   const isPreview = location.pathname.includes("preview")
   const ref = useRef<HTMLDivElement | null>(null)
-  // const newTransaction = useRef<boolean>(false)
-  // const editTransaction = useRef<boolean>(false)
-  // useOnClickOutside(ref, () => {
-  //   if (show) {
-  //     setShow(!show)
-  //   }
-  // })
-
-  // /**
-  //  * Logic after complete the transaction
-  //  */
-  // useEffect(() => {
-  //   if (transactionCompleted) {
-  //     saveDraftArticle(INITIAL_ARTICLE_VALUE)
-  //     navigate(-1)
-  //   }
-  // }, [navigate, saveDraftArticle, transactionCompleted])
 
   useEffect(() => {
     if (location.pathname) {
@@ -104,68 +40,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     }
   }, [location, setCurrentPath])
 
-  // useEffect(() => {
-  //   if ((newArticleTransaction || updateTransaction) && publicationSlug) {
-  //     setLoading(false)
-  //     navigate(`/${publicationSlug ?? publication?.id ?? publicationId}/${newArticleId || updateArticleId}`)
-  //   }
-  // }, [
-  //   navigate,
-  //   newArticleId,
-  //   newArticleTransaction,
-  //   publication,
-  //   publicationSlug,
-  //   setLoading,
-  //   updateArticleId,
-  //   updateTransaction,
-  // ])
-
-  // useEffect(() => {
-  //   const execute = async () => {
-  //     await prepareTransaction()
-  //     newTransaction.current = false
-  //   }
-  //   if (!newTransaction.current && prepareArticleTransaction && articleEditorState && type === "new") {
-  //     newTransaction.current = true
-  //     execute()
-  //   }
-  // }, [prepareArticleTransaction, articleEditorState])
-
-  // useEffect(() => {
-  //   const execute = async () => {
-  //     await prepareTransaction()
-  //     editTransaction.current = false
-  //   }
-  //   if (
-  //     !editTransaction.current &&
-  //     prepareArticleTransaction &&
-  //     articleEditorState &&
-  //     type === "edit" &&
-  //     !storeArticleContent
-  //   ) {
-  //     editTransaction.current = true
-  //     execute()
-  //   }
-  // }, [prepareArticleTransaction, storeArticleContent])
-
-  // const handlePublishAction = () => {
-  //   console.log("entre")
-  //   // if (type === "edit") {
-  //   //   setArticleEditorState(undefined)
-  //   // }
-  //   handleSubmit(onSubmitHandler)
-  //   // setStoreArticleContent(true)
-  //   // if (!pinning && !isSelectedHowToSaveArticle) {
-  //   //   setShowSettingModal(true)
-  //   //   return
-  //   // }
-  //   // setExecuteArticleTransaction(true)
-  //   // setPrepareArticleTransaction(true)
-  // }
-
   const handlePublishAction = () => {
-    const values = getValues()
-    console.log("values", values)
     handleSubmit(onSubmitHandler)()
   }
 
@@ -185,160 +60,10 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
     }
   }
 
-  // const clearTransactionStates = () => {
-  //   setExecuteArticleTransaction(false)
-  //   setPrepareArticleTransaction(false)
-  //   setLoading(false)
-  // }
-
-  // const validateArticleContent = () => {
-  //   if (draftArticle?.title === "") {
-  //     setExecuteArticleTransaction(false)
-  //     setArticleTitleError(true)
-  //     return false
-  //   }
-  //   if (!articleEditorState || articleEditorState === "<p></p>") {
-  //     setArticleContentError(true)
-  //     return false
-  //   }
-  //   return true
-  // }
-
-  // const processImagesInContent = async () => {
-  //   const articleWithHash = removeHashPrefixFromImages(articleEditorState as string)
-  //   const parser = new DOMParser()
-  //   let doc = parser.parseFromString(articleWithHash as string, "text/html")
-  //   let imgs = Array.from(doc.getElementsByTagName("img"))
-  //   if (contentImageFiles?.length) {
-  //     for (const img of imgs) {
-  //       let altValue = img.alt
-  //       let file = contentImageFiles.find((file: File) => file.lastModified.toString() === altValue)
-  //       if (file) {
-  //         let hash = await ipfs.uploadContent(file).then((hash) => hash.path)
-  //         img.src = hash
-  //       }
-  //     }
-  //   }
-  //   let newDoc = parser.parseFromString(doc.body.innerHTML, "text/html")
-  //   return newDoc.body.innerHTML
-  // }
-
-  // const prepareTransaction = async () => {
-  //   if (!validateArticleContent()) return
-
-  //   setArticleTitleError(false)
-  //   setArticleContentError(false)
-  //   setLoading(true)
-
-  //   let articleContent = ""
-  //   if (contentImageFiles && checkPinningRequirements(pinning)) {
-  //     articleContent = await processImagesInContent()
-  //   } else if (!contentImageFiles && articleEditorState?.includes("img")) {
-  //     articleContent = removeHashPrefixFromImages(articleEditorState)
-  //   } else if (!contentImageFiles && articleEditorState && !articleEditorState.includes("img")) {
-  //     articleContent = articleEditorState
-  //   }
-
-  //   if (draftArticle) {
-  //     const newArticle = {
-  //       ...draftArticle,
-  //       article: articleContent as string,
-  //     }
-  //     await handleArticleAction(newArticle)
-  //   }
-
-  //   setLoading(false)
-  //   setExecuteArticleTransaction(false)
-  // }
-
-  // const uploadThumbnail = async () => {
-  //   let articleThumbnail = ""
-  //   if (draftArticleThumbnail && checkPinningRequirements(pinning)) {
-  //     await ipfs.uploadContent(draftArticleThumbnail).then((img) => {
-  //       articleThumbnail = img.path
-  //     })
-  //   }
-  //   return articleThumbnail
-  // }
-
-  // const createNewArticle = async (articleData: PosterArticle, hashArticle: boolean) => {
-  //   console.log("before start")
-  //   return await createArticle(articleData, hashArticle).then((res) => {
-  //     if (res?.error) {
-  //       clearTransactionStates()
-  //     } else {
-  //       createPoll(true)
-  //     }
-  //   })
-  // }
-
-  // const updateExistingArticle = async (articleData: PosterUpdateArticle, hashArticle: boolean, article: Article) => {
-  //   await updateArticle(articleData, hashArticle).then((res) => {
-  //     if (res && res.error) {
-  //       clearTransactionStates()
-  //     } else if (article && article.lastUpdated) {
-  //       const date = new Date()
-  //       const timestamp = Math.floor(date.getTime() / 1000)
-  //       const temporalArticle = { ...article }
-  //       temporalArticle.lastUpdated = timestamp.toString()
-  //       openNotification({
-  //         message: "Execute transaction confirmed!",
-  //         autoHideDuration: 5000,
-  //         variant: "success",
-  //         detailsLink: `${URL}tx/${res.transaction.transactionHash}`,
-  //         preventDuplicate: true,
-  //       })
-  //       saveArticle(temporalArticle)
-  //       saveDraftArticle(undefined)
-  //       navigate(`/${publicationSlug ?? publication?.id ?? publicationId}/${temporalArticle.id}`)
-  //       return
-  //     }
-  //   })
-  // }
-
-  // const handleArticleAction = async (article: Article) => {
-  //   const { title, article: draftArticleText, description, tags } = article
-  //   const articleThumbnail = await uploadThumbnail()
-  //   let hashArticle
-
-  //   if (draftArticleText && checkPinningRequirements(pinning)) {
-  //     hashArticle = await ipfs.uploadContent(draftArticleText)
-  //   }
-
-  //   if (article && (publication || article.publication) && address) {
-  //     setPublicationId(article.publication?.id ?? "")
-  //     const id = publication?.id || article.publication?.id
-
-  //     if (id == null) {
-  //       clearTransactionStates()
-  //       throw new Error("Publication id is null")
-  //     }
-
-  //     const articleData = {
-  //       action: type === "new" ? "article/create" : "article/update",
-  //       publicationId: id,
-  //       id: article.id,
-  //       title,
-  //       article: hashArticle ? hashArticle.path : draftArticleText,
-  //       description,
-  //       tags,
-  //       image: articleThumbnail,
-  //       authors: [address],
-  //     }
-
-  //     if (type === "new") {
-  //       await createNewArticle(articleData as PosterArticle, hashArticle ? true : false)
-  //     } else if (type === "edit" && article && article.id && article.lastUpdated) {
-  //       setCurrentTimestamp(parseInt(article.lastUpdated))
-  //       await updateExistingArticle(articleData as PosterUpdateArticle, hashArticle ? true : false, article)
-  //     }
-  //   } else {
-  //     clearTransactionStates()
-  //   }
-  // }
-
   const onSubmitHandler = async (articleFields: ArticleFormSchema) => {
-    console.log("articleFields", articleFields)
+    if (articleFields.id) {
+      return await updateArticle(publicationSlug as string, articleFields as UpdateArticleFormSchema)
+    }
     await createNewArticle(publicationSlug as string, articleFields)
   }
 
@@ -389,7 +114,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         }}
       >
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-          <Button variant="text" onClick={handlePreview} disabled={createLoading || ipfsLoading}>
+          <Button variant="text" onClick={handlePreview} disabled={createLoading || updateLoading || ipfsLoading}>
             {isPreview ? "Edit" : "Preview"}
           </Button>
 
@@ -397,9 +122,9 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             variant="contained"
             onClick={handlePublishAction}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
-            disabled={createLoading || ipfsLoading}
+            disabled={createLoading || updateLoading || ipfsLoading}
           >
-            {createLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+            {(createLoading || updateLoading) && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
             Publish
           </Button>
         </Stack>

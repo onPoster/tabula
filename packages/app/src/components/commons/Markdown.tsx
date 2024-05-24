@@ -2,30 +2,7 @@ import ReactMarkdown from "markdown-to-jsx"
 // import { Box, List, ListItem, Typography } from "@mui/material"
 // import Link from "@mui/material/Link"
 
-type NodeType = {
-  type: string
-  props: {
-    children?: React.ReactNode | React.ReactNode[]
-  }
-}
 
-const convert = (node: NodeType) => {
-  const { children } = node.props
-
-  if (!children) return null
-
-  const content = Array.isArray(children) ? children[0] : children
-
-  if (node.type === "em") {
-    return <em>{content}</em>
-  }
-  if (node.type === "strong") {
-    return <strong>{content}</strong>
-  }
-  if (node.type === "del") {
-    return <del>{content}</del>
-  }
-}
 
 const options = {
   disableParsingRawHTML: false,

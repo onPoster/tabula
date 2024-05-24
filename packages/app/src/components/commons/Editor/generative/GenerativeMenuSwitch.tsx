@@ -4,7 +4,7 @@ import { Fragment, useEffect, type ReactNode } from "react"
 import {} from "novel/plugins"
 import { removeAIHighlight } from "novel/extensions"
 import { makeStyles } from "@mui/styles"
-import AISelector from "./AiSelector"
+// import AISelector from "./AiSelector"
 import { Button } from "@mui/material"
 
 interface GenerativeMenuSwitchProps {
@@ -44,7 +44,7 @@ const GenerativeMenuSwitch = ({ children, open, onOpenChange }: GenerativeMenuSw
         },
       }}
     >
-      {open && <AISelector open={open} onOpenChange={onOpenChange} />}
+      {/* {open && <AISelector open={open} onOpenChange={onOpenChange} />} */}
       {!open && (
         <Fragment>
           <Button

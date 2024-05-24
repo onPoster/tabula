@@ -42,7 +42,6 @@ export const useExecuteTransaction = <T,>(
         const message = !signer ? "Signer not available" : "Contract is not available"
         return { error: true, message }
       }
-
       try {
         setStatus(TransactionStatus.Pending)
         const transactionMethod = contract![methodName] as ethers.ContractFunction

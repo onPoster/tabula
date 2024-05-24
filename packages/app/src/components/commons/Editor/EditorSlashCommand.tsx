@@ -1,4 +1,3 @@
-import { useCallback } from "react"
 import { createSuggestionItems } from "novel/extensions"
 import { Command, renderItems } from "novel/extensions"
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft"
@@ -17,10 +16,8 @@ const useSuggestionItems = () => {
   const { encodeIpfsHash } = useIPFSContext()
 
   const onUpload = async (file: File) => {
-    console.log("entre")
     return encodeIpfsHash(file).then((hash) => {
       const imageUrl = `https://ipfs.io/ipfs/${hash}`
-      console.log("imageUrl", imageUrl)
       return imageUrl
     })
   }

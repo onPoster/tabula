@@ -1,10 +1,8 @@
-import { maxBy } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import { useQuery } from "urql"
 import { useNotification } from "@/hooks/useNotification"
-import { Article, Publication } from "@/models/publication"
-import { usePosterContext } from "@/services/poster/context"
-import { INITIAL_ARTICLE_VALUE, useArticleContext } from "@/services/publications/contexts"
+import { Article } from "@/models/publication"
+import { useArticleContext } from "@/services/publications/contexts"
 import { GET_ARTICLES_QUERY, GET_ARTICLE_QUERY } from "@/services/publications/queries"
 import { useWalletContext } from "@/connectors/WalletProvider"
 import { TransactionResult, useExecuteTransaction } from "@/hooks/useContract"
@@ -18,6 +16,7 @@ import {
   generateUpdateArticleBody,
   deleteArticleBody,
 } from "@/services/publications/utils/article-method"
+import { useNavigate, useParams } from "react-router-dom"
 
 interface TransactionBody extends Object {
   image?: string
@@ -25,14 +24,12 @@ interface TransactionBody extends Object {
 }
 
 const useArticles = () => {
+  const navigate = useNavigate()
   const openNotification = useNotification()
-  // const { transactionUrl } = usePosterContext()
   const { encodeIpfsHash, remotePin } = useIPFSContext()
-  const { saveArticle } = useArticleContext()
+  const { saveArticle, setArticles } = useArticleContext()
+  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const [data, setData] = useState<Article[] | undefined>(undefined)
-  // const [indexing, setIndexing] = useState<boolean>(false)
-  // const [executePollInterval, setExecutePollInterval] = useState<boolean>(false)
-  // const [transactionCompleted, setTransactionCompleted] = useState<boolean>(false)
   const { signer } = useWalletContext()
   const [txLoading, setTxLoading] = useState({
     create: false,
@@ -42,6 +39,7 @@ const useArticles = () => {
   const [newArticleId, setNewArticleId] = useState<string>()
   const [articleIdToDelete, setArticleIdToDelete] = useState<string>("")
   const [articleIdToUpdate, setArticleIdToUpdate] = useState<string>("")
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null)
   const { executeTransaction, status, errorMessage } = useExecuteTransaction(
     signer,
     POSTER_CONTRACT,
@@ -74,6 +72,7 @@ const useArticles = () => {
     },
     "update",
     "article",
+    lastUpdated,
   )
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
@@ -85,36 +84,39 @@ const useArticles = () => {
   useEffect(() => {
     if (result) {
       setData(result.articles)
+      setArticles(result.articles)
     } else {
       setData(undefined)
     }
-  }, [result])
+  }, [result, setArticles])
 
   useEffect(() => {
     if (newArticleIndexed && newArticleId) {
       setTxLoading((prev) => ({ ...prev, create: false }))
-      console.log("newArticleId", newArticleId)
-      // navigate(`/${newArticleId}`)
+      navigate(`/${publicationSlug}/${newArticleId}`)
       refetch()
     }
-  }, [newArticleId, newArticleIndexed, refetch])
+  }, [navigate, newArticleId, newArticleIndexed, publicationSlug, refetch])
 
   useEffect(() => {
     if (articleDeletedIndexed && articleIdToDelete) {
       setTxLoading((prev) => ({ ...prev, delete: false }))
       setArticleIdToDelete("")
-      // navigate(`/publications`)
       refetch()
     }
-  }, [articleDeletedIndexed, articleIdToDelete, refetch])
+  }, [articleDeletedIndexed, articleIdToDelete, refetch, setArticles])
 
   useEffect(() => {
     if (articleUpdateIndexed && articleUpdateFields) {
+      const { article } = articleUpdateFields as { article: Article }
+
       setTxLoading((prev) => ({ ...prev, update: false }))
       setArticleIdToUpdate("")
-      saveArticle(articleUpdateFields as Article)
+      setLastUpdated(null)
+      navigate(`/${publicationSlug}/${article.id}`)
+      saveArticle(article)
     }
-  }, [articleUpdateIndexed, articleUpdateFields, saveArticle])
+  }, [articleUpdateIndexed, articleUpdateFields, saveArticle, navigate, publicationSlug])
 
   const handleTransaction = async (
     transactionBody: TransactionBody,
@@ -122,7 +124,6 @@ const useArticles = () => {
     callback: (result: TransactionResult) => void,
   ) => {
     try {
-      console.log("transactionBody", transactionBody)
       setTxLoading({ ...txLoading, [transactionType]: true })
       const result = await executeTransaction(JSON.stringify(transactionBody), "PUBLICATION")
 
@@ -163,6 +164,7 @@ const useArticles = () => {
     const body = await generateUpdateArticleBody(publicationId, fields, encodeIpfsHash)
     handleTransaction({ ...body.articleBody, imgHashes: body.imgHashes }, "update", () => {
       setArticleIdToUpdate(fields.id)
+      setLastUpdated(parseInt(fields.lastUpdated ?? ""))
     })
   }
 
@@ -173,75 +175,9 @@ const useArticles = () => {
     })
   }
 
-  // //Execute poll interval to know the latest publications indexed
-  // useEffect(() => {
-  //   if (executePollInterval) {
-  //     setIndexing(true)
-  //     const interval = setInterval(() => {
-  //       refetch()
-  //     }, 5000)
-  //     return () => clearInterval(interval)
-  //   } else {
-  //     setIndexing(false)
-  //   }
-  // }, [executePollInterval, refetch])
-
-  // //Execute poll interval to know is the last article created is already indexed
-  // useEffect(() => {
-  //   if (data && data.length && executePollInterval && draftArticle) {
-  //     const recentArticle = maxBy(data, (fetchedArticle) => {
-  //       if (fetchedArticle.lastUpdated) {
-  //         return parseInt(fetchedArticle.lastUpdated)
-  //       }
-  //     })
-  //     if (recentArticle && recentArticle.title === draftArticle.title) {
-  //       setNewArticleId(recentArticle.id)
-  //       saveDraftArticle(INITIAL_ARTICLE_VALUE)
-  //       saveArticle(recentArticle)
-  //       setTransactionCompleted(true)
-  //       setIndexing(false)
-  //       setExecutePollInterval(false)
-  //       openNotification({
-  //         message: "Execute transaction confirmed!",
-  //         autoHideDuration: 5000,
-  //         variant: "success",
-  //         detailsLink: transactionUrl,
-  //         preventDuplicate: true,
-  //       })
-  //       return
-  //     }
-  //   }
-  // }, [
-  //   loading,
-  //   data,
-  //   openNotification,
-  //   transactionUrl,
-  //   executePollInterval,
-  //   draftArticle,
-  //   saveArticle,
-  //   saveDraftArticle,
-  // ])
-
-  // //Show toast when transaction is indexing
-  // useEffect(() => {
-  //   if (indexing && transactionUrl && showToast) {
-  //     setShowToast(false)
-  //     openNotification({
-  //       message: "The transaction is indexing",
-  //       autoHideDuration: 2000,
-  //       variant: "info",
-  //       detailsLink: transactionUrl,
-  //       preventDuplicate: true,
-  //     })
-  //   }
-  // }, [indexing, openNotification, showToast, transactionUrl])
-
   return {
     loading,
     data,
-    // indexing,
-    // transactionCompleted,
-    // setExecutePollInterval,
     txLoading,
     status,
     errorMessage,
