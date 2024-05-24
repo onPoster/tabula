@@ -63,6 +63,8 @@ export const GET_PUBLICATION_QUERY = gql`
   }
 `
 
+
+
 export const GET_ARTICLE_QUERY = gql`
   query getArticle($id: String!) {
     article(id: $id) {

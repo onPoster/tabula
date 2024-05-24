@@ -4,23 +4,23 @@ import moment from "moment"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Helmet } from "react-helmet"
 import { useParams } from "react-router-dom"
-import { useArticleContext } from "../../../services/publications/contexts"
-import useArticle from "../../../services/publications/hooks/useArticle"
-import { palette, typography } from "../../../theme"
-import { Markdown } from "../../commons/Markdown"
-import { ViewContainer } from "../../commons/ViewContainer"
-import PublicationPage from "../../layout/PublicationPage"
+import { useArticleContext } from "@/services/publications/contexts"
+import useArticle from "@/services/publications/hooks/useArticle"
+import { palette, typography } from "@/theme"
+import { Markdown } from "@/components/commons/Markdown"
+import { ViewContainer } from "@/components/commons/ViewContainer"
+import PublicationPage from "@/components/layout/PublicationPage"
 import isIPFS from "is-ipfs"
-import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
-import usePublication from "../../../services/publications/hooks/usePublication"
-import { convertToMarkdown } from "../../../utils/string-handler"
+import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { convertToMarkdown } from "@/utils/string-handler"
 
 interface ArticleViewProps {
-  updateChainId: (chainId: number) => void
+
 }
 //Provisional solution to detect older articles and check the dif between markdown and html articles
 const VALIDATION_DATE = "2023-02-02T00:00:00Z"
-export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
+export const ArticleView: React.FC<ArticleViewProps> = ( ) => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
   const {
@@ -50,11 +50,11 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
 
   const [articleToShow, setArticleToShow] = useState<string>("")
 
-  useEffect(() => {
-    if (publication.chainId != null) {
-      updateChainId(publication.chainId)
-    }
-  }, [publication, updateChainId])
+  // useEffect(() => {
+  //   if (publication.chainId != null) {
+  //     updateChainId(publication.chainId)
+  //   }
+  // }, [publication, updateChainId])
 
   useEffect(() => {
     if (!article && articleId) {

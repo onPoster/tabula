@@ -1,5 +1,7 @@
+import { BootstrapInit } from "@libp2p/bootstrap"
+
 // this list comes from https://github.com/ipfs/kubo/blob/da28fbc65a2e0f1ce59f9923823326ae2bc4f713/config/bootstrap_peers.go#L17
-export const bootstrapConfig = {
+export const bootstrapConfig: BootstrapInit = {
   list: [
     "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
     "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
@@ -8,4 +10,5 @@ export const bootstrapConfig = {
     "/ip4/104.131.131.82/udp/4001/quic/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
     "/ip4/127.0.0.1/tcp/5001",
   ],
+  timeout: 100000,
 }

@@ -15,6 +15,12 @@ export type PublicationAction =
   | "publication/delete"
   | "publication/permissions"
 
+
+export type ArticleAction =
+  | "article/create"
+  | "article/update"
+  | "article/delete"
+
 export interface PermissionAction {
   "article/create": boolean
   "article/update": boolean

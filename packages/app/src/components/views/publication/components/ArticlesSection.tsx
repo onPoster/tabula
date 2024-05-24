@@ -1,13 +1,13 @@
 import React, { useEffect } from "react"
 import { Box, Button, Grid, Typography } from "@mui/material"
-import { palette, typography } from "../../../../theme"
+import { palette, typography } from "@/theme"
 import AddIcon from "@mui/icons-material/Add"
 import { useNavigate, useParams } from "react-router-dom"
-import { haveActionPermission } from "../../../../utils/permission"
+import { haveActionPermission } from "@/utils/permission"
 
-import usePublication from "../../../../services/publications/hooks/usePublication"
+import usePublication from "@/services/publications/hooks/usePublication"
 import { ArticleItem } from "./ArticleItem"
-import { INITIAL_ARTICLE_VALUE, useArticleContext } from "../../../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext } from "@/services/publications/contexts"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 export const ArticlesSection: React.FC = React.memo(() => {

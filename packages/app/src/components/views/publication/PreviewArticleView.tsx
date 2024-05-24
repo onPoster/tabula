@@ -1,48 +1,40 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Box, Chip, Grid, Typography } from "@mui/material"
-
-import React, { Fragment, useEffect, useState } from "react"
-import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
-
-import { Markdown } from "../../commons/Markdown"
-
-import { ViewContainer } from "../../commons/ViewContainer"
-import CreateArticlePage from "../../layout/CreateArticlePage"
-
-import { toBase64 } from "../../../utils/string-handler"
+import React, { Fragment, useState } from "react"
 import { useLocation } from "react-router-dom"
-import turndownService from "../../../services/turndown"
+import { Box, Chip, Grid, Typography } from "@mui/material"
+import CreateArticlePage from "@/components/layout/CreateArticlePage"
+import { useArticleContext, usePublicationContext } from "@/services/publications/contexts"
+import { ViewContainer } from "@/components/commons/ViewContainer"
+import { HtmlRenderer } from "@/components/commons/HtmlRender"
 
 const PreviewArticleView: React.FC = () => {
   const location = useLocation()
 
   const { publication } = usePublicationContext()
-  const { draftArticle, draftArticleThumbnail, articleEditorState } = useArticleContext()
-  const [articleHtml, setArticleHtml] = useState<string>("")
+  const { draftArticle, draftArticleThumbnail, articleEditorState, articleHtml } = useArticleContext()
   const [thumbnailUri, setThumbnailUri] = useState<string | undefined>(undefined)
-  const article = turndownService.turndown(articleHtml)
 
   const isEdit = location.pathname.includes("edit") && "edit"
   const isNew = location.pathname.includes("new") && "new"
 
-  useEffect(() => {
-    if (articleEditorState) {
-      setArticleHtml(articleEditorState)
-    }
-  }, [articleEditorState])
+  // useEffect(() => {
+  //   if (articleEditorState) {
+  //     setArticleHtml(articleEditorState)
+  //   }
+  // }, [articleEditorState])
 
-  useEffect(() => {
-    const transformImg = async () => {
-      if (draftArticleThumbnail) {
-        const content = await toBase64(draftArticleThumbnail)
-        setThumbnailUri(content)
-      } else {
-        setThumbnailUri(undefined)
-      }
-    }
-    transformImg()
-  }, [draftArticleThumbnail])
+  // useEffect(() => {
+  //   const transformImg = async () => {
+  //     if (draftArticleThumbnail) {
+  //       const content = await toBase64(draftArticleThumbnail)
+  //       setThumbnailUri(content)
+  //     } else {
+  //       setThumbnailUri(undefined)
+  //     }
+  //   }
+  //   transformImg()
+  // }, [draftArticleThumbnail])
 
+  console.log('articleHtml', articleHtml)
   return (
     <CreateArticlePage publication={publication} type={(isEdit || isNew) as "edit" | "new"}>
       <Box
@@ -79,7 +71,8 @@ const PreviewArticleView: React.FC = () => {
                       <Typography>Decrypting data from IPFS...please wait a moment</Typography>
                     </Grid>
                   )} */}
-                  <Markdown>{article}</Markdown>
+                  {/* <Markdown>{article}</Markdown> */}
+                  {articleHtml && <HtmlRenderer htmlContent={articleHtml} />}
                 </Grid>
               </Fragment>
             )}

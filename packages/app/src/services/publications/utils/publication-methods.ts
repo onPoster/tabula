@@ -56,6 +56,7 @@ export const deletePublicationBody = async (id: string) => {
     id,
   }
 }
+
 export const generatePermissionBody = async (publicationId: string, permissionFields: PermissionFormSchema) => {
   return {
     action: "publication/permissions",

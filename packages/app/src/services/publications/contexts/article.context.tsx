@@ -5,6 +5,9 @@ import { createGenericContext } from "../../../utils/create-generic-context"
 
 import { ArticleContextType, ArticleProviderProps } from "./article.types"
 import { uid } from "uid"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import { articleSchema } from "@/schemas/article.schema"
 
 export const INITIAL_ARTICLE_VALUE = { title: "", article: "" }
 export const INITIAL_ARTICLE_BLOCK = [{ id: uid(), html: "", tag: "p" }]
@@ -34,7 +37,18 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
   const [linkComponentUrl, setLinkComponentUrl] = useState<string | undefined>(undefined)
   const [contentImageFiles, setContentImageFiles] = useState<File[] | undefined>(undefined)
 
-
+  /** EditorBlock States V3 **/
+  const articleFormMethods = useForm({
+    resolver: yupResolver(articleSchema),
+    defaultValues: {
+      title: "",
+      article: "",
+      description: "",
+      tags: [],
+      image: undefined,
+    },
+  })
+  const [articleHtml, setArticleHtml] = useState<string | undefined>(undefined)
 
   const clearArticleState = () => {
     setCurrentPath(undefined)
@@ -50,6 +64,7 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
     setArticleEditorState(undefined)
     setLinkComponentUrl(undefined)
     setContentImageFiles(undefined)
+    setArticleHtml(undefined)
   }
 
   const getIpfsData = async (hash: string): Promise<string> => {
@@ -94,6 +109,9 @@ const ArticleProvider = ({ children }: ArticleProviderProps) => {
         storeArticleContent,
         draftArticlePath,
         linkComponentUrl,
+        articleHtml,
+        articleFormMethods,
+        setArticleHtml,
         setPublishArticle,
         setLinkComponentUrl,
         setDraftArticlePath,

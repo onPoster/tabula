@@ -1,12 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Box, Container, FormHelperText, Grid, InputLabel, Stack, TextField, Typography } from "@mui/material"
 
-import React, { useEffect } from "react"
-import { useArticleContext, usePublicationContext } from "../../../services/publications/contexts"
-import CreateArticlePage from "../../layout/CreateArticlePage"
-import { ArticleContentSection } from "./components/ArticleContentSection"
-import { palette } from "../../../theme"
-import useDebouncedState from "../../../hooks/useDebouncedState"
+import React, { useState } from "react"
+import { useArticleContext, usePublicationContext } from "@/services/publications/contexts"
+import { palette } from "@/theme"
+import CreateArticlePage from "@/components/layout/CreateArticlePage"
+
+import Editor from "@/components/commons/Editor/AdvanceEditor"
+import { defaultValue } from "@/components/commons/Editor/default-value"
+import { JSONContent } from "novel"
+import { Controller } from "react-hook-form"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
@@ -14,12 +16,33 @@ interface CreateArticleViewProps {
 
 export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({ type }) => {
   const { publication } = usePublicationContext()
-  const { draftArticle, updateDraftArticle, articleTitleError, articleContentError } = useArticleContext()
+  const {
+    // draftArticle,
+    // updateDraftArticle,
+    // articleTitleError,
+    // articleContentError,
+    setArticleHtml,
+    articleFormMethods,
+  } = useArticleContext()
+  const [value, setValue] = useState<JSONContent>(defaultValue)
 
-  const [title, debouncedTitle, setTitle] = useDebouncedState<string>(draftArticle?.title ?? "")
-  useEffect(() => {
-    updateDraftArticle("title", debouncedTitle)
-  }, [debouncedTitle])
+  const {
+    control,
+    setValue: saveArticleValue,
+    formState: { errors },
+  } = articleFormMethods
+
+  const handleEditorChange = (htmlContent: string) => {
+    if (htmlContent === "<p></p>") {
+      saveArticleValue("article", "")
+      setArticleHtml(undefined)
+      return
+    }
+    if (htmlContent) {
+      saveArticleValue("article", htmlContent)
+      setArticleHtml(htmlContent)
+    }
+  }
 
   return (
     <CreateArticlePage publication={publication} type={type}>
@@ -40,20 +63,22 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
                     *
                   </Typography>
                 </InputLabel>
-                <TextField
-                  variant="standard"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  InputProps={{ disableUnderline: true }}
-                  sx={{ width: "100%", fontSize: 40 }}
-                  placeholder="Post title"
+                <Controller
+                  control={control}
+                  name="title"
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      variant="standard"
+                      fullWidth
+                      InputProps={{ disableUnderline: true }}
+                      sx={{ fontSize: 40 }}
+                      placeholder="Post title"
+                      error={!!errors.title}
+                      helperText={errors.title?.message}
+                    />
+                  )}
                 />
-
-                {articleTitleError && (
-                  <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                    Title is required
-                  </FormHelperText>
-                )}
               </Stack>
             </Grid>
 
@@ -65,13 +90,19 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
                     *
                   </Typography>
                 </InputLabel>
-                <ArticleContentSection />
-                {articleContentError && (
-                  <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                    Article content is required
-                  </FormHelperText>
-                )}
               </Stack>
+              <Controller
+                control={control}
+                name="article"
+                render={({ field }) => (
+                  <Editor initialValue={value} {...field} onChange={setValue} onHtml={handleEditorChange} />
+                )}
+              />
+              {errors.article && (
+                <FormHelperText sx={{ color: "#d32f2f", textTransform: "capitalize" }}>
+                  {errors.article.message}
+                </FormHelperText>
+              )}
             </Grid>
           </Grid>
         </Container>

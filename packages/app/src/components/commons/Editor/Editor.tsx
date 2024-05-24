@@ -34,6 +34,7 @@ import EditorShowImage from "./EditorComponents/EditoShowImage"
 import { palette, typography } from "../../../theme"
 import useHandlePastedText from "./hooks/useHandlePasteText"
 
+
 const { hasCommandModifier } = KeyBindingUtil
 type Config = IConvertToHTMLConfig<DraftInlineStyleType, string, RawDraftEntity>
 

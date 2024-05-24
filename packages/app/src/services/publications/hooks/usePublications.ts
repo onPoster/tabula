@@ -24,9 +24,9 @@ interface TransactionBody extends Object {
   image?: string
 }
 
-const POSTER_CONTRACT = import.meta.env.VITE_APP_POSTER_CONTRACT
-const POSTER_ABI = abi
-const POSTER_METHOD = "post"
+export const POSTER_CONTRACT = import.meta.env.VITE_APP_POSTER_CONTRACT
+export const POSTER_ABI = abi
+export const POSTER_METHOD = "post"
 
 const usePublications = () => {
   const openNotification = useNotification()
@@ -163,6 +163,7 @@ const usePublications = () => {
       setPublicationIdToDelete(publicationIdToDelete)
     })
   }
+  
   const givePermission = async (publicationId: string, form: PermissionFormSchema) => {
     const publicationBody = await generatePermissionBody(publicationId, form)
     handleTransaction(publicationBody, "update", () => {

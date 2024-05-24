@@ -2,23 +2,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
-import { palette, typography } from "../../../../theme"
+import { palette, typography } from "@/theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
-import { Article } from "../../../../models/publication"
+import { Article } from "@/models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 
 import moment from "moment"
-import { useArticleContext } from "../../../../services/publications/contexts"
+import { useArticleContext } from "@/services/publications/contexts"
 import { useNavigate } from "react-router-dom"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import usePoster from "../../../../services/poster/hooks/usePoster"
-import usePublication from "../../../../services/publications/hooks/usePublication"
-import { usePosterContext } from "../../../../services/poster/context"
-import useArticle from "../../../../services/publications/hooks/useArticle"
+import usePoster from "@/services/poster/hooks/usePoster"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { usePosterContext } from "@/services/poster/context"
+import useArticle from "@/services/publications/hooks/useArticle"
 import isIPFS from "is-ipfs"
-import { useIpfs } from "../../../../hooks/useIpfs"
-import { shortTitle } from "../../../../utils/string-handler"
-import { processArticleContent } from "../../../../utils/modifyHTML"
+import { useIpfs } from "@/hooks/useIpfs"
+import { shortTitle } from "@/utils/string-handler"
+import { processArticleContent } from "@/utils/modifyHTML"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -90,7 +90,6 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     const fetchArticleContent = useCallback(async () => {
       try {
         const data = await decodeArticleContent()
-        console.log("data", data)
         if (data) {
           setArticleHtmlContent(data)
         }
@@ -152,6 +151,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
         })
       }
     }
+
     return (
       <ArticleItemContainer
         onClick={() => {
@@ -163,8 +163,12 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
       >
         <Grid container spacing={2}>
           {image && (
-            <Grid item xs={4}>
-              <ThumbnailImage src={imageSrc} />
+            <Grid item xs={4} container justifyContent="center" alignItems="center">
+              {imageSrc ? (
+                <ThumbnailImage src={imageSrc} />
+              ) : (
+                <CircularProgress color="primary" size={30} sx={{ marginRight: 1, color: palette.primary[1000] }} />
+              )}
             </Grid>
           )}
           <Grid item xs={image ? 8 : 12}>

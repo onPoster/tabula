@@ -7,13 +7,12 @@ import { bootstrap } from "@libp2p/bootstrap"
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2"
 import { dcutr } from "@libp2p/dcutr"
 import { type Identify } from "@libp2p/identify"
-import { type DualKadDHT, kadDHT } from "@libp2p/kad-dht"
+import { kadDHT } from "@libp2p/kad-dht"
 import { KeychainInit, type Keychain } from "@libp2p/keychain"
 import { mplex } from "@libp2p/mplex"
 import { ping, type PingService } from "@libp2p/ping"
 import { webRTC, webRTCDirect } from "@libp2p/webrtc"
 import { webSockets } from "@libp2p/websockets"
-import { webTransport } from "@libp2p/webtransport"
 import { ipnsSelector } from "ipns/selector"
 import { ipnsValidator } from "ipns/validator"
 import { bootstrapConfig } from "./bootstrappers"
@@ -29,7 +28,6 @@ export interface DefaultLibp2pServices extends Record<string, unknown> {
   autoNAT: unknown
   dcutr: unknown
   delegatedRouting: unknown
-  dht: DualKadDHT
   identify: Identify
   keychain: Keychain
   ping: PingService
@@ -47,7 +45,6 @@ export function libp2pDefaults(): Libp2pOptions<DefaultLibp2pServices> {
       }),
       webRTC(),
       webRTCDirect(),
-      // webTransport(),
       webSockets(),
     ],
     //@ts-ignore
@@ -71,7 +68,12 @@ export function libp2pDefaults(): Libp2pOptions<DefaultLibp2pServices> {
           ipns: ipnsSelector,
         },
       }),
-      ping: ping(),
+      ping: ping({
+        timeout: 20000, // max wait
+        maxInboundStreams: 3, //max incoming streams
+        maxOutboundStreams: 3, //max outbound streams
+        runOnTransientConnection: false,
+      }),
       pubsub: gossipsub(),
     },
   }
