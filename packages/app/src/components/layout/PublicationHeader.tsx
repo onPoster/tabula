@@ -1,21 +1,22 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material"
-import { useWeb3React } from "@web3-react/core"
-import { WalletBadge } from "../commons/WalletBadge"
-import { Publication } from "../../models/publication"
+import { WalletBadge } from "@/components/commons/WalletBadge"
+import { Publication } from "@/models/publication"
 import AddIcon from "@mui/icons-material/Add"
-import theme, { palette, typography } from "../../theme"
+import theme, { palette, typography } from "@/theme"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
-import usePublication from "../../services/publications/hooks/usePublication"
-import { haveActionPermission } from "../../utils/permission"
-import { INITIAL_ARTICLE_VALUE, useArticleContext, usePublicationContext } from "../../services/publications/contexts"
-import { UserOptions } from "../commons/UserOptions"
-// import { useOnClickOutside } from "../../hooks/useOnClickOutside"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { haveActionPermission } from "@/utils/permission"
+import { INITIAL_ARTICLE_VALUE, useArticleContext } from "@/services/publications/contexts"
+import { UserOptions } from "@/components/commons/UserOptions"
+// import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
-import isIPFS from "is-ipfs"
-import Avatar from "../commons/Avatar"
-import { useIpfs } from "../../hooks/useIpfs"
-import { processArticleContent } from "../../utils/modifyHTML"
+// import isIPFS from "is-ipfs"
+// import { useIpfs } from "@/hooks/useIpfs"
+import Avatar from "@/components/commons/Avatar"
+// import { processArticleContent } from "@/utils/modifyHTML"
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
 
 type Props = {
   articleId?: string
@@ -32,13 +33,12 @@ const ItemContainer = styled(Grid)({
     margin: "15px 0px",
   },
 })
-const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreatePost, showEditButton }) => {
-  const ipfs = useIpfs()
+const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showEditButton }) => {
+  // const ipfs = useIpfs()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { account, active } = useWeb3React()
+  const { address, isConnected } = useWeb3ModalAccount()
   const navigate = useNavigate()
   const location = useLocation()
-  const { savePublication } = usePublicationContext()
   const {
     article,
     setCurrentPath,
@@ -47,11 +47,13 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
     setMarkdownArticle,
     setDraftArticleThumbnail,
     setArticleEditorState,
+    articleFormMethods,
   } = useArticleContext()
-  const { refetch, chainId: publicationChainId } = usePublication(publicationSlug || "")
+  const { open } = useWeb3Modal()
+  const { refetch } = usePublication(publicationSlug || "")
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
-  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
+  // const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const ref = useRef()
   // useOnClickOutside(ref, () => {
@@ -60,14 +62,15 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
   //   }
   // })
 
+  const { setValue } = articleFormMethods
   useEffect(() => {
     if (location.pathname) {
       setCurrentPath(location.pathname)
     }
   }, [location, setCurrentPath])
 
-  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
-  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
+  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", address || "") : false
+  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", address || "") : false
 
   const handleNavigation = () => {
     refetch()
@@ -78,12 +81,21 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
 
   const handleEditNavigation = async () => {
     if (article) {
-      await processArticleContent(article, ipfs, isValidHash ?? false).then(({ img, content, modifiedHTMLString }) => {
-        saveDraftArticle({ ...article, title: article.title, image: img })
-        savePublication(article.publication)
-        setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
-        navigate(`/${publicationSlug}/${articleId}/edit`)
-      })
+      setValue("id", article.id)
+      setValue("title", article.title)
+      setValue("article", addUrlToImageHashes(article.article))
+      setValue("description", article.description ?? undefined)
+      setValue("lastUpdated", article.lastUpdated ?? undefined)
+      setValue(
+        "tags",
+        article.tags
+          ? article.tags.map((tag) => {
+              return { label: tag, value: tag }
+            })
+          : undefined,
+      )
+      setValue("image", article.image)
+      navigate(`/${article.publication?.id}/edit`)
     }
   }
 
@@ -127,7 +139,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
         <Grid item>
           <ItemContainer container>
             <Grid item>
-              {account && (
+              {address && (
                 <Grid
                   container
                   flexDirection="column"
@@ -136,7 +148,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                   sx={{ position: "relative" }}
                 >
                   <Grid item sx={{ cursor: "pointer" }} onClick={() => setShow(!show)}>
-                    <WalletBadge hover address={account} />
+                    <WalletBadge hover address={address} />
                   </Grid>
                   {show && (
                     <Grid item sx={{ position: "absolute", top: 45 }}>
@@ -187,7 +199,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
           </ItemContainer>
         </Grid>
 
-        {!active && (
+        {!isConnected && (
           <Button
             variant="outlined"
             sx={{
@@ -199,7 +211,7 @@ const PublicationHeader: React.FC<Props> = ({ articleId, publication, showCreate
                 boxShadow: "0 4px rgba(0,0,0,0.1), inset 0 -4px 4px #97220100",
               },
             }}
-            onClick={() => navigate(`/wallet?publicationChainId=${publicationChainId}`)}
+            onClick={() => open()}
           >
             Connect Wallet
           </Button>

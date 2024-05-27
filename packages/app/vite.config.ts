@@ -1,8 +1,9 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
-import viteTsconfigPaths from "vite-tsconfig-paths"
-import browserslistToEsbuild from "browserslist-to-esbuild"
+// import browserslistToEsbuild from "browserslist-to-esbuild"
 import svgr from "@svgr/rollup"
+import path from "path"
+import tsconfigPaths from "vite-tsconfig-paths"
 
 export default defineConfig({
   // depending on your application, base can also be "/"
@@ -13,17 +14,20 @@ export default defineConfig({
   },
   build: {
     // --> ["chrome79", "edge92", "firefox91", "safari13.1"]
-    target: browserslistToEsbuild(),
+    target: "esnext",
+  },
+  resolve: {
+    alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],
   },
   plugins: [
     // here is the main update
+    tsconfigPaths(),
     react({
       jsxImportSource: "@emotion/react",
       babel: {
         plugins: ["@emotion/babel-plugin"],
       },
     }),
-    viteTsconfigPaths(),
     svgr(),
   ],
   server: {

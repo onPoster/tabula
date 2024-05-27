@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react"
 import { Box, Stack, useTheme } from "@mui/material"
-import SettingsIcon from "../../assets/images/icons/settings"
-import ArticleHeader from "./ArticleHeader"
-import ArticleSidebar from "../views/publication/components/ArticleSidebar"
-import { Publication } from "../../models/publication"
+import SettingsIcon from "@/assets/images/icons/settings"
+import ArticleHeader from "@/components/layout/ArticleHeader"
+import ArticleSidebar from "@/components/views/publication/components/ArticleSidebar"
+
+import { Publication } from "@/models/publication"
 import { Helmet } from "react-helmet"
-import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
-import usePublication from "../../services/publications/hooks/usePublication"
-import { palette } from "../../theme"
+import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { palette } from "@/theme"
 import shadows from "@mui/material/styles/shadows"
 import { useLocation, useParams } from "react-router-dom"
 
@@ -109,7 +110,7 @@ const PublicationPage: React.FC<Props> = ({ children, publication, type }) => {
                 </Box>
               )}
             </Box>
-            {showSidebar && <ArticleSidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />}
+            {showSidebar && <ArticleSidebar setShowSidebar={setShowSidebar} />}
           </Stack>
         </Box>
       </Box>

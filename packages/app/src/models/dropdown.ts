@@ -8,6 +8,7 @@ export type CreateSelectOption = Omit<DropdownOption, "icon">
 
 export interface DropdownProps {
   options: DropdownOption[]
+  disabled?: boolean
   title: string
   onSelected: (item: DropdownOption) => void
   defaultValue?: DropdownOption

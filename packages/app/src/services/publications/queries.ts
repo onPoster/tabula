@@ -41,7 +41,7 @@ const ARTICLE_CONTENT = `
 `
 
 const PUBLICATIONS = `
-  publications {
+  publications(orderBy: lastUpdated, orderDirection: desc) {
     ${PUBLICATION_CONTENT}
   }
 `
@@ -63,6 +63,8 @@ export const GET_PUBLICATION_QUERY = gql`
   }
 `
 
+
+
 export const GET_ARTICLE_QUERY = gql`
   query getArticle($id: String!) {
     article(id: $id) {
@@ -73,7 +75,7 @@ export const GET_ARTICLE_QUERY = gql`
 
 export const GET_ARTICLES_QUERY = gql`
   query getArticles {
-    articles {
+    articles(orderBy: lastUpdated, orderDirection: desc) {
       ${ARTICLE_CONTENT}
     }
   }

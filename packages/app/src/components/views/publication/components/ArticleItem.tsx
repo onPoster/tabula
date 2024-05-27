@@ -2,23 +2,24 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Box, Button, Chip, CircularProgress, Grid, Stack, Typography } from "@mui/material"
 import { styled } from "@mui/styles"
-import { palette, typography } from "../../../../theme"
+import { palette, typography } from "@/theme"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
-import { Article } from "../../../../models/publication"
+import { Article } from "@/models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 
 import moment from "moment"
-import { useArticleContext } from "../../../../services/publications/contexts"
+import { useArticleContext } from "@/services/publications/contexts"
 import { useNavigate } from "react-router-dom"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
-import usePoster from "../../../../services/poster/hooks/usePoster"
-import usePublication from "../../../../services/publications/hooks/usePublication"
-import { usePosterContext } from "../../../../services/poster/context"
-import useArticle from "../../../../services/publications/hooks/useArticle"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { usePosterContext } from "@/services/poster/context"
+import useArticle from "@/services/publications/hooks/useArticle"
 import isIPFS from "is-ipfs"
-import { useIpfs } from "../../../../hooks/useIpfs"
-import { shortTitle } from "../../../../utils/string-handler"
-import { processArticleContent } from "../../../../utils/modifyHTML"
+import { useIpfs } from "@/hooks/useIpfs"
+import { shortTitle } from "@/utils/string-handler"
+// import { processArticleContent } from "@/utils/modifyHTML"
+import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
+import useArticles from "@/services/publications/hooks/useArticles"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -58,21 +59,22 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
   ({ article, couldUpdate, couldDelete, publicationSlug }) => {
     const ipfs = useIpfs()
     const navigate = useNavigate()
-    const { saveArticle, saveDraftArticle, setArticleEditorState, articleEditorState } = useArticleContext()
+    const { saveArticle, articleEditorState, articleFormMethods } = useArticleContext()
     const { setLastPathWithChainName } = usePosterContext()
-    const { deleteArticle } = usePoster()
+    // const { deleteArticle } = usePoster()
     const { description, image, title, tags, lastUpdated, id } = article
-    const { indexing, transactionCompleted, setExecutePollInterval, setCurrentArticleId } =
-      usePublication(publicationSlug)
+    const { indexing, transactionCompleted } = usePublication(publicationSlug)
+    const { deleteArticle, txLoading } = useArticles()
     const { imageSrc } = useArticle(article.id || "")
     const articleTitle = shortTitle(title, 30)
     const articleDescription = description && shortTitle(description, 165)
     const date = lastUpdated && new Date(parseInt(lastUpdated) * 1000)
-    const [loading, setLoading] = useState<boolean>(false)
+    // const [txLoading.delete, setLoading] = useState<boolean>(false)
     const [navigateEditArticle, setNavigateEditArticle] = useState<boolean>(false)
     const [articleHtmlContent, setArticleHtmlContent] = useState<string | undefined>(undefined)
     const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
 
+    const { setValue } = articleFormMethods
     const decodeArticleContent = async () => {
       if (article.article) {
         if (isValidHash) {
@@ -127,30 +129,31 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
 
     const handleDeleteArticle = async () => {
       if (article && article.id && couldDelete) {
-        setLoading(true)
-        await deleteArticle({
-          action: "article/delete",
-          id: article.id,
-        }).then((res) => {
-          setCurrentArticleId(article.id)
-          if (res && res.error) {
-            setLoading(false)
-          } else {
-            setExecutePollInterval(true)
-          }
-        })
+        await deleteArticle(article.id)
       }
     }
 
     const handleEditArticle = async () => {
+      const post = { ...article }
       if (article) {
-        return await processArticleContent(article, ipfs, isValidHash).then(({ img, content, modifiedHTMLString }) => {
-          saveDraftArticle({ ...article, title: article.title, image: img })
-          setArticleEditorState(modifiedHTMLString ?? content ?? undefined)
-          setNavigateEditArticle(true)
-        })
+        setValue("id", post.id)
+        setValue("title", post.title)
+        setValue("article", addUrlToImageHashes(post.article))
+        setValue("description", post.description ?? undefined)
+        setValue("lastUpdated", post.lastUpdated ?? undefined)
+        setValue(
+          "tags",
+          post.tags
+            ? post.tags.map((tag) => {
+                return { label: tag, value: tag }
+              })
+            : undefined,
+        )
+        setValue("image", post.image)
+        navigate(`./edit`)
       }
     }
+
     return (
       <ArticleItemContainer
         onClick={() => {
@@ -162,8 +165,12 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
       >
         <Grid container spacing={2}>
           {image && (
-            <Grid item xs={4}>
-              <ThumbnailImage src={imageSrc} />
+            <Grid item xs={4} container justifyContent="center" alignItems="center">
+              {imageSrc ? (
+                <ThumbnailImage src={imageSrc} />
+              ) : (
+                <CircularProgress color="primary" size={30} sx={{ marginRight: 1, color: palette.primary[1000] }} />
+              )}
             </Grid>
           )}
           <Grid item xs={image ? 8 : 12}>
@@ -227,7 +234,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                           variant="contained"
                           size="small"
                           startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
-                          disabled={loading || indexing || !articleHtmlContent}
+                          disabled={txLoading.delete || indexing || !articleHtmlContent}
                         >
                           Edit Article
                         </ArticleItemEditButton>
@@ -243,10 +250,10 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                           }}
                           variant="contained"
                           size="small"
-                          disabled={loading || indexing}
+                          disabled={txLoading.delete || indexing}
                           startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
                         >
-                          {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                          {txLoading.delete && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                           {indexing ? "Indexing..." : "Delete Article"}
                         </ArticleItemEditButton>
                       </Box>
@@ -259,7 +266,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                   color="primary"
                   size="small"
                   endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
-                  disabled={loading || indexing || !articleHtmlContent}
+                  disabled={txLoading.delete || indexing || !articleHtmlContent}
                   onClick={() => {
                     navigate(`./${id}`)
                     saveArticle(article)

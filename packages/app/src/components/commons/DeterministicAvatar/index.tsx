@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useRef } from "react"
 import Sketch from "react-p5"
 import p5Types from "p5"
+//@ts-ignore
 import Random, { genTokenData } from "./utils"
 import { Box } from "@mui/material"
 import { Piece } from "./Piece"

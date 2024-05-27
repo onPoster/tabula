@@ -1,13 +1,13 @@
 import { Avatar, Badge, Stack } from "@mui/material"
 import { styled } from "@mui/styles"
 import React, { ChangeEvent, useEffect, useRef, useState } from "react"
-import { palette, typography } from "../../theme"
+import { palette, typography } from "@/theme"
 import AddIcon from "@mui/icons-material/Add"
 import ClearIcon from "@mui/icons-material/Clear"
 import EditIcon from "@mui/icons-material/Edit"
-import { useIpfs } from "../../hooks/useIpfs"
-import { usePublicationContext } from "../../services/publications/contexts"
-import { useDynamicFavIcon } from "../../hooks/useDynamicFavIco"
+import { useIpfs } from "@/hooks/useIpfs"
+import { usePublicationContext } from "@/services/publications/contexts"
+import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
 
 const SmallAvatar = styled(Avatar)({
   width: 40,
@@ -18,7 +18,7 @@ const SmallAvatar = styled(Avatar)({
 
 type PublicationAvatarProps = {
   defaultImage?: string | null | undefined
-  onFileSelected: (file: File) => void
+  onFileSelected: (file: File | undefined) => void
   newPublication?: boolean
 }
 
@@ -95,6 +95,7 @@ const PublicationAvatar: React.FC<PublicationAvatarProps> = ({ defaultImage, onF
   const deleteImage = (isDeterministic: boolean) => {
     setFile(undefined)
     setUri(undefined)
+    onFileSelected(undefined)
     setDefaultImageSrc("")
     setRemovePublicationImage(true)
     if (isDeterministic) {

@@ -1,5 +1,5 @@
-import { DropdownOption } from "../models/dropdown"
-import { PinningService } from "../models/pinning"
+import { DropdownOption } from "@/models/dropdown"
+import { PinningService } from "@/models/pinning"
 
 export const PINNING_OPTIONS: DropdownOption[] = [
   {

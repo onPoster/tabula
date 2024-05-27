@@ -3,6 +3,7 @@ import { DropdownOption } from "../../../models/dropdown"
 
 export type EnsContextType = {
   ensName: string | undefined | null
+  ensClientInstance: any
   setEnsName: (value: string | undefined | null) => void
   ensNameList: DropdownOption[]
   setEnsNameList: (value: DropdownOption[]) => void

@@ -1,9 +1,14 @@
 import { ReactNode } from "react"
 import { Article } from "../../../models/publication"
+import { UseFormReturn } from "react-hook-form"
+import * as yup from "yup"
+import { articleSchema } from "@/schemas/article.schema"
 
 export type ArticleContextType = {
   draftArticle: Article | undefined
   article: Article | undefined
+  articles: Article[] | undefined
+  setArticles: (article: Article[] | undefined) => void
   draftArticleThumbnail: File | undefined
   currentPath: string | undefined
   markdownArticle: string | undefined
@@ -41,6 +46,9 @@ export type ArticleContextType = {
   clearArticleState: () => void
   contentImageFiles: File[] | undefined
   setContentImageFiles: (files: File[] | undefined) => void
+  articleHtml: string | undefined
+  setArticleHtml: React.Dispatch<React.SetStateAction<string | undefined>>
+  articleFormMethods: UseFormReturn<yup.InferType<typeof articleSchema>>
 }
 
 export type ArticleProviderProps = {

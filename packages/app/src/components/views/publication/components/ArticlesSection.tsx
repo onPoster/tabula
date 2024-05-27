@@ -1,32 +1,53 @@
 import React, { useEffect } from "react"
 import { Box, Button, Grid, Typography } from "@mui/material"
-import { palette, typography } from "../../../../theme"
+import { palette, typography } from "@/theme"
 import AddIcon from "@mui/icons-material/Add"
 import { useNavigate, useParams } from "react-router-dom"
-import { haveActionPermission } from "../../../../utils/permission"
-import { useWeb3React } from "@web3-react/core"
-import usePublication from "../../../../services/publications/hooks/usePublication"
+import { haveActionPermission } from "@/utils/permission"
+
+import usePublication from "@/services/publications/hooks/usePublication"
 import { ArticleItem } from "./ArticleItem"
-import { INITIAL_ARTICLE_VALUE, useArticleContext } from "../../../../services/publications/contexts"
+import { INITIAL_ARTICLE_VALUE, useArticleContext } from "@/services/publications/contexts"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
+import useArticles from "@/services/publications/hooks/useArticles"
 
 export const ArticlesSection: React.FC = React.memo(() => {
   const navigate = useNavigate()
-  const { account } = useWeb3React()
+  const { address } = useWeb3ModalAccount()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { setMarkdownArticle, saveDraftArticle, saveArticle, setDraftArticleThumbnail, setArticleEditorState } =
-    useArticleContext()
-  const { data, refetch, publicationId } = usePublication(publicationSlug ?? "")
-  const articles = data && data.articles
+  const {
+    setMarkdownArticle,
+    saveDraftArticle,
+    saveArticle,
+    setDraftArticleThumbnail,
+    setArticleEditorState,
+    articles,
+    setArticles,
+  } = useArticleContext()
+  const { data, publicationId, refetch } = usePublication(publicationSlug ?? "")
+  const { data: articlesQueryData, refetch: refetchArticles } = useArticles()
   const permissions = data && data.permissions
-  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", account || "") : false
-  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", account || "") : false
-  const havePermissionToDelete = permissions ? haveActionPermission(permissions, "articleDelete", account || "") : false
+  const havePermissionToCreate = permissions ? haveActionPermission(permissions, "articleCreate", address || "") : false
+  const havePermissionToUpdate = permissions ? haveActionPermission(permissions, "articleUpdate", address || "") : false
+  const havePermissionToDelete = permissions ? haveActionPermission(permissions, "articleDelete", address || "") : false
 
   useEffect(() => {
     if (!data && publicationId) {
       refetch()
     }
   }, [refetch, data, publicationId])
+
+  useEffect(() => {
+    if (!articlesQueryData) {
+      refetchArticles()
+    }
+  }, [articlesQueryData, refetchArticles])
+  
+  useEffect(() => {
+    if (articlesQueryData?.length) {
+      setArticles(articlesQueryData)
+    }
+  }, [articlesQueryData, setArticles])
 
   if (articles && articles.length > 0) {
     return (

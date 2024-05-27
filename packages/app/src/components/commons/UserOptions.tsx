@@ -7,8 +7,6 @@ import LinkOffIcon from "@mui/icons-material/LinkOff"
 import ExitToAppIcon from "@mui/icons-material/ExitToApp"
 // import EditIcon from "@mui/icons-material/Edit"
 import NodeIcon from "../../assets/images/icons/node"
-
-import { useWeb3React } from "@web3-react/core"
 import { useNavigate } from "react-router-dom"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import IPFSNodeModal from "./IPFSNodeModal"
@@ -16,6 +14,7 @@ import { useNotification } from "../../hooks/useNotification"
 import { chainIdToChainName, SupportedChainIcon } from "../../constants/chain"
 import { shortAddress } from "../../utils/string-handler"
 import PinningConfigurationModal from "./PinningConfigurationModal"
+import { useDisconnect, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 const UserOptionsContainer = styled(Paper)({
   padding: 8,
@@ -39,7 +38,8 @@ type UserOptionProps = {
   onClose: () => void
 }
 export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
-  const { account, chainId, deactivate } = useWeb3React()
+  const { address, chainId } = useWeb3ModalAccount()
+  const { disconnect } = useDisconnect()
   const [showIPFSModal, setShowIPFSModal] = useState<boolean>(false)
   const [showSettingModal, setShowSettingModal] = useState<boolean>(false)
   const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
@@ -57,8 +57,8 @@ export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
     }
   }
 
-  const handleAddressCopy = async (account: string) => {
-    navigator.clipboard.writeText(account)
+  const handleAddressCopy = async (address: string) => {
+    navigator.clipboard.writeText(address)
 
     openNotification({
       message: "Address copied to clipboard",
@@ -72,12 +72,12 @@ export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
 
   return (
     <UserOptionsContainer>
-      {chainId && account && (
+      {chainId && address && (
         <MenuItem
           item
           sx={{ cursor: "pointer" }}
           onClick={() => {
-            handleAddressCopy(account)
+            handleAddressCopy(address)
           }}
         >
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
@@ -93,7 +93,7 @@ export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
                   <Typography
                     sx={{ fontFamily: typography.fontFamilies.monospace, fontSize: 10, whiteSpace: "nowrap" }}
                   >
-                    {account}
+                    {address}
                   </Typography>
                 }
               >
@@ -101,7 +101,7 @@ export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
                   sx={{ fontFamily: typography.fontFamilies.monospace, whiteSpace: "nowrap" }}
                   variant="body2"
                 >
-                  {shortAddress(account).toLowerCase()}
+                  {shortAddress(address).toLowerCase()}
                 </Typography>
               </Tooltip>
             </Stack>
@@ -169,7 +169,7 @@ export const UserOptions: React.FC<UserOptionProps> = ({ onClose }) => {
           if (walletAutoConnect) {
             setWalletAutoConnect(undefined)
           }
-          deactivate()
+          disconnect()
           onClose()
         }}
       >

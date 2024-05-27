@@ -1,24 +1,80 @@
-import { findIndex, maxBy } from "lodash"
 import { useCallback, useEffect, useState } from "react"
 import { useQuery } from "urql"
-import { useNotification } from "../../../hooks/useNotification"
-import { Publication } from "../../../models/publication"
-import { usePosterContext } from "../../poster/context"
-import { usePublicationContext } from "../contexts"
-import { GET_PUBLICATIONS_QUERY } from "../queries"
+import { useNotification } from "@/hooks/useNotification"
+import { Publication } from "@/models/publication"
+import { GET_PUBLICATIONS_QUERY, GET_PUBLICATION_QUERY } from "@/services/publications/queries"
+import { PublicationFormSchema, UpdatePublicationFormSchema } from "@/schemas/publication.schema"
+import { TransactionResult, useExecuteTransaction } from "@/hooks/useContract"
+import { useWalletContext } from "@/connectors/WalletProvider"
+import abi from "@/services/poster/contracts/abi"
+import { Action } from "@/utils/create-subgraph-id"
+import { TransactionType, useMonitorTransaction } from "@/hooks/useMonitorTransaction"
+import { useNavigate } from "react-router-dom"
+import { useIPFSContext } from "@/services/ipfs/context"
+import {
+  deletePublicationBody,
+  generatePermissionBody,
+  generatePublicationBody,
+  generateUpdatePublicationBody,
+} from "@/services/publications/utils/publication-methods"
+import { usePublicationContext } from "@/services/publications/contexts"
+import { PermissionFormSchema } from "@/schemas/permission.schema"
+
+interface TransactionBody extends Object {
+  image?: string
+}
+
+export const POSTER_CONTRACT = import.meta.env.VITE_APP_POSTER_CONTRACT
+export const POSTER_ABI = abi
+export const POSTER_METHOD = "post"
 
 const usePublications = () => {
   const openNotification = useNotification()
-  const { savePublications } = usePublicationContext()
-  const { transactionUrl } = usePosterContext()
+  const { encodeIpfsHash, remotePin } = useIPFSContext()
+  const navigate = useNavigate()
+  const { savePublication } = usePublicationContext()
+  const { signer } = useWalletContext()
   const [data, setData] = useState<Publication[] | undefined>(undefined)
-  const [indexing, setIndexing] = useState<boolean>(false)
-  const [executePollInterval, setExecutePollInterval] = useState<boolean>(false)
-  const [redirect, setRedirect] = useState<boolean>(false)
-  const [lastPublicationId, setLastPublicationId] = useState<string>()
-  const [showToast, setShowToast] = useState<boolean>(true)
-  const [lasPublicationTitle, setLastPublicationTitle] = useState<string>("")
-  const [deletedPublicationId, setDeletedPublicationId] = useState<string>("")
+  const [txLoading, setTxLoading] = useState({
+    create: false,
+    update: false,
+    delete: false,
+  })
+  const { executeTransaction, status, errorMessage } = useExecuteTransaction(
+    signer,
+    POSTER_CONTRACT,
+    POSTER_ABI,
+    POSTER_METHOD,
+    Action.PUBLICATION,
+  )
+  const [newPublicationId, setNewPublicationId] = useState<string>("")
+  const [publicationIdToDelete, setPublicationIdToDelete] = useState<string>("")
+  const [publicationIdToUpdate, setPublicationIdToUpdate] = useState<string>("")
+  const { isIndexed: newPublicationIndexed } = useMonitorTransaction(
+    GET_PUBLICATION_QUERY,
+    {
+      id: newPublicationId,
+    },
+    "create",
+    "publication",
+  )
+  const { isIndexed: publicationDeletedIndexed } = useMonitorTransaction(
+    GET_PUBLICATION_QUERY,
+    {
+      id: publicationIdToDelete,
+    },
+    "delete",
+    "publication",
+  )
+
+  const { isIndexed: publicationUpdateIndexed, queryResult: publicationUpdateFields } = useMonitorTransaction(
+    GET_PUBLICATION_QUERY,
+    {
+      id: publicationIdToUpdate,
+    },
+    "update",
+    "publication",
+  )
 
   const [{ data: result, fetching }, executeQuery] = useQuery({
     query: GET_PUBLICATIONS_QUERY,
@@ -34,90 +90,99 @@ const usePublications = () => {
     }
   }, [result])
 
-  //Execute poll interval to know the latest publications indexed
   useEffect(() => {
-    if (executePollInterval) {
-      setIndexing(true)
-      const interval = setInterval(() => {
-        refetch()
-      }, 5000)
-      return () => clearInterval(interval)
-    } else {
-      setIndexing(false)
+    if (newPublicationIndexed && newPublicationId) {
+      setTxLoading((prev) => ({ ...prev, create: false }))
+      navigate(`/${newPublicationId}`)
+      refetch()
     }
-  }, [executePollInterval, refetch])
+  }, [navigate, newPublicationId, newPublicationIndexed, refetch])
 
-  //Method to know recent publication created
   useEffect(() => {
-    if (data && data.length && executePollInterval) {
-      const recentPublished = maxBy(data, (publication) => {
-        if (publication.lastUpdated) {
-          return parseInt(publication.lastUpdated)
-        }
-      })
+    if (publicationDeletedIndexed && publicationIdToDelete) {
+      setTxLoading((prev) => ({ ...prev, delete: false }))
+      setPublicationIdToDelete("")
+      navigate(`/publications`)
+      refetch()
+    }
+  }, [navigate, publicationDeletedIndexed, publicationIdToDelete, refetch])
 
-      if (recentPublished && recentPublished.title === lasPublicationTitle) {
-        savePublications(data)
+  useEffect(() => {
+    if (publicationUpdateIndexed && publicationUpdateFields) {
+      setTxLoading((prev) => ({ ...prev, update: false }))
+      setPublicationIdToUpdate("")
+      savePublication(publicationUpdateFields as Publication)
+    }
+  }, [navigate, publicationUpdateFields, publicationUpdateIndexed, savePublication])
+
+  const handleTransaction = async (
+    transactionBody: TransactionBody,
+    transactionType: TransactionType,
+    callback: (result: TransactionResult) => void,
+  ) => {
+    try {
+      setTxLoading({ ...txLoading, [transactionType]: true })
+      const result = await executeTransaction(JSON.stringify(transactionBody), "PUBLICATION")
+      if (result.transactionIdTabulaFormat && result.transactionUrl) {
+        if (transactionBody.image && transactionType !== "delete") {
+          await remotePin(transactionBody.image, `${result.transactionIdTabulaFormat}-${result.transaction?.blockHash}`)
+        }
         openNotification({
           message: "Execute transaction confirmed!",
           autoHideDuration: 5000,
           variant: "success",
-          detailsLink: transactionUrl,
+          detailsLink: result.transactionUrl,
           preventDuplicate: true,
         })
-        setExecutePollInterval(false)
-        setIndexing(false)
-        setRedirect(true)
-        setLastPublicationId(recentPublished.id)
+        callback(result)
       }
+    } catch (error) {
+      console.error("error", error)
+    } finally {
+      setTxLoading({ ...txLoading, [transactionType]: false })
     }
-  }, [savePublications, openNotification, transactionUrl, data, executePollInterval, lasPublicationTitle])
+  }
 
-  //Method to know if the deleted publication is already indexed
-  useEffect(() => {
-    if (data && data.length && deletedPublicationId && executePollInterval) {
-      const currentPublication = findIndex(data, { id: deletedPublicationId })
-      if (currentPublication === -1) {
-        openNotification({
-          message: "Execute transaction confirmed!",
-          autoHideDuration: 5000,
-          variant: "success",
-          detailsLink: transactionUrl,
-          preventDuplicate: true
-        })
-        setRedirect(true)
-        savePublications(data)
-        setExecutePollInterval(false)
-        setIndexing(false)
-      }
-    }
-  }, [openNotification, transactionUrl, data, deletedPublicationId, executePollInterval, savePublications])
+  const createNewPublication = async (fields: PublicationFormSchema) => {
+    const publicationBody = await generatePublicationBody(fields, encodeIpfsHash)
+    handleTransaction(publicationBody, "create", (result) => {
+      result.transactionIdTabulaFormat && setNewPublicationId(result.transactionIdTabulaFormat)
+    })
+  }
 
-  //Show toast when transaction is indexing
-  useEffect(() => {
-    if (indexing && transactionUrl && showToast) {
-      setShowToast(false)
-      openNotification({
-        message: "The transaction is indexing",
-        autoHideDuration: 2000,
-        variant: "info",
-        detailsLink: transactionUrl,
-        preventDuplicate: true,
-      })
-    }
-  }, [indexing, openNotification, showToast, transactionUrl])
+  const updatePublication = async (fields: UpdatePublicationFormSchema) => {
+    const publicationBody = await generateUpdatePublicationBody(fields, encodeIpfsHash)
+    handleTransaction(publicationBody, "update", () => {
+      setPublicationIdToUpdate(fields.id)
+    })
+  }
+
+  const deletePublication = async (publicationIdToDelete: string) => {
+    const publicationBody = await deletePublicationBody(publicationIdToDelete)
+    handleTransaction(publicationBody, "delete", () => {
+      setPublicationIdToDelete(publicationIdToDelete)
+    })
+  }
+  
+  const givePermission = async (publicationId: string, form: PermissionFormSchema) => {
+    const publicationBody = await generatePermissionBody(publicationId, form)
+    handleTransaction(publicationBody, "update", () => {
+      setPublicationIdToUpdate(publicationId)
+    })
+  }
 
   return {
     loading: fetching,
+    txLoading,
     data,
-    indexing,
-    redirect,
-    lastPublicationId,
-    setLastPublicationTitle,
+    status,
+    errorMessage,
+    createNewPublication,
+    deletePublication,
+    updatePublication,
+    givePermission,
     refetch,
     executeQuery,
-    setExecutePollInterval,
-    setDeletedPublicationId,
   }
 }
 
