@@ -34,6 +34,10 @@ export const useExecuteTransaction = <T,>(
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const contract = useMemo(() => {
+    if (!contractAddress || contractAddress === "") {
+      console.error("Contract address is undefined or empty!")
+      return undefined
+    }
     return signer ? new ethers.Contract(contractAddress, abi, signer) : undefined
   }, [signer, contractAddress, abi])
 
