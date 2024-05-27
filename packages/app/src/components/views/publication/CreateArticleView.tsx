@@ -9,12 +9,17 @@ import { JSONContent } from "novel"
 import { Controller } from "react-hook-form"
 import { generateJSON } from "@tiptap/html"
 import useExtensions from "@/components/commons/Editor/extensions"
+import { AlertContainer } from "@/components/commons/Pinning/PinningConfiguration"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { Pinning, PinningService } from "@/models/pinning"
 
 interface CreateArticleViewProps {
   type: "new" | "edit"
 }
 
 export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({ type }) => {
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const { publication } = usePublicationContext()
   const { setArticleHtml, articleFormMethods } = useArticleContext()
   const [value, setValue] = useState<JSONContent | undefined>(undefined)
@@ -60,6 +65,14 @@ export const CreateArticleView: React.FC<CreateArticleViewProps> = React.memo(({
       >
         <Container maxWidth="md" sx={{ px: [8] }}>
           <Grid container gap={4} flexDirection="column" my={12.5}>
+            {isDirectlyOnChain && (
+              <AlertContainer>
+                <Typography variant="body1" fontWeight={500} color={palette.secondary[1000]}>
+                  Images are disabled when posting directly on chain. This option is more expensive and doesn't support
+                  images. If you'd like to include images, please configure a pinning service.
+                </Typography>
+              </AlertContainer>
+            )}
             <Grid item xs={12}>
               <Stack spacing={1}>
                 <InputLabel>

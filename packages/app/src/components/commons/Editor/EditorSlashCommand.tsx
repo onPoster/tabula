@@ -1,7 +1,7 @@
 import { createSuggestionItems } from "novel/extensions"
 import { Command, renderItems } from "novel/extensions"
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft"
-import ChecklistIcon from "@mui/icons-material/Checklist"
+// import ChecklistIcon from "@mui/icons-material/Checklist";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted"
 import { typography } from "@/theme"
 import { Typography } from "@mui/material"
@@ -11,8 +11,12 @@ import CodeIcon from "@mui/icons-material/Code"
 import ImageIcon from "@mui/icons-material/Image"
 import { createImageUpload } from "novel/plugins"
 import { useIPFSContext } from "@/services/ipfs/context"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { Pinning, PinningService } from "@/models/pinning"
 
 const useSuggestionItems = () => {
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const { encodeIpfsHash } = useIPFSContext()
 
   const onUpload = async (file: File) => {
@@ -22,23 +26,14 @@ const useSuggestionItems = () => {
     })
   }
 
-  const suggestionItems = createSuggestionItems([
+  const baseSuggestionItems = [
     {
       title: "Text",
       description: "Just start typing with plain text.",
       searchTerms: ["p", "paragraph"],
       icon: <FormatAlignLeftIcon />,
-      command: ({ editor, range }) => {
+      command: ({ editor, range }: { editor: any; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleNode("paragraph", "paragraph").run()
-      },
-    },
-    {
-      title: "To-do List",
-      description: "Track tasks with a to-do list.",
-      searchTerms: ["todo", "task", "list", "check", "checkbox"],
-      icon: <ChecklistIcon />,
-      command: ({ editor, range }) => {
-        editor.chain().focus().deleteRange(range).toggleTaskList().run()
       },
     },
     {
@@ -50,7 +45,7 @@ const useSuggestionItems = () => {
           H1
         </Typography>
       ),
-      command: ({ editor, range }) => {
+      command: ({ editor, range }: { editor: any; range: any }) => {
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 1 }).run()
       },
     },
@@ -63,7 +58,7 @@ const useSuggestionItems = () => {
           H2
         </Typography>
       ),
-      command: ({ editor, range }) => {
+      command: ({ editor, range }: { editor: any; range: any }) => {
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 2 }).run()
       },
     },
@@ -76,7 +71,7 @@ const useSuggestionItems = () => {
           H3
         </Typography>
       ),
-      command: ({ editor, range }) => {
+      command: ({ editor, range }: { editor: any; range: any }) => {
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 3 }).run()
       },
     },
@@ -85,7 +80,7 @@ const useSuggestionItems = () => {
       description: "Create a simple bullet list.",
       searchTerms: ["unordered", "point"],
       icon: <FormatListBulletedIcon />,
-      command: ({ editor, range }) => {
+      command: ({ editor, range }: { editor: any; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleBulletList().run()
       },
     },
@@ -94,7 +89,7 @@ const useSuggestionItems = () => {
       description: "Create a list with numbering.",
       searchTerms: ["ordered"],
       icon: <FormatListNumberedIcon />,
-      command: ({ editor, range }) => {
+      command: ({ editor, range }: { editor: any; range: any }) => {
         editor.chain().focus().deleteRange(range).toggleOrderedList().run()
       },
     },
@@ -103,7 +98,7 @@ const useSuggestionItems = () => {
       description: "Capture a quote.",
       searchTerms: ["blockquote"],
       icon: <FormatQuoteIcon />,
-      command: ({ editor, range }) =>
+      command: ({ editor, range }: { editor: any; range: any }) =>
         editor.chain().focus().deleteRange(range).toggleNode("paragraph", "paragraph").toggleBlockquote().run(),
     },
     {
@@ -111,9 +106,13 @@ const useSuggestionItems = () => {
       description: "Capture a code snippet.",
       searchTerms: ["codeblock"],
       icon: <CodeIcon />,
-      command: ({ editor, range }) => editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
+      command: ({ editor, range }: { editor: any; range: any }) =>
+        editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
     },
-    {
+  ]
+
+  if (!isDirectlyOnChain) {
+    baseSuggestionItems.push({
       title: "Image",
       description: "Upload an image from your computer.",
       searchTerms: ["photo", "picture", "media"],
@@ -147,8 +146,10 @@ const useSuggestionItems = () => {
         }
         input.click()
       },
-    },
-  ])
+    })
+  }
+
+  const suggestionItems = createSuggestionItems(baseSuggestionItems)
 
   return {
     suggestionItems,
