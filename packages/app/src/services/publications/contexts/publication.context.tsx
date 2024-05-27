@@ -24,7 +24,6 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
     undefined,
   )
   const [removePublicationImage, setRemovePublicationImage] = useState<boolean>(false)
-
   const getPublicationId = async (publicationSlug: string) => {
     if (!isConnected && publicationSlug.includes(".eth" || ".lens")) {
       return open()

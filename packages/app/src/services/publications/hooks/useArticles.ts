@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useQuery } from "urql"
 import { useNotification } from "@/hooks/useNotification"
 import { Article } from "@/models/publication"
-import { useArticleContext } from "@/services/publications/contexts"
+import { useArticleContext, usePublicationContext } from "@/services/publications/contexts"
 import { GET_ARTICLES_QUERY, GET_ARTICLE_QUERY } from "@/services/publications/queries"
 import { useWalletContext } from "@/connectors/WalletProvider"
 import { TransactionResult, TransactionStatus, useExecuteTransaction } from "@/hooks/useContract"
@@ -32,7 +32,9 @@ const useArticles = () => {
   const openNotification = useNotification()
   const { encodeIpfsHash, remotePin } = useIPFSContext()
   const { saveArticle, setArticles } = useArticleContext()
-  const { publicationSlug } = useParams<{ publicationSlug: string }>()
+  const { getPublicationId } = usePublicationContext()
+  const { publicationSlug: pSlug } = useParams<{ publicationSlug: string }>()
+  const [publicationSlug, setPublicationSlug] = useState<string>("")
   const [data, setData] = useState<Article[] | undefined>(undefined)
   const { signer } = useWalletContext()
   const [txLoading, setTxLoading] = useState({
@@ -51,6 +53,16 @@ const useArticles = () => {
     POSTER_METHOD,
     Action.ARTICLE,
   )
+
+  useEffect(() => {
+    if (pSlug) {
+      const fetchPublicationId = async () => {
+        const publicationId = await getPublicationId(pSlug as string)
+        setPublicationSlug(publicationId ?? pSlug)
+      }
+      fetchPublicationId()
+    }
+  }, [pSlug, getPublicationId])
 
   const { isIndexed: newArticleIndexed } = useMonitorTransaction(
     GET_ARTICLE_QUERY,
@@ -163,7 +175,8 @@ const useArticles = () => {
   }
 
   const createNewArticle = async (publicationId: string, fields: ArticleFormSchema) => {
-    const body = await generateArticleBody(publicationId, fields, encodeIpfsHash, !!isDirectlyOnChain)
+    const pId = (await getPublicationId(publicationId)) ?? publicationId
+    const body = await generateArticleBody(pId, fields, encodeIpfsHash, !!isDirectlyOnChain)
     console.log("body", body)
     handleTransaction({ ...body.articleBody, imgHashes: body.imgHashes }, "create", (result) => {
       result.transactionIdTabulaFormat && setNewArticleId(result.transactionIdTabulaFormat)
@@ -171,7 +184,8 @@ const useArticles = () => {
   }
 
   const updateArticle = async (publicationId: string, fields: UpdateArticleFormSchema) => {
-    const body = await generateUpdateArticleBody(publicationId, fields, encodeIpfsHash, !!isDirectlyOnChain)
+    const pId = (await getPublicationId(publicationId)) ?? publicationId
+    const body = await generateUpdateArticleBody(pId, fields, encodeIpfsHash, !!isDirectlyOnChain)
     handleTransaction({ ...body.articleBody, imgHashes: body.imgHashes }, "update", () => {
       setArticleIdToUpdate(fields.id)
       setLastUpdated(parseInt(fields.lastUpdated ?? ""))
