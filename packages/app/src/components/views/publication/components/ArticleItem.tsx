@@ -20,6 +20,7 @@ import { shortTitle } from "@/utils/string-handler"
 // import { processArticleContent } from "@/utils/modifyHTML"
 import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
 import useArticles from "@/services/publications/hooks/useArticles"
+import { useIPFSContext } from "@/services/ipfs/context"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -59,6 +60,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
   ({ article, couldUpdate, couldDelete, publicationSlug }) => {
     const ipfs = useIpfs()
     const navigate = useNavigate()
+    const { decodeIpfsHash } = useIPFSContext()
     const { saveArticle, articleEditorState, articleFormMethods } = useArticleContext()
     const { setLastPathWithChainName } = usePosterContext()
     // const { deleteArticle } = usePoster()
@@ -135,10 +137,11 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
 
     const handleEditArticle = async () => {
       const post = { ...article }
+      let articlePost = isValidHash ? await decodeIpfsHash(article?.article) : article?.article
       if (article) {
         setValue("id", post.id)
         setValue("title", post.title)
-        setValue("article", addUrlToImageHashes(post.article))
+        setValue("article", addUrlToImageHashes(articlePost))
         setValue("description", post.description ?? undefined)
         setValue("lastUpdated", post.lastUpdated ?? undefined)
         setValue(

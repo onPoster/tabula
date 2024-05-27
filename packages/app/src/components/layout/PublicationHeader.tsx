@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button, Container, Grid, styled, Typography } from "@mui/material"
 import { WalletBadge } from "@/components/commons/WalletBadge"
 import { Publication } from "@/models/publication"
@@ -11,12 +11,13 @@ import { INITIAL_ARTICLE_VALUE, useArticleContext } from "@/services/publication
 import { UserOptions } from "@/components/commons/UserOptions"
 // import { useOnClickOutside } from "@/hooks/useOnClickOutside"
 import { Edit } from "@mui/icons-material"
-// import isIPFS from "is-ipfs"
+import isIPFS from "is-ipfs"
 // import { useIpfs } from "@/hooks/useIpfs"
 import Avatar from "@/components/commons/Avatar"
 // import { processArticleContent } from "@/utils/modifyHTML"
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
+import { useIPFSContext } from "@/services/ipfs/context"
 
 type Props = {
   articleId?: string
@@ -34,7 +35,6 @@ const ItemContainer = styled(Grid)({
   },
 })
 const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showEditButton }) => {
-  // const ipfs = useIpfs()
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { address, isConnected } = useWeb3ModalAccount()
   const navigate = useNavigate()
@@ -51,17 +51,12 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showE
   } = useArticleContext()
   const { open } = useWeb3Modal()
   const { refetch } = usePublication(publicationSlug || "")
+  const { decodeIpfsHash } = useIPFSContext()
   const [show, setShow] = useState<boolean>(false)
   const permissions = publication && publication.permissions
-  // const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const ref = useRef()
-  // useOnClickOutside(ref, () => {
-  //   if (show) {
-  //     setShow(!show)
-  //   }
-  // })
-
   const { setValue } = articleFormMethods
   useEffect(() => {
     if (location.pathname) {
@@ -81,9 +76,10 @@ const PublicationHeader: React.FC<Props> = ({ publication, showCreatePost, showE
 
   const handleEditNavigation = async () => {
     if (article) {
+      let post = isValidHash ? await decodeIpfsHash(article?.article) : article?.article
       setValue("id", article.id)
       setValue("title", article.title)
-      setValue("article", addUrlToImageHashes(article.article))
+      setValue("article", addUrlToImageHashes(post))
       setValue("description", article.description ?? undefined)
       setValue("lastUpdated", article.lastUpdated ?? undefined)
       setValue(
