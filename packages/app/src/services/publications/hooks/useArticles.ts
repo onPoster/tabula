@@ -17,6 +17,8 @@ import {
   deleteArticleBody,
 } from "@/services/publications/utils/article-method"
 import { useNavigate, useParams } from "react-router-dom"
+import useLocalStorage from "@/hooks/useLocalStorage"
+import { Pinning, PinningService } from "@/models/pinning"
 
 interface TransactionBody extends Object {
   image?: string
@@ -24,6 +26,8 @@ interface TransactionBody extends Object {
 }
 
 const useArticles = () => {
+  const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
+  const isDirectlyOnChain = pinning && pinning.service === PinningService.NONE
   const navigate = useNavigate()
   const openNotification = useNotification()
   const { encodeIpfsHash, remotePin } = useIPFSContext()
@@ -154,14 +158,15 @@ const useArticles = () => {
   }
 
   const createNewArticle = async (publicationId: string, fields: ArticleFormSchema) => {
-    const body = await generateArticleBody(publicationId, fields, encodeIpfsHash)
+    const body = await generateArticleBody(publicationId, fields, encodeIpfsHash, !!isDirectlyOnChain)
+    console.log('body', body)
     handleTransaction({ ...body.articleBody, imgHashes: body.imgHashes }, "create", (result) => {
       result.transactionIdTabulaFormat && setNewArticleId(result.transactionIdTabulaFormat)
     })
   }
 
   const updateArticle = async (publicationId: string, fields: UpdateArticleFormSchema) => {
-    const body = await generateUpdateArticleBody(publicationId, fields, encodeIpfsHash)
+    const body = await generateUpdateArticleBody(publicationId, fields, encodeIpfsHash, !!isDirectlyOnChain)
     handleTransaction({ ...body.articleBody, imgHashes: body.imgHashes }, "update", () => {
       setArticleIdToUpdate(fields.id)
       setLastUpdated(parseInt(fields.lastUpdated ?? ""))

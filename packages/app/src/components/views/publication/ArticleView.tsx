@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
 import React, { useEffect, useMemo, useState } from "react"
@@ -9,11 +8,12 @@ import useArticle from "@/services/publications/hooks/useArticle"
 import { palette, typography } from "@/theme"
 import { ViewContainer } from "@/components/commons/ViewContainer"
 import PublicationPage from "@/components/layout/PublicationPage"
-// import isIPFS from "is-ipfs"
+import isIPFS from "is-ipfs"
 import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
 import usePublication from "@/services/publications/hooks/usePublication"
 import { HtmlRenderer } from "@/components/commons/HtmlRender"
 import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
+import { useIPFSContext } from "@/services/ipfs/context"
 
 interface ArticleViewProps {}
 //Provisional solution to detect older articles and check the dif between markdown and html articles
@@ -21,11 +21,8 @@ interface ArticleViewProps {}
 export const ArticleView: React.FC<ArticleViewProps> = () => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
-  const {
-    article,
-    saveArticle,
-    loading,
-  } = useArticleContext()
+  const { decodeIpfsHash } = useIPFSContext()
+  const { article, saveArticle, loading } = useArticleContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(publicationSlug || "")
   useDynamicFavIcon(publication?.imageSrc)
@@ -38,7 +35,7 @@ export const ArticleView: React.FC<ArticleViewProps> = () => {
     [article?.lastUpdated],
   )
   // const isAfterHtmlImplementation = useMemo(() => moment(dateCreation).isAfter(VALIDATION_DATE), [dateCreation])
-  // const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const [articleToShow, setArticleToShow] = useState<string>("")
 
@@ -55,10 +52,17 @@ export const ArticleView: React.FC<ArticleViewProps> = () => {
   }, [data, article, saveArticle])
 
   useEffect(() => {
-    if (article && !articleToShow) {
-      setArticleToShow(addUrlToImageHashes(article.article))
+    if (article && !articleToShow && !isValidHash) {
+      return setArticleToShow(addUrlToImageHashes(article.article))
     }
-  }, [article])
+    if (article && !articleToShow && isValidHash) {
+      const decode = async () => {
+        const post = await decodeIpfsHash(article.article)
+        setArticleToShow(addUrlToImageHashes(post))
+      }
+      decode()
+    }
+  }, [article, articleToShow, decodeIpfsHash, isValidHash])
 
   return (
     <PublicationPage
