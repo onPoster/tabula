@@ -1,6 +1,6 @@
-import { Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
+import { Box, Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Helmet } from "react-helmet"
 import { useParams } from "react-router-dom"
 import { useArticleContext } from "@/services/publications/contexts"
@@ -16,8 +16,6 @@ import { addUrlToImageHashes } from "@/services/publications/utils/article-metho
 import { useIPFSContext } from "@/services/ipfs/context"
 
 interface ArticleViewProps {}
-//Provisional solution to detect older articles and check the dif between markdown and html articles
-// const VALIDATION_DATE = "2023-02-02T00:00:00Z"
 export const ArticleView: React.FC<ArticleViewProps> = () => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
@@ -25,20 +23,31 @@ export const ArticleView: React.FC<ArticleViewProps> = () => {
   const { article, saveArticle, loading } = useArticleContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(publicationSlug || "")
+
   useDynamicFavIcon(publication?.imageSrc)
-  // const dateCreation = useMemo(
-  //   () => article?.postedOn && new Date(parseInt(article.postedOn) * 1000),
-  //   [article?.postedOn],
-  // )
   const date = useMemo(
     () => article?.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000),
     [article?.lastUpdated],
   )
-  // const isAfterHtmlImplementation = useMemo(() => moment(dateCreation).isAfter(VALIDATION_DATE), [dateCreation])
+
   const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const [articleToShow, setArticleToShow] = useState<string>("")
+  const [attempt, setAttempt] = useState(0)
 
+  const fetchArticleToShow = useCallback(() => {
+    if (article && !articleToShow) {
+      if (isValidHash) {
+        const decode = async () => {
+          const post = await decodeIpfsHash(article.article)
+          setArticleToShow(addUrlToImageHashes(post))
+        }
+        decode()
+      } else {
+        setArticleToShow(addUrlToImageHashes(article.article))
+      }
+    }
+  }, [article, articleToShow, decodeIpfsHash, isValidHash])
   useEffect(() => {
     if (!article && articleId) {
       executeQuery()
@@ -52,17 +61,15 @@ export const ArticleView: React.FC<ArticleViewProps> = () => {
   }, [data, article, saveArticle])
 
   useEffect(() => {
-    if (article && !articleToShow && !isValidHash) {
-      return setArticleToShow(addUrlToImageHashes(article.article))
+    if (article && !articleToShow && attempt < 5) {
+      const timer = setTimeout(() => {
+        fetchArticleToShow()
+        setAttempt(attempt + 1)
+      }, 2000)
+
+      return () => clearTimeout(timer)
     }
-    if (article && !articleToShow && isValidHash) {
-      const decode = async () => {
-        const post = await decodeIpfsHash(article.article)
-        setArticleToShow(addUrlToImageHashes(post))
-      }
-      decode()
-    }
-  }, [article, articleToShow, decodeIpfsHash, isValidHash])
+  }, [article, articleToShow, attempt, fetchArticleToShow])
 
   return (
     <PublicationPage
@@ -109,8 +116,13 @@ export const ArticleView: React.FC<ArticleViewProps> = () => {
                 </Grid>
               )}
               <Grid item my={5} width="100%" sx={{ wordBreak: "break-word" }}>
+                {!articleToShow && (
+                  <Box display={"flex"} alignItems={"center"}>
+                    <CircularProgress color="primary" size={25} sx={{ marginRight: 1, color: palette.primary[1000] }} />
+                    <Typography>Decoding article...</Typography>
+                  </Box>
+                )}
                 {articleToShow && <HtmlRenderer htmlContent={articleToShow} />}
-                {/* <Markdown>{articleToShow}</Markdown> */}
               </Grid>
 
               <Divider />
