@@ -20,6 +20,7 @@ import { PublicationFormSchema, publicationSchema } from "@/schemas/publication.
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { Pinning, PinningService } from "@/models/pinning"
 import { AlertContainer } from "@/components/commons/Pinning/PinningConfiguration"
+import { TransactionStatus } from "@/hooks/useContract"
 
 const PublicationsAvatarContainer = styled(Grid)(({ theme }) => ({
   display: "flex",
@@ -61,7 +62,7 @@ export const PublicationsView: React.FC = () => {
   const [pinning] = useLocalStorage<Pinning | undefined>("pinning", undefined)
   const { address } = useWeb3ModalAccount()
   const { setLastPathWithChainName } = usePosterContext()
-  const { data: publications, createNewPublication, txLoading } = usePublications()
+  const { data: publications, createNewPublication, txLoading, status } = usePublications()
   const { create: createLoading } = txLoading
   const { setPublicationAvatar } = usePublicationContext()
   const [publicationsToShow, setPublicationsToShow] = useState<Publication[]>([])
@@ -204,9 +205,15 @@ export const PublicationsView: React.FC = () => {
           </Grid>
 
           <Grid item display="flex" justifyContent={"flex-end"} mt={3}>
-            <PublicationsButton variant="contained" type="submit" disabled={createLoading || isSubmitting}>
-              {createLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-              Create Publication
+            <PublicationsButton
+              variant="contained"
+              type="submit"
+              disabled={createLoading || isSubmitting || status === TransactionStatus.Indexing}
+            >
+              {createLoading && status === TransactionStatus.Indexing && (
+                <CircularProgress size={20} sx={{ marginRight: 1 }} />
+              )}
+              {status === TransactionStatus.Indexing ? "Indexing..." : "Create Publication"}
             </PublicationsButton>
           </Grid>
         </ViewContainer>

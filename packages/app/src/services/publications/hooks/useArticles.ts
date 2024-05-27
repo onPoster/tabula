@@ -5,7 +5,7 @@ import { Article } from "@/models/publication"
 import { useArticleContext } from "@/services/publications/contexts"
 import { GET_ARTICLES_QUERY, GET_ARTICLE_QUERY } from "@/services/publications/queries"
 import { useWalletContext } from "@/connectors/WalletProvider"
-import { TransactionResult, useExecuteTransaction } from "@/hooks/useContract"
+import { TransactionResult, TransactionStatus, useExecuteTransaction } from "@/hooks/useContract"
 import { Action } from "@/utils/create-subgraph-id"
 import { POSTER_CONTRACT, POSTER_ABI, POSTER_METHOD } from "./usePublications"
 import { TransactionType, useMonitorTransaction } from "@/hooks/useMonitorTransaction"
@@ -44,7 +44,7 @@ const useArticles = () => {
   const [articleIdToDelete, setArticleIdToDelete] = useState<string>("")
   const [articleIdToUpdate, setArticleIdToUpdate] = useState<string>("")
   const [lastUpdated, setLastUpdated] = useState<number | null>(null)
-  const { executeTransaction, status, errorMessage } = useExecuteTransaction(
+  const { executeTransaction, setStatus, status, errorMessage } = useExecuteTransaction(
     signer,
     POSTER_CONTRACT,
     POSTER_ABI,
@@ -81,6 +81,7 @@ const useArticles = () => {
 
   const [{ data: result, fetching: loading }, executeQuery] = useQuery({
     query: GET_ARTICLES_QUERY,
+    variables: { publicationId: publicationSlug },
   })
 
   const refetch = useCallback(() => executeQuery({ requestPolicy: "network-only" }), [executeQuery])
@@ -98,17 +99,19 @@ const useArticles = () => {
     if (newArticleIndexed && newArticleId) {
       setTxLoading((prev) => ({ ...prev, create: false }))
       navigate(`/${publicationSlug}/${newArticleId}`)
+      setStatus(TransactionStatus.Success)
       refetch()
     }
-  }, [navigate, newArticleId, newArticleIndexed, publicationSlug, refetch])
+  }, [navigate, newArticleId, newArticleIndexed, publicationSlug, refetch, setStatus])
 
   useEffect(() => {
     if (articleDeletedIndexed && articleIdToDelete) {
       setTxLoading((prev) => ({ ...prev, delete: false }))
       setArticleIdToDelete("")
+      setStatus(TransactionStatus.Success)
       refetch()
     }
-  }, [articleDeletedIndexed, articleIdToDelete, refetch, setArticles])
+  }, [articleDeletedIndexed, articleIdToDelete, refetch, setArticles, setStatus])
 
   useEffect(() => {
     if (articleUpdateIndexed && articleUpdateFields) {
@@ -118,9 +121,10 @@ const useArticles = () => {
       setArticleIdToUpdate("")
       setLastUpdated(null)
       navigate(`/${publicationSlug}/${article.id}`)
+      setStatus(TransactionStatus.Success)
       saveArticle(article)
     }
-  }, [articleUpdateIndexed, articleUpdateFields, saveArticle, navigate, publicationSlug])
+  }, [articleUpdateIndexed, articleUpdateFields, saveArticle, navigate, publicationSlug, setStatus])
 
   const handleTransaction = async (
     transactionBody: TransactionBody,
@@ -148,6 +152,7 @@ const useArticles = () => {
           detailsLink: result.transactionUrl,
           preventDuplicate: true,
         })
+        setStatus(TransactionStatus.Indexing)
         callback(result)
       }
     } catch (error) {
@@ -159,7 +164,7 @@ const useArticles = () => {
 
   const createNewArticle = async (publicationId: string, fields: ArticleFormSchema) => {
     const body = await generateArticleBody(publicationId, fields, encodeIpfsHash, !!isDirectlyOnChain)
-    console.log('body', body)
+    console.log("body", body)
     handleTransaction({ ...body.articleBody, imgHashes: body.imgHashes }, "create", (result) => {
       result.transactionIdTabulaFormat && setNewArticleId(result.transactionIdTabulaFormat)
     })

@@ -4,7 +4,7 @@ import { useNotification } from "@/hooks/useNotification"
 import { Publication } from "@/models/publication"
 import { GET_PUBLICATIONS_QUERY, GET_PUBLICATION_QUERY } from "@/services/publications/queries"
 import { PublicationFormSchema, UpdatePublicationFormSchema } from "@/schemas/publication.schema"
-import { TransactionResult, useExecuteTransaction } from "@/hooks/useContract"
+import { TransactionResult, TransactionStatus, useExecuteTransaction } from "@/hooks/useContract"
 import { useWalletContext } from "@/connectors/WalletProvider"
 import abi from "@/services/poster/contracts/abi"
 import { Action } from "@/utils/create-subgraph-id"
@@ -40,7 +40,7 @@ const usePublications = () => {
     update: false,
     delete: false,
   })
-  const { executeTransaction, status, errorMessage } = useExecuteTransaction(
+  const { executeTransaction, status, setStatus, errorMessage } = useExecuteTransaction(
     signer,
     POSTER_CONTRACT,
     POSTER_ABI,
@@ -94,26 +94,29 @@ const usePublications = () => {
     if (newPublicationIndexed && newPublicationId) {
       setTxLoading((prev) => ({ ...prev, create: false }))
       navigate(`/${newPublicationId}`)
+      setStatus(TransactionStatus.Success)
       refetch()
     }
-  }, [navigate, newPublicationId, newPublicationIndexed, refetch])
+  }, [navigate, newPublicationId, newPublicationIndexed, refetch, setStatus])
 
   useEffect(() => {
     if (publicationDeletedIndexed && publicationIdToDelete) {
       setTxLoading((prev) => ({ ...prev, delete: false }))
       setPublicationIdToDelete("")
       navigate(`/publications`)
+      setStatus(TransactionStatus.Success)
       refetch()
     }
-  }, [navigate, publicationDeletedIndexed, publicationIdToDelete, refetch])
+  }, [navigate, publicationDeletedIndexed, publicationIdToDelete, refetch, setStatus])
 
   useEffect(() => {
     if (publicationUpdateIndexed && publicationUpdateFields) {
       setTxLoading((prev) => ({ ...prev, update: false }))
       setPublicationIdToUpdate("")
+      setStatus(TransactionStatus.Success)
       savePublication(publicationUpdateFields as Publication)
     }
-  }, [navigate, publicationUpdateFields, publicationUpdateIndexed, savePublication])
+  }, [navigate, publicationUpdateFields, publicationUpdateIndexed, savePublication, setStatus])
 
   const handleTransaction = async (
     transactionBody: TransactionBody,
@@ -134,6 +137,7 @@ const usePublications = () => {
           detailsLink: result.transactionUrl,
           preventDuplicate: true,
         })
+        setStatus(TransactionStatus.Indexing)
         callback(result)
       }
     } catch (error) {
@@ -163,7 +167,7 @@ const usePublications = () => {
       setPublicationIdToDelete(publicationIdToDelete)
     })
   }
-  
+
   const givePermission = async (publicationId: string, form: PermissionFormSchema) => {
     const publicationBody = await generatePermissionBody(publicationId, form)
     handleTransaction(publicationBody, "update", () => {

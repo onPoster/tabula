@@ -21,6 +21,7 @@ import { shortTitle } from "@/utils/string-handler"
 import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
 import useArticles from "@/services/publications/hooks/useArticles"
 import { useIPFSContext } from "@/services/ipfs/context"
+import { TransactionStatus } from "@/hooks/useContract"
 
 const ArticleItemContainer = styled(Box)({
   background: palette.grays[50],
@@ -65,8 +66,8 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
     const { setLastPathWithChainName } = usePosterContext()
     // const { deleteArticle } = usePoster()
     const { description, image, title, tags, lastUpdated, id } = article
-    const { indexing, transactionCompleted } = usePublication(publicationSlug)
-    const { deleteArticle, txLoading } = useArticles()
+    const { transactionCompleted } = usePublication(publicationSlug)
+    const { deleteArticle, txLoading, status } = useArticles()
     const { imageSrc } = useArticle(article.id || "")
     const articleTitle = shortTitle(title, 30)
     const articleDescription = description && shortTitle(description, 165)
@@ -237,7 +238,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                           variant="contained"
                           size="small"
                           startIcon={<EditIcon sx={{ width: 16, height: 16 }} />}
-                          disabled={txLoading.delete || indexing || !articleHtmlContent}
+                          disabled={txLoading.delete || !articleHtmlContent || status === TransactionStatus.Indexing}
                         >
                           Edit Article
                         </ArticleItemEditButton>
@@ -253,11 +254,11 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                           }}
                           variant="contained"
                           size="small"
-                          disabled={txLoading.delete || indexing}
+                          disabled={txLoading.delete || status === TransactionStatus.Indexing}
                           startIcon={<DeleteOutlineIcon sx={{ width: 16, height: 16 }} />}
                         >
                           {txLoading.delete && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                          {indexing ? "Indexing..." : "Delete Article"}
+                          {status === TransactionStatus.Indexing ? "Indexing..." : "Delete Article"}
                         </ArticleItemEditButton>
                       </Box>
                     )}
@@ -269,7 +270,7 @@ export const ArticleItem: React.FC<ArticleItemProps> = React.memo(
                   color="primary"
                   size="small"
                   endIcon={<ArrowForwardIosIcon sx={{ width: 16, height: 16 }} />}
-                  disabled={txLoading.delete || indexing || !articleHtmlContent}
+                  disabled={txLoading.delete || status === TransactionStatus.Indexing || !articleHtmlContent}
                   onClick={() => {
                     navigate(`./${id}`)
                     saveArticle(article)

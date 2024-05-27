@@ -173,7 +173,7 @@ export const PermissionView: React.FC = () => {
                     variant="contained"
                     size="small"
                     onClick={handleDeletePermission}
-                    disabled={txLoading.update || deleteLoading}
+                    disabled={txLoading.update || deleteLoading || status === TransactionStatus.Indexing}
                     startIcon={<RemoveCircleOutlineIcon />}
                     sx={{ whiteSpace: "nowrap" }}
                   >
@@ -215,8 +215,15 @@ export const PermissionView: React.FC = () => {
 
               {type === "new" && (
                 <Grid item display="flex" justifyContent="flex-end">
-                  <Button variant="contained" size="medium" disabled={txLoading.update} type="submit">
-                    {txLoading.update && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    disabled={txLoading.update || status === TransactionStatus.Indexing}
+                    type="submit"
+                  >
+                    {(txLoading.update || status === TransactionStatus.Indexing) && (
+                      <CircularProgress size={20} sx={{ marginRight: 1 }} />
+                    )}
                     Add Permission
                   </Button>
                 </Grid>
@@ -224,7 +231,12 @@ export const PermissionView: React.FC = () => {
 
               {type === "edit" && (
                 <Grid item display="flex" justifyContent="flex-end">
-                  <Button variant="contained" size="medium" disabled={txLoading.update || deleteLoading} type="submit">
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    disabled={txLoading.update || deleteLoading || status === TransactionStatus.Indexing}
+                    type="submit"
+                  >
                     {txLoading.update && !deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
                     Update
                   </Button>

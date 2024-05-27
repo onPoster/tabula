@@ -11,6 +11,7 @@ import EnsModal from "./EnsModal"
 import { SupportedChainId } from "@/constants/chain"
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 import { PublicationFormSchema, UpdatePublicationFormSchema, publicationSchema } from "@/schemas/publication.schema"
+import { TransactionStatus } from "@/hooks/useContract"
 
 type SettingsSectionProps = {
   couldEdit: boolean
@@ -25,7 +26,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
   const { publication, saveIsEditingPublication, saveDraftPublicationImage, draftPublicationImage } =
     usePublicationContext()
   const { ensNameList } = useEnsContext()
-  const { deletePublication, updatePublication, txLoading } = usePublications()
+  const { deletePublication, updatePublication, txLoading, status } = usePublications()
   const { delete: deleteLoading, update: updateLoading } = txLoading
 
   const {
@@ -169,7 +170,7 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                 <Button
                   variant="contained"
                   type="submit"
-                  disabled={deleteLoading || updateLoading || isSubmitting}
+                  disabled={deleteLoading || updateLoading || isSubmitting || status === TransactionStatus.Indexing}
                   onClick={() => handlePublicationDelete(publication.id)}
                 >
                   {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
@@ -183,10 +184,12 @@ export const SettingSection: React.FC<SettingsSectionProps> = ({ couldDelete, co
                   size="large"
                   type="submit"
                   onClick={handleSubmit((data) => onSubmitHandler(data))}
-                  disabled={deleteLoading || updateLoading || isSubmitting}
+                  disabled={deleteLoading || updateLoading || isSubmitting || status === TransactionStatus.Indexing}
                 >
-                  {updateLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                  Update Publication
+                  {updateLoading && status === TransactionStatus.Indexing && (
+                    <CircularProgress size={20} sx={{ marginRight: 1 }} />
+                  )}
+                  {status === TransactionStatus.Indexing ? "Indexing..." : "Update Publication"}
                 </Button>
               )}
             </Grid>

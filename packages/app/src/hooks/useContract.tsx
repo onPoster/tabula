@@ -8,6 +8,7 @@ export enum TransactionStatus {
   Idle = "Idle",
   Pending = "Pending",
   Success = "Success",
+  Indexing = "Indexing",
   Error = " Error",
 }
 
@@ -47,7 +48,7 @@ export const useExecuteTransaction = <T,>(
         const transactionMethod = contract![methodName] as ethers.ContractFunction
         const transactionResponse = await transactionMethod(...args)
         const receipt = await transactionResponse.wait()
-        setStatus(TransactionStatus.Success)
+
         return {
           error: false,
           transaction: receipt,
@@ -64,5 +65,5 @@ export const useExecuteTransaction = <T,>(
     [signer, contract, chainId, methodName, action, URL],
   )
 
-  return { executeTransaction, status, errorMessage }
+  return { executeTransaction, setStatus, status, errorMessage }
 }

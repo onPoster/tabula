@@ -10,6 +10,7 @@ import Avatar from "@/components/commons/Avatar"
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 import { ArticleFormSchema, UpdateArticleFormSchema } from "@/schemas/article.schema"
 import useArticles from "@/services/publications/hooks/useArticles"
+import { TransactionStatus } from "@/hooks/useContract"
 
 type Props = {
   publication?: Publication
@@ -26,7 +27,7 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
   const { setCurrentPath, ipfsLoading } = usePublicationContext()
   const { setStoreArticleContent, setDraftArticlePath, articleFormMethods } = useArticleContext()
   const { handleSubmit } = articleFormMethods
-  const { createNewArticle, txLoading, updateArticle } = useArticles()
+  const { createNewArticle, txLoading, updateArticle, status } = useArticles()
   const { create: createLoading, update: updateLoading } = txLoading
 
   const [show, setShow] = useState<boolean>(false)
@@ -114,7 +115,11 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
         }}
       >
         <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-          <Button variant="text" onClick={handlePreview} disabled={createLoading || updateLoading || ipfsLoading}>
+          <Button
+            variant="text"
+            onClick={handlePreview}
+            disabled={createLoading || updateLoading || ipfsLoading || status === TransactionStatus.Indexing}
+          >
             {isPreview ? "Edit" : "Preview"}
           </Button>
 
@@ -122,10 +127,12 @@ const ArticleHeader: React.FC<Props> = ({ publication, type }) => {
             variant="contained"
             onClick={handlePublishAction}
             sx={{ fontSize: 14, py: "2px", minWidth: "unset" }}
-            disabled={createLoading || updateLoading || ipfsLoading}
+            disabled={createLoading || updateLoading || ipfsLoading || status === TransactionStatus.Indexing}
           >
-            {(createLoading || updateLoading) && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-            Publish
+            {(createLoading || updateLoading || status === TransactionStatus.Indexing) && (
+              <CircularProgress size={20} sx={{ marginRight: 1 }} />
+            )}
+            {status === TransactionStatus.Indexing ? "Indexing..." : "Publish"}
           </Button>
         </Stack>
         {!isConnected ? (
