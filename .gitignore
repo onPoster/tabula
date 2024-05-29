@@ -5,3 +5,4 @@ packages/subgraph/tests/.bin
 packages/subgraph/subgraph.yaml
 **/.env
 .vscode/*
+packages/app/tsconfig.tsbuildinfo

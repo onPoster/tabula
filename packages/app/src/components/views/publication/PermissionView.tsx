@@ -1,27 +1,17 @@
 import React, { useEffect, useState } from "react"
-import {
-  Grid,
-  Box,
-  Typography,
-  styled,
-  TextField,
-  Divider,
-  Button,
-  FormHelperText,
-  CircularProgress,
-  InputLabel,
-} from "@mui/material"
+import { Grid, Box, Typography, styled, TextField, Divider, Button, CircularProgress, InputLabel } from "@mui/material"
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline"
-import { palette, typography } from "../../../theme"
+import { palette, typography } from "@/theme"
 import CloseIcon from "@mui/icons-material/Close"
 import { useNavigate, useParams } from "react-router-dom"
-import { CustomCheckbox } from "../../commons/Checkbox"
+import { CustomCheckbox } from "@/components/commons/Checkbox"
 import { Controller, useForm } from "react-hook-form"
-import { ethers } from "ethers"
-import usePoster from "../../../services/poster/hooks/usePoster"
-import { usePublicationContext } from "../../../services/publications/contexts"
-import usePublication from "../../../services/publications/hooks/usePublication"
-import { WalletBadge } from "../../commons/WalletBadge"
+import { usePublicationContext } from "@/services/publications/contexts"
+import { WalletBadge } from "@/components/commons/WalletBadge"
+import { yupResolver } from "@hookform/resolvers/yup"
+import { PermissionFormSchema, permissionsSchema } from "@/schemas/permission.schema"
+import usePublications from "@/services/publications/hooks/usePublications"
+import { TransactionStatus } from "@/hooks/useContract"
 
 type OptionsType = {
   label: string
@@ -32,16 +22,6 @@ type OptionsType = {
     | "publicationDelete"
     | "publicationUpdate"
     | "publicationPermissions"
-}
-
-export type PermissionFormType = {
-  articleCreate: boolean
-  articleDelete: boolean
-  articleUpdate: boolean
-  publicationDelete: boolean
-  publicationPermissions: boolean
-  publicationUpdate: boolean
-  account: string
 }
 
 const PermissionContainer = styled(Grid)({
@@ -91,159 +71,57 @@ const PUBLICATIONS_OPTIONS: OptionsType[] = [
   },
 ]
 
-const INITIAL_VALUE = {
-  articleCreate: false,
-  articleDelete: false,
-  articleUpdate: false,
-  publicationDelete: false,
-  publicationPermissions: false,
-  publicationUpdate: false,
-  account: "",
-}
-
 export const PermissionView: React.FC = () => {
   const navigate = useNavigate()
 
-  const { givePermission } = usePoster()
-  const { type, publicationSlug } = useParams<{ type: "edit" | "new"; publicationSlug: string }>()
-  const { publication, permission } = usePublicationContext()
-  const {
-    indexing: deleteIndexing,
-    setExecutePollInterval: deleteInterval,
-    transactionCompleted: deleteTransaction,
-    setCurrentUserPermission,
-  } = usePublication(publicationSlug || "")
-  const {
-    indexing: newPermissionIndexing,
-    setExecutePollInterval: newPermissionInterval,
-    transactionCompleted: permissionTransaction,
-    setAccountPermission,
-  } = usePublication(publicationSlug || "")
-  const {
-    indexing: updateIndexing,
-    setExecutePollInterval: updateInterval,
-    transactionCompleted: updateTransaction,
-    setCurrentUserPermission: updateCurrentUser,
-  } = usePublication(publicationSlug || "")
-  const [loading, setLoading] = useState<boolean>(false)
-  const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
+  // const { givePermission } = usePoster()
+  const { type } = useParams<{ type: "edit" | "new"; publicationSlug: string }>()
+  const { publication, permission, savePermission } = usePublicationContext()
+  const { txLoading, givePermission, status } = usePublications()
+  const [deleteLoading, setDeleteloading] = useState<boolean>(false)
   const {
     control,
     handleSubmit,
-    watch,
-    clearErrors,
-    setError,
-    setValue,
     formState: { errors },
   } = useForm({
-    defaultValues: INITIAL_VALUE,
+    defaultValues: {
+      articleCreate: permission?.articleCreate ?? false,
+      articleDelete: permission?.articleDelete ?? false,
+      articleUpdate: permission?.articleUpdate ?? false,
+      publicationDelete: permission?.publicationDelete ?? false,
+      publicationPermissions: permission?.publicationPermissions ?? false,
+      publicationUpdate: permission?.publicationUpdate ?? false,
+      account: permission?.address ?? "",
+    },
+    resolver: yupResolver(permissionsSchema),
   })
-  const account = watch("account")
 
   useEffect(() => {
-    if (type === "edit" && permission) {
-      const {
-        articleCreate,
-        articleDelete,
-        articleUpdate,
-        publicationDelete,
-        publicationPermissions,
-        publicationUpdate,
-      } = permission
-      setValue("articleCreate", articleCreate)
-      setValue("articleDelete", articleDelete)
-      setValue("articleUpdate", articleUpdate)
-      setValue("publicationDelete", publicationDelete)
-      setValue("publicationPermissions", publicationPermissions)
-      setValue("publicationUpdate", publicationUpdate)
-    }
-  }, [type, setValue, permission])
-
-  useEffect(() => {
-    if (account) {
-      const isValid = ethers.utils.isAddress(account)
-      if (!isValid) {
-        setError("account", {
-          type: "manual",
-          message: "Please provide a valid address",
-        })
-      } else {
-        clearErrors("account")
-      }
-    }
-  }, [account, setError, clearErrors])
-
-  useEffect(() => {
-    if (deleteTransaction || updateTransaction || permissionTransaction) {
+    if (status === TransactionStatus.Success) {
+      setDeleteloading(false)
+      savePermission(undefined)
       navigate(-1)
     }
-  }, [deleteTransaction, navigate, permissionTransaction, updateTransaction])
+  }, [navigate, savePermission, status])
 
-  const onSubmitHandler = (data: PermissionFormType) => {
-    if (type === "new") {
-      setAccountPermission(data.account)
-      handlePermission(data, "new")
-    }
-    if (type === "edit") {
-      handlePermission(data, "edit")
+  const onSubmitHandler = async (data: PermissionFormSchema) => {
+    if (publication?.id) {
+      await givePermission(publication.id, data)
     }
   }
 
-  const handlePermission = async (data: PermissionFormType, type: "new" | "edit" | "delete") => {
-    if (publication) {
-      if (["new", "edit"].includes(type)) {
-        setLoading(true)
-      }
-      await givePermission({
-        action: "publication/permissions",
-        id: publication.id,
-        account: type === "new" ? data.account : permission?.address || "",
-        permissions: {
-          "article/create": data.articleCreate,
-          "article/update": data.articleUpdate,
-          "article/delete": data.articleDelete,
-          "publication/delete": data.publicationDelete,
-          "publication/update": data.publicationUpdate,
-          "publication/permissions": data.publicationPermissions,
-        },
-      }).then((res) => {
-        if (res && res.error) {
-          setDeleteLoading(false)
-          setLoading(false)
-        } else {
-          if (type === "delete") {
-            deleteInterval(true)
-          }
-          if (type === "new") {
-            newPermissionInterval(true)
-          }
-          if (type === "edit") {
-            updateInterval(true)
-            if (publication && publication.permissions) {
-              updateCurrentUser(publication.permissions)
-            }
-          }
-        }
+  const handleDeletePermission = async () => {
+    if (publication?.id && permission) {
+      setDeleteloading(true)
+      await givePermission(publication.id, {
+        articleCreate: false,
+        articleDelete: false,
+        articleUpdate: false,
+        publicationDelete: false,
+        publicationPermissions: false,
+        publicationUpdate: false,
+        account: permission?.address,
       })
-    }
-  }
-
-  const handleDeletePermission = () => {
-    if (publication && publication.permissions) {
-      setDeleteLoading(true)
-      setCurrentUserPermission(publication.permissions)
-      handlePermission(
-        {
-          articleCreate: false,
-          articleDelete: false,
-          articleUpdate: false,
-          publicationDelete: false,
-          publicationPermissions: false,
-          publicationUpdate: false,
-          account: "",
-        },
-        "delete",
-      )
     }
   }
 
@@ -259,7 +137,7 @@ export const PermissionView: React.FC = () => {
           </Box>
         </Grid>
         <Grid item width={"100%"}>
-          <form onSubmit={handleSubmit((data) => onSubmitHandler(data as PermissionFormType))}>
+          <form onSubmit={handleSubmit((data) => onSubmitHandler(data as PermissionFormSchema))}>
             <Grid container flexDirection="column" gap={3}>
               {type === "new" && (
                 <Grid item>
@@ -269,15 +147,16 @@ export const PermissionView: React.FC = () => {
                     render={({ field }) => (
                       <>
                         <InputLabel sx={{ fontSize: 14, mb: 1 }}>Address</InputLabel>
-                        <TextField {...field} placeholder="Permission address" sx={{ width: "100%" }} />
+                        <TextField
+                          {...field}
+                          placeholder="Permission address"
+                          fullWidth
+                          error={!!errors.account}
+                          helperText={errors.account?.message}
+                        />
                       </>
                     )}
                   />
-                  {errors && errors.account && (
-                    <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>
-                      {errors.account.message}
-                    </FormHelperText>
-                  )}
                 </Grid>
               )}
               {type === "edit" && permission && (
@@ -294,12 +173,12 @@ export const PermissionView: React.FC = () => {
                     variant="contained"
                     size="small"
                     onClick={handleDeletePermission}
-                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing || newPermissionIndexing}
+                    disabled={txLoading.update || deleteLoading || status === TransactionStatus.Indexing}
                     startIcon={<RemoveCircleOutlineIcon />}
                     sx={{ whiteSpace: "nowrap" }}
                   >
                     {deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    {deleteIndexing ? "Indexing..." : "Remove User"}
+                    Remove User
                   </RemoveUserButton>
                 </Box>
               )}
@@ -339,11 +218,13 @@ export const PermissionView: React.FC = () => {
                   <Button
                     variant="contained"
                     size="medium"
-                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing || newPermissionIndexing}
+                    disabled={txLoading.update || status === TransactionStatus.Indexing}
                     type="submit"
                   >
-                    {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    {newPermissionIndexing ? "Indexing..." : "Add Permission"}
+                    {(txLoading.update || status === TransactionStatus.Indexing) && (
+                      <CircularProgress size={20} sx={{ marginRight: 1 }} />
+                    )}
+                    Add Permission
                   </Button>
                 </Grid>
               )}
@@ -353,11 +234,11 @@ export const PermissionView: React.FC = () => {
                   <Button
                     variant="contained"
                     size="medium"
-                    disabled={loading || deleteLoading || deleteIndexing || updateIndexing || newPermissionIndexing}
+                    disabled={txLoading.update || deleteLoading || status === TransactionStatus.Indexing}
                     type="submit"
                   >
-                    {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
-                    {updateIndexing ? "Indexing..." : "Update"}
+                    {txLoading.update && !deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+                    Update
                   </Button>
                 </Grid>
               )}

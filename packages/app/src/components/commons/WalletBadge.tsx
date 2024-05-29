@@ -1,12 +1,9 @@
-import React, { useEffect } from "react"
-
-import { Avatar } from "@mui/material"
+import React from "react"
+import { Avatar, Box, Typography } from "@mui/material"
 import * as blockies from "blockies-ts"
-
-import { useNotification } from "../../hooks/useNotification"
-import { useWeb3React } from "@web3-react/core"
-import { useEnsContext } from "../../services/ens/context"
-import useENS from "../../services/ens/hooks/useENS"
+import { useNotification } from "@/hooks/useNotification"
+import { typography } from "@/theme"
+import { shortAddress } from "@/utils/string-handler"
 
 type WalletBadgeProps = {
   copyable?: boolean
@@ -14,27 +11,10 @@ type WalletBadgeProps = {
   hover?: boolean
 }
 
-export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyable }) => {
-  const { lookupAddress } = useENS()
+export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, copyable }) => {
   const avatarSrc = blockies.create({ seed: address.toLowerCase() }).toDataURL()
-  const { connector, active, chainId } = useWeb3React()
-  const { setEnsName } = useEnsContext()
 
   const openNotification = useNotification()
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (address && active) {
-        const provider = await connector?.getProvider()
-        if (provider != null) {
-          const ens = await lookupAddress(provider, address)
-          setEnsName(ens)
-        }
-      }
-    }
-
-    fetchData().catch(console.error)
-  }, [active, address, connector, chainId, setEnsName, lookupAddress])
 
   const handleAddressClick = async () => {
     if (copyable) {
@@ -47,17 +27,23 @@ export const WalletBadge: React.FC<WalletBadgeProps> = ({ address, hover, copyab
     }
   }
   return (
-    <Avatar
-      src={avatarSrc}
-      sx={{
-        width: 24,
-        height: 24,
-        cursor: "pointer",
-        "&:hover": {
-          opacity: 0.8,
-        },
-      }}
-      onClick={handleAddressClick}
-    />
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Avatar
+        src={avatarSrc}
+        sx={{
+          width: 24,
+          height: 24,
+          cursor: "pointer",
+          "&:hover": {
+            opacity: 0.8,
+          },
+          marginRight: 2,
+        }}
+        onClick={handleAddressClick}
+      />
+      <Typography sx={{ fontFamily: typography.fontFamilies.monospace, whiteSpace: "nowrap" }} variant="body2">
+        {shortAddress(address).toLowerCase()}
+      </Typography>
+    </Box>
   )
 }

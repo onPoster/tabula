@@ -1,4 +1,14 @@
-import { Address, JSONValue, JSONValueKind, log, TypedMap, dataSource, Bytes, crypto, ByteArray } from "@graphprotocol/graph-ts"
+import {
+  Address,
+  JSONValue,
+  JSONValueKind,
+  log,
+  TypedMap,
+  dataSource,
+  Bytes,
+  crypto,
+  ByteArray,
+} from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import { Article, Permission, Publication } from "../generated/schema"
 export const ACTION__ARTICLE = "article"
@@ -21,8 +31,8 @@ const networkToChainId = (theGraphNetworkName: string): i32 => {
     return 250
   } else if (theGraphNetworkName == "xdai") {
     return 100
-  } else if (theGraphNetworkName == "goerli") {
-    return 5
+  } else if (theGraphNetworkName == "sepolia") {
+    return 11155111
   } else if (theGraphNetworkName == "mainnet") {
     return 1
   } else if (theGraphNetworkName == "optimism on gnosis chain") {

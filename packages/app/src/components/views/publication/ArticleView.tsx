@@ -1,61 +1,54 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
+import { Box, Chip, CircularProgress, Divider, Grid, Typography } from "@mui/material"
 import moment from "moment"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Helmet } from "react-helmet"
 import { useParams } from "react-router-dom"
-import { useArticleContext } from "../../../services/publications/contexts"
-import useArticle from "../../../services/publications/hooks/useArticle"
-import { palette, typography } from "../../../theme"
-import { Markdown } from "../../commons/Markdown"
-import { ViewContainer } from "../../commons/ViewContainer"
-import PublicationPage from "../../layout/PublicationPage"
+import { useArticleContext } from "@/services/publications/contexts"
+import useArticle from "@/services/publications/hooks/useArticle"
+import { palette, typography } from "@/theme"
+import { ViewContainer } from "@/components/commons/ViewContainer"
+import PublicationPage from "@/components/layout/PublicationPage"
 import isIPFS from "is-ipfs"
-import { useDynamicFavIcon } from "../../../hooks/useDynamicFavIco"
-import usePublication from "../../../services/publications/hooks/usePublication"
-import { convertToMarkdown } from "../../../utils/string-handler"
+import { useDynamicFavIcon } from "@/hooks/useDynamicFavIco"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { HtmlRenderer } from "@/components/commons/HtmlRender"
+import { addUrlToImageHashes } from "@/services/publications/utils/article-method"
+import { useIPFSContext } from "@/services/ipfs/context"
 
-interface ArticleViewProps {
-  updateChainId: (chainId: number) => void
-}
-//Provisional solution to detect older articles and check the dif between markdown and html articles
-const VALIDATION_DATE = "2023-02-02T00:00:00Z"
-export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
+interface ArticleViewProps {}
+export const ArticleView: React.FC<ArticleViewProps> = () => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { articleId } = useParams<{ articleId: string }>()
-  const {
-    article,
-    saveArticle,
-    markdownArticle,
-    setMarkdownArticle,
-    loading,
-    getIpfsData,
-    setArticleEditorState,
-    saveDraftArticle,
-    draftArticle,
-  } = useArticleContext()
+  const { decodeIpfsHash } = useIPFSContext()
+  const { article, saveArticle, loading } = useArticleContext()
   const { data, executeQuery, imageSrc } = useArticle(articleId || "")
   const publication = usePublication(publicationSlug || "")
+
   useDynamicFavIcon(publication?.imageSrc)
-  const dateCreation = useMemo(
-    () => article?.postedOn && new Date(parseInt(article.postedOn) * 1000),
-    [article?.postedOn],
-  )
   const date = useMemo(
     () => article?.lastUpdated && new Date(parseInt(article.lastUpdated) * 1000),
     [article?.lastUpdated],
   )
-  const isAfterHtmlImplementation = useMemo(() => moment(dateCreation).isAfter(VALIDATION_DATE), [dateCreation])
-  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article?.article])
+
+  const isValidHash = useMemo(() => article && isIPFS.multihash(article.article), [article])
 
   const [articleToShow, setArticleToShow] = useState<string>("")
+  const [attempt, setAttempt] = useState(0)
 
-  useEffect(() => {
-    if (publication.chainId != null) {
-      updateChainId(publication.chainId)
+  const fetchArticleToShow = useCallback(() => {
+    if (article && !articleToShow) {
+      if (isValidHash) {
+        const decode = async () => {
+          const post = await decodeIpfsHash(article.article)
+          setArticleToShow(addUrlToImageHashes(post))
+        }
+        decode()
+      } else {
+        setArticleToShow(addUrlToImageHashes(article.article))
+      }
     }
-  }, [publication, updateChainId])
-
+  }, [article, articleToShow, decodeIpfsHash, isValidHash])
+  
   useEffect(() => {
     if (!article && articleId) {
       executeQuery()
@@ -68,50 +61,16 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
     }
   }, [data, article, saveArticle])
 
-  const fetchArticleContent = useCallback(async () => {
-    try {
-      if (isValidHash && article && !markdownArticle) {
-        await getIpfsData(article.article)
-        return
-      }
-      if (!isValidHash && article) {
-        if (!isAfterHtmlImplementation) {
-          return setArticleToShow(article.article)
-        }
-        const markdownContent = convertToMarkdown(article.article)
-        setArticleToShow(markdownContent)
-      }
-    } catch (error: any) {
-      if (error.message.includes("504")) {
-        // Handle specific 504 error
-        console.error("There was an issue fetching the hash content. Please try again later.")
-      } else {
-        // Handle other general errors
-        console.error("An error occurred: ", error)
-      }
-    }
-  }, [isValidHash, article, markdownArticle, getIpfsData, isAfterHtmlImplementation])
-
   useEffect(() => {
-    if (article && !draftArticle?.title) {
-      saveDraftArticle(article)
-      fetchArticleContent()
-    }
-  }, [article, fetchArticleContent])
+    if (article && !articleToShow && attempt < 5) {
+      const timer = setTimeout(() => {
+        fetchArticleToShow()
+        setAttempt(attempt + 1)
+      }, 2000)
 
-  useEffect(() => {
-    if (markdownArticle) {
-      setArticleEditorState(markdownArticle)
-      const markdownContent = convertToMarkdown(markdownArticle)
-      setArticleToShow(markdownContent)
+      return () => clearTimeout(timer)
     }
-  }, [markdownArticle])
-
-  useEffect(() => {
-    return () => {
-      setMarkdownArticle(undefined)
-    }
-  }, [setMarkdownArticle])
+  }, [article, articleToShow, attempt, fetchArticleToShow])
 
   return (
     <PublicationPage
@@ -125,7 +84,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
           <CircularProgress color="primary" size={50} sx={{ marginRight: 1, color: palette.primary[1000] }} />
         </Grid>
       ) : (
-        <ViewContainer maxWidth="sm" sx={{ "& *": { overflowWrap: "break-word" } }}>
+        <ViewContainer maxWidth="sm" sx={{ "& *": { overflowWrap: "break-word", whiteSpace: "pre-wrap" } }}>
           {article && (
             <Grid container mt={10} flexDirection="column">
               <Helmet>
@@ -157,8 +116,14 @@ export const ArticleView: React.FC<ArticleViewProps> = ({ updateChainId }) => {
                     ))}
                 </Grid>
               )}
-              <Grid item my={5} width="100%">
-                <Markdown>{articleToShow}</Markdown>
+              <Grid item my={5} width="100%" sx={{ wordBreak: "break-word" }}>
+                {!articleToShow && (
+                  <Box display={"flex"} alignItems={"center"}>
+                    <CircularProgress color="primary" size={25} sx={{ marginRight: 1, color: palette.primary[1000] }} />
+                    <Typography>Decoding article...</Typography>
+                  </Box>
+                )}
+                {articleToShow && <HtmlRenderer htmlContent={articleToShow} />}
               </Grid>
 
               <Divider />

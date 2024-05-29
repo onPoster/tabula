@@ -1,31 +1,55 @@
-import React, { useEffect, useState } from "react"
-import { useWeb3React } from "@web3-react/core"
-import { injected } from "."
-import useLocalStorage from "../hooks/useLocalStorage"
+import { createGenericContext } from "@/utils/create-generic-context"
 
-export const WalletProvider: React.FC<any> = ({ children }) => {
-  const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React()
+import { ReactNode, useEffect, useState } from "react"
+import { ETHERS_CONFIG, getChains, PROJECT_ID } from "@/config/network"
+import { createWeb3Modal, useWeb3ModalProvider } from "@web3modal/ethers5/react"
+import { ethers } from "ethers"
 
-  const [loaded, setLoaded] = useState(false)
-  const [walletAutoConnect, setWalletAutoConnect] = useLocalStorage<boolean | undefined>("walletAutoConnect", undefined)
+export type WalletContextType = {
+  web3modal: any
+  signer: ethers.providers.JsonRpcSigner | null
+  provider: ethers.providers.Web3Provider | null
+}
+
+export type WalletProviderProps = {
+  children: ReactNode
+}
+
+const [useWalletContext, WalletContextProvider] = createGenericContext<WalletContextType>()
+
+const WalletProvider = ({ children }: WalletProviderProps) => {
+  const { walletProvider } = useWeb3ModalProvider()
+  const web3modal = createWeb3Modal({
+    ethersConfig: ETHERS_CONFIG,
+    chains: getChains(),
+    projectId: PROJECT_ID,
+    enableAnalytics: true,
+    themeMode: "light",
+  })
+
+  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(null)
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
 
   useEffect(() => {
-    injected
-      .isAuthorized()
-      .then((isAuthorized) => {
-        setLoaded(true)
-        if (isAuthorized && !networkActive && !networkError && walletAutoConnect) {
-          activateNetwork(injected)
-        }
-      })
-      .catch(() => {
-        setLoaded(true)
-      })
-  }, [activateNetwork, networkActive, networkError, setWalletAutoConnect, walletAutoConnect])
+    if (walletProvider && !signer) {
+      const provider = new ethers.providers.Web3Provider(walletProvider)
+      const signer = provider.getSigner()
+      setProvider(provider)
+      setSigner(signer)
+    }
+  }, [signer, walletProvider])
 
-  if (loaded) {
-    return children
-  }
-
-  return null
+  return (
+    <WalletContextProvider
+      value={{
+        web3modal,
+        signer,
+        provider,
+      }}
+    >
+      {children}
+    </WalletContextProvider>
+  )
 }
+
+export { useWalletContext, WalletProvider }

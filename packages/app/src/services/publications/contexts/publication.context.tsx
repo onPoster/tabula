@@ -1,14 +1,16 @@
-import { ethers } from "ethers"
 import { useState } from "react"
-import { Permission, Publication } from "../../../models/publication"
-import { createGenericContext } from "../../../utils/create-generic-context"
+import { Permission, Publication } from "@/models/publication"
+import { createGenericContext } from "@/utils/create-generic-context"
 import { PublicationContextType, PublicationProviderProps } from "./publication.types"
-import useENS from "../../ens/hooks/useENS"
+import useENS from "@/services/ens/hooks/useENS"
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 const [usePublicationContext, PublicationContextProvider] = createGenericContext<PublicationContextType>()
 
 const PublicationProvider = ({ children }: PublicationProviderProps) => {
   const { getTextRecordContent } = useENS()
+  const { open } = useWeb3Modal()
+  const { isConnected } = useWeb3ModalAccount()
   const [currentPath, setCurrentPath] = useState<string | undefined>(undefined)
   const [publications, setPublications] = useState<Publication[] | undefined>(undefined)
   const [publication, setPublication] = useState<Publication | undefined>(undefined)
@@ -22,13 +24,15 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
     undefined,
   )
   const [removePublicationImage, setRemovePublicationImage] = useState<boolean>(false)
-
-  const getPublicationId = async (publicationSlug: string, provider?: ethers.providers.BaseProvider) => {
+  const getPublicationId = async (publicationSlug: string) => {
+    if (!isConnected && publicationSlug.includes(".eth" || ".lens")) {
+      return open()
+    }
     if (slugToPublicationId[publicationSlug]) {
       return slugToPublicationId[publicationSlug]
     } else {
-      if (publicationSlug.endsWith(".eth")) {
-        const publicationId = await getTextRecordContent(publicationSlug, "tabula", provider)
+      if (publicationSlug.endsWith(".eth" || ".lens") && isConnected) {
+        const publicationId = await getTextRecordContent(publicationSlug)
         if (publicationId) {
           setSlugToPublicationId((prev) => {
             prev[publicationSlug] = publicationId
@@ -48,7 +52,7 @@ const PublicationProvider = ({ children }: PublicationProviderProps) => {
 
   const savePublication = (publication: Publication | undefined) => setPublication(publication)
   const savePublications = (publications: Publication[] | undefined) => setPublications(publications)
-  const savePermission = (permission: Permission) => setPermission(permission)
+  const savePermission = (permission: Permission | undefined) => setPermission(permission)
   const saveIsEditingPublication = (isEditing: boolean) => setEditingPublication(isEditing)
   const saveDraftPublicationImage = (file: File | undefined) => setDraftPublicationImage(file)
 

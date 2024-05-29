@@ -1,17 +1,18 @@
 import React from "react"
 import { Box, Container, Typography, Button, Grid } from "@mui/material"
-import { ExternalLink } from "../../commons/ExternalLink"
-import theme, { typography, palette } from "../../../theme"
-import Page from "../../layout/Page"
-import gnosisLogo from "../../../assets/images/gnosis-logo.png"
-import benefitBg from "../../../assets/images/benefit-bg.png"
-import benefit1 from "../../../assets/images/benefit1.png"
-import benefit2 from "../../../assets/images/benefit2.png"
-import benefit3 from "../../../assets/images/benefit3.png"
-import tabletHero from "../../../assets/images/tablet-hero-graphic.png"
-import paperTextureNight from "../../../assets/images/paper-texture-800-night.jpg"
+import { ExternalLink } from "@/components/commons/ExternalLink"
+import theme, { typography, palette } from "@/theme"
+import Page from "@/components/layout/Page"
+import gnosisLogo from "@/assets/images/gnosis-logo.png"
+import benefitBg from "@/assets/images/benefit-bg.png"
+import benefit1 from "@/assets/images/benefit1.png"
+import benefit2 from "@/assets/images/benefit2.png"
+import benefit3 from "@/assets/images/benefit3.png"
+import tabletHero from "@/assets/images/tablet-hero-graphic.png"
+import paperTextureNight from "@/assets/images/paper-texture-800-night.jpg"
 import { makeStyles } from "@mui/styles"
 import { useNavigate } from "react-router-dom"
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
 const benefits = [
   {
@@ -64,8 +65,16 @@ const useStyles = makeStyles(() => ({
 }))
 
 export const LandingView: React.FC = () => {
+  const { isConnected } = useWeb3ModalAccount()
+  const { open } = useWeb3Modal()
   const classes = useStyles()
   const navigate = useNavigate()
+
+  const handleInit = async () => {
+    if (!isConnected) return open()
+    navigate(`/publications`)
+  }
+
   return (
     <Page>
       <Box
@@ -110,7 +119,7 @@ export const LandingView: React.FC = () => {
                 Instant web3 publications for writers, DAOs, and any Ethereum-based account.
               </Typography>
               <Box sx={{ mt: 4 }}>
-                <Button variant="contained" onClick={() => navigate("/wallet")}>
+                <Button variant="contained" onClick={() => handleInit()}>
                   Get Started
                 </Button>
               </Box>

@@ -35,7 +35,7 @@ const DropdownArrowContainer = styled(Grid)({
   transition: "all 0.2s ease",
 })
 
-export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, value, title, onSelected }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ options, disabled, defaultValue, value, title, onSelected }) => {
   const [show, setShow] = useState<boolean>(false)
   const [currentSelected, setCurrentSelected] = useState<DropdownOption | undefined>(undefined)
 
@@ -60,7 +60,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, value
 
   return (
     <Box style={{ position: "relative" }}>
-      <DropdownInput container onClick={() => setShow(!show)}>
+      <DropdownInput container onClick={() => !disabled && setShow(!show)}>
         <Grid item>
           {currentSelected && (
             <Grid container gap={2} alignItems="center">
@@ -84,7 +84,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ options, defaultValue, value
           <KeyboardArrowDownIcon />
         </DropdownArrowContainer>
       </DropdownInput>
-      {show && (
+      {show && !disabled && (
         <DropdownContainer>
           <Grid container flexDirection="column" gap={2}>
             {options.map((option, index) => (

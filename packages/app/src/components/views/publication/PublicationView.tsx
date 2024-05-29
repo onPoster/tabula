@@ -1,52 +1,36 @@
 import { Box, CircularProgress, Grid, Stack, Typography } from "@mui/material"
-import { useWeb3React } from "@web3-react/core"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { usePublicationContext } from "../../../services/publications/contexts"
-import usePublication from "../../../services/publications/hooks/usePublication"
-import { palette, typography } from "../../../theme"
-import { haveActionPermission, isOwner } from "../../../utils/permission"
-import PublicationAvatar from "../../commons/PublicationAvatar"
-import { ViewContainer } from "../../commons/ViewContainer"
-import PublicationPage from "../../layout/PublicationPage"
-import { PermissionSection } from "./components/PermissionSection"
-import { ArticlesSection } from "./components/ArticlesSection"
-import PublicationTabs from "./components/PublicationTabs"
-import { SettingSection } from "./components/SettingSection"
-import Avatar from "../../commons/Avatar"
+import { usePublicationContext } from "@/services/publications/contexts"
+import usePublication from "@/services/publications/hooks/usePublication"
+import { palette, typography } from "@/theme"
+import { haveActionPermission, isOwner } from "@/utils/permission"
+import PublicationAvatar from "@/components/commons/PublicationAvatar"
+import { ViewContainer } from "@/components/commons/ViewContainer"
+import PublicationPage from "@/components/layout/PublicationPage"
+import { PermissionSection } from "@/components/views/publication/components/PermissionSection"
+import { ArticlesSection } from "@/components/views/publication/components/ArticlesSection"
+import PublicationTabs from "@/components/views/publication/components/PublicationTabs"
+import { SettingSection } from "@/components/views/publication/components/SettingSection"
+import Avatar from "@/components/commons/Avatar"
+import { useWeb3ModalAccount } from "@web3modal/ethers5/react"
 
-interface PublicationViewProps {
-  updateChainId: (chainId: number) => void
-}
-
-export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId }) => {
+export const PublicationView: React.FC = () => {
   const { publicationSlug } = useParams<{ publicationSlug: string }>()
-  const { account } = useWeb3React()
+  const { address } = useWeb3ModalAccount()
   const { savePublication, editingPublication, saveDraftPublicationImage } = usePublicationContext()
-  const {
-    data: publication,
-    loading,
-    executeQuery,
-    imageSrc,
-    publicationId,
-    chainId,
-  } = usePublication(publicationSlug || "")
+  const { data: publication, loading, executeQuery, imageSrc, publicationId } = usePublication(publicationSlug || "")
   const [currentTab, setCurrentTab] = useState<"articles" | "permissions" | "settings">("articles")
+  const [removeCurrentImage, setRemoveCurrentImage] = useState<boolean>(false)
 
   const permissions = publication && publication.permissions
-  const havePermission = permissions ? isOwner(permissions, account || "") : false
+  const havePermission = permissions ? isOwner(permissions, address || "") : false
   const havePermissionToUpdate = permissions
-    ? haveActionPermission(permissions, "publicationUpdate", account || "")
+    ? haveActionPermission(permissions, "publicationUpdate", address || "")
     : false
   const havePermissionToDelete = permissions
-    ? haveActionPermission(permissions, "publicationDelete", account || "")
+    ? haveActionPermission(permissions, "publicationDelete", address || "")
     : false
-
-  useEffect(() => {
-    if (chainId != null) {
-      updateChainId(chainId)
-    }
-  }, [chainId, updateChainId])
 
   useEffect(() => {
     if (publicationId != null) {
@@ -59,6 +43,16 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
       savePublication(publication)
     }
   }, [publication, savePublication])
+
+  const handlePublicationAvatar = (file: File | undefined) => {
+    saveDraftPublicationImage(file)
+    if (file) {
+      setRemoveCurrentImage(false)
+    }
+    if (!file && publication?.image) {
+      setRemoveCurrentImage(true)
+    }
+  }
 
   return (
     <PublicationPage publication={publication} showCreatePost={true}>
@@ -90,7 +84,7 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                     />
                   )}
                   {editingPublication && (
-                    <PublicationAvatar defaultImage={imageSrc} onFileSelected={saveDraftPublicationImage} />
+                    <PublicationAvatar defaultImage={imageSrc} onFileSelected={handlePublicationAvatar} />
                   )}
                 </Box>
                 <Stack spacing={2}>
@@ -131,7 +125,11 @@ export const PublicationView: React.FC<PublicationViewProps> = ({ updateChainId 
                 {currentTab === "articles" && <ArticlesSection />}
                 {currentTab === "permissions" && <PermissionSection />}
                 {currentTab === "settings" && (
-                  <SettingSection couldEdit={havePermissionToUpdate} couldDelete={havePermissionToDelete} />
+                  <SettingSection
+                    couldEdit={havePermissionToUpdate}
+                    couldDelete={havePermissionToDelete}
+                    removeCurrentImage={removeCurrentImage}
+                  />
                 )}
               </Grid>
             )}

@@ -15,10 +15,21 @@ export enum PinningService {
 }
 
 export enum PinningServiceEndpoint {
-  PINATA = "https://api.pinata.cloud/psa",
+  PINATA = "https://api.pinata.cloud",
   ESTUARY = "https://api.estuary.tech/pinning",
   WEB3_STORAGE = "https://api.web3.storage/pins",
   NFT_STORAGE = "https://api.nft.storage/pins",
   NONE = "",
   PUBLIC = "",
+}
+
+export interface PinataPinJobs {
+  count: number
+  rows: {
+    id: string
+    ipfs_pin_hash: string
+    date_queued: string
+    name: string
+    status: string
+  }[]
 }

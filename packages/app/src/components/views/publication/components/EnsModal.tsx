@@ -1,12 +1,13 @@
 import { Button, CircularProgress, Grid, Modal, ModalProps, Typography, styled } from "@mui/material"
 import React, { useEffect, useRef, useState } from "react"
-import { palette, typography } from "../../../../theme"
-import { ViewContainer } from "../../../commons/ViewContainer"
+import { palette, typography } from "@/theme"
+import { ViewContainer } from "@/components/commons/ViewContainer"
 import CloseIcon from "@mui/icons-material/Close"
-import { useEnsContext } from "../../../../services/ens/context"
-import { useWeb3React } from "@web3-react/core"
-import useENS from "../../../../services/ens/hooks/useENS"
-import { Dropdown } from "../../../commons/Dropdown"
+import { useEnsContext } from "@/services/ens/context"
+import useENS from "@/services/ens/hooks/useENS"
+import { Dropdown } from "@/components/commons/Dropdown"
+import { useWeb3ModalAccount, useWeb3ModalProvider } from "@web3modal/ethers5/react"
+import { TransactionStatus } from "@/hooks/useContract"
 
 interface EnsModalProps extends Omit<ModalProps, "children"> {
   publicationId: string
@@ -24,22 +25,22 @@ const ModalContainer = styled(ViewContainer)({
 })
 
 const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
-  const { setTextRecord, loading, transactionCompleted } = useENS()
-  const { connector, chainId } = useWeb3React()
+  const { setTextRecord, txLoading, status } = useENS()
+  const { chainId } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
   const ref = useRef(null)
   const { ensNameList } = useEnsContext()
   const [ensNameSelected, setEnsNameSelected] = useState<string>("")
 
   useEffect(() => {
-    if (transactionCompleted) {
+    if (status === TransactionStatus.Success) {
       props.onClose && props.onClose({}, "backdropClick")
     }
-  }, [props, transactionCompleted])
+  }, [props, status])
 
   const handleEnsRecord = async () => {
-    const provider = await connector?.getProvider()
-    if (provider !== null && ensNameSelected && chainId) {
-      await setTextRecord(provider, publicationId, ensNameSelected, chainId)
+    if (walletProvider && ensNameSelected && chainId) {
+      await setTextRecord(ensNameSelected, publicationId)
     }
   }
 
@@ -47,7 +48,7 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
     <Modal
       open={props.open}
       onClose={() => {
-        if (!loading) {
+        if (!txLoading) {
           props.onClose && props.onClose({}, "backdropClick")
         }
       }}
@@ -70,7 +71,7 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
                 <CloseIcon
                   style={{ cursor: "pointer" }}
                   onClick={() => {
-                    if (!loading) {
+                    if (!txLoading) {
                       props.onClose && props.onClose({}, "escapeKeyDown")
                     }
                   }}
@@ -109,8 +110,13 @@ const EnsModal: React.FC<EnsModalProps> = ({ publicationId, ...props }) => {
           </Grid>
 
           <Grid item>
-            <Button variant="contained" type="submit" onClick={handleEnsRecord} disabled={loading || !ensNameSelected}>
-              {loading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
+            <Button
+              variant="contained"
+              type="submit"
+              onClick={handleEnsRecord}
+              disabled={txLoading || !ensNameSelected}
+            >
+              {txLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />}
               Continue
             </Button>
           </Grid>

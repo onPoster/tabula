@@ -1,18 +1,15 @@
-import { AbstractConnector } from "@web3-react/abstract-connector"
-import MainnetIcon from "../assets/images/networks/ethereum.png";
-import GoerliIcon from "../assets/images/networks/goerli.png";
-import GnosisChainIcon from "../assets/images/networks/gnosis-chain.png";
-import OptimismIcon from "../assets/images/networks/optimism.png";
-import ArbitrumIcon from "../assets/images/networks/arbitrum.png";
-import PolygonIcon from "../assets/images/networks/polygon.png";
-import OptimismOnGnosisChainIcon from "../assets/images/networks/optimism-on-gnosis-chain.png";
+import MainnetIcon from "@/assets/images/networks/ethereum.png"
+import GnosisChainIcon from "@/assets/images/networks/gnosis-chain.png"
+import OptimismIcon from "@/assets/images/networks/optimism.png"
+import ArbitrumIcon from "@/assets/images/networks/arbitrum.png"
+import PolygonIcon from "@/assets/images/networks/polygon.png"
+import OptimismOnGnosisChainIcon from "@/assets/images/networks/optimism-on-gnosis-chain.png"
 
 // This is the place to add support for new networks
 
 export enum SupportedChainId {
   MAINNET = 1,
   GNOSIS_CHAIN = 100,
-  GOERLI = 5,
   SEPOLIA = 11155111,
   POLYGON = 137,
   ARBITRUM = 42161,
@@ -23,7 +20,6 @@ export enum SupportedChainId {
 export enum SupportedChain {
   MAINNET = "mainnet",
   GNOSIS_CHAIN = "gnosis_chain",
-  GOERLI = "goerli",
   SEPOLIA = "sepolia",
   POLYGON = "polygon",
   ARBITRUM = "arbitrum",
@@ -33,20 +29,20 @@ export enum SupportedChain {
 
 export const SupportedChainIcon = (chainId: number) => {
   switch (chainId) {
-  case SupportedChainId.MAINNET: 
-    return MainnetIcon
-  case SupportedChainId.GNOSIS_CHAIN: 
-  return GnosisChainIcon
-  case SupportedChainId.GOERLI: 
-  return GoerliIcon
-  case SupportedChainId.POLYGON: 
-    return PolygonIcon
-  case SupportedChainId.ARBITRUM: 
-    return ArbitrumIcon
-  case SupportedChainId.OPTIMISM: 
-    return OptimismIcon
-  case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN: 
-    return OptimismOnGnosisChainIcon
+    case SupportedChainId.MAINNET:
+      return MainnetIcon
+    case SupportedChainId.SEPOLIA:
+      return MainnetIcon
+    case SupportedChainId.GNOSIS_CHAIN:
+      return GnosisChainIcon
+    case SupportedChainId.POLYGON:
+      return PolygonIcon
+    case SupportedChainId.ARBITRUM:
+      return ArbitrumIcon
+    case SupportedChainId.OPTIMISM:
+      return OptimismIcon
+    case SupportedChainId.OPTIMISM_ON_GNOSIS_CHAIN:
+      return OptimismOnGnosisChainIcon
   }
 }
 
@@ -56,8 +52,6 @@ export const chainIdToChainName = (chainId: number) => {
       return SupportedChain.MAINNET
     case SupportedChainId.GNOSIS_CHAIN:
       return SupportedChain.GNOSIS_CHAIN
-    case SupportedChainId.GOERLI:
-      return SupportedChain.GOERLI
     case SupportedChainId.SEPOLIA:
       return SupportedChain.SEPOLIA
     case SupportedChainId.POLYGON:
@@ -77,8 +71,6 @@ export const chainNameToChainId = (chainName?: string) => {
       return SupportedChainId.MAINNET
     case SupportedChain.GNOSIS_CHAIN:
       return SupportedChainId.GNOSIS_CHAIN
-    case SupportedChain.GOERLI:
-      return SupportedChainId.GOERLI
     case SupportedChain.SEPOLIA:
       return SupportedChainId.SEPOLIA
     case SupportedChain.POLYGON:
@@ -97,7 +89,6 @@ export const chainNameToChainId = (chainName?: string) => {
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = [
   SupportedChainId.MAINNET,
   SupportedChainId.GNOSIS_CHAIN,
-  SupportedChainId.GOERLI,
   SupportedChainId.SEPOLIA,
   SupportedChainId.POLYGON,
   SupportedChainId.ARBITRUM,
@@ -111,8 +102,6 @@ export const chainToString = (chainId: number) => {
       return `Mainnet (ChainID: ${chainId})`
     case SupportedChainId.GNOSIS_CHAIN:
       return `Gnosis Chain (ChainID: ${chainId})`
-    case SupportedChainId.GOERLI:
-      return `Goerli (ChainID: ${chainId})`
     case SupportedChainId.SEPOLIA:
       return `Sepolia (ChainID: ${chainId})`
     case SupportedChainId.POLYGON:
@@ -130,26 +119,26 @@ export const chainToString = (chainId: number) => {
   }
 }
 
-export const switchChain = async (connector: AbstractConnector, chainId: number) => {
-  const provider = await connector.getProvider()
-  const requiredChainIdHex = `0x${chainId.toString(16)}`
-  return provider!
-    .request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: requiredChainIdHex }],
-    })
-    .catch((error: any) => {
-      if (error.code === 4902) {
-        // the user's wallet does not have this network, we will request to add it
-        return provider!.request({
-          method: "wallet_addEthereumChain",
-          params: [chainParameters(chainId)],
-        })
-      }
+// export const switchChain = async (connector: AbstractConnector, chainId: number) => {
+//   const provider = await connector.getProvider()
+//   const requiredChainIdHex = `0x${chainId.toString(16)}`
+//   return provider!
+//     .request({
+//       method: "wallet_switchEthereumChain",
+//       params: [{ chainId: requiredChainIdHex }],
+//     })
+//     .catch((error: any) => {
+//       if (error.code === 4902) {
+//         // the user's wallet does not have this network, we will request to add it
+//         return provider!.request({
+//           method: "wallet_addEthereumChain",
+//           params: [chainParameters(chainId)],
+//         })
+//       }
 
-      throw error
-    })
-}
+//       throw error
+//     })
+// }
 
 export const chainParameters = (chainId: number) => {
   const requiredChainIdHex = `0x${chainId.toString(16)}`
@@ -170,7 +159,7 @@ export const chainParameters = (chainId: number) => {
           symbol: "ETH",
           decimals: 18,
         },
-        blockExplorerUrls: ["https://etherscan.io"],
+        blockExplorerUrls: ["https://etherscan.io/"],
       }
     case SupportedChainId.GNOSIS_CHAIN:
       return {
@@ -184,31 +173,11 @@ export const chainParameters = (chainId: number) => {
         },
         blockExplorerUrls: ["https://blockscout.com/xdai/mainnet"],
       }
-    case SupportedChainId.GOERLI:
-      return {
-        chainId: requiredChainIdHex,
-        chainName: "Goerli",
-        rpcUrls: [
-          "https://rpc.goerli.mudit.blog",
-          "https://rpc.ankr.com/eth_goerli",
-          "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-        ],
-        nativeCurrency: {
-          name: "ETH",
-          symbol: "ETH",
-          decimals: 18,
-        },
-        blockExplorerUrls: ["https://goerli.etherscan.io/"],
-      }
     case SupportedChainId.SEPOLIA:
       return {
         chainId: requiredChainIdHex,
         chainName: "Sepolia",
-        rpcUrls: [
-          "https://rpc.sepolia.org",
-          "https://rpc2.sepolia.org",
-          "https://rpc-sepolia.rockx.com"
-        ],
+        rpcUrls: ["https://rpc.sepolia.org", "https://rpc2.sepolia.org", "https://rpc-sepolia.rockx.com"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",

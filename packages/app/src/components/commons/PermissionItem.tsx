@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react"
-import { Box, Grid, Stack } from "@mui/material"
+import { Box, CircularProgress, Grid, Stack } from "@mui/material"
 import { styled } from "@mui/styles"
-import { palette } from "../../theme"
-import { Permission, Publication } from "../../models/publication"
+import { palette } from "@/theme"
+import { Permission, Publication } from "@/models/publication"
 import EditIcon from "@mui/icons-material/Edit"
 import CloseIcon from "@mui/icons-material/Close"
 import { UserBadge } from "./UserBadge"
-import usePublication from "../../services/publications/hooks/usePublication"
-import { PermissionFormType } from "../views/publication/PermissionView"
-import usePoster from "../../services/poster/hooks/usePoster"
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
+import usePublications from "@/services/publications/hooks/usePublications"
+import { TransactionStatus } from "@/hooks/useContract"
+import { usePublicationContext } from "@/services/publications/contexts"
 
 const PermissionItemContainer = styled(Box)({
   alignItems: "center",
@@ -40,60 +40,31 @@ type PermissionItemProps = {
   onClick: (id: string) => void
 }
 const PermissionItem: React.FC<PermissionItemProps> = ({ publication, permission, canEdit, showRemove, onClick }) => {
-  const { publicationSlug } = useParams<{ publicationSlug: string }>()
   const { address, id } = permission
   const navigate = useNavigate()
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false)
-  const {
-    indexing: deleteIndexing,
-    setExecutePollInterval: deleteInterval,
-    transactionCompleted: deleteTransaction,
-    setCurrentUserPermission,
-  } = usePublication(publicationSlug || "")
 
-  const { givePermission } = usePoster()
-  const handlePermission = async (data: PermissionFormType) => {
-    if (publication) {
-      await givePermission({
-        action: "publication/permissions",
-        id: publication.id,
-        account: permission?.address || "",
-        permissions: {
-          "article/create": data.articleCreate,
-          "article/update": data.articleUpdate,
-          "article/delete": data.articleDelete,
-          "publication/delete": data.publicationDelete,
-          "publication/update": data.publicationUpdate,
-          "publication/permissions": data.publicationPermissions,
-        },
-      }).then((res) => {
-        if (res && res.error) {
-          setDeleteLoading(false)
-        } else {
-          deleteInterval(true)
-        }
-      })
-    }
-  }
+  const { givePermission, status, txLoading } = usePublications()
+  const { savePermission } = usePublicationContext()
 
   useEffect(() => {
-    if (deleteTransaction) {
+    if (status === TransactionStatus.Success) {
+      savePermission(undefined)
       navigate(-1)
     }
-  }, [deleteTransaction, navigate])
+  }, [navigate, savePermission, status])
 
-  const handleDeletePermission = () => {
-    if (publication && publication.permissions) {
+  const handleDeletePermission = async () => {
+    if (publication?.id && permission) {
       setDeleteLoading(true)
-      setCurrentUserPermission(publication.permissions)
-      handlePermission({
+      await givePermission(publication.id, {
         articleCreate: false,
         articleDelete: false,
         articleUpdate: false,
         publicationDelete: false,
         publicationPermissions: false,
         publicationUpdate: false,
-        account: "",
+        account: permission?.address,
       })
     }
   }
@@ -105,7 +76,7 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ publication, permission
         {canEdit && (
           <PermissionItemEditContainer
             onClick={() => {
-              if (!deleteLoading || !deleteIndexing) {
+              if (!deleteLoading) {
                 canEdit && onClick(id ? id : "")
               }
             }}
@@ -129,11 +100,13 @@ const PermissionItem: React.FC<PermissionItemProps> = ({ publication, permission
               },
             }}
             onClick={() => {
-              if (!deleteLoading || !deleteIndexing) {
+              if (!deleteLoading) {
                 handleDeletePermission()
               }
             }}
           >
+            {" "}
+            {txLoading.update || (deleteLoading && <CircularProgress size={20} sx={{ marginRight: 1 }} />)}
             <CloseIcon
               sx={{ color: palette.whites[1000], stroke: palette.whites[1000], width: 10, height: 10, strokeWidth: 1 }}
             />

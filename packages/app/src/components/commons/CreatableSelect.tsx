@@ -1,11 +1,14 @@
 import Select from "react-select/creatable"
 import { OnChangeValue } from "react-select"
-import React, { useEffect, useState } from "react"
-import { palette, typography } from "../../theme"
-import { CreateSelectOption } from "../../models/dropdown"
-import { FormHelperText } from "@mui/material"
+import { forwardRef, useEffect, useState } from "react"
+import { palette, typography } from "@/theme"
+import { CreateSelectOption } from "@/models/dropdown"
+import { Box, FormHelperText } from "@mui/material"
+import { useController } from "react-hook-form"
 
 export interface CreateSelectProps {
+  control: any
+  name: string
   options?: CreateSelectOption[]
   onSelected?: (items: CreateSelectOption[]) => void
   value?: string[]
@@ -60,49 +63,49 @@ const customStyles = {
   }),
 }
 
-export const CreatableSelect: React.FC<CreateSelectProps> = ({
-  options,
-  onSelected,
-  value,
-  placeholder,
-  errorMsg,
-  limit,
-}) => {
+export const CreatableSelect = forwardRef(({ control, name, options, placeholder, errorMsg }: CreateSelectProps) => {
+  const {
+    field: { onChange, onBlur, value, ref: inputRef },
+    fieldState: { error },
+  } = useController({
+    name,
+    control,
+  })
   const [values, setValues] = useState<CreateSelectOption[]>([])
 
   useEffect(() => {
-    if (value?.length) {
-      const newValues = value.map((item) => {
-        return { label: item, value: item }
-      })
-      setValues(newValues)
+    if (value) {
+      const formattedValues = value.map((val: any) => (typeof val === "string" ? { label: val, value: val } : val))
+      setValues(formattedValues)
     }
   }, [value])
 
   const handleChange = (newValue: OnChangeValue<CreateSelectOption, any>) => {
     const list = newValue as CreateSelectOption[]
-    if (limit && list.length > limit) {
-      return
-    }
-    if (onSelected) {
-      onSelected(newValue as CreateSelectOption[])
-    }
-    setValues(newValue as CreateSelectOption[])
+
+    onChange(list)
+    setValues(list)
   }
 
   return (
-    <>
+    <Box>
       <Select
+        ref={(e) => {
+          inputRef(e)
+        }}
         styles={customStyles}
         value={values}
         options={options}
         isMulti
         onChange={handleChange}
+        onBlur={onBlur}
         placeholder={placeholder}
       />
-      {errorMsg && (
-        <FormHelperText sx={{ color: palette.secondary[1000], textTransform: "capitalize" }}>{errorMsg}</FormHelperText>
+      {error && (
+        <FormHelperText sx={{ color: "error.main", textTransform: "capitalize" }}>
+          {error.message || errorMsg}
+        </FormHelperText>
       )}
-    </>
+    </Box>
   )
-}
+})
